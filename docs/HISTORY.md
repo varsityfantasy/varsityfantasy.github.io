@@ -850,3 +850,6 @@ The Capacitor app bundles games.js/ovr.js (native/build-www.sh), so scores neede
 
 ## v508 — new home URL
 Site moved to https://varsityfantasy.github.io/ (org varsityfantasy, repo varsityfantasy.github.io, root path). Old ariborkar-bot.github.io/varsity/ is a redirect stub. Manifest id/start_url/scope now "/"; launcher, capacitor allowNavigation, push sender, API docs updated.
+
+## v510 — week 13 box scores (Nov 13 playoffs)
+Pulled MaxPreps player lines for Fri Nov 13 with Claude in Chrome (`tools/fb_boxscores/collect_w13.js` → split_w12.py → `merge.py --week 13 write` → apply_tfl.py). 24 games, 22 had stats: 638 player-weeks added (stats.js now "Week 13 (Nov 13)", 514 games). No stats posted yet: Palo Verde Valley vs Vincent Memorial and San Pasqual vs Scripps Ranch, so re-pull those later. merge.py no longer crashes when there are no changed lines to sample.

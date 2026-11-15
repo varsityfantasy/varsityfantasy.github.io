@@ -144,7 +144,7 @@ print(dict(stats),'changes',Counter(c[0] for c in changes),'removed weeks',len(r
 for c in [c for c in changes if c[1]=='Malachi Gutierrez']:print(c)
 
 import random
-print('ambiguous',amb);print('chg samples');[print(c) for c in random.Random(1).sample([c for c in changes if c[0]=='chg'],8)]
+print('ambiguous',amb);print('chg samples');[print(c) for c in random.Random(1).sample([c for c in changes if c[0]=='chg'],min(8,len([c for c in changes if c[0]=='chg'])))]
 print('removed');[print(r) for r in removed[:21]]
 print('added players sample',[(x['n'],x['s'],x['p'],x['u'],len(x['w'])) for x in added[:12]])
 pad=lambda a:(list(a)+[0]*23)[:23]
@@ -157,7 +157,7 @@ def season(x):return sum(pts(pad(a)) for a in x['w'].values())
 deltas=sorted(((season(x)-season(old[x['id']]) if x['id'] in old else season(x)),x['n'],x['s'],len(old[x['id']]['w']) if x['id'] in old else 0,len(x['w'])) for x in P)
 print('biggest gains',[ (round(d,1),n,s,a,b) for d,n,s,a,b in deltas[-12:]])
 print('biggest drops',[ (round(d,1),n,s,a,b) for d,n,s,a,b in deltas[:8]])
-g=[x for x in P if x['n']=='Malachi Gutierrez'][0];print(g)
+g=[x for x in P if x['n']=='Malachi Gutierrez'];print(g[:1])
 if 'write' in sys.argv:
     D['players']=P;D['updated']=datetime.date.today().strftime('%b %-d, %Y');D['games']=D.get('games') if WEEK else len([g for g in G.values() if g.get('d')])
     out=s0[:i]+json.dumps(D,separators=(',',':'),ensure_ascii=False)+';'+s0[j:]

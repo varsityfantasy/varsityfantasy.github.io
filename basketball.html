@@ -3317,8 +3317,9 @@ const T10W=(p,h)=>{const a=AVT(p);return isT10(p)||isPOTW(p)||a?`<span class="nm
 /* v494: grad year next to the grade (a Sr in the 2026-27 season graduates in 2027) */
 const gYr=g=>g>=1&&g<=4?2031-g:0,gLbl=g=>g>=1&&g<=4?`${GRL[g]} \u2019${String(gYr(g)).slice(2)}`:'';
 const gtag=p=>p&&p.gr?`<span class="gr" title="Class of ${gYr(p.gr)}">${gLbl(p.gr)}</span>`:'';
+const MPW=MP?Math.max(WEEKS,+((/Week\s+(\d+)/.exec(MP.through||'')||[])[1])||0):WEEKS; /* v511: stats can run past WEEKS (week 13 playoffs) */
 const mpP=MP?MP.players.map(p=>({key:'mp'+p.id,gr:p.g||0,name:p.n,school:p.s,pos:p.p,sub:['CB','S'].includes(p.u)?'DB':(p.u||p.p),mp:true,tw:!!p.tw,sample:false,
-  games:Array.from({length:WEEKS},(_,i)=>{const gl=p.gm&&p.gm[i+1]&&p.gm[i+1].length?p.gm[i+1]:null;let l=p.w[i+1];if(gl)l=KEYS.map((k,j)=>gl.reduce((a,r)=>a+(+r.s[j]||0),0));
+  games:Array.from({length:MPW},(_,i)=>{const gl=p.gm&&p.gm[i+1]&&p.gm[i+1].length?p.gm[i+1]:null;let l=p.w[i+1];if(gl)l=KEYS.map((k,j)=>gl.reduce((a,r)=>a+(+r.s[j]||0),0));
   /* a week holds the SUM of the player's games that week; n = how many games (basketball can play twice a week), gl = each game's own line */
   return l?{stat:Object.fromEntries(KEYS.map((k,j)=>[k,l[j]||0])),ver:'maxpreps',n:gl?gl.length:(l[KEYS.length]||1),gl:gl?gl.map(r=>({d:r.d,o:r.o,stat:Object.fromEntries(KEYS.map((k,j)=>[k,+r.s[j]||0]))})):null}:null})})):[];
 /* two-way players: if he was on the field at all (offense or defense), the game counts for both of his cards.
@@ -3765,7 +3766,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v511 · Nov 15';
+const APP_BUILD='v512 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

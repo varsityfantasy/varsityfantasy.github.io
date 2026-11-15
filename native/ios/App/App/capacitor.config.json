@@ -6,6 +6,11 @@
 	"ios": {
 		"contentInset": "always"
 	},
+	"server": {
+		"allowNavigation": [
+			"varsityfantasy.github.io"
+		]
+	},
 	"packageClassList": [
 		"AdMobPlugin"
 	]

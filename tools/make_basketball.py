@@ -326,8 +326,8 @@ def transform(s, mp, games, seeds, teams, prior):
     # preseason: nobody has played, so every player counts as one game of 0.0 (lists, pools and cards stay full).
     # This switches itself off as soon as any real stat line exists.
     s = rep(s, "function agg(p,scope){\n  const g=scoped(p,scope);\n",
-            "let _pk=-1,_pv=true;\nfunction PRE(){if(_pk!==_rev){_pk=_rev;_pv=!players().some(p=>p.games.some(Boolean))}return _pv}\n"
-            "function agg(p,scope){\n  const g=scoped(p,scope);\n  if(!g.length&&!p.sample&&PRE())return{n:1,s:sum([]),v:0,unv:false,ver:false};\n")
+            "let _pk=-1,_pv=true;\nfunction PRE(){if(typeof UI!=='undefined'&&(vsec()||(UI.view==='games'&&UI.sb&&UI.sb!==HOME_SEC)))return false;   /* v499: another section's players are real 2026-27 box scores, never preseason */\n  if(_pk!==_rev){_pk=_rev;_pv=!players().some(p=>p.games.some(Boolean))}return _pv}\n"
+            "function agg(p,scope){\n  const g=scoped(p,scope);\n  if(!g.length&&!p.sample&&!p.ext&&PRE())return{n:1,s:sum([]),v:0,unv:false,ver:false};\n")
     # preseason: points read "—" instead of 0.0, and a note on the Stats page says when the season starts
     s = rep(s, "  infoIcons();\n", "  infoIcons();bbPre();\n")
     s = rep(s, "function infoIcons(){",
@@ -342,7 +342,7 @@ def transform(s, mp, games, seeds, teams, prior):
     s = re.sub(r"\$\{((?:x\.)?a)\.n\} \$\{\1\.n===1\?'game':'games'\}", lambda m: "${PRE()?0:%s.n} ${!PRE()&&%s.n===1?'game':'games'}" % (m.group(1), m.group(1)), s)
     s = rep(s, '<span class="lbl">Games</span><b>${info.a.n}</b>', '<span class="lbl">Games</span><b>${PRE()?0:info.a.n}</b>')
     s = rep(s, 'Average over your ${info.a.n} approved ${info.a.n===1?', 'Average over your ${PRE()?0:info.a.n} approved ${!PRE()&&info.a.n===1?')
-    s = rep(s, "const isT10=p=>{if(!p||!p.key)return false;", "const isT10=p=>{if(!p||!p.key)return false;if(PRE())return (window.BB_TOP10||[]).includes(p.key);")
+    s = rep(s, "const isT10=p=>{if(!p||!p.key)return false;", "const isT10=p=>{if(!p||!p.key)return false;if(!p.ext&&PRE())return (window.BB_TOP10||[]).includes(p.key);")
     s = rep(s, ".filter(x=>x.a.n>0).sort((x,y)=>metric(y.a)-metric(x.a));", ".filter(x=>x.a.n>0).sort((x,y)=>metric(y.a)-metric(x.a)||((window.BB_RANK||{})[y.p.key]||0)-((window.BB_RANK||{})[x.p.key]||0)||x.p.name.localeCompare(y.p.name));")
     s = rep(s, "if(fin.length<20){_rg={r:{},H:0,s:12};return _rg}",
             "if(fin.length<20){_rg=window.BB_PRIOR?{r:window.BB_PRIOR,H:3,s:12}:{r:{},H:0,s:12};return _rg}")

@@ -3660,7 +3660,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v501 · Nov 14';
+const APP_BUILD='v502 · Nov 14';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8379,7 +8379,7 @@ function sbTeamPage(D,id){
     if(done){if(f>a){rw++;res='W'}else if(f<a){rl++;res='L'}else{rt++;res='T'}}
     return `<div class="tm-g ${res}"><span class="tm-gd">${esc(sbDay(g.date))}</span><span class="tm-go"><span class="tm-lg">${sbLogo(opp,22)}</span><span>${sbTeamLink(oT,opp)}</span></span>${done?`<span class="tm-gs"><b class="tm-r">${res}</b> ${f}-${a}</span><span class="tm-rec">${rw}-${rl}${rt?'-'+rt:''}</span>`:`<span class="tm-gs muted">${g.time?esc(g.time):'Upcoming'}</span><span class="tm-rec"></span>`}</div>`}).join('');
   const games=`<section class="card"><div class="qh"><h3>Games</h3><span class="muted">${n?'Record '+rec:gs.length+' scheduled'}</span></div>${gs.length?`<div class="tm-gl">${grows}</div>`:'<p class="empty">No games on the schedule.</p>'}</section>`;
-  const X=secPl(UI.sb),ps=X?X.list.filter(q=>q.school===t.name).map(q=>({p:q,a:agg(q,'season')})).filter(x=>x.a.n>0).sort((x,y)=>y.a.v-x.a.v||x.p.name.localeCompare(y.p.name)):[];
+  const X=secPl(UI.sb),ps=X?X.list.filter(q=>q.school===t.name).map(q=>({p:q,a:agg(q,'season')})).filter(x=>x.a.n>0||!x.p.games.some(Boolean)).sort((x,y)=>y.a.v-x.a.v||(y.p.gr||0)-(x.p.gr||0)||x.p.name.localeCompare(y.p.name)):[];   /* v499: the whole roster, also players with no game yet (basketball's first weeks) */
   const roster=`<section class="card"><div class="qh"><h3>Roster</h3><span class="muted">${X?ps.length+' '+(ps.length===1?'player':'players')+' · best to worst':''}</span></div>${!X?(secState(UI.sb)==='loading'?secLoad('Loading the roster',UI.sb):'<p class="empty">No players listed for this team yet.</p>'):ps.length?ps.map((x,i)=>`<button class="tm-row" data-act="player" data-id="${esc(x.p.key)}"><span class="tm-n">${i+1}</span><span class="lt">${T10W(x.p,`<b>${esc(x.p.name)}</b>`)}<i>${pb(x.p.pos,x.p.sub)}${ovrTag(x.p)}</i></span><span class="tm-pts"><b>${f1(x.a.v)}</b><small>${x.a.n} ${x.a.n===1?'game':'games'}</small></span></button>`).join(''):'<p class="empty">No players listed for this team yet.</p>'}</section>`;
   return hero+games+roster;
 }
@@ -8517,7 +8517,7 @@ function listHTML(){
 function hotHTML(sc,force){
   if(!force&&(UI.scope!=='season'||UI.pos!=='ALL'||UI.q||UI.school!=='ALL'))return'';
   const wt=weekTop(sc===undefined?vsec():sc),pd=wt.list;if(!pd.length)return'';
-  const AB={passYd:'pass yds',passTD:'pass TD',rushYd:'rush yds',rushTD:'rush TD',rec:'rec',recYd:'rec yds',recTD:'rec TD',tkl:'tkl',sack:'sacks',dInt:'INT',ff:'FF',fr:'FR',dTD:'def TD',retTD:'ret TD',fgm:'FG',xpm:'XP',tfl:'TFL',pbu:'PBU'};
+  const AB={passYd:'pass yds',passTD:'pass TD',rushYd:'rush yds',rushTD:'rush TD',rec:'rec',recYd:'rec yds',recTD:'rec TD',tkl:'tkl',sack:'sacks',dInt:'INT',ff:'FF',fr:'FR',dTD:'def TD',retTD:'ret TD',fgm:'FG',xpm:'XP',tfl:'TFL',pbu:'PBU',pts:'pts',reb:'reb',ast:'ast',stl:'stl',blk:'blk',tpm:'3PM'};
   const sl=st=>Object.keys(AB).filter(k=>st&&st[k]>0).sort((x,y)=>Math.abs(st[y]*PTS[y])-Math.abs(st[x]*PTS[x])).slice(0,2).map(k=>`${st[k]>=1000?st[k].toLocaleString():st[k]} ${AB[k]}`).join(' · ');
   const row=(x,k)=>{const g=x.p.games[wt.w-1],m=k===1?'gold':'silver';return `<button class="pw-r ${m}" data-act="player" data-id="${esc(x.p.key)}">
     <span class="pw-k">${k}</span>${av(x.p.name,x.p.school,k===1?46:38)}

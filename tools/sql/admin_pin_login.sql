@@ -1,4 +1,4 @@
--- Admin sign-in with only the PIN (v508). Used by the admin-pin-login edge function (service role only).
+-- Admin sign-in with only the PIN (v509). Used by the admin-pin-login edge function (service role only).
 -- Checks the PIN against admin_secret without needing a signed-in user. Not callable from the app.
 CREATE OR REPLACE FUNCTION public.admin_pin_ok(p_pin text)
  RETURNS boolean

@@ -838,7 +838,7 @@ The Capacitor app bundles games.js/ovr.js (native/build-www.sh), so scores neede
 ## v506 (Nov 15, daily scores task) Daily scores: 2 games
 - Basketball opening-day finals for Nov 14 added to tools/data/bb_2627_games.txt with tools/add_scores.py: Mount Miguel 34, Bonita Vista 68; San Ysidro 22, West Hills 84 (source: High School On SI San Diego boys basketball scoreboard, Nov 14, both marked Final). Still missing for Nov 14: Warner-Horizon Prep, La Jolla-Westview (SI shows no score), Morse-Hoover. Football: all 24 Nov 13 playoff games already scored.
 
-## v508 (Nov 15): admin sign-in with only the PIN
+## v509 (Nov 15): admin sign-in with only the PIN
 - Signed out, "Admin sign in" now asks for the PIN only (no email or password), then which admin (ZH / AB). `admFn()` calls the Supabase edge function `admin-pin-login` (source `tools/functions/admin-pin-login/index.ts`, verify_jwt off, PIN is the credential): it checks the PIN with `admin_pin_ok()` (`tools/sql/admin_pin_login.sql`, service role only), shares the 5-wrong-per-15-min lockout in `admin_attempts`, creates/uses a shared account `zh-varsity-admin@admin.varsity.invalid` / `ab-varsity-admin@...`, and returns a one-time token the app turns into a session with `auth.verifyOtp`; then `admin_unlock` runs as before (30-day admin session).
 - Signed in already: unchanged (PIN checked on your own account). `mustSetup()` skips the profile step for the two shared accounts. Both edge function and SQL are already deployed to the varsity project.
 

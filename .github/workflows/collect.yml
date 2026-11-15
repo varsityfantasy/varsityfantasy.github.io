@@ -3,7 +3,7 @@
 # MaxPreps refuses this network or serves an old copy, so a failed run never writes anything. Add a schedule only after a good run.
 name: Collect section data
 on:
-  # a push that changes .github/triggers/collect starts a real (not dry) run of both sports with the defaults
+  # a push that changes .github/triggers/collect starts a real (not dry) football run with the defaults (basketball: Run workflow by hand)
   push:
     branches: [main]
     paths: ['.github/triggers/collect']
@@ -68,13 +68,13 @@ jobs:
           if not gs or newest < '2026-06-01': sys.exit('PROBE FAILED: page looks stale (newest game %s)' % newest)
           PY
       - name: Crawl California football
-        if: ${{ (inputs.sport || 'both') == 'both' || (inputs.sport || 'both') == 'fb' }}
+        if: ${{ (inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'fb' }}
         env:
           VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
         run: |
           python3 -I tools/sections/sync.py california --adapter maxpreps --sport fb --max-teams "${{ inputs.max_teams || '4000' }}" --max-age-h "${{ inputs.max_age_h || '12' }}" --cache .mpcache ${{ inputs.dry && '--dry-run' || '' }}
       - name: Commit football data
-        if: ${{ !inputs.dry && ((inputs.sport || 'both') == 'both' || (inputs.sport || 'both') == 'fb') }}
+        if: ${{ !inputs.dry && ((inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'fb') }}
         run: |
           git config user.name "varsity-collector"
           git config user.email "actions@users.noreply.github.com"
@@ -84,13 +84,13 @@ jobs:
           git pull --rebase -q
           git push
       - name: Crawl California basketball
-        if: ${{ (inputs.sport || 'both') == 'both' || (inputs.sport || 'both') == 'bb' }}
+        if: ${{ (inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'bb' }}
         env:
           VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
         run: |
           python3 -I tools/sections/sync.py california --adapter maxpreps --sport bb --max-teams "${{ inputs.max_teams || '4000' }}" --max-age-h "${{ inputs.max_age_h || '12' }}" --cache .mpcache ${{ inputs.dry && '--dry-run' || '' }}
       - name: Commit basketball data
-        if: ${{ !inputs.dry && ((inputs.sport || 'both') == 'both' || (inputs.sport || 'both') == 'bb') }}
+        if: ${{ !inputs.dry && ((inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'bb') }}
         run: |
           git config user.name "varsity-collector"
           git config user.email "actions@users.noreply.github.com"

@@ -3,7 +3,7 @@
     python3 tools/sections/build_api.py [--data data/sections] [--out api/v1]
 
 No server and no keys: the files are served by GitHub Pages next to the app
-(https://ariborkar-bot.github.io/varsity/api/v1/index.json) and Pages sends CORS headers, so any site or app can fetch them.
+(https://varsityfantasy.github.io/api/v1/index.json) and Pages sends CORS headers, so any site or app can fetch them.
 Layout (sport is fb or bb):
   index.json                                  every section, counts, links
   sections/<id>/<sport>/teams.json            teams with record, league, division

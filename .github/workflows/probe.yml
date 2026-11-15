@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
       - env:
-          VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
+          VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
         run: |
           python3 - <<'PY'
           import urllib.request

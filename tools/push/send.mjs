@@ -14,7 +14,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..');
 const { SUPABASE_URL, SUPABASE_SERVICE_KEY, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, DRY } = process.env;
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) { console.error('Missing SUPABASE_URL, SUPABASE_SERVICE_KEY, VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY'); process.exit(1); }
-webpush.setVapidDetails('https://ariborkar-bot.github.io/varsity/', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+webpush.setVapidDetails('https://varsityfantasy.github.io/', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } });
 const must = r => { if (r.error) throw new Error(r.error.message); return r.data; };
 /* the server returns at most 1000 rows per request: read page by page. mk() builds a fresh query each time (ordered, so pages don't overlap) */

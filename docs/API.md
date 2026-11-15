@@ -1,7 +1,7 @@
 # Varsity API (read-only, v1)
 
 Static JSON served by GitHub Pages next to the app. No keys, no server, CORS open.
-Base: `https://ariborkar-bot.github.io/varsity/api/v1/`
+Base: `https://varsityfantasy.github.io/api/v1/`
 
 | Path | What |
 |---|---|
@@ -17,7 +17,7 @@ Base: `https://ariborkar-bot.github.io/varsity/api/v1/`
 `<section>` is `san-diego`, `southern`, `la-city`, `central`, `central-coast`, `sac-joaquin`, `oakland`, `san-francisco`, `north-coast` or `northern`. `<sport>` is `fb` or `bb`.
 A game: `{id, date, time?, home, away, home_id?, away_id?, hs, as, forfeit?, state?}`.
 
-Example: `fetch('https://ariborkar-bot.github.io/varsity/api/v1/index.json').then(r=>r.json())`
+Example: `fetch('https://varsityfantasy.github.io/api/v1/index.json').then(r=>r.json())`
 
 ## How it is made
 `tools/sections/build_api.py` turns `data/sections/*.json` (written by the collector, see `tools/sections/README.md`) into `api/v1/`. The "Collect section data" workflow runs it after each crawl and commits `api/`. It rebuilds everything each time and is deterministic, so unchanged data gives no diff.

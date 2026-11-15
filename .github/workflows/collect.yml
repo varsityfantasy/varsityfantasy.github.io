@@ -49,7 +49,7 @@ jobs:
         run: python3 -I tools/sections/test_maxpreps.py
       - name: Probe MaxPreps (reachable and current?)
         env:
-          VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
+          VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
         run: |
           python3 - <<'PY'
           import sys, os
@@ -70,7 +70,7 @@ jobs:
       - name: Crawl California football
         if: ${{ (inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'fb' }}
         env:
-          VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
+          VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
         run: |
           python3 -I tools/sections/sync.py california --adapter maxpreps --sport fb --max-teams "${{ inputs.max_teams || '4000' }}" --max-age-h "${{ inputs.max_age_h || '12' }}" --cache .mpcache ${{ inputs.dry && '--dry-run' || '' }}
       - name: Commit football data
@@ -86,7 +86,7 @@ jobs:
       - name: Crawl California basketball
         if: ${{ (inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'bb' }}
         env:
-          VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
+          VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
         run: |
           python3 -I tools/sections/sync.py california --adapter maxpreps --sport bb --max-teams "${{ inputs.max_teams || '4000' }}" --max-age-h "${{ inputs.max_age_h || '12' }}" --cache .mpcache ${{ inputs.dry && '--dry-run' || '' }}
       - name: Commit basketball data

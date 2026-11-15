@@ -5,7 +5,7 @@
 /* Varsity app launcher (native app only). The app opens the live website so every website update shows up in the app with no App Store release.
    If the website can't be reached (offline, slow), it opens the copy bundled in the app (app.html). */
 (function(){
-  var LIVE='https://ariborkar-bot.github.io/varsity/',q=location.search||'',done=false;
+  var LIVE='https://varsityfantasy.github.io/',q=location.search||'',done=false;
   function go(u){if(done)return;done=true;location.replace(u)}
   var t=setTimeout(function(){go('app.html'+q)},4000);
   try{

@@ -53,7 +53,7 @@ jobs:
           python3 -I tools/sections/test_rosters.py
       - name: Read rosters, then box scores in 20-minute rounds, publishing after each round
         env:
-          VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
+          VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
           SPORT_IN: ${{ inputs.sport }}
           EVENT: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}

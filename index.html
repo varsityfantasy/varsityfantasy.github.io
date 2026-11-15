@@ -3058,6 +3058,23 @@ details.lk-col>summary{display:flex;justify-content:space-between;align-items:ce
 <script src="stats.js" onerror="void 0"></script>
 <script src="ovr.js" onerror="void 0"></script>
 <script>
+/* v500: iOS/Android app only. The app bundles games.js and ovr.js, so scores used to need an App Store release. Now the app keeps the
+   newest copy from the website (data only, parsed as JSON, never run as code): a saved copy is used at launch, then a fresh copy is
+   fetched; if it differs it is saved and the app reloads once. The bundled files are the offline fallback. The website is unaffected. */
+(function(){try{
+  var C=window.Capacitor;if(!(C&&C.isNativePlatform&&C.isNativePlatform()))return;
+  var BASE='https://ariborkar-bot.github.io/varsity/',F=[['ovr.js','OVR_ALL']];if(document.querySelector('script[src="games.js"]'))F.unshift(['games.js','VARSITY_GAMES']);/* basketball bakes its own games */
+  function body(t,n){var m=new RegExp('(^|\\n)window\\.'+n+'\\s*=').exec(t);if(!m)return null;var a=t.indexOf('=',m.index)+1,b=t.lastIndexOf(';');return JSON.parse(t.slice(a,b))}
+  F.forEach(function(f){try{var c=localStorage.getItem('vlive:'+f[0]);if(c)window[f[1]]=body(c,f[1])||window[f[1]]}catch(_){}});
+  F.forEach(function(f){
+    fetch(BASE+f[0]+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():Promise.reject(r.status)}).then(function(t){
+      if(!body(t,f[1]))return;var k='vlive:'+f[0],old=null;try{old=localStorage.getItem(k)}catch(_){}
+      if(old===t)return;try{localStorage.setItem(k,t)}catch(_){return}
+      try{if(sessionStorage.getItem('vlive:r'))return;sessionStorage.setItem('vlive:r','1')}catch(_){return}
+      location.reload()}).catch(function(){})})
+}catch(_){}})();
+</script>
+<script>
 window.addEventListener("error",e=>{try{var t=document.getElementById("toast");if(t){t.textContent="Error: "+(e.message||"unknown")+" (line "+e.lineno+")";t.hidden=false}}catch(_){}});
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3643,7 +3660,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v499 · Nov 14';
+const APP_BUILD='v500 · Nov 14';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

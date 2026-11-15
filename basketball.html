@@ -3491,15 +3491,14 @@ function authHTML(){
     <div class="au-form">${ADMIN_NAMES.map(n=>`<button class="btn" type="button" data-adpick="${n}" ${AUTH.busy?'disabled':''}>${n}</button>`).join('')}
       ${AUTH.err?`<p class="au-err" role="alert">${esc(AUTH.err)}</p>`:''}</div>
     <div class="au-links"><button class="link" data-au="in">Back</button></div>`
-    :`<p class="muted">For Varsity admins. Sign in to your Varsity account, enter the admin PIN, then choose which admin you are.</p>
+    :`<p class="muted">For Varsity admins. Enter the admin PIN, then choose which admin you are.</p>
     <form id="au-admin" class="au-form">
-      ${live?`<p class="muted">Signed in as ${esc(ME.email||'')}.</p>`:`<label class="fld"><span>Your email</span><input id="aa-email" type="email" autocomplete="email" required></label>
-      <label class="fld"><span>Password</span><input id="aa-pass" type="password" autocomplete="current-password" required></label>`}
+      ${live?`<p class="muted">Signed in as ${esc(ME.email||'')}.</p>`:''}
       <label class="fld"><span>Admin PIN</span><input id="aa-pin" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="## - ## - ####" required></label>
       ${AUTH.err?`<p class="au-err" role="alert">${esc(AUTH.err)}</p>`:''}${AUTH.msg?`<p class="au-ok" role="status">${esc(AUTH.msg)}</p>`:''}
       <button class="btn" type="submit" ${AUTH.busy?'disabled':''}>${AUTH.busy?'One moment…':'Continue'}</button>
     </form>
-    <div class="au-links"><button class="link" data-au="up">Create account</button><button class="link" data-au="in">Back</button></div>`}
+    <div class="au-links"><button class="link" data-au="in">Back</button></div>`}
   </div>`}
   const up=AUTH.mode==='up',rs=AUTH.mode==='reset';
   return `<div class="gcard au" role="dialog" aria-modal="true" aria-labelledby="au-t">
@@ -3539,25 +3538,29 @@ document.addEventListener('click',e=>{
   if(v==='browse'){if(ME.mode==='guest'){AUTH.mode='in';openAuth();return}try{localStorage.setItem('gf-browse','1')}catch(_){}closeGate();render();return}
   AUTH.mode=v;AUTH.err='';AUTH.msg='';if(v==='admin'){AUTH.step=1;AUTH.pin=''}openAuth();
 });
+/* v508 (owner): admin sign-in needs only the PIN. Signed out: the admin-pin-login function checks the PIN (same 5 wrong tries per 15 minutes), then a shared admin account is signed in. Already signed in: the old PIN check on your own account. */
+async function admFn(body){const r=await fetch(SB_URL+'/functions/v1/admin-pin-login',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY},body:JSON.stringify(body)});return await r.json()}
+const admMsg=r=>r==='locked'?'Too many wrong tries. Wait 15 minutes and try again.':r==='denied'?'That account is not an admin.':r==='wrong'?'Wrong PIN.':'Could not sign in. Try again.';
 document.addEventListener('submit',async e=>{
   if(e.target.id!=='au-admin')return;e.preventDefault();e.stopImmediatePropagation();
-  const pin=$('#aa-pin').value,em=$('#aa-email')?$('#aa-email').value.trim():'',pw=$('#aa-pass')?$('#aa-pass').value:'';
+  const pin=$('#aa-pin').value;
   AUTH.busy=true;AUTH.err='';AUTH.msg='';
   const wasIn=ME.mode==='live'&&ME.uid;
   try{
-    if(!wasIn){const {error}=await SB.auth.signInWithPassword({email:em,password:pw});if(error)throw error}
-    const {data,error}=await SB.rpc('admin_verify_pin',{p_pin:pin});if(error)throw error;
-    if(data==='ok'){AUTH.pin=pin;AUTH.step=2;AUTH.wasIn=wasIn}
-    else{
-      if(!wasIn){try{await SB.auth.signOut()}catch(_){}}
-      AUTH.err=data==='locked'?'Too many wrong tries. Wait 15 minutes and try again.':data==='denied'?'That account is not an admin.':'Wrong PIN.'}
-  }catch(err){const m=(err&&err.message)||'';AUTH.err=/invalid login/i.test(m)?'That email and password don’t match.':/not confirmed/i.test(m)?'Confirm your email first. Check your inbox for the link.':'Could not sign in. Try again.'}
-  AUTH.busy=false;openAuth();if($('#aa-email'))$('#aa-email').value=em;
+    if(wasIn){const {data,error}=await SB.rpc('admin_verify_pin',{p_pin:pin});if(error)throw error;
+      if(data==='ok'){AUTH.pin=pin;AUTH.step=2;AUTH.wasIn=true}else AUTH.err=admMsg(data)}
+    else{const j=await admFn({pin});if(j&&j.r==='ok'){AUTH.pin=pin;AUTH.step=2;AUTH.wasIn=false}else AUTH.err=admMsg(j&&j.r)}
+  }catch(err){AUTH.err='Could not sign in. Try again.'}
+  AUTH.busy=false;openAuth();
 },true);
 document.addEventListener('click',async e=>{
   const b=e.target.closest&&e.target.closest('[data-adpick]');if(!b)return;
   AUTH.busy=true;AUTH.err='';
-  try{const {data,error}=await SB.rpc('admin_unlock',{p_username:b.dataset.adpick,p_pin:AUTH.pin});if(error)throw error;
+  try{
+    if(!(ME.mode==='live'&&ME.uid)){const j=await admFn({pin:AUTH.pin,username:b.dataset.adpick});
+      if(!j||j.r!=='ok'||!j.token_hash){AUTH.err=admMsg(j&&j.r);AUTH.step=1;AUTH.busy=false;openAuth();return}
+      const {error:ve}=await SB.auth.verifyOtp({token_hash:j.token_hash,type:'magiclink'});if(ve)throw ve}
+    const {data,error}=await SB.rpc('admin_unlock',{p_username:b.dataset.adpick,p_pin:AUTH.pin});if(error)throw error;
     if(data==='ok'){AUTH.pin='';location.hash='#admin';location.reload();return}
     AUTH.err='That did not work. Start again.';AUTH.step=1}
   catch(_){AUTH.err='Could not sign in. Try again.';AUTH.step=1}
@@ -3598,7 +3601,7 @@ const NM={busy:false,err:'',role:'',sport:''};
    (boot), and every profile without ob:2 goes through Player/Fan → name, school, position again (nothing pre-picked). */
 const REAUTH_AT=Date.parse('2026-11-09T22:20:00Z'),OB_V=2;
 const obDone=p=>(+((p||{}).ob)||0)>=OB_V;
-const mustSetup=()=>{if(ME.mode!=='live'||!ME.uid||!S.loaded.profiles)return false;const p=myProfile();return !p||!p.role||!p.school||!obDone(p)};
+const mustSetup=()=>{if(ME.mode!=='live'||!ME.uid||!S.loaded.profiles)return false;if(/@admin\.varsity\.invalid$/.test(ME.email||''))return false;const p=myProfile();return !p||!p.role||!p.school||!obDone(p)};
 /* v359 (owner): players pick their main sport, and the positions follow it (both lists live here, so either app can make either kind) */
 const NM_SP={fb:{t:'Football',pos:[['QB','Quarterback'],['RB','Running back'],['WR','Wide receiver'],['TE','Tight end'],['DL','Defensive line'],['LB','Linebacker'],['DB','Defensive back'],['K','Kicker']],map:{QB:'QB',RB:'RB',WR:'WR',TE:'TE',DL:'DEF',LB:'DEF',DB:'DEF',K:'K'}},
   bb:{t:'Basketball',pos:[['PG','Point guard'],['SG','Shooting guard'],['SF','Small forward'],['PF','Power forward'],['C','Center']],map:{PG:'PG',SG:'SG',SF:'SF',PF:'PF',C:'C'}}};

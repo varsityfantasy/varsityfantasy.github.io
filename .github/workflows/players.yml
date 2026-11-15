@@ -3,10 +3,11 @@
 # cut short by max_minutes (or a failure) keeps its progress and the next run carries on. Football first; basketball has ~6x the games.
 name: Collect section players
 on:
-  # a push that changes .github/triggers/players starts a football run (same as pressing Run workflow with the defaults)
+  # a push that changes .github/triggers/players starts a football run (same as pressing Run workflow with the defaults);
+  # a push that changes .github/triggers/players-bb starts a basketball run (rosters for every team, then box scores)
   push:
     branches: [main]
-    paths: ['.github/triggers/players']
+    paths: ['.github/triggers/players', '.github/triggers/players-bb']
   workflow_dispatch:
     inputs:
       sport:
@@ -53,7 +54,7 @@ jobs:
       - name: Read rosters, then box scores in 20-minute rounds, publishing after each round
         env:
           VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
-          SPORT: ${{ inputs.sport || 'fb' }}
+          SPORT: ${{ inputs.sport || (contains(join(github.event.head_commit.modified, ','), 'triggers/players-bb') && 'bb') || (contains(join(github.event.head_commit.added, ','), 'triggers/players-bb') && 'bb') || 'fb' }}
           DELAY: ${{ inputs.delay || '0.5' }}
           MAX_GAMES: ${{ inputs.max_games || '0' }}
           MAX_MINUTES: ${{ inputs.max_minutes || '300' }}
@@ -78,11 +79,10 @@ jobs:
             git commit -q -m "$1" && git push -q origin HEAD:main || { echo "publish: push failed"; return 1; }
           }
           START=$(date +%s)
-          if [ "$SPORT" = "fb" ]; then
-            python3 -I tools/sections/rosters.py --sport fb --cache .mpcache --delay "$DELAY" --max-minutes 40 | tee roster.log || true
-            grep -E "^rosters|^  first empty|STOPPED" roster.log >> status.txt || true
-            publish "Rosters update (fb)" || true
-          fi
+          # rosters for both sports (basketball falls back to last season's roster, seniors out, for a team that has not posted 2026-27 yet)
+          python3 -I tools/sections/rosters.py --sport "$SPORT" --cache .mpcache --delay "$DELAY" --max-minutes 40 | tee roster.log || true
+          grep -E "^rosters|^  first empty|^  [0-9]+ teams from|STOPPED" roster.log >> status.txt || true
+          publish "Rosters update ($SPORT)" || true
           for round in $(seq 1 30); do
             python3 -I tools/sections/players.py --sport "$SPORT" --delay "$DELAY" --max-minutes 20 --max-games "$MAX_GAMES" | tee round.log || true
             { echo "round $round:"; grep -E "^(fb|bb):|^done:|STOPPED|Traceback|Error" round.log; } >> status.txt || true

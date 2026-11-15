@@ -9,6 +9,9 @@ Team addresses come from the school record ('urls', saved by the collector since
 collector's page cache (--cache: every cached schedule page lists the teams on it with their address).
 Writes data/rosters/<section>.<sport>.json  {players: {career id: [name, class, positions, school id]}}
 and    data/rosters/<sport>.done.json       {school id: date read}  (a team is read again after --max-age-days).
+Basketball (v494): a team whose 2026-27 roster page is empty or missing is read from last season's roster (--last-season 25-26,
+'<team>/basketball/25-26/roster/') the way San Diego's basketball app does: seniors removed, everyone else one class up. Those players
+carry a 5th field 'ly'. The current roster replaces them as soon as the team posts it (a team read from last season is read again next run).
 build_api.py merges it into players.json / weekly.json (position, defensive group, grade, full name)."""
 import argparse, datetime, glob, html.parser, json, os, re, sys, time
 
@@ -77,6 +80,57 @@ def parse_roster(page):
         else:
             pos = clean_pos(rest[1]) if len(rest) > 1 else ''
         out[cid] = [name, cls, pos]
+    return out
+
+
+def bump(cls):
+    """last season's class -> this season's ('Fr.' -> 'So.' ...), None for a senior (graduated)."""
+    g = GR.get((cls or '')[:2].lower(), 0)
+    if g == 4:
+        return None
+    return {1: 'So.', 2: 'Jr.', 3: 'Sr.'}.get(g, '')
+
+
+BB5 = ('PG', 'SG', 'SF', 'PF', 'C')
+BB_ONE = {'PG': 'PG', 'SG': 'SG', 'SF': 'SF', 'PF': 'PF', 'C': 'C', 'G': 'G', 'F': 'F', 'W': 'W', 'POG': 'PG', 'CG': 'SG', 'GF': 'SF', 'FC': 'PF', 'WF': 'SF', 'WING': 'W'}
+
+
+def basketball_team_pos(rows):
+    """One team's players -> {id: PG/SG/SF/PF/C}. The same rule as tools/make_basketball.py assign_positions (San Diego):
+    a listed PG..C is kept; guards split PG (best passers, about 40%) / SG, forwards PF (best rebounders, about half) / SF, wings SF;
+    a blank position comes from the stats when he has 3+ games, else the team's blanks cycle through the five spots.
+    rows: [(id, roster positions 'G,F', games, season totals {pts reb ast stl blk tov tpm})]"""
+    out, G, F, blank = {}, [], [], []
+    for i, ps, gp, t in rows:
+        L = [BB_ONE.get(p) for p in (ps or '').split(',') if BB_ONE.get(p)]
+        first = next((p for p in L if p in BB5), None) or (L[0] if L else '')
+        if first in BB5:
+            out[i] = first
+        elif first == 'G':
+            G.append((i, gp, t))
+        elif first == 'F':
+            F.append((i, gp, t))
+        elif first == 'W':
+            out[i] = 'SF'
+        else:
+            blank.append((i, gp, t))
+    pg = lambda r: (r[2].get('ast', 0) * 3 + r[2].get('pts', 0) * .1) / max(1, r[1])
+    rb = lambda r: r[2].get('reb', 0) / max(1, r[1])
+    G.sort(key=lambda r: (-pg(r), r[0]))
+    F.sort(key=lambda r: (-rb(r), r[0]))
+    for n, r in enumerate(G):
+        out[r[0]] = 'PG' if n < max(1, round(len(G) * .4)) else 'SG'
+    for n, r in enumerate(F):
+        out[r[0]] = 'PF' if n < max(1, round(len(F) * .5)) else 'SF'
+    cyc = ['SG', 'SF', 'PG', 'PF', 'C']
+    k = 0
+    for i, gp, t in sorted(blank, key=lambda r: r[0]):
+        if gp >= 3 and (t.get('reb') or t.get('ast')):
+            g = lambda x: t.get(x, 0) / gp
+            out[i] = 'PG' if (g('ast') >= 2.5 and g('reb') < 5) else 'C' if g('reb') >= 7 else 'PF' if g('reb') >= 5 else 'SG' if g('tpm') >= .8 else 'SF'
+        else:
+            out[i] = cyc[k % 5]
+            k += 1
     return out
 
 
@@ -180,11 +234,29 @@ def run(a, log=print, fetcher=None):
 
     import concurrent.futures, random
 
+    def page_of(u):
+        page = fetcher.get(u) if getattr(fetcher, 'get', None) else fetcher._open(u)
+        time.sleep(a.delay * random.uniform(0.8, 1.2) if a.delay else 0)
+        return page
+
+    ly = getattr(a, 'last_season', '') or ''
+
     def fetch_one(t):
         try:
-            page = fetcher.get(t[2] + 'roster/') if getattr(fetcher, 'get', None) else fetcher._open(t[2] + 'roster/')
-            time.sleep(a.delay * random.uniform(0.8, 1.2) if a.delay else 0)
-            return ('ok', page)
+            try:
+                page = page_of(t[2] + 'roster/')
+            except M.NotFound:
+                page = None
+            if page is not None and (parse_roster(page) or not ly):
+                return ('ok', page, False)
+            if ly:   # basketball: no 2026-27 roster yet, so last season's (seniors out, one class up)
+                try:
+                    old = page_of(t[2] + ly + '/roster/')
+                except M.NotFound:
+                    old = None
+                if old is not None and parse_roster(old):
+                    return ('ok', old, True)
+            return ('ok', page, False) if page is not None else ('notfound',)
         except M.NotFound:
             return ('notfound',)
         except M.Blocked as e:
@@ -222,10 +294,21 @@ def run(a, log=print, fetcher=None):
                     stop = 'STOPPED: the first %d roster pages had no player rows (page format changed?)' % stat['read']
                     break
                 continue
+            for cid in ([c for c, v in store[t[0]].items() if v[3] == t[1]] if ly else []):
+                del store[t[0]][cid]   # the team's roster as it is now (players who left, last season's list once the new one is up)
             for cid, (name, cls, pos) in R.items():
-                store[t[0]][cid] = [name, cls, pos, t[1]]
+                if res[2]:
+                    cls = bump(cls)
+                    if cls is None:
+                        continue   # last season's senior: graduated
+                    store[t[0]][cid] = [name, cls, pos, t[1], 'ly']
+                else:
+                    store[t[0]][cid] = [name, cls, pos, t[1]]
             stat['players'] += len(R)
-            done[t[1]] = today.isoformat()
+            if res[2]:
+                stat['last'] = stat.get('last', 0) + 1
+            else:
+                done[t[1]] = today.isoformat()   # a team read from last season is read again next run, for its new roster
         if (start // (workers * 6)) % 10 == 9:
             save()
             log('  %d/%d rosters, %d players so far' % (min(len(todo), start + len(batch)), len(todo), stat['players']))
@@ -236,6 +319,8 @@ def run(a, log=print, fetcher=None):
     total = sum(len(pl) for pl in store.values())
     log('rosters done: %s. read %d, no player rows %d, not found %d; %d players on file, %d with a position, %d with a class' % (
         stop or 'all teams read', stat['read'], stat['empty'], stat['notfound'], total, with_pos, with_cls))
+    if ly:
+        log('  %d teams from their %s roster (no %s roster posted yet)' % (stat.get('last', 0), ly, 'current'))
     if diag:
         log('  ' + diag)
     return 0
@@ -252,7 +337,11 @@ def main():
     ap.add_argument('--max-teams', type=int, default=0)
     ap.add_argument('--max-minutes', type=float, default=0)
     ap.add_argument('--max-age-days', type=int, default=6)
-    return run(ap.parse_args())
+    ap.add_argument('--last-season', default=None, help="basketball: season folder to fall back to when a team has no roster yet (default 25-26 for bb, none for fb)")
+    a = ap.parse_args()
+    if a.last_season is None:
+        a.last_season = '25-26' if a.sport == 'bb' else ''
+    return run(a)
 
 
 if __name__ == '__main__':

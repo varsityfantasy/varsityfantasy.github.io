@@ -93,16 +93,31 @@ def build_sport(sec, sport, out):
     return {'teams': len(T), 'games': len(games), 'played': sum(1 for g in games if final(g)), 'weeks': len(weeks)}
 
 
-def build_players(sec_id, sport, src, out, rosters=None):
-    """players.json: every player by fantasy points (all of them when TOP is None), as arrays [name, school, pos, games, fp, v1, v2 ...] in `keys` order (smaller than objects)."""
+def build_players(sec_id, sport, src, out, rosters=None, schools=None):
+    """players.json: every player by fantasy points (all of them when TOP is None), as arrays [name, school, pos, games, fp, v1, v2 ...] in `keys` order (smaller than objects).
+    Basketball (v494) also lists every rostered player with no box-score line yet (0 games), so every team has its roster from day one,
+    with PG/SG/SF/PF/C from the roster (rosters.basketball_team_pos, the San Diego rule)."""
     p = os.path.join(src, '%s.%s.json' % (sec_id, sport))
-    if not os.path.exists(p):
-        return None
-    pl = json.load(open(p, encoding='utf-8'))['players']
+    pl = json.load(open(p, encoding='utf-8'))['players'] if os.path.exists(p) else {}
     keys = PL.KEYS[sport]
     # rosters (rosters.py): real positions, class year and the full name. Without one the position is guessed from the stats, as before.
     rp = os.path.join(rosters or '', '%s.%s.json' % (sec_id, sport))
     R = json.load(open(rp, encoding='utf-8'))['players'] if rosters and os.path.exists(rp) else {}
+    if sport == 'bb':
+        names = schools or {}
+        for cid, r in R.items():
+            if cid not in pl and names.get(r[3]):
+                pl[cid] = {'n': r[0], 's': names[r[3]], 'i': r[3], 'g': 0, 't': {}, 'gl': {}}
+    if not pl:
+        return None
+    BBP = {}
+    if sport == 'bb':
+        team = {}
+        for cid, e in pl.items():
+            r = R.get(cid)
+            team.setdefault(e.get('i') or (r[3] if r else '') or e['s'], []).append((cid, r[2] if r else '', e.get('g', 0), e.get('t') or {}))
+        for L in team.values():
+            BBP.update(RO.basketball_team_pos(L))
     rows = []
     for cid, e in pl.items():
         t = e['t']
@@ -115,10 +130,11 @@ def build_players(sec_id, sport, src, out, rosters=None):
                 pos = guess or ('DEF' if any(t.get(k) for k in ('ff', 'fr', 'dTD')) else 'RB')   # only a fumble recovery or a return TD: defense, else offense
                 sub, alt = ('' if pos == 'DEF' else pos), ''
         else:
-            pos, sub, alt = None, '', ''
+            pos = BBP.get(cid)
+            sub, alt = pos or '', ''
         e = dict(e, n=(r[0] if r and r[0] else e['n']), _pos=pos, _sub=sub, _alt=alt, _gr=RO.grade(r[1]) if r else 0)
         rows.append((PL.fantasy(t, sport), e, t, cid))
-    rows.sort(key=lambda r: (-r[0], r[1]['n']))
+    rows.sort(key=lambda r: (-r[0], -r[1]['_gr'] if sport == 'bb' else 0, r[1]['n']))   # basketball before its first games: seniors first
     body = [[e['n'], e['s'], e['_pos'], e['g'], fp] + [t.get(k, 0) for k in keys] for fp, e, t, cid in (rows if TOP is None else rows[:TOP])]
     base = os.path.join(out, 'sections', sec_id, sport)
     os.makedirs(base, exist_ok=True)
@@ -138,8 +154,8 @@ def build_weekly(sec_id, sport, rows, keys, base):
     ki = {k: i for i, k in enumerate(keys)}
     out = []
     for fp, e, t, cid in rows:
-        gl = e.get('gl')
-        if not gl:
+        gl = e.get('gl') or {}
+        if not gl and sport != 'bb':
             continue
         games = []
         for gid in sorted(gl, key=lambda x: (gl[x][0], x)):
@@ -183,7 +199,7 @@ def main(argv=None):
         updated = max(updated, sec.get('synced') or '')
         info = {s: build_sport(sec, s, a.out) for s in SPORTS}
         for s in SPORTS:
-            np = build_players(sec['section'], s, a.players, a.out, a.rosters)
+            np = build_players(sec['section'], s, a.players, a.out, a.rosters, {sc['id']: sc['name'] for sc in sec.get('schools', [])})
             if np:
                 (info.get(s) or info.setdefault(s, {'teams': 0, 'games': 0, 'played': 0, 'weeks': 0}))['players'] = np
         info = {s: v for s, v in info.items() if v}

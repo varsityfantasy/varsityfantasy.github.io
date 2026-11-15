@@ -56,4 +56,33 @@ got = json.load(open(os.path.join(out, 'one.fb.json')))['players']
 check(got['abc123def4567'] == ['John Robertson', 'Sr.', 'QB,FS', A] and len(got) == 4, 'saved: %s' % got)
 f2 = F(); R.run(args, logs.append, f2)
 check(f2.urls == [], 'second run reads nothing')
+
+# v494 basketball: positions per team, last season's roster when the new one is not up (seniors out, one class up)
+bp = R.basketball_team_pos([('a', 'PG', 0, {}), ('b', 'G', 0, {}), ('c', 'G', 0, {}), ('d', 'F', 0, {}), ('e', 'F', 0, {}), ('f', 'W', 0, {}),
+                            ('g', '', 0, {}), ('h', 'C', 0, {}), ('i', 'G, F', 0, {}), ('j', '', 4, {'reb': 36, 'ast': 2})])
+check(bp['a'] == 'PG' and bp['h'] == 'C' and bp['f'] == 'SF' and bp['j'] == 'C' and sorted(bp[x] for x in 'bci') == ['PG', 'SG', 'SG']
+      and sorted(bp[x] for x in 'de') == ['PF', 'SF'] and bp['g'] == 'SG' and set(bp.values()) <= set(R.BB5) and len(bp) == 10, 'bb positions: %s' % bp)
+check(R.bump('Jr.') == 'Sr.' and R.bump('Fr.') == 'So.' and R.bump('Sr.') is None and R.bump('') == '', 'class bump')
+EMPTY = '<html><body><table><tr><th>Name</th></tr></table></body></html>'
+UBB, UBB2 = 'https://www.maxpreps.com/ca/town/alpha-lions/basketball/', 'https://www.maxpreps.com/ca/other/beta-bears/basketball/'
+json.dump({'section': 'one', 'schools': [{'id': A, 'name': 'Alpha', 'urls': {'bb': UBB}}, {'id': B, 'name': 'Beta', 'urls': {'bb': UBB2}}], 'games': []}, open(os.path.join(data, 'one.json'), 'w'))
+class FB_:
+    def __init__(self, new_alpha=False): self.urls, self.new = [], new_alpha
+    def allowed(self, url): return True
+    def get(self, url):
+        self.urls.append(url)
+        if 'beta' in url: return PAGE.replace('careerid=', 'careerid=b') if '25-26' not in url else EMPTY
+        if '25-26' in url: return PAGE
+        return PAGE.replace('Sr.', 'Fr.') if self.new else EMPTY
+bargs = types.SimpleNamespace(sport='bb', data=data, out=out, cache='', delay=0, workers=2, max_teams=0, max_minutes=0, max_age_days=6, last_season='25-26')
+f = FB_(); R.run(bargs, logs.append, f)
+got = json.load(open(os.path.join(out, 'one.bb.json')))['players']
+check(UBB + '25-26/roster/' in f.urls and UBB2 + '25-26/roster/' not in f.urls, 'falls back only when the new roster is empty: %s' % f.urls)
+al = {k: v for k, v in got.items() if v[3] == A}
+check('abc123def4567' not in al and al.get('zzz999') == ["Tim O'Neil", 'Sr.', 'TE,DE', A, 'ly'] and al['k1'][1] == 'Jr.' and len(al) == 3, 'last season, seniors out, class up: %s' % al)
+check(got['babc123def4567'][3] == B and len(got['babc123def4567']) == 4, 'beta read from its current roster')
+f = FB_(new_alpha=True); R.run(bargs, logs.append, f)
+got = json.load(open(os.path.join(out, 'one.bb.json')))['players']
+al = {k: v for k, v in got.items() if v[3] == A}
+check(f.urls == [UBB + 'roster/'] and len(al) == 4 and all(len(v) == 4 for v in al.values()) and al['abc123def4567'][1] == 'Fr.', 'new roster replaces last season: %s %s' % (f.urls, al))
 print('ok: %d checks passed' % n)

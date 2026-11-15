@@ -787,3 +787,11 @@ Owner: make it like Retro Bowl. Passing concepts are named (Slants, Smash, Four 
 ## v495 (Nov 14, owner: "add players of the week for football in the other sections and grad year")
 - Grad year: `gLbl(g)` / `gYr(g)` (grade 4 = class of 2027 ... grade 1 = 2030). `gtag` chip now reads "Sr ’27" (title "Class of 2027") everywhere it is used (rows, podium, compare, league lineups, player page); Players of the Week rows and the share card show it too. Works for every section because the weekly files carry the roster grade.
 - Players of the Week for other sections: card was already on Players (top on phones) and Games > section > Players; it is now also at the top of Stats for a section that has weekly data (`viewLeague` stats branch: `hotHTML(xs,true)`).
+
+## v496 (Nov 14, owner: "none of the basketball stuff is done for teams", "ALL TEAMS ALL SECTIONS", boys) basketball rosters for every section
+- `rosters.py --sport bb` reads every California boys basketball team's roster. A team with no 2026-27 roster posted yet is read from last season's (`--last-season 25-26`, default for bb: `<team>/basketball/25-26/roster/`) like San Diego's basketball app: seniors dropped, everyone else one class up (`bump`), 5th field `'ly'`. Such a team is not marked done, so the next run picks up its new roster, and a re-read replaces the team's whole list (bb only).
+- `rosters.basketball_team_pos` = make_basketball.py's `assign_positions` per team (PG..C kept, G -> PG ~40% / SG, F -> PF / SF, W -> SF, blank from stats or cycled).
+- `build_api.py` (bb): every rostered player is in players.json / weekly.json even with no box-score line (0 games, empty game list), positions PG..C, grade from the roster; ties at 0 points list seniors first. Football output unchanged (checked byte for byte).
+- `players.yml` runs rosters for either sport; pushing `.github/triggers/players-bb` starts a basketball run (rosters, then box scores of the few games already played).
+- App: `secOvr` gives no overall until someone in the section has a stat line (it used to hand 99 to 8 random 0.0 players) and has basketball stat keys (`OVR_KEYS` PG..C).
+- Tested with fake rosters for all 10 sections (not committed): Games > section > Teams > team roster, section Players list and player card in basketball, no page errors.

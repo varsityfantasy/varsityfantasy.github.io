@@ -3596,7 +3596,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v495 · Nov 14';
+const APP_BUILD='v496 · Nov 14';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -5195,9 +5195,9 @@ const _ninv=p=>{p=Math.min(1-1e-9,Math.max(1e-9,p));const a=[-39.69683028665376,
   if(p>1-.02425){const q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}
   const q=p-.5,r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)};
 const _pctl=v=>{const n=v.length,ix=v.map((x,i)=>i).sort((a,b)=>v[a]-v[b]),out=new Array(n);let i=0;while(i<n){let j=i;while(j+1<n&&v[ix[j+1]]===v[ix[i]])j++;for(let k=i;k<=j;k++)out[ix[k]]=((i+j)/2+.5)/n;i=j+1}return out};
-const OVR_KEYS={QB:['passYd','passTD','rushYd'],RB:['rushYd','rushTD','recYd'],WR:['recYd','rec','recTD'],TE:['recYd','rec','recTD'],DL:['sack','tfl','tkl'],LB:['tkl','tfl','sack'],DB:['tkl','dInt','pbu'],DEF:['tkl','tfl','sack','dInt'],K:['fgm','xpm']};
+const OVR_KEYS={PG:['ast','pts','stl'],SG:['pts','tpm','stl'],SF:['pts','reb','stl'],PF:['reb','pts','blk'],C:['reb','blk','pts'],QB:['passYd','passTD','rushYd'],RB:['rushYd','rushTD','recYd'],WR:['recYd','rec','recTD'],TE:['recYd','rec','recTD'],DL:['sack','tfl','tkl'],LB:['tkl','tfl','sack'],DB:['tkl','dInt','pbu'],DEF:['tkl','tfl','sack','dInt'],K:['fgm','xpm']};
 function secOvr(sc){const S_=SECP[sc];if(!S_)return{};if(S_.ovr)return S_.ovr;const o=S_.ovr={};try{
-  const R=S_.list.map(p=>{const a=agg(p,'season');return{p,g:p.pos==='DEF'?(p.sub||'DEF'):p.pos,gp:a.n,tot:a.v,s:a.s}}).filter(r=>r.gp>0);if(!R.length)return o;
+  const R=S_.list.map(p=>{const a=agg(p,'season');return{p,g:p.pos==='DEF'?(p.sub||'DEF'):p.pos,gp:a.n,tot:a.v,s:a.s}}).filter(r=>r.gp>0);if(!R.length||!R.some(r=>r.tot))return o;   /* v494: no overall until someone has a stat line (a basketball roster before its first game) */
   const G={};R.forEach(r=>(G[r.g]=G[r.g]||[]).push(r));
   const msd=v=>{const m=v.reduce((a,b)=>a+b,0)/v.length;return[m,Math.sqrt(v.reduce((a,b)=>a+(b-m)*(b-m),0)/Math.max(1,v.length-1))||1]};
   Object.entries(G).forEach(([g,L])=>{const mu=L.reduce((a,r)=>a+r.tot,0)/Math.max(1,L.reduce((a,r)=>a+r.gp,0));L.forEach(r=>{r.sc=(r.tot+2*mu)/(r.gp+2)});

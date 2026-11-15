@@ -621,6 +621,12 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 .pod.p3{background:#CD7F32 !important;border:2px solid #A85E1C;color:#17130A}
 .pod.p1 .pn,.pod.p1 .pv,.pod.p2 .pn,.pod.p2 .pv,.pod.p3 .pn,.pod.p3 .pv{color:#17130A}
 .pod.p1 .ps,.pod.p1 small,.pod.p2 .ps,.pod.p2 small,.pod.p3 .ps,.pod.p3 small{color:rgba(23,19,10,.82)}
+/* OVR badge on the podium (when not ranking by overall): the amber tag vanished on gold/silver/bronze, so it is a dark chip with a cyan glow and a slow shine */
+.pod .ovr-t{position:relative;overflow:hidden;margin-top:2px;padding:5px 9px;font-size:1rem;color:#6BF0FF;background:linear-gradient(160deg,#0B1B33,#16315A);border:1.5px solid #6BF0FF;border-radius:9px;box-shadow:0 0 0 1px rgba(11,27,51,.55),0 0 14px rgba(107,240,255,.55),0 3px 8px rgba(0,0,0,.28);text-shadow:0 0 8px rgba(107,240,255,.75)}
+.pod .ovr-t i{color:#fff;opacity:.95;font-size:.58rem;letter-spacing:.12em}
+.pod .ovr-t::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:ovrShine 3.4s ease-in-out infinite}
+@keyframes ovrShine{0%,55%{left:-60%}100%{left:130%}}
+@media (prefers-reduced-motion:reduce){.pod .ovr-t::after{animation:none;display:none}}
 .row:not(.hd):nth-child(even){background:color-mix(in srgb,var(--surface2) 62%,var(--surface))}
 .row:not(.hd):hover{background:var(--tint)}
 .rk{color:color-mix(in srgb,var(--muted) 75%,#2C83BC)}

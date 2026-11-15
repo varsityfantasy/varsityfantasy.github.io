@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Varsity</title><style>html,body{margin:0;height:100%;background:#061a4d}body{display:flex;align-items:center;justify-content:center}img{width:96px;height:96px;opacity:.9}</style></head>
+<body><img src="logo.png" alt="">
+<script>
+/* Varsity app launcher (native app only). The app opens the live website so every website update shows up in the app with no App Store release.
+   If the website can't be reached (offline, slow), it opens the copy bundled in the app (app.html). */
+(function(){
+  var LIVE='https://ariborkar-bot.github.io/varsity/',q=location.search||'',done=false;
+  function go(u){if(done)return;done=true;location.replace(u)}
+  var t=setTimeout(function(){go('app.html'+q)},4000);
+  try{
+    var ac=window.AbortController?new AbortController():null;
+    fetch(LIVE+'index.html',{method:'HEAD',cache:'no-store',signal:ac&&ac.signal}).then(function(r){clearTimeout(t);go(r.ok?LIVE+q:'app.html'+q)}).catch(function(){clearTimeout(t);go('app.html'+q)});
+  }catch(e){clearTimeout(t);go('app.html'+q)}
+})();
+</script></body></html>

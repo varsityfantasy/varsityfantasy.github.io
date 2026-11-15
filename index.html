@@ -3062,7 +3062,7 @@ details.lk-col>summary{display:flex;justify-content:space-between;align-items:ce
    newest copy from the website (data only, parsed as JSON, never run as code): a saved copy is used at launch, then a fresh copy is
    fetched; if it differs it is saved and the app reloads once. The bundled files are the offline fallback. The website is unaffected. */
 (function(){try{
-  var C=window.Capacitor;if(!(C&&C.isNativePlatform&&C.isNativePlatform()))return;
+  var C=window.Capacitor;if(!(C&&C.isNativePlatform&&C.isNativePlatform())||location.protocol==='https:')return;/* https = the live website inside the app: already fresh */
   var BASE='https://ariborkar-bot.github.io/varsity/',F=[['ovr.js','OVR_ALL']];if(document.querySelector('script[src="games.js"]'))F.unshift(['games.js','VARSITY_GAMES']);/* basketball bakes its own games */
   function body(t,n){var m=new RegExp('(^|\\n)window\\.'+n+'\\s*=').exec(t);if(!m)return null;var a=t.indexOf('=',m.index)+1,b=t.lastIndexOf(';');return JSON.parse(t.slice(a,b))}
   F.forEach(function(f){try{var c=localStorage.getItem('vlive:'+f[0]);if(c)window[f[1]]=body(c,f[1])||window[f[1]]}catch(_){}});
@@ -3660,7 +3660,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v500 · Nov 14';
+const APP_BUILD='v501 · Nov 14';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

@@ -3,5 +3,12 @@
   "appName": "Varsity",
   "webDir": "www",
   "backgroundColor": "#061a4d",
-  "ios": { "contentInset": "always" }
+  "ios": {
+    "contentInset": "always"
+  },
+  "server": {
+    "allowNavigation": [
+      "ariborkar-bot.github.io"
+    ]
+  }
 }

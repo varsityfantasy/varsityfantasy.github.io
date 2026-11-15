@@ -373,8 +373,7 @@ def transform(s, mp, games, seeds, teams, prior):
     s = between(s, 'function tickLine(p,a,pg){', '\nfunction updateTicker',
                 "function tickLine(p,a,pg){const x=a.s||{},n=v=>pg?(Math.round((v||0)/(a.n||1)*10)/10).toLocaleString():Math.round(v||0).toLocaleString();\n"
                 "  return `${n(x.pts)} pts · ${n(x.reb)} reb · ${n(x.ast)} ast`}")
-    s = rep(s, "const out=['QB','RB','WR','TE','K','DL','LB','DB'].map(pos=>", "const out=['PG','SG','SF','PF','C'].map(pos=>")
-    s = rep(s, "pb(['DL','LB','DB'].includes(pos)?'DEF':pos,pos)", "pb(pos,pos)")
+    s = rep(s, "const AV_POS=['QB','RB','WR','TE','K','DL','LB','DB'];", "const AV_POS=['PG','SG','SF','PF','C'];")   # v503: All-Varsity teams
     # (v333: the team page roster is one list, best to worst, so it needs no position names)
     s = rep(s, "const SHORT={", "const SHORT={pts:'Pts',reb:'Reb',ast:'Ast',stl:'Stl',blk:'Blk',tov:'TO',tpm:'3PM',")
 

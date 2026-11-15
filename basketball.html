@@ -1599,6 +1599,46 @@ select option{background:#0B1730;color:#EAF0F8}
 .bt-t .cb-tag{margin:4px 0 0}.bx-tag.cbx{color:#3DDC84}
 .lk-tiers{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.lk-tiers li{display:flex;justify-content:space-between;padding:6px 10px;border:1px solid var(--line);border-radius:10px;font-size:.8rem}
 .lk-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:10px}.lk-card{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;border:1px solid var(--line);border-left:3px solid var(--rc);background:var(--surface2);color:inherit;font:inherit;text-align:left}.lk-card span{display:flex;flex-direction:column;gap:2px;min-width:0}.lk-card small{font-size:.72rem}
+/* v503 All-Varsity: tags and the First Team card */
+@keyframes avGlint{0%,55%{background-position:-160% 0,0 0}100%{background-position:260% 0,0 0}}
+@keyframes avIn{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes avSweep{0%,60%{transform:translateX(-130%) skewX(-18deg)}100%{transform:translateX(330%) skewX(-18deg)}}
+@keyframes avPulse{0%,100%{filter:drop-shadow(0 0 4px rgba(255,194,61,.5))}50%{filter:drop-shadow(0 0 11px rgba(255,194,61,.95))}}
+.avt{flex:none;display:inline-flex;align-items:center;gap:3px;font:800 italic .6rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#3A2600;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.95) 50%,transparent 65%) -160% 0/60% 100% no-repeat,linear-gradient(100deg,#FFD15A,#FFF1B8 45%,#F5B300);padding:3px 6px 2px 5px;border-radius:5px;white-space:nowrap;pointer-events:none;box-shadow:0 0 8px rgba(255,194,61,.5);animation:avGlint 2.8s ease-in-out infinite}
+.avt::before{content:'\2605';font-style:normal;font-size:.8em;line-height:1}
+.avt.s{color:#EAF4FF;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%) -160% 0/60% 100% no-repeat,linear-gradient(100deg,#27528F,#3F78C4 50%,#244A80);box-shadow:0 0 6px rgba(63,120,196,.45)}
+.who .nm{flex-wrap:wrap;row-gap:3px}.who .nm b{flex:0 1 auto;min-width:min(5.5em,100%)}
+.nmt .avt{flex:none}.dh h2 .avt{font-size:.68rem}.pod .avt{align-self:center;margin-top:-2px}
+.avc{position:relative;overflow:hidden;color:#fff;border:1px solid rgba(255,194,61,.55);background:radial-gradient(120% 90% at 12% -10%,rgba(255,194,61,.28),transparent 55%),radial-gradient(90% 80% at 100% 0,rgba(63,120,196,.35),transparent 60%),linear-gradient(160deg,#0C1B3F,#07122B 70%);box-shadow:0 10px 30px rgba(7,18,43,.35),inset 0 0 0 1px rgba(255,255,255,.04)}
+.avc.sec{border-color:rgba(110,160,230,.6);background:radial-gradient(120% 90% at 12% -10%,rgba(110,160,230,.3),transparent 55%),linear-gradient(160deg,#0E1E42,#08142D 70%)}
+.avc::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 14px);pointer-events:none}
+.avc-h{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.avc-t{display:flex;align-items:center;gap:10px}
+.avc-star{font-style:normal;font-size:2rem;line-height:1;color:#FFC23D;animation:avPulse 2.6s ease-in-out infinite}
+.avc.sec .avc-star{color:#7DB0F2;filter:drop-shadow(0 0 6px rgba(125,176,242,.6));animation:none}
+.avc-t small{display:block;font:800 italic .7rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#FFC23D;margin-bottom:3px}
+.avc.sec .avc-t small{color:#9CC4F7}
+.avc-t h3{margin:0;font:900 italic 1.9rem/.95 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.04em;text-transform:uppercase;background:linear-gradient(180deg,#fff,#FFE9A8 60%,#F5B300);-webkit-background-clip:text;background-clip:text;color:transparent}
+.avc.sec .avc-t h3{background:linear-gradient(180deg,#fff,#CFE3FF 60%,#7DB0F2);-webkit-background-clip:text;background-clip:text}
+.avc-tabs{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);max-width:100%}
+.avc-tabs button{font:800 .74rem/1 var(--f-body,inherit);letter-spacing:.04em;color:rgba(255,255,255,.75);padding:7px 12px;border-radius:999px;background:none;border:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+.avc-tabs button[aria-selected="true"]{color:#1B1300;background:linear-gradient(100deg,#FFD15A,#FFF1B8 50%,#F5B300)}
+.avc.sec .avc-tabs button[aria-selected="true"]{color:#06122B;background:linear-gradient(100deg,#7DB0F2,#D6E7FF 50%,#5E98E6)}
+.avc-s{position:relative;margin:8px 0 10px;font-size:.78rem;color:rgba(255,255,255,.7)}.avc-n{position:relative;margin:6px 0 0;font-size:.7rem;color:rgba(255,255,255,.55)}
+.avc-row{position:relative;display:flex;gap:10px;overflow-x:auto;padding:6px 2px 10px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.avc-c{position:relative;overflow:hidden;flex:0 0 118px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:26px 8px 12px;border-radius:14px;color:#fff;border:1px solid rgba(255,194,61,.5);background:linear-gradient(170deg,rgba(255,255,255,.14),rgba(255,255,255,.04) 55%),linear-gradient(180deg,#14275A,#0B1737);box-shadow:0 6px 16px rgba(0,0,0,.35);animation:avIn .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*70ms)}
+.avc.sec .avc-c{border-color:rgba(125,176,242,.5)}
+.avc-c.mvp{border-color:#FFD15A;box-shadow:0 0 0 1px #FFD15A,0 8px 24px rgba(255,194,61,.35)}
+.avc-sh{position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-130%) skewX(-18deg);animation:avSweep 4.2s ease-in-out infinite;animation-delay:calc(var(--i)*.35s);pointer-events:none}
+.avc-pos{position:absolute;top:0;left:0;padding:4px 9px 4px 8px;border-radius:0 0 12px 0;font:900 italic .78rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.1em;color:#2A1B00;background:linear-gradient(100deg,#FFD15A,#F5B300)}
+.avc.sec .avc-pos{color:#06122B;background:linear-gradient(100deg,#9CC4F7,#5E98E6)}
+.avc-mvp{position:absolute;top:5px;right:6px;font:900 italic .6rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.14em;color:#FFD15A;border:1px solid rgba(255,209,90,.7);border-radius:4px;padding:2px 4px 1px}
+.avc-c .av{outline:2px solid rgba(255,255,255,.55);box-shadow:0 3px 10px rgba(0,0,0,.4)}
+.avc-c b{font-size:.82rem;line-height:1.15;overflow-wrap:anywhere;margin-top:3px}
+.avc-c small{font-size:.66rem;color:rgba(255,255,255,.68);line-height:1.2}
+.avc-v{font:900 1.35rem/1 'Barlow Condensed','Arial Narrow',sans-serif;font-style:normal;color:#FFD15A;margin-top:4px}.avc.sec .avc-v{color:#B9D6FA}
+.avc-v u{text-decoration:none;font-size:.6rem;letter-spacing:.12em;margin-left:3px;opacity:.7}
+@media (prefers-reduced-motion:reduce){.avt,.avc-star,.avc-c,.avc-sh{animation:none!important}.avc-sh{display:none}}
 .sx-avr{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin}.sx-avc{flex:0 0 112px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface2)}.sx-avc>small:first-child{font-weight:800;letter-spacing:.06em;color:#FFC23D}.sx-avc b{font-size:.8rem;line-height:1.15}.sx-avc small{font-size:.68rem}.sx-avc em{font-style:normal;font-weight:800;color:var(--ink)}
 .bnd-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-bottom:8px}.bnd-s{display:flex;align-items:center;gap:10px;text-align:left;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surface2)}.bnd-s>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.bnd-s[aria-pressed="true"]{border-color:#FFC23D;box-shadow:0 0 0 2px rgba(255,194,61,.35)}.bnd-s.dn{border-color:#2EC27E;background:rgba(46,194,126,.1)}
 .bnd-b{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}.bnd-b u{display:block;height:100%;background:linear-gradient(90deg,#FFC23D,#FF8A3D);text-decoration:none}.bnd-s.dn .bnd-b u{background:#2EC27E}
@@ -3221,8 +3261,24 @@ function weekTop(sc){if(sc&&SECP[sc])return secPOTW(sc);if(POTW_C)return POTW_C;
 const potwRank=p=>{if(!p)return 0;const i=weekTop(p.ext?p.sec:'').list.findIndex(x=>x.p.key===p.key);return i+1};
 const isPOTW=p=>potwRank(p)>0;
 const POTWT=p=>{const r=potwRank(p);return r===1?'<em class="top10 potw">POTW</em>':r?'<em class="top10 potw s">POTW</em>':''};
-const T10=p=>(isT10(p)?'<em class="top10">TOP 10</em>':'')+POTWT(p);
-const T10W=(p,h)=>isT10(p)||isPOTW(p)?`<span class="nmt">${h}${isT10(p)?'<em class="top10">TOP 10</em>':''}${POTWT(p)}</span>`:h;
+/* v503 (owner): All-Varsity. ONE national First Team All-Varsity (the best player in the country at each position) plus a First Team in every section.
+   Both give a gold/blue tag that follows the player. A national pick gets ALL-VARSITY only, never the section tag as well. National picks and tags wait until
+   every section's players are in (avReady), so nobody is tagged and un-tagged while files load. */
+const AV_POS=['PG','SG','SF','PF','C'];
+let _avC=null;
+const avReady=()=>Object.keys(SECTIONS).every(id=>id===HOME_SEC||SECP[id]||SBR.err['wk:'+id]);
+const avLoad=()=>Object.keys(SECTIONS).forEach(id=>{if(id!==HOME_SEC)secPl(id)});
+function avBest(list){const best={};list.forEach(p=>{if(!p.mp||p.sample||!p.key)return;const P=AV_POS.filter(f=>posMatch(p,f));if(!P.length)return;const a=agg(p,'season');if(!(a.n>0&&a.v>0))return;P.forEach(f=>{if(!best[f]||a.v>best[f].v)best[f]={pos:f,p,v:a.v}})});
+  const L=AV_POS.map(f=>best[f]).filter(Boolean);return{list:L,set:new Set(L.map(x=>x.p.key))}}
+function avCalc(){const k=_rev+'|'+_apl_k()+'|'+(typeof PRE==='function'&&PRE()?1:0);if(_avC&&_avC.k===k)return _avC;_avC={k,nat:null,sec:{}};return _avC}
+const avNat=()=>{const c=avCalc();if(!c.nat)c.nat=avBest(allPl());return c.nat};
+const avSecList=id=>id===HOME_SEC?players():(SECP[id]?SECP[id].list:null);
+const avSec=id=>{const c=avCalc();if(!c.sec[id]){const l=avSecList(id);if(!l)return{list:[],set:new Set()};c.sec[id]=avBest(l)}return c.sec[id]};
+const avKind=p=>{if(!p||!p.key||p.sample)return '';if(avReady()&&avNat().set.has(p.key))return 'nat';return avSec(p.ext&&p.sec?p.sec:HOME_SEC).set.has(p.key)?'sec':''};
+const AVT=p=>{const k=avKind(p);return k==='nat'?'<em class="avt">ALL-VARSITY</em>':k==='sec'?'<em class="avt s">ALL-SECTION</em>':''};
+const T10b=p=>(isT10(p)?'<em class="top10">TOP 10</em>':'')+POTWT(p);
+const T10=p=>T10b(p)+AVT(p);
+const T10W=(p,h)=>{const a=AVT(p);return isT10(p)||isPOTW(p)||a?`<span class="nmt">${h}${isT10(p)?'<em class="top10">TOP 10</em>':''}${POTWT(p)}${a}</span>`:h};
 /* v494: grad year next to the grade (a Sr in the 2026-27 season graduates in 2027) */
 const gYr=g=>g>=1&&g<=4?2031-g:0,gLbl=g=>g>=1&&g<=4?`${GRL[g]} \u2019${String(gYr(g)).slice(2)}`:'';
 const gtag=p=>p&&p.gr?`<span class="gr" title="Class of ${gYr(p.gr)}">${gLbl(p.gr)}</span>`:'';
@@ -3671,7 +3727,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v502 · Nov 14';
+const APP_BUILD='v503 · Nov 14';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6953,7 +7009,7 @@ async function playerCardBlob(p){
   if(src){try{const im=new Image();im.src=src;await im.decode();g.save();g.beginPath();g.arc(W/2,450,170,0,7);g.fillStyle='#fff';g.fill();g.clip();const k=Math.min(290/im.width,290/im.height);g.drawImage(im,W/2-im.width*k/2,450-im.height*k/2,im.width*k,im.height*k);g.restore()}catch(_){}}
   else{g.beginPath();g.arc(W/2,450,170,0,7);g.fillStyle='#1B2E47';g.fill();g.fillStyle='#fff';g.font=F(800,140);g.textAlign='center';g.fillText(String(p.school||'?').split(/\s+/).map(w=>w[0]).join('').slice(0,2),W/2,500);g.textAlign='left'}
   g.textAlign='center';
-  const tags=[isT10(p)?'TOP 10':'',potwRank(p)===1?'PLAYER OF THE WEEK':potwRank(p)?'POTW #'+potwRank(p):''].filter(Boolean);
+  const tags=[avKind(p)==='nat'?'ALL-VARSITY':avKind(p)==='sec'?'ALL-SECTION':'',isT10(p)?'TOP 10':'',potwRank(p)===1?'PLAYER OF THE WEEK':potwRank(p)?'POTW #'+potwRank(p):''].filter(Boolean);
   let y=730;if(tags.length){g.font=F(800,40);const t=tags.join('  ·  '),w=g.measureText(t).width+70;g.fillStyle='#FFC23D';g.beginPath();g.roundRect(W/2-w/2,y-52,w,72,36);g.fill();g.fillStyle='#0B1626';g.fillText(t,W/2,y-2);y+=70}
   let fs=150;g.font=F(800,fs);const nm=String(p.name).toUpperCase();while(g.measureText(nm).width>W-140&&fs>70){fs-=6;g.font=F(800,fs)}
   g.fillStyle='#fff';g.fillText(nm,W/2,y+110);
@@ -8469,7 +8525,7 @@ function leagueRows(){
   return q?all.filter(x=>x.p.name.toLowerCase().includes(q)):all;
 }
 function podiumHTML(rows){
-  return `<div class="podium">${[1,0,2].map(i=>{const x=rows[i];return `<button class="pod p${i+1}" data-act="player" data-id="${esc(x.p.key)}"><span class="medal">${i+1}</span>${T10(x.p)}${av(x.p.name,x.p.school,i===0?64:52)}<b class="pn">${esc(x.p.name)}</b><span class="ps">${pb(x.p.pos,x.p.sub)}${gtag(x.p)}<span>${slogo(x.p.school)}${esc(x.p.school)}</span></span><span class="pv">${UI.rank==='ovr'?ovrOf(x.p.key)||'-':bigV(x.a)}</span><small>${UI.rank==='ovr'?'overall · '+bigV(x.a)+' pts':UI.rank==='prev'?'last game pts':'fantasy pts'}</small>${UI.rank==='ovr'?'':ovrTag(x.p)}</button>`}).join('')}</div>`;
+  return `<div class="podium">${[1,0,2].map(i=>{const x=rows[i];return `<button class="pod p${i+1}" data-act="player" data-id="${esc(x.p.key)}"><span class="medal">${i+1}</span>${T10b(x.p)}${av(x.p.name,x.p.school,i===0?64:52)}<b class="pn">${esc(x.p.name)}</b>${AVT(x.p)}<span class="ps">${pb(x.p.pos,x.p.sub)}${gtag(x.p)}<span>${slogo(x.p.school)}${esc(x.p.school)}</span></span><span class="pv">${UI.rank==='ovr'?ovrOf(x.p.key)||'-':bigV(x.a)}</span><small>${UI.rank==='ovr'?'overall · '+bigV(x.a)+' pts':UI.rank==='prev'?'last game pts':'fantasy pts'}</small>${UI.rank==='ovr'?'':ovrTag(x.p)}</button>`}).join('')}</div>`;
 }
 function rowHTML(x,rank){
   return `<button class="row" data-act="player" data-id="${esc(x.p.key)}">
@@ -8478,10 +8534,21 @@ function rowHTML(x,rank){
     <span class="ln">${line(x.p.pos,x.a.s)}</span>
     <span class="pt">${UI.rank==='ovr'?`<b>${ovrOf(x.p.key)||'-'}</b><small>overall · ${bigV(x.a)} pts</small>`:`<b>${bigV(x.a)}</b><small>${ovrTag(x.p)} ${subV(x.a)} ${trTag(x.p)}</small>`}</span></button>`;
 }
+/* v503: the First Team card: ONE national All-Varsity team (default) and the First Team of a section, behind two tabs. */
+function avCard(sc){
+  const nat=UI.avt!=='sec',sn=SECTIONS[sc]||SECTIONS[HOME_SEC];
+  if(nat){avLoad();if(!avReady()){const n=allLoading();return `<section class="card avc nat"><div class="avc-h"><div class="avc-t"><i class="avc-star" aria-hidden="true">★</i><div><small>First Team</small><h3>All-Varsity</h3></div></div></div><p class="avc-s">Scouting every section${n?' · '+n+' left':''}<em class="sl-dots"><u>.</u><u>.</u><u>.</u></em></p></section>`}}
+  const T=nat?avNat():avSec(sc),L=T.list;
+  if(!L.length)return '';
+  const tabs=`<div class="avc-tabs" role="tablist" aria-label="Team">${[['nat','Nation'],['sec',sn.name]].map(([v,l])=>`<button type="button" role="tab" data-act="avt" data-v="${v}" aria-selected="${(v==='nat')===nat}">${esc(l)}</button>`).join('')}</div>`;
+  const top=L.reduce((m,x)=>x.v>m.v?x:m,L[0]);
+  const cards=L.map((x,i)=>`<button type="button" class="avc-c${x===top?' mvp':''}" style="--i:${i}" data-act="player" data-id="${esc(x.p.key)}"><i class="avc-sh" aria-hidden="true"></i><span class="avc-pos">${x.pos}</span>${x===top?'<span class="avc-mvp">MVP</span>':''}${av(x.p.name,x.p.school,52)}<b>${esc(x.p.name)}</b><small>${esc(x.p.school)}</small><em class="avc-v">${f1(x.v)}<u>pts</u></em></button>`).join('');
+  return `<section class="card avc ${nat?'nat':'sec'}"><div class="avc-h"><div class="avc-t"><i class="avc-star" aria-hidden="true">★</i><div><small>First Team</small><h3>${nat?'All-Varsity':'All-'+esc(sn.name)}</h3></div></div>${tabs}</div>
+    <p class="avc-s">${nat?'The best player in the nation at every position':'The best in the '+esc(sn.full)+' at every position'} · season fantasy pts</p>
+    <div class="avc-row">${cards}</div>${nat?'':'<p class="avc-n">Players on the All-Varsity team wear the gold ALL-VARSITY tag instead of this one.</p>'}</section>`}
 function leadersHTML(rows){
   if(UI.pos!=='ALL'||UI.q||UI.school!=='ALL')return'';
-  const out=['PG','SG','SF','PF','C'].map(pos=>{const r=rows.find(x=>posMatch(x.p,pos));return r?`<button class="lead" data-act="pos" data-v="${pos}">${pb(pos,pos)}${T10W(r.p,`<b>${esc(r.p.name)}</b>`)}<span class="pv2">${bigV(r.a)}</span></button>`:''}).join('');
-  return out?`<div class="leads-t">First Team All-Varsity</div><div class="leads" aria-label="Leader at each position">${out}</div>`:'';
+  return avCard(UI.psec==='ALL'?mySec():UI.psec);
 }
 function listHTML(){
   const rows=leagueRows();
@@ -8532,11 +8599,7 @@ function sxSpark(gs){
   return `<svg class="sx-sp" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts_}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity=".45"/><polyline points="${v.slice(-3).map((x,j)=>X(n-3+j).toFixed(1)+','+Y(x).toFixed(1)).join(' ')}" fill="none" stroke="#FFC23D" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(n-1).toFixed(1)}" cy="${Y(v[n-1]).toFixed(1)}" r="2.6" fill="#FFC23D"/></svg>`;
 }
 const sxWho=(p,extra,l3)=>`${av(p.name,p.school,34)}<span class="sx-who">${T10W(p,`<b>${esc(p.name)}</b>`)}<small>${pb(p.pos,p.sub)}<span>${esc(p.school)}</span>${extra||''}</small>${l3?`<em class="sx-l3">${esc(l3)}</em>`:''}</span>`;
-function sxAllV(D){
-  const P=FILTERS.filter(x=>x!=='ALL'&&(!D.sc||x!=='TE'||SECP[D.sc].hasTE)),L=P.map(pos=>{const r=D.rows.filter(x=>posMatch(x.p,pos)&&x.fp>0).sort((a,b)=>b.fp-a.fp)[0];return r?{pos,x:r}:null}).filter(Boolean);
-  if(!L.length)return '';
-  return `<section class="card sx-card sx-av"><div class="qh"><h3>First Team All-Varsity</h3><span class="muted">best at each position, fantasy pts</span></div>
-    <div class="sx-avr">${L.map(({pos,x})=>`<button type="button" class="sx-avc" data-act="player" data-id="${esc(x.p.key)}"><small>${pos}</small>${av(x.p.name,x.p.school,40)}<b>${esc(x.p.name)}</b><small class="muted">${esc(x.p.school)}</small><em>${f1(x.fp)}</em></button>`).join('')}</div></section>`}
+function sxAllV(D){return avCard(D.sc||HOME_SEC)}
 function sxLeaders(D){
   const P=FILTERS.filter(x=>x!=='ALL'&&(!D.sc||x!=='TE'||SECP[D.sc].hasTE)),pos=P.includes(UI.sx.pos)?UI.sx.pos:P[0];
   const fl=sxFields(pos).filter(k=>D.rows.some(x=>posMatch(x.p,pos)&&x.tot[k]>0));
@@ -10569,6 +10632,7 @@ document.addEventListener('click',async e=>{
   else if(a==='cmpClear'){UI.cmp[+t.dataset.s]=null;render()}
   else if(a==='cmpReset'){UI.cmp=[null,null];render()}
   else if(a==='stTab'){UI.stab=['stats','overall'].includes(t.dataset.v)?t.dataset.v:'players';render()}
+  else if(a==='avt'){UI.avt=t.dataset.v==='sec'?'sec':'nat';render()}
   else if(a==='sxPos'){UI.sx.pos=t.dataset.v;UI.sx.k='';render()}
   else if(a==='sxK'){UI.sx.k=t.dataset.v;render()}
   else if(a==='sxPer'){UI.sx.per=t.dataset.v==='1';render()}

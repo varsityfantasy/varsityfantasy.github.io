@@ -814,3 +814,9 @@ The Capacitor app bundles games.js/ovr.js (native/build-www.sh), so scores neede
 - Players of the Week rows show basketball stat lines (`AB` in the POTW card has pts/reb/ast/stl/blk/3PM).
 - Section team pages list the whole roster, players with no game yet included (0.0, 0 games, seniors first), in both sports.
 - Checked side by side with football in LA City: Schedule, Standings, Teams, Players (POTW, TOP 10, overall), Stats (First Team, position leaders, compare), Rank by Overall, team page roster, player card. No page errors.
+
+## v503 (Nov 14, owner: "first team all varsity has section team and then ONE all team varsity, both give players special tags, but 1st team all varsity doesn't get the regional tag, make it look cooler")
+- ONE national First Team All-Varsity (best player in the country at each position by season fantasy pts) plus a First Team in every section. `AV_POS` (football QB RB WR TE K DL LB DB; basketball PG SG SF PF C via make_basketball.py), `avBest()`, `avNat()`, `avSec(id)`, `avKind(p)`, `avCard(sc)`.
+- Tags (`AVT`, class `.avt`): gold shiny ALL-VARSITY for the national team, blue ALL-SECTION for a section team. A national pick never also gets ALL-SECTION. `T10`, `T10W`, podium (under the name), share image tags all include it. National picks/tags wait for every section's players (`avReady()`, `avLoad()`), so nobody flickers.
+- The card replaces the old First Team strips (`sxAllV` on Stats, `leadersHTML` on Players): navy/gold foil card with a Nation / <section> tab (`UI.avt`, action `avt`), MVP badge, staggered entrance and shine sweep (off for reduced motion). Players tab with All sections shows the signed-in person's section on the second tab. `sbLeads`/`sbSecStats` (players.json-only fallback) are unchanged.
+- Name rows (`.who .nm`) now wrap so a long name keeps its space when a row has two tags.

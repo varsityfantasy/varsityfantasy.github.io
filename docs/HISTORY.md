@@ -798,3 +798,8 @@ Owner: make it like Retro Bowl. Passing concepts are named (Slants, Smash, Four 
 
 ## v497 (Nov 14): section loading screen
 - `secLoad(what,id)` (next to `secState`) returns an animated "Scouting <section>" card (scanning field, bouncing ball, shimmer title, progress bar; orange court + basketball in basketball via `.sl.bb`; reduced-motion safe). It replaces every plain "Loading…" in the section views: Games > section (schedule, players, roster), Players, Stats and Overall tabs. CSS block `/* v497 section loading screen */`.
+## v498 (Nov 14, owner: "choose my team → my stats ranked in that section, section first" + "ALL = all players from all sections")
+- Sign-up / Me > Edit school picker lists every section's schools (`nmSchoolOpts`, grouped by section, from each `api/v1/sections/<id>/<sport>/teams.json` via `secSchools()`; kept in `SEC_SCH`, NOT in `SECTIONS[].schools`, so shared school names never move San Diego players). The picked option's section is saved as `profile.sec` ('' / absent = San Diego).
+- `mySec()` = your team's section. `secLand()` (called from render's post step) opens Players/Stats/Games on it once per section change; `secFirst()` / the Players section row put it first (then All sections).
+- Me tab: `meSides()` finds you in your section's players (name+school), `myRanks` pools that section, "Around you in the <section> section".
+- Players > All sections = `allPl()` (San Diego + every loaded section, ~40k players); picking All loads every section's weekly file (`allLoading()` note while they arrive); TOP 10 tag is one global top 10 in All.

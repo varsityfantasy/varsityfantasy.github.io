@@ -3146,7 +3146,9 @@ const isPOTW=p=>potwRank(p)>0;
 const POTWT=p=>{const r=potwRank(p);return r===1?'<em class="top10 potw">POTW</em>':r?'<em class="top10 potw s">POTW</em>':''};
 const T10=p=>(isT10(p)?'<em class="top10">TOP 10</em>':'')+POTWT(p);
 const T10W=(p,h)=>isT10(p)||isPOTW(p)?`<span class="nmt">${h}${isT10(p)?'<em class="top10">TOP 10</em>':''}${POTWT(p)}</span>`:h;
-const gtag=p=>p&&p.gr?`<span class="gr">${GRL[p.gr]}</span>`:'';
+/* v494: grad year next to the grade (a Sr in the 2026-27 season graduates in 2027) */
+const gYr=g=>g>=1&&g<=4?2031-g:0,gLbl=g=>g>=1&&g<=4?`${GRL[g]} \u2019${String(gYr(g)).slice(2)}`:'';
+const gtag=p=>p&&p.gr?`<span class="gr" title="Class of ${gYr(p.gr)}">${gLbl(p.gr)}</span>`:'';
 const mpP=MP?MP.players.map(p=>({key:'mp'+p.id,gr:p.g||0,name:p.n,school:p.s,pos:p.p,sub:['CB','S'].includes(p.u)?'DB':(p.u||p.p),mp:true,tw:!!p.tw,sample:false,
   games:Array.from({length:WEEKS},(_,i)=>{const gl=p.gm&&p.gm[i+1]&&p.gm[i+1].length?p.gm[i+1]:null;let l=p.w[i+1];if(gl)l=KEYS.map((k,j)=>gl.reduce((a,r)=>a+(+r.s[j]||0),0));
   /* a week holds the SUM of the player's games that week; n = how many games (basketball can play twice a week), gl = each game's own line */
@@ -3583,7 +3585,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v494 · Nov 14';
+const APP_BUILD='v495 · Nov 14';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6901,7 +6903,7 @@ async function playerCardBlob(p){
   let y=730;if(tags.length){g.font=F(800,40);const t=tags.join('  ·  '),w=g.measureText(t).width+70;g.fillStyle='#FFC23D';g.beginPath();g.roundRect(W/2-w/2,y-52,w,72,36);g.fill();g.fillStyle='#0B1626';g.fillText(t,W/2,y-2);y+=70}
   let fs=150;g.font=F(800,fs);const nm=String(p.name).toUpperCase();while(g.measureText(nm).width>W-140&&fs>70){fs-=6;g.font=F(800,fs)}
   g.fillStyle='#fff';g.fillText(nm,W/2,y+110);
-  g.fillStyle='#B4C2D2';g.font=B(500,44);g.fillText(`${p.school} · ${p.pos==='DEF'&&p.sub?p.sub:p.pos}${classOf(p.name,p.school)?' · '+GRL[classOf(p.name,p.school)]:''}`,W/2,y+190);
+  g.fillStyle='#B4C2D2';g.font=B(500,44);g.fillText(`${p.school} · ${p.pos==='DEF'&&p.sub?p.sub:p.pos}${(p.gr||classOf(p.name,p.school))?' · '+gLbl(p.gr||classOf(p.name,p.school)):''}`,W/2,y+190);
   const a=agg(p,'season'),gs=p.games.filter(Boolean),best=bestG(p);
   const pool=players().filter(x=>x.mp&&x.pos===p.pos).map(x=>agg(x,'season').v).sort((m,n)=>n-m),rk=pool.findIndex(v=>v<=a.v)+1;
   g.fillStyle='#FFC23D';g.font=F(800,260);g.fillText(f1(a.v),W/2,y+470);
@@ -8444,7 +8446,7 @@ function hotHTML(sc,force){
   const sl=st=>Object.keys(AB).filter(k=>st&&st[k]>0).sort((x,y)=>Math.abs(st[y]*PTS[y])-Math.abs(st[x]*PTS[x])).slice(0,2).map(k=>`${st[k]>=1000?st[k].toLocaleString():st[k]} ${AB[k]}`).join(' · ');
   const row=(x,k)=>{const g=x.p.games[wt.w-1],m=k===1?'gold':'silver';return `<button class="pw-r ${m}" data-act="player" data-id="${esc(x.p.key)}">
     <span class="pw-k">${k}</span>${av(x.p.name,x.p.school,k===1?46:38)}
-    <span class="pw-who"><span class="pw-nm"><b>${esc(x.p.name)}</b><em class="top10 potw${k>1?' s':''}">POTW</em>${isT10(x.p)?'<em class="top10">TOP 10</em>':''}</span><small>${esc(x.p.school)} · ${esc(sl(g&&g.stat))}</small></span>
+    <span class="pw-who"><span class="pw-nm"><b>${esc(x.p.name)}</b><em class="top10 potw${k>1?' s':''}">POTW</em>${isT10(x.p)?'<em class="top10">TOP 10</em>':''}</span><small>${esc(x.p.school)}${x.p.gr?' · '+gLbl(x.p.gr):''} · ${esc(sl(g&&g.stat))}</small></span>
     <span class="pw-pt">${f1(x.v)}<i>pts</i></span></button>`};
   return `<section class="card pw-card"><div class="pw-h"><h3>Players of the Week</h3><span class="pw-wk">Week ${wt.w}</span></div>${pd.map((x,i)=>row(x,i+1)).join('')}</section>`;
 }
@@ -8548,7 +8550,7 @@ function viewLeague(){
   const secRow=`<div class="chips gm-wks sbr-secs" role="group" aria-label="Section">${[['ALL','All sections']].concat(Object.values(SECTIONS).map(x=>[x.id,x.name])).map(([v,l])=>`<button class="chip${v!=='ALL'&&!nSec[v]&&!(ix[v]||{}).games?' sbr-off':''}" data-act="psec" data-v="${v}" aria-pressed="${UI.psec===v}">${esc(l)}</button>`).join('')}</div>`;
   const secId=UI.psec==='ALL'?HOME_SEC:UI.psec;
   if(UI.stab==='overall')return `<div class="head"><h2>Overall</h2><p>${esc(SECTIONS[secId].full)}: teams, scoring and the biggest games.</p></div>${seg}${secRow}${sbOverall(secId)}`;
-  if(UI.stab==='stats')return `<div class="head"><h2>Stats</h2><p>${secId===HOME_SEC?'Leaders, hot streaks and top teams.':esc(SECTIONS[secId].full)+': leaders by position and top teams.'}</p></div>${seg}${secRow}${secId===HOME_SEC||xr?statsHTML():xst==='loading'?'<p class="empty">Loading stats...</p>':sbSecStats(secId)}`;
+  if(UI.stab==='stats')return `<div class="head"><h2>Stats</h2><p>${secId===HOME_SEC?'Leaders, hot streaks and top teams.':esc(SECTIONS[secId].full)+': leaders by position and top teams.'}</p></div>${seg}${secRow}${secId===HOME_SEC||xr?(xr?hotHTML(xs,true):'')+statsHTML():xst==='loading'?'<p class="empty">Loading stats...</p>':sbSecStats(secId)}`;
   if(xs&&!xr&&xst==='loading')return `<div class="head"><h2>Players</h2><p>${esc(SECTIONS[xs].full)}, ranked by fantasy points.</p></div>${seg}${secRow}<p class="empty">Loading players...</p>`;
   if(xs&&!xr)return `<div class="head"><h2>Players</h2><p>${esc(SECTIONS[UI.psec].full)}, ranked by fantasy points.</p></div>${seg}${secRow}${sbPlayersHTML(UI.psec)}`;
   return `<div class="head"><h2>Players</h2><p>${UI.psec==="ALL"?"Every player in the country, ranked by fantasy points.":esc(SECTIONS[UI.psec].full)+", ranked by fantasy points."}</p></div>

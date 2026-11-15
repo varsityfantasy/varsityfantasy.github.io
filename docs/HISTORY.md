@@ -782,3 +782,8 @@ Owner: make it like Retro Bowl. Passing concepts are named (Slants, Smash, Four 
 - **Workflow:** `players.yml` checks out the newest main, restores the page cache, reads rosters, then box scores, and `publish()` replays its data on top of main each round (the v490 run read everything but its push hit a rebase conflict with "API files update" and nothing was published). `data/players/last_run.txt` is the run's own report. `collect.yml` can be started by a push to `.github/triggers/collect` (football, not dry). Only ONE run can wait in the `varsity-collect` queue: a newer one cancels the waiting one.
 - Section Overall no longer adds a Top players card (San Diego has none). Still not there for other sections: picks, leagues, Bracket Challenge, most-anticipated.
 - v494 (Nov 14, owner): removed the "Claimed profile" text MaxPreps badges onto player names. Stripped from `data/rosters/*.fb.json` and `api/v1/sections/*/fb/{players,weekly}.json`, and `rosters.py` now strips it when reading a roster page, so it won't come back.
+
+
+## v495 (Nov 14, owner: "add players of the week for football in the other sections and grad year")
+- Grad year: `gLbl(g)` / `gYr(g)` (grade 4 = class of 2027 ... grade 1 = 2030). `gtag` chip now reads "Sr ’27" (title "Class of 2027") everywhere it is used (rows, podium, compare, league lineups, player page); Players of the Week rows and the share card show it too. Works for every section because the weekly files carry the roster grade.
+- Players of the Week for other sections: card was already on Players (top on phones) and Games > section > Players; it is now also at the top of Stats for a section that has weekly data (`viewLeague` stats branch: `hotHTML(xs,true)`).

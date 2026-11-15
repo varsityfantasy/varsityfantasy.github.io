@@ -863,3 +863,8 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 
 ## v513 — football weeks 12 and 13 are called Playoffs (owner)
 `PO_FROM=12` and `WKL(w,short)` (index.html): football weeks 12+ show as "Playoffs 1", "Playoffs 2" (short form too); other weeks stay "Week N"/"Wk N". make_basketball.py sets `PO_FROM=99`, so basketball is unchanged. Used in: Scoring period select (now also lists week 13, via `MPW`), scoreboard/games week chips and headings, game logs, player cards, 5 Card Draw, Games filter, head-to-head, header week label. Not changed: fantasy league matchup text and notifications ("week 12" there). To make both plain "Playoffs", edit `WKL`.
+
+## v514 — no crown on #1 OVR, All-Varsity under the leaderboard, 2nd and 3rd teams (owner)
+- Removed the crown on the #1 podium OVR chip (`.pod.p1 .ovr-t::before` and its left padding).
+- Stats tab: the First Team All-Varsity card (`leadersHTML`) now comes after the leaderboard list and "Show more", not above the podium.
+- `avBest` also returns `teams` [1st, 2nd, 3rd]: 2nd/3rd = next best at each position, nobody on two teams. Tags (ALL-VARSITY / ALL-SECTION) still use only the 1st team. `avCard` has 1st/2nd/3rd Team chips (`UI.avt`, action `avt`); tap a player to open the card. Works for the national card and every section's card (Overall tab).

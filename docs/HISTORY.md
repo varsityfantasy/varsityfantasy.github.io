@@ -860,3 +860,6 @@ One-off week scripts replaced by reusable ones: `tools/fb_boxscores/collect_week
 
 ## v512 — week 13 player stats now show in the app
 The week-13 box scores were in stats.js since v510 but invisible: `mpP` built each player's `games` array with `WEEKS`=12 slots, so week 13 was cut off. Now it uses `MPW`=max(WEEKS, week number in `MAXPREPS.through`). Checked in the football preview: Jayden Cunningham (Hoover) has a week-13 line (84 rush yd, 4 TD). Basketball unchanged. Next pulls (week 14+) need no code change.
+
+## v513 — football weeks 12 and 13 are called Playoffs (owner)
+`PO_FROM=12` and `WKL(w,short)` (index.html): football weeks 12+ show as "Playoffs 1", "Playoffs 2" (short form too); other weeks stay "Week N"/"Wk N". make_basketball.py sets `PO_FROM=99`, so basketball is unchanged. Used in: Scoring period select (now also lists week 13, via `MPW`), scoreboard/games week chips and headings, game logs, player cards, 5 Card Draw, Games filter, head-to-head, header week label. Not changed: fantasy league matchup text and notifications ("week 12" there). To make both plain "Playoffs", edit `WKL`.

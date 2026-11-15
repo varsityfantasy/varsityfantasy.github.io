@@ -3308,6 +3308,9 @@ const T10W=(p,h)=>{const a=AVT(p);return isT10(p)||isPOTW(p)||a?`<span class="nm
 const gYr=g=>g>=1&&g<=4?2031-g:0,gLbl=g=>g>=1&&g<=4?`${GRL[g]} \u2019${String(gYr(g)).slice(2)}`:'';
 const gtag=p=>p&&p.gr?`<span class="gr" title="Class of ${gYr(p.gr)}">${gLbl(p.gr)}</span>`:'';
 const MPW=MP?Math.max(WEEKS,+((/Week\s+(\d+)/.exec(MP.through||'')||[])[1])||0):WEEKS; /* v511: stats can run past WEEKS (week 13 playoffs) */
+/* v512 (owner): football weeks PO_FROM+ are called Playoffs (1, 2); basketball sets PO_FROM=99 */
+const PO_FROM=12;
+const WKL=(w,short)=>w>=PO_FROM?'Playoffs '+(w-PO_FROM+1):(short?'Wk ':'Week ')+w;
 const mpP=MP?MP.players.map(p=>({key:'mp'+p.id,gr:p.g||0,name:p.n,school:p.s,pos:p.p,sub:['CB','S'].includes(p.u)?'DB':(p.u||p.p),mp:true,tw:!!p.tw,sample:false,
   games:Array.from({length:MPW},(_,i)=>{const gl=p.gm&&p.gm[i+1]&&p.gm[i+1].length?p.gm[i+1]:null;let l=p.w[i+1];if(gl)l=KEYS.map((k,j)=>gl.reduce((a,r)=>a+(+r.s[j]||0),0));
   /* a week holds the SUM of the player's games that week; n = how many games (basketball can play twice a week), gl = each game's own line */
@@ -3755,7 +3758,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v512 · Nov 15';
+const APP_BUILD='v513 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4175,7 +4178,7 @@ async function act(fn,ok){
 }
 const bigV=a=>f1(a.v);
 const subV=a=>UI.rank==='prev'?(a.w?`week ${a.w} game`:'no games'):UI.scope!=='season'?'this week':`${f1(a.n?a.v/a.n:0)} per game`;
-const scopeSel=(id,off)=>`<label class="fld"><span>Scoring period</span><select id="${id}" data-act="scope" ${off?'disabled title="Previous ranks by each player’s last game"':''}>${['season',...Array.from({length:WEEKS},(_,i)=>i+1)].map(v=>`<option value="${v}" ${String(UI.scope)===String(v)?'selected':''}>${v==='season'?'Season total':'Week '+v+(v===CURW()?' (current)':'')}</option>`).join('')}</select></label>`;
+const scopeSel=(id,off)=>`<label class="fld"><span>Scoring period</span><select id="${id}" data-act="scope" ${off?'disabled title="Previous ranks by each player’s last game"':''}>${['season',...Array.from({length:MPW},(_,i)=>i+1)].map(v=>`<option value="${v}" ${String(UI.scope)===String(v)?'selected':''}>${v==='season'?'Season total':WKL(v)+(v===CURW()?' (current)':'')}</option>`).join('')}</select></label>`;
 const rankSw=()=>`<div class="fld"><span>Rank by</span><div class="chips" role="group" aria-label="Rank by">${[['total','Total'],['prev','Previous'],['ovr','Overall']].filter(x=>x[0]!=='prev'||!secTot(vsec())).map(([v,l])=>`<button class="chip" data-act="rank" data-v="${v}" aria-pressed="${UI.rank===v}">${l}</button>`).join('')}</div></div>`;
 /* v274 injuries (owner): name|school -> {until: last week he misses, or 99 for the season}. Shown as an OUT tag; no props while out. */
 const INJ={"Khai Agbayani|Bishop's":{until:99,note:'Out for the season'},"Jackson Binn|Bishop's":{until:13,note:'Out for week 13'},"Ryan O'Donovan|Bishop's":{until:13,note:'Out for week 13'},"Cooper Armstrong|Bishop's":{until:13,note:'Out for week 13'}};
@@ -4282,7 +4285,7 @@ function viewSched(head){
   const brs=GAMES.brackets||[];
   const schools=[...new Set(gs.flatMap(g=>[g.h,g.a]))].filter(n=>SD_SCHOOLS.includes(n)).sort();
   const pr=myProfile(),mine=pr&&pr.school;
-  const tabs=`<div class="chips gm-wks" role="group" aria-label="Week">${weeks.map(x=>`<button class="chip" data-act="gweek" data-w="${x}" aria-pressed="${x===w&&UI.gw!=='P'}">Wk ${x}${x===cur?' •':''}</button>`).join('')}${brs.length?`<button class="chip" data-act="gweek" data-w="P" aria-pressed="${UI.gw==='P'}">Playoffs</button>`:''}</div>`;
+  const tabs=`<div class="chips gm-wks" role="group" aria-label="Week">${weeks.map(x=>`<button class="chip" data-act="gweek" data-w="${x}" aria-pressed="${x===w&&UI.gw!=='P'}">${WKL(x,1)}${x===cur?' •':''}</button>`).join('')}${brs.length?`<button class="chip" data-act="gweek" data-w="P" aria-pressed="${UI.gw==='P'}">Playoffs</button>`:''}</div>`;
   if(UI.gw==='P'){
     const d=brs.find(b=>b.div===UI.gdiv)||brs[0];
     return head+`<div class="tools">${tabs}</div>
@@ -4558,7 +4561,7 @@ const fcMon=d=>{const t=new Date(d+'T12:00:00Z'),k=(t.getUTCDay()+6)%7;return ne
 const fcMaxW=()=>Math.max(WEEKS,...Object.keys(fcIdx().w).map(Number));
 function fcCalW(){const t=TODAY();let best=0;const W=fcIdx().w;for(const k of Object.keys(W)){const d=W[k].map(g=>g.d).sort()[0];if(d&&fcMon(d)<=t&&+k>best)best=+k}return best}
 function fcCur(){if(!FC_DAILY)return Math.min(fcMaxW(),Math.max(CURW(),fcCalW()));const ds=Object.keys(fcIdx().d).sort(),t=TODAY();return dayNo(ds.find(x=>x>=t)||ds[ds.length-1]||t)}
-const fcLabel=s=>FC_DAILY?new Date(dayOf(s)+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'}):'Week '+s;
+const fcLabel=s=>FC_DAILY?new Date(dayOf(s)+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'}):WKL(s);
 const fcUnit=()=>FC_DAILY?'day':'week';
 /* the player's stat line for that slot, or null. A basketball day uses the player's own game line (gl) for that date; week-only data counts only when his team played once that week. */
 function fcPts(p,s){if(!p)return null;if(!FC_DAILY)return (p.games&&p.games[s-1])||null;
@@ -4639,7 +4642,7 @@ function fcViewSheet(u,w){const hd=fcHand(u,w);if(!hd)return;const c=$('#cfm'),m
     return `<button type="button" class="fcv-row" data-act="fcPl" data-id="${esc(k)}">${av(p.name,p.school,40)}<span class="who"><b>${esc(p.name)}</b><small class="muted">${p.pos==='DEF'?esc(p.sub||'DEF'):esc(p.pos)} · ${slogo(p.school)}${esc(p.school)}</small></span><span class="pt"><b>${x?f1(pts(x.stat)):dnp?'0.0':'—'}</b><small>${x?'pts':dnp?'did not play':'waiting'}</small></span></button>`}).join('');
   const st=hd.lk?'Locked in':w===cw&&fcOpen(w)?'Still drawing':'Final';
   c.innerHTML=`<div class="gcard tok-sheet fcv" role="dialog" aria-modal="true" aria-labelledby="fcv-t"><button type="button" class="tok-x" data-c="no" aria-label="Close">✕</button>
-    <div class="fcv-h">${av(nm(u),u,44)}<div><h2 id="fcv-t">${esc(me?'Your hand':nm(u)+'’s hand')}</h2><small class="muted">5 Card Draw · ${esc(FC_DAILY?fcLabel(w):'Week '+w)} · ${st} · ${hd.r||0} ${(hd.r||0)===1?'redraw':'redraws'} used</small></div></div>
+    <div class="fcv-h">${av(nm(u),u,44)}<div><h2 id="fcv-t">${esc(me?'Your hand':nm(u)+'’s hand')}</h2><small class="muted">5 Card Draw · ${esc(FC_DAILY?fcLabel(w):WKL(w))} · ${st} · ${hd.r||0} ${(hd.r||0)===1?'redraw':'redraws'} used</small></div></div>
     <div class="fcv-list">${rows}</div>
     <div class="fcv-tot"><span>Hand total</span><b>${f1(fcScore(u,w))}</b></div></div>`;
   c.hidden=false;const x=c.querySelector('.tok-x');if(x)x.focus()}
@@ -4677,7 +4680,7 @@ function fcHTML(){
         const st=done?'Final':wt?'Waiting on '+wt+' '+(wt===1?'stat line':'stat lines'):'Waiting on other hands';
         return `<li class="fc-tap ${n===w?'me':''}" data-act="fcWeek" data-v="${n}" role="button" tabindex="0" aria-label="See your week ${n} hand"><span class="rk">${n}</span><span class="who"><b>Week ${n}</b><small class="muted">${esc((hd.h||[]).map(k=>{const p=pByKey(k);return p?p.name.split(' ').slice(-1)[0]:''}).join(', '))}</small></span><span class="pt"><b>${f1(fcScore(ME.uid,n))}</b><small>${st}</small></span></li>`};
       return `<section class="card"><div class="qh"><h3>Your previous hands</h3></div><p class="muted">Tap a week to see that hand. Prizes for a week pay out once every stat is in; the new week stays playable meanwhile.</p><ol class="fc-board">${ps.map(row).join('')}</ol></section>`})()}
-    <section class="card"><div class="qh"><h3>Leaderboard</h3><div class="chips"><button class="chip" data-act="fcBoard" data-v="week" aria-pressed="${!byS&&!byW}">${FC_DAILY?fcLabel(w):'Week '+w}</button><button class="chip" data-act="fcBoard" data-v="season" aria-pressed="${byS}">Season</button></div></div>
+    <section class="card"><div class="qh"><h3>Leaderboard</h3><div class="chips"><button class="chip" data-act="fcBoard" data-v="week" aria-pressed="${!byS&&!byW}">${FC_DAILY?fcLabel(w):WKL(w)}</button><button class="chip" data-act="fcBoard" data-v="season" aria-pressed="${byS}">Season</button></div></div>
     ${fcWaitNote(FC_DAILY?w:wkOf)}<p class="fg-prize">${FC_DAILY?'Daily':'Weekly'} prizes: <b>1st</b> ${esc(PACKS.player.n)} · <b>2nd–3rd</b> ${esc(PACKS.rookie.n)} · <b>Top ${FC_DAILY?25:50}%</b> +${LB_TOK} tokens${ME.uid&&fcPrizes(ME.uid).length?` <a href="#shop"><b>You have a prize waiting →</b></a>`:''}</p>
     ${top.length?`<ol class="fc-board">${top.map(lrow).join('')}${me&&me.r>25?'<li class="fc-gap">…</li>'+lrow(me):''}</ol>`:'<p class="hint">No hands yet. Be the first to get dealt in.</p>'}</section>`;
 }
@@ -5323,7 +5326,7 @@ function achInfo(id){const a=achParse(id);if(!a)return {name:'Player',school:'',
   const p=pByKey(a.key)||{},r=(achData().rk[id]||{}),A=ACH[a.t],pl=p.name?p.name:'Player';
   const where=a.t==='pos'?`${A.n} ${r.ps||p.pos||''}`.trim():A.n;
   return {t:a.t,w:a.w,key:a.key,ach:1,name:pl,school:p.school||'',k:A.k,pct:A.pct,rank:r.rk||0,
-    line:a.w?`${where} · Week ${a.w}`:`${A.n} this season`,sub:(a.w?`${where} · Week ${a.w}`:`${A.n} this season`)+' · '+(p.school||'')}}
+    line:a.w?`${where} · ${WKL(a.w)}`:`${A.n} this season`,sub:(a.w?`${where} · ${WKL(a.w)}`:`${A.n} this season`)+' · '+(p.school||'')}}
 function achArt(id,s=54){const a=achInfo(id),w=Math.round(s*.78);
   return `<span class="tcard tc-x ax-${a.t}" style="width:${w}px;height:${s}px"><b class="tcx-k">${a.k}</b>${av(a.name,a.school,Math.round(s*.34))}<i>${a.w?'WK '+a.w:'SEASON'}</i><u class="tcx-s"></u></span>`}
 const achOwned=u=>Object.keys(cardsOf(u)).filter(id=>id.startsWith('ac:')&&cardsOf(u)[id].x);
@@ -6633,7 +6636,7 @@ function simSeasonHTML(m){
   return `<section class="card sim-season"><div class="qh"><h3>${slogo(s.school,26)} ${esc(s.school)} season</h3></div>
     <div class="fc-bar"><div><small>Record</small><b>${s.W}-${s.L}</b></div><div><small>Points</small><b>${s.PF}-${s.PA}</b></div><div><small>Result</small><b style="font-size:1rem;line-height:1.2">${verdict}</b></div></div>
     <p class="muted">Your drafted team gives ${esc(s.school)} ${sp>=0?'+':''}${f1(sp)} points per game on top of their real rating. Ten regular-season games: their real schedule, with any open weeks filled by similar teams, simulated from team ratings.</p>
-    ${s.games.map(g=>row('Wk '+g.w+' · '+(g.home?'vs ':'at '),g.opp,g.a,g.b,g.win)).join('')}
+    ${s.games.map(g=>row(WKL(g.w,1)+' · '+(g.home?'vs ':'at '),g.opp,g.a,g.b,g.win)).join('')}
     ${s.po.length?`<div class="qh" style="margin-top:12px"><h3>Playoffs</h3></div>${s.po.map(p=>row(p.round+' · vs ',p.opp,p.a,p.b,p.win)).join('')}`:''}
 </section>`;
 }
@@ -6776,7 +6779,7 @@ function bfBar(extra){
   const dvs=[...new Set(gs.map(g=>g.dv).filter(Boolean))].sort(),ws=[...new Set(gs.map(g=>g.w))].sort((a,b)=>a-b),scs=[...new Set(gs.flatMap(g=>[g.h,g.a]))].sort();
   const sel=(k,lab,all,opts)=>`<label class="fld"><span>${lab}</span><select data-act="bf" data-f="${k}"><option value="">${all}</option>${opts.map(([v,t])=>`<option value="${esc(String(v))}" ${String(f[k])===String(v)?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`;
   const any=f.dv||f.w||f.sc;
-  return `<section class="card bf-bar">${sel('dv','Division','All divisions',dvs.map(d=>[d,d]))}${sel('w','Week','All weeks',ws.map(w=>['' +w,'Week '+w]))}${sel('sc','School','All schools',scs.map(s=>[s,s]))}${any?'<button class="btn sm ghost" data-act="bfClear">Clear filters</button>':''}${extra||''}</section>`;
+  return `<section class="card bf-bar">${sel('dv','Division','All divisions',dvs.map(d=>[d,d]))}${sel('w','Week','All weeks',ws.map(w=>['' +w,WKL(w)]))}${sel('sc','School','All schools',scs.map(s=>[s,s]))}${any?'<button class="btn sm ghost" data-act="bfClear">Clear filters</button>':''}${extra||''}</section>`;
 }
 const abbr=n=>!n?'TBD':n.length<=11?n:n.split(/\s+/).map(w=>w[0]).join('').slice(0,4).toUpperCase();
 /* v405 (owner): player props are parlays only. Tap Over/Under on 2-6 different players (any games), then ONE wager on the whole parlay. Saved in picks/<uid>.parl under key 'p|<time>|<rand>' (same record as duo parlays, but each leg carries its own w and g); bank(), earned(), parlResult() and fcKeep() already handle it. Boost = sum of the legs' card percents (cap 500). Older single prop picks still settle. */
@@ -8373,7 +8376,7 @@ function sbSchedBody(D){
   if(lg!=='ALL')list=list.filter(g=>[sbTD(D,g.home_id,g.home),sbTD(D,g.away_id,g.away)].some(t=>t&&t.league===lg));
   list=list.slice().sort((a,b)=>(a.date<b.date?-1:a.date>b.date?1:0)||a.home.localeCompare(b.home));
   const fin=list.filter(g=>g.hs!=null).length,total=list.length;
-  return `<div class="qh"><h3>${q?'Games for “'+esc(UI.sbgq.trim())+'”':'Week '+sbWkN(w)}</h3><span class="muted">${total} ${total===1?'game':'games'}${fin?` · ${fin} final`:''}</span></div>
+  return `<div class="qh"><h3>${q?'Games for “'+esc(UI.sbgq.trim())+'”':WKL(sbWkN(w))}</h3><span class="muted">${total} ${total===1?'game':'games'}${fin?` · ${fin} final`:''}</span></div>
     ${total?`<div class="gm-grid">${list.slice(0,240).map(g=>sbCard(g,D)).join('')}</div>${total>240?'<p class="muted">Showing the first 240. Search a team to narrow it down.</p>':''}`:'<p class="empty">No games '+(q?'match.':'this week.')+'</p>'}`;
 }
 function sbSched(D){
@@ -8382,7 +8385,7 @@ function sbSched(D){
   const w=UI.sbw&&weeks.includes(UI.sbw)?UI.sbw:cur;
   const leagues=[...new Set(Object.values(D.teams).map(t=>t.league).filter(Boolean))].sort();
   return `<div class="tools lite"><div class="sb"><span class="sw"><input id="sbgq" type="search" placeholder="Search a team" aria-label="Search a team" value="${esc(UI.sbgq)}"></span></div>
-    <div class="chips gm-wks" role="group" aria-label="Week">${weeks.map((x,i)=>`<button class="chip" data-act="sbw" data-v="${x}" aria-pressed="${x===w}">Wk ${sbWkN(x)}${x===cur?' •':''}</button>`).join('')}</div>
+    <div class="chips gm-wks" role="group" aria-label="Week">${weeks.map((x,i)=>`<button class="chip" data-act="sbw" data-v="${x}" aria-pressed="${x===w}">${WKL(sbWkN(x),1)}${x===cur?' •':''}</button>`).join('')}</div>
     ${leagues.length?`<label class="fld"><span>League</span><select data-act="sbl"><option value="ALL">All leagues</option>${leagues.map(l=>`<option ${UI.sbl===l?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`:''}</div>
     <div id="sb-glist">${sbSchedBody(D)}</div>`;
 }
@@ -8837,7 +8840,7 @@ function compareHTML(){
     const keys=[...new Set([...FIELDS[P[0].pos],...FIELDS[P[1].pos]])].filter(k=>(A[0].s[k]||0)||(A[1].s[k]||0));
     const stats=keys.map(k=>row(LABEL[k],A[0].s[k]||0,A[1].s[k]||0,null,k==='int'||k==='fumLost')).join('');
     const wks=Array.from({length:CURW()},(_,i)=>i+1).filter(w=>P.some(p=>p.games[w-1]));
-    const wk=wks.map(w=>row('Week '+w,P[0].games[w-1]?pts(P[0].games[w-1].stat):null,P[1].games[w-1]?pts(P[1].games[w-1].stat):null,v=>v==null?'-':f1(v),false,false,false)).join('');
+    const wk=wks.map(w=>row(WKL(w),P[0].games[w-1]?pts(P[0].games[w-1].stat):null,P[1].games[w-1]?pts(P[1].games[w-1].stat):null,v=>v==null?'-':f1(v),false,false,false)).join('');
     const tot=wins[0]+wins[1];lead=wins[0]!==wins[1]?(wins[0]>wins[1]?0:1):(A[0].v===A[1].v?-1:A[0].v>A[1].v?0:1);
     const sum=tot?`<div class="cmp-sum"><b>${wins[0]}</b><span>${wins[0]===wins[1]?'Dead even across '+tot+' categories':esc((wins[0]>wins[1]?P[0]:P[1]).name.split(' ')[0])+' wins more categories'}</span><b>${wins[1]}</b></div>`:'';
     const fighter=s=>{const p=P[s],a=A[s],g=a.n?a.v/a.n:0,sp=spinNow(s);
@@ -9605,7 +9608,7 @@ function drawerHTML(p){
   const log=p.games.map((g,i)=>({w:i+1,g,i})).reverse().map(({w,g,i})=>g&&g.gl&&g.gl.length
     ?g.gl.map((y,k)=>({y,k})).reverse().map(({y,k})=>`<tr><td>${GAME_L} ${cum[i]+k+1}<small class="muted"> ${esc(dt(y.d))}${y.o?' '+esc(y.o):''}</small></td><td>${line(p.pos,y.stat)}</td><td class="n">${f1(pts(y.stat))}</td></tr>`).join('')
     :g
-    ?`<tr><td>${GAME_L==='Wk'?'Wk '+w:'Game '+(cum[i]+1)+((g.n||1)>1?'-'+(cum[i]+g.n):'')}${p.ext&&g.o?`<small class="muted"> ${esc(dt(g.d))} ${esc(g.o)}</small>`:!p.ext&&oppOf[w]?`<small class="muted"> vs ${esc(oppOf[w])}</small>`:''}</td><td>${line(p.pos,g.stat)}${other(i)}</td><td class="n">${f1(pts(g.stat))}</td></tr>`
+    ?`<tr><td>${GAME_L==='Wk'?WKL(w,1):'Game '+(cum[i]+1)+((g.n||1)>1?'-'+(cum[i]+g.n):'')}${p.ext&&g.o?`<small class="muted"> ${esc(dt(g.d))} ${esc(g.o)}</small>`:!p.ext&&oppOf[w]?`<small class="muted"> vs ${esc(oppOf[w])}</small>`:''}</td><td>${line(p.pos,g.stat)}${other(i)}</td><td class="n">${f1(pts(g.stat))}</td></tr>`
     :tw&&tw.games[i]?`<tr><td>Wk ${w}</td><td><span class="muted">No ${esc(side(p))} stats</span>${other(i)}</td><td class="n">—</td></tr>`
     :`<tr class="dim"><td>${GAME_L==='Wk'?'Wk ':'Week '}${w}</td><td>${p.ext?'No game':w>=cw&&!noGameWk(p.school,w)?'Not reported yet':'No game'}</td><td class="n">—</td></tr>`).join('');
   const twNote=tw?`<p class="tw-note"><b>Two-way player</b><button class="btn sm ghost" data-act="player" data-id="${esc(tw.key)}">Open ${tw.pos==='DEF'?'DEF':tw.pos} card</button></p>`:'';
@@ -10550,8 +10553,8 @@ function chrome(v){
   document.querySelectorAll('.tabs a').forEach(a=>{a.removeAttribute('aria-current');if(a.getAttribute('href')==='#'+(v==='team'?'games':v))a.setAttribute('aria-current','page')});
   
   const n=computeNotes().length,bc=$('#bcount');if(bc){bc.textContent=n;bc.hidden=!n}try{ntPush()}catch(_){}
-  const wk=$('#wk');if(wk)wk.textContent='Week '+CURW();
-  const wk2=$('#wk2');if(wk2)wk2.textContent='Week '+CURW();
+  const wk=$('#wk');if(wk)wk.textContent=WKL(CURW());
+  const wk2=$('#wk2');if(wk2)wk2.textContent=WKL(CURW());
   /* tokens + Shop in the header on every tab (v258) */
   try{const on=!!(ME.uid&&ME.mode!=='guest'),h=on?coinIc(ME.uid)+'<b>'+Math.round(bank(ME.uid)).toLocaleString()+'</b>':'';
     document.querySelectorAll('.hdr-tk').forEach(e=>{e.hidden=!on});document.querySelectorAll('.hdr-tokn').forEach(e=>{if(e.innerHTML!==h)e.innerHTML=h});

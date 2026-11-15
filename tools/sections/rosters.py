@@ -67,7 +67,7 @@ def parse_roster(page):
     for cells, cid, li in pr.rows:
         if li is None or li >= len(cells) or not cells[li]:
             continue
-        name = cells[li]
+        name = re.sub(r'\s*Claimed profile\s*$', '', cells[li], flags=re.I).strip()  # MaxPreps badge text, not part of the name
         rest = cells[li + 1:]
         ci = next((i for i, c in enumerate(rest) if CLASS_RE.match(c)), None)
         cls = ''

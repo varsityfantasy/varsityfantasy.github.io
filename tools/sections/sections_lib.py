@@ -145,6 +145,11 @@ class MaxPrepsAdapter(Adapter):
                     for k in ('logo', 'color'):
                         if t.get(k) or keep.get(k):
                             schools[sid][k] = t.get(k) or keep.get(k)
+                    urls = dict(keep.get('urls') or {})   # team page per sport: rosters.py reads <team page>roster/
+                    if t.get('url'):
+                        urls[sp] = t['url']
+                    if urls:
+                        schools[sid]['urls'] = urls
             games.update(g)
             brackets.update(rep.get('brackets') or {})
         return {'section': section, 'source': 'maxpreps', 'schools': list(schools.values()), 'players': [], 'games': list(games.values()), 'lines': [],

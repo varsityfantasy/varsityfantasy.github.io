@@ -21,6 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 import players as PL  # noqa: E402
+import rosters as RO  # noqa: E402
 TOP = None   # None = every player (the app pages them with Show more)
 SPORTS = ('fb', 'bb')
 VERSION = 1
@@ -92,19 +93,33 @@ def build_sport(sec, sport, out):
     return {'teams': len(T), 'games': len(games), 'played': sum(1 for g in games if final(g)), 'weeks': len(weeks)}
 
 
-def build_players(sec_id, sport, src, out):
+def build_players(sec_id, sport, src, out, rosters=None):
     """players.json: every player by fantasy points (all of them when TOP is None), as arrays [name, school, pos, games, fp, v1, v2 ...] in `keys` order (smaller than objects)."""
     p = os.path.join(src, '%s.%s.json' % (sec_id, sport))
     if not os.path.exists(p):
         return None
     pl = json.load(open(p, encoding='utf-8'))['players']
     keys = PL.KEYS[sport]
+    # rosters (rosters.py): real positions, class year and the full name. Without one the position is guessed from the stats, as before.
+    rp = os.path.join(rosters or '', '%s.%s.json' % (sec_id, sport))
+    R = json.load(open(rp, encoding='utf-8'))['players'] if rosters and os.path.exists(rp) else {}
     rows = []
     for cid, e in pl.items():
         t = e['t']
+        r = R.get(cid)
+        if sport == 'fb':
+            guess = PL.guess_pos(t)
+            if r and r[2]:
+                pos, sub, alt = RO.football_pos(r[2], guess, t)
+            else:
+                pos = guess or ('DEF' if any(t.get(k) for k in ('ff', 'fr', 'dTD')) else 'RB')   # only a fumble recovery or a return TD: defense, else offense
+                sub, alt = ('' if pos == 'DEF' else pos), ''
+        else:
+            pos, sub, alt = None, '', ''
+        e = dict(e, n=(r[0] if r and r[0] else e['n']), _pos=pos, _sub=sub, _alt=alt, _gr=RO.grade(r[1]) if r else 0)
         rows.append((PL.fantasy(t, sport), e, t, cid))
     rows.sort(key=lambda r: (-r[0], r[1]['n']))
-    body = [[e['n'], e['s'], (PL.guess_pos(t) if sport == 'fb' else None), e['g'], fp] + [t.get(k, 0) for k in keys] for fp, e, t, cid in (rows if TOP is None else rows[:TOP])]
+    body = [[e['n'], e['s'], e['_pos'], e['g'], fp] + [t.get(k, 0) for k in keys] for fp, e, t, cid in (rows if TOP is None else rows[:TOP])]
     base = os.path.join(out, 'sections', sec_id, sport)
     os.makedirs(base, exist_ok=True)
     with open(os.path.join(base, 'players.json'), 'w', encoding='utf-8') as f:
@@ -117,7 +132,9 @@ def build_players(sec_id, sport, src, out):
 def build_weekly(sec_id, sport, rows, keys, base):
     """weekly.json: every player's line for every game (needs the format-2 player files that keep 'gl'). This is what the app loads to give a
     section the same pages San Diego has: Players of the Week, TOP 10, trends, best single games, game logs.
-    players: [id, name, school, pos, [[date, opponent, [key index, value, key index, value ...]], ...]] in fantasy-points order."""
+    players: [id, name, school, pos, [[date, opponent, [key index, value, key index, value ...]], ...], sub, grade, alt] in fantasy-points order.
+    sub: DL / LB / DB for a defender when his roster says ('' = the app guesses), grade: 1-4 (0 unknown), alt: his position on the other side of
+    the ball for a two-way player's second card. The last three come from the roster (rosters.py)."""
     ki = {k: i for i, k in enumerate(keys)}
     out = []
     for fp, e, t, cid in rows:
@@ -133,14 +150,11 @@ def build_weekly(sec_id, sport, rows, keys, base):
                 if v:
                     flat += [ki[k], int(v) if float(v).is_integer() else v]
             games.append([d, opp, flat])
-        pos = PL.guess_pos(t) if sport == 'fb' else None
-        if sport == 'fb' and not pos:   # only a fumble recovery, a return TD or a lost fumble: defense if any defensive stat, else offense
-            pos = 'DEF' if any(t.get(k) for k in ('ff', 'fr', 'dTD')) else 'RB'
-        out.append([cid, e['n'], e['s'], pos, games])
+        out.append([cid, e['n'], e['s'], e['_pos'], games, e['_sub'], e['_gr'], e['_alt']])
     if not out:
         return 0
     with open(os.path.join(base, 'weekly.json'), 'w', encoding='utf-8') as f:
-        json.dump({'section': sec_id, 'sport': sport, 'keys': keys, 'columns': ['id', 'name', 'school', 'pos', 'games'], 'players': out},
+        json.dump({'section': sec_id, 'sport': sport, 'keys': keys, 'columns': ['id', 'name', 'school', 'pos', 'games', 'sub', 'grade', 'alt'], 'players': out},
                   f, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
     return len(out)
 
@@ -153,6 +167,7 @@ def main(argv=None):
     ap.add_argument('--data', default=os.path.join(ROOT, 'data', 'sections'))
     ap.add_argument('--out', default=os.path.join(ROOT, 'api', 'v1'))
     ap.add_argument('--players', default=os.path.join(ROOT, 'data', 'players'))
+    ap.add_argument('--rosters', default=os.path.join(ROOT, 'data', 'rosters'))
     a = ap.parse_args(argv)
     if not os.path.isdir(a.data):
         print('no data folder at %s; nothing to build' % a.data)
@@ -168,7 +183,7 @@ def main(argv=None):
         updated = max(updated, sec.get('synced') or '')
         info = {s: build_sport(sec, s, a.out) for s in SPORTS}
         for s in SPORTS:
-            np = build_players(sec['section'], s, a.players, a.out)
+            np = build_players(sec['section'], s, a.players, a.out, a.rosters)
             if np:
                 (info.get(s) or info.setdefault(s, {'teams': 0, 'games': 0, 'played': 0, 'weeks': 0}))['players'] = np
         info = {s: v for s, v in info.items() if v}

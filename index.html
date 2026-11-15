@@ -1608,7 +1608,7 @@ select option{background:#0B1730;color:#EAF0F8}
 .lk-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:10px}.lk-card{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;border:1px solid var(--line);border-left:3px solid var(--rc);background:var(--surface2);color:inherit;font:inherit;text-align:left}.lk-card span{display:flex;flex-direction:column;gap:2px;min-width:0}.lk-card small{font-size:.72rem}
 /* v503 All-Varsity: tags and the First Team card */
 @keyframes avGlint{0%,55%{background-position:-160% 0,0 0}100%{background-position:260% 0,0 0}}
-@keyframes avIn{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes avIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
 @keyframes avSweep{0%,60%{transform:translateX(-130%) skewX(-18deg)}100%{transform:translateX(330%) skewX(-18deg)}}
 @keyframes avPulse{0%,100%{filter:drop-shadow(0 0 4px rgba(255,194,61,.5))}50%{filter:drop-shadow(0 0 11px rgba(255,194,61,.95))}}
 .avt{flex:none;display:inline-flex;align-items:center;gap:3px;font:800 italic .6rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#3A2600;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.95) 50%,transparent 65%) -160% 0/60% 100% no-repeat,linear-gradient(100deg,#FFD15A,#FFF1B8 45%,#F5B300);padding:3px 6px 2px 5px;border-radius:5px;white-space:nowrap;pointer-events:none;box-shadow:0 0 8px rgba(255,194,61,.5);animation:avGlint 2.8s ease-in-out infinite}
@@ -1616,36 +1616,23 @@ select option{background:#0B1730;color:#EAF0F8}
 .avt.s{color:#EAF4FF;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%) -160% 0/60% 100% no-repeat,linear-gradient(100deg,#27528F,#3F78C4 50%,#244A80);box-shadow:0 0 6px rgba(63,120,196,.45)}
 .who .nm{flex-wrap:wrap;row-gap:3px}.who .nm b{flex:0 1 auto;min-width:min(5.5em,100%)}
 .nmt .avt{flex:none}.dh h2 .avt{font-size:.68rem}.pod .avt{align-self:center;margin-top:-2px}
-.avc{position:relative;overflow:hidden;color:#fff;border:1px solid rgba(255,194,61,.55);background:radial-gradient(120% 90% at 12% -10%,rgba(255,194,61,.28),transparent 55%),radial-gradient(90% 80% at 100% 0,rgba(63,120,196,.35),transparent 60%),linear-gradient(160deg,#0C1B3F,#07122B 70%);box-shadow:0 10px 30px rgba(7,18,43,.35),inset 0 0 0 1px rgba(255,255,255,.04)}
-.avc.sec{border-color:rgba(110,160,230,.6);background:radial-gradient(120% 90% at 12% -10%,rgba(110,160,230,.3),transparent 55%),linear-gradient(160deg,#0E1E42,#08142D 70%)}
-.avc::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 14px);pointer-events:none}
-.avc-h{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.avc-t{display:flex;align-items:center;gap:10px}
-.avc-star{font-style:normal;font-size:2rem;line-height:1;color:#FFC23D;animation:avPulse 2.6s ease-in-out infinite}
-.avc.sec .avc-star{color:#7DB0F2;filter:drop-shadow(0 0 6px rgba(125,176,242,.6));animation:none}
-.avc-t small{display:block;font:800 italic .7rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#FFC23D;margin-bottom:3px}
-.avc.sec .avc-t small{color:#9CC4F7}
-.avc-t h3{margin:0;font:900 italic 1.9rem/.95 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.04em;text-transform:uppercase;background:linear-gradient(180deg,#fff,#FFE9A8 60%,#F5B300);-webkit-background-clip:text;background-clip:text;color:transparent}
-.avc.sec .avc-t h3{background:linear-gradient(180deg,#fff,#CFE3FF 60%,#7DB0F2);-webkit-background-clip:text;background-clip:text}
-.avc-tabs{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);max-width:100%}
-.avc-tabs button{font:800 .74rem/1 var(--f-body,inherit);letter-spacing:.04em;color:rgba(255,255,255,.75);padding:7px 12px;border-radius:999px;background:none;border:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
-.avc-tabs button[aria-selected="true"]{color:#1B1300;background:linear-gradient(100deg,#FFD15A,#FFF1B8 50%,#F5B300)}
-.avc.sec .avc-tabs button[aria-selected="true"]{color:#06122B;background:linear-gradient(100deg,#7DB0F2,#D6E7FF 50%,#5E98E6)}
-.avc-s{position:relative;margin:8px 0 10px;font-size:.78rem;color:rgba(255,255,255,.7)}.avc-n{position:relative;margin:6px 0 0;font-size:.7rem;color:rgba(255,255,255,.55)}
-.avc-row{position:relative;display:flex;gap:10px;overflow-x:auto;padding:6px 2px 10px;scroll-snap-type:x proximity;scrollbar-width:thin}
-.avc-c{position:relative;overflow:hidden;flex:0 0 118px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:26px 8px 12px;border-radius:14px;color:#fff;border:1px solid rgba(255,194,61,.5);background:linear-gradient(170deg,rgba(255,255,255,.14),rgba(255,255,255,.04) 55%),linear-gradient(180deg,#14275A,#0B1737);box-shadow:0 6px 16px rgba(0,0,0,.35);animation:avIn .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*70ms)}
-.avc.sec .avc-c{border-color:rgba(125,176,242,.5)}
-.avc-c.mvp{border-color:#FFD15A;box-shadow:0 0 0 1px #FFD15A,0 8px 24px rgba(255,194,61,.35)}
-.avc-sh{position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-130%) skewX(-18deg);animation:avSweep 4.2s ease-in-out infinite;animation-delay:calc(var(--i)*.35s);pointer-events:none}
-.avc-pos{position:absolute;top:0;left:0;padding:4px 9px 4px 8px;border-radius:0 0 12px 0;font:900 italic .78rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.1em;color:#2A1B00;background:linear-gradient(100deg,#FFD15A,#F5B300)}
-.avc.sec .avc-pos{color:#06122B;background:linear-gradient(100deg,#9CC4F7,#5E98E6)}
-.avc-mvp{position:absolute;top:5px;right:6px;font:900 italic .6rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.14em;color:#FFD15A;border:1px solid rgba(255,209,90,.7);border-radius:4px;padding:2px 4px 1px}
-.avc-c .av{outline:2px solid rgba(255,255,255,.55);box-shadow:0 3px 10px rgba(0,0,0,.4)}
-.avc-c b{font-size:.82rem;line-height:1.15;overflow-wrap:anywhere;margin-top:3px}
-.avc-c small{font-size:.66rem;color:rgba(255,255,255,.68);line-height:1.2}
-.avc-v{font:900 1.35rem/1 'Barlow Condensed','Arial Narrow',sans-serif;font-style:normal;color:#FFD15A;margin-top:4px}.avc.sec .avc-v{color:#B9D6FA}
-.avc-v u{text-decoration:none;font-size:.6rem;letter-spacing:.12em;margin-left:3px;opacity:.7}
-@media (prefers-reduced-motion:reduce){.avt,.avc-star,.avc-c,.avc-sh{animation:none!important}.avc-sh{display:none}}
+.avc{--ac:#FFC23D;position:relative;margin:0 0 14px;background:#0A1430;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;color:#fff}
+.avc.sec{--ac:#5E9BEA}
+.avc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ac)}
+.avc-h{display:flex;align-items:baseline;gap:10px;padding:12px 14px 10px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.avc-k{font:700 .66rem/1 var(--f-body,inherit);letter-spacing:.18em;text-transform:uppercase;color:var(--ac)}
+.avc-h h3{margin:0;flex:1;min-width:0;font:900 italic 1.45rem/1 'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avc-tag{font:800 .6rem/1 var(--f-body,inherit);letter-spacing:.14em;text-transform:uppercase;color:#0A1430;background:var(--ac);padding:4px 7px 3px;border-radius:3px}
+.avc-cols{display:grid;grid-template-columns:44px 1fr 56px;padding:7px 14px 5px 18px;font:700 .58rem/1 var(--f-body,inherit);letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.4)}.avc-cols span:last-child{text-align:right}
+.avc-g{display:grid;grid-template-columns:1fr}
+@media (min-width:640px){.avc-g{grid-template-columns:1fr 1fr}.avc-cols{display:none}.avc-r:nth-child(odd){border-right:1px solid rgba(255,255,255,.06)}}
+.avc-r{display:grid;grid-template-columns:44px 30px 1fr auto;align-items:center;gap:10px;padding:8px 14px 8px 18px;text-align:left;color:inherit;background:none;border:0;border-top:1px solid rgba(255,255,255,.06);animation:avIn .35s ease-out both;animation-delay:calc(var(--i)*40ms)}
+.avc-r:hover,.avc-r:focus-visible{background:rgba(255,255,255,.04)}
+.avc-p{font:900 italic 1.05rem/1 'Barlow Condensed','Arial Narrow',sans-serif;color:var(--ac);letter-spacing:.02em}
+.avc-w{min-width:0;display:flex;flex-direction:column;gap:2px}.avc-w b{font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.avc-w small{font-size:.7rem;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avc-v{font:800 1.05rem/1 'Barlow Condensed','Arial Narrow',sans-serif;font-variant-numeric:tabular-nums;text-align:right}
+.avc-wait{margin:0;padding:12px 18px;font-size:.8rem;color:rgba(255,255,255,.6)}
+@media (prefers-reduced-motion:reduce){.avt,.avc-r{animation:none!important}}
 .sx-avr{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin}.sx-avc{flex:0 0 112px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface2)}.sx-avc>small:first-child{font-weight:800;letter-spacing:.06em;color:#FFC23D}.sx-avc b{font-size:.8rem;line-height:1.15}.sx-avc small{font-size:.68rem}.sx-avc em{font-style:normal;font-weight:800;color:var(--ink)}
 .bnd-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-bottom:8px}.bnd-s{display:flex;align-items:center;gap:10px;text-align:left;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surface2)}.bnd-s>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.bnd-s[aria-pressed="true"]{border-color:#FFC23D;box-shadow:0 0 0 2px rgba(255,194,61,.35)}.bnd-s.dn{border-color:#2EC27E;background:rgba(46,194,126,.1)}
 .bnd-b{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}.bnd-b u{display:block;height:100%;background:linear-gradient(90deg,#FFC23D,#FF8A3D);text-decoration:none}.bnd-s.dn .bnd-b u{background:#2EC27E}
@@ -8602,21 +8589,16 @@ function rowHTML(x,rank){
     <span class="ln">${line(x.p.pos,x.a.s)}</span>
     <span class="pt">${UI.rank==='ovr'?`<b>${ovrOf(x.p.key)||'-'}</b><small>overall · ${bigV(x.a)} pts</small>`:`<b>${bigV(x.a)}</b><small>${ovrTag(x.p)} ${subV(x.a)} ${trTag(x.p)}</small>`}</span></button>`;
 }
-/* v503: the First Team card: ONE national All-Varsity team (default) and the First Team of a section, behind two tabs. */
-function avCard(sc){
-  const nat=UI.avt!=='sec',sn=SECTIONS[sc]||SECTIONS[HOME_SEC];
-  if(nat){avLoad();if(!avReady()){const n=allLoading();return `<section class="card avc nat"><div class="avc-h"><div class="avc-t"><i class="avc-star" aria-hidden="true">★</i><div><small>First Team</small><h3>All-Varsity</h3></div></div></div><p class="avc-s">Scouting every section${n?' · '+n+' left':''}<em class="sl-dots"><u>.</u><u>.</u><u>.</u></em></p></section>`}}
-  const T=nat?avNat():avSec(sc),L=T.list;
-  if(!L.length)return '';
-  const tabs=`<div class="avc-tabs" role="tablist" aria-label="Team">${[['nat','Nation'],['sec',sn.name]].map(([v,l])=>`<button type="button" role="tab" data-act="avt" data-v="${v}" aria-selected="${(v==='nat')===nat}">${esc(l)}</button>`).join('')}</div>`;
-  const top=L.reduce((m,x)=>x.v>m.v?x:m,L[0]);
-  const cards=L.map((x,i)=>`<button type="button" class="avc-c${x===top?' mvp':''}" style="--i:${i}" data-act="player" data-id="${esc(x.p.key)}"><i class="avc-sh" aria-hidden="true"></i><span class="avc-pos">${x.pos}</span>${x===top?'<span class="avc-mvp">MVP</span>':''}${av(x.p.name,x.p.school,52)}<b>${esc(x.p.name)}</b><small>${esc(x.p.school)}</small><em class="avc-v">${f1(x.v)}<u>pts</u></em></button>`).join('');
-  return `<section class="card avc ${nat?'nat':'sec'}"><div class="avc-h"><div class="avc-t"><i class="avc-star" aria-hidden="true">★</i><div><small>First Team</small><h3>${nat?'All-Varsity':'All-'+esc(sn.name)}</h3></div></div>${tabs}</div>
-    <p class="avc-s">${nat?'The best player in the nation at every position':'The best in the '+esc(sn.full)+' at every position'} · season fantasy pts</p>
-    <div class="avc-row">${cards}</div>${nat?'':'<p class="avc-n">Players on the All-Varsity team wear the gold ALL-VARSITY tag instead of this one.</p>'}</section>`}
+/* v504 (owner): First Team card. All sections tab = the ONE national All-Varsity team; a section tab = that section's First Team. Broadcast-graphic style. */
+function avCard(sc,nat){
+  const sn=SECTIONS[sc]||SECTIONS[HOME_SEC];
+  if(nat){avLoad();if(!avReady())return `<section class="avc nat"><header class="avc-h"><span class="avc-k">First Team</span><h3>All-Varsity</h3><span class="avc-tag">Nation</span></header><p class="avc-wait">Loading every section<em class="sl-dots"><u>.</u><u>.</u><u>.</u></em></p></section>`}
+  const L=(nat?avNat():avSec(sc)).list;if(!L.length)return '';
+  const rows=L.map((x,i)=>`<button type="button" class="avc-r" style="--i:${i}" data-act="player" data-id="${esc(x.p.key)}"><span class="avc-p">${x.pos}</span>${av(x.p.name,x.p.school,30)}<span class="avc-w"><b>${esc(x.p.name)}</b><small>${esc(x.p.school)}</small></span><span class="avc-v">${f1(x.v)}</span></button>`).join('');
+  return `<section class="avc ${nat?'nat':'sec'}"><header class="avc-h"><span class="avc-k">First Team</span><h3>${nat?'All-Varsity':esc(sn.name)}</h3><span class="avc-tag">${nat?'Nation':'Section'}</span></header><div class="avc-cols"><span>Pos</span><span>Player</span><span>Pts</span></div><div class="avc-g">${rows}</div></section>`}
 function leadersHTML(rows){
   if(UI.pos!=='ALL'||UI.q||UI.school!=='ALL')return'';
-  return avCard(UI.psec==='ALL'?mySec():UI.psec);
+  return avCard(UI.psec==='ALL'?HOME_SEC:UI.psec,UI.psec==='ALL');
 }
 function listHTML(){
   const rows=leagueRows();
@@ -8667,7 +8649,7 @@ function sxSpark(gs){
   return `<svg class="sx-sp" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts_}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity=".45"/><polyline points="${v.slice(-3).map((x,j)=>X(n-3+j).toFixed(1)+','+Y(x).toFixed(1)).join(' ')}" fill="none" stroke="#FFC23D" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(n-1).toFixed(1)}" cy="${Y(v[n-1]).toFixed(1)}" r="2.6" fill="#FFC23D"/></svg>`;
 }
 const sxWho=(p,extra,l3)=>`${av(p.name,p.school,34)}<span class="sx-who">${T10W(p,`<b>${esc(p.name)}</b>`)}<small>${pb(p.pos,p.sub)}<span>${esc(p.school)}</span>${extra||''}</small>${l3?`<em class="sx-l3">${esc(l3)}</em>`:''}</span>`;
-function sxAllV(D){return avCard(D.sc||HOME_SEC)}
+function sxAllV(D){return avCard(D.sc||HOME_SEC,UI.psec==='ALL')}
 function sxLeaders(D){
   const P=FILTERS.filter(x=>x!=='ALL'&&(!D.sc||x!=='TE'||SECP[D.sc].hasTE)),pos=P.includes(UI.sx.pos)?UI.sx.pos:P[0];
   const fl=sxFields(pos).filter(k=>D.rows.some(x=>posMatch(x.p,pos)&&x.tot[k]>0));
@@ -10732,7 +10714,6 @@ document.addEventListener('click',async e=>{
   else if(a==='cmpClear'){UI.cmp[+t.dataset.s]=null;render()}
   else if(a==='cmpReset'){UI.cmp=[null,null];render()}
   else if(a==='stTab'){UI.stab=['stats','overall'].includes(t.dataset.v)?t.dataset.v:'players';render()}
-  else if(a==='avt'){UI.avt=t.dataset.v==='sec'?'sec':'nat';render()}
   else if(a==='sxPos'){UI.sx.pos=t.dataset.v;UI.sx.k='';render()}
   else if(a==='sxK'){UI.sx.k=t.dataset.v;render()}
   else if(a==='sxPer'){UI.sx.per=t.dataset.v==='1';render()}

@@ -828,3 +828,6 @@ The Capacitor app bundles games.js/ovr.js (native/build-www.sh), so scores neede
 - **Injuries** (`tmInjList`, `tmInjCard`): rostered players in `INJ` who are out now; section teams have none listed yet.
 - **Player sheet** (`drawerHTML`): a "Teams played" strip (`.tp`, one chip per game: logo, opponent, W/L score, date; tapping opens that team's page, San Diego via `data-act=team`, other sections via the new `secteam` action + `secTeamId`/`secTlk`), "vs Opponent" in the weekly log, and a Season totals table (total, per game, points for every stat). A section player's school name now links to its team page too.
 - Tested in both previews and a section team (Central Coast, Saratoga) served locally: all four tabs, leader -> sheet -> opponent chip -> team page, no page errors.
+
+## v504 (Nov 14, owner: "looks lame, less AI, national only in All tab")
+- `avCard(sc,nat)`: no tabs. All sections = national All-Varsity, a section = its First Team. Broadcast-style roster sheet (accent bar, POS/PLAYER/PTS columns, 2 columns on wide screens); removed star, foil, shine, MVP badge.

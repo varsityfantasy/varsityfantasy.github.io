@@ -1,7 +1,7 @@
-"""Turn the week-12 pull (collect_w12.js) into the files merge.py and apply_tfl.py read.
-   python3 split_w12.py Z.b64 ZR.b64   (window.__Z and window.__ZR saved as text)
-writes data/games.json (week 12 games), data/rosters.json, data/tfl_w12.txt (TFL/PBU in apply_tfl.py's format).
-Then: python3 merge.py --week 12 [write]; python3 apply_tfl.py data/tfl_w12.txt [write]; python3 ../make_basketball.py"""
+"""Turn a weekly pull (collect_week.js) into the files merge.py and apply_tfl.py read.
+   python3 split_week.py Z.b64 ZR.b64   (window.__Z and window.__ZR saved as text)
+writes data/games.json (that week's games), data/rosters.json, data/tfl_week.txt (TFL/PBU in apply_tfl.py's format).
+Then: python3 merge.py --week N [write]; python3 apply_tfl.py data/tfl_week.txt [write]; python3 ../make_basketball.py"""
 import base64,gzip,json,re,sys,os,datetime
 H=os.path.dirname(os.path.abspath(__file__))
 G=json.loads(gzip.decompress(base64.b64decode(open(sys.argv[1]).read().strip())))
@@ -31,5 +31,5 @@ for g in G.values():
 lines=[labels and '|'.join(labels)]
 for (ti,car),ws in acc.items():
     lines.append(int36(ti)+'|'+car+'|'+''.join(b36(w)+b36(t)+b36(p) for w,(t,p) in sorted(ws.items())))
-open(H+'/data/tfl_w12.txt','w').write('\n'.join(lines)+'\n')
+open(H+'/data/tfl_week.txt','w').write('\n'.join(lines)+'\n')
 print('games',len(G),'with stats',sum(1 for g in G.values() if not g.get('nostats')),'rosters',len(R),'tfl/pbu players',len(acc))

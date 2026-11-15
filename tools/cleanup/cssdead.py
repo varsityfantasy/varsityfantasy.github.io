@@ -3,7 +3,7 @@
   B) whole rules whose selector names a class/id that appears nowhere in the app's HTML/JS (or tools that inject markup)
 Writes plan to cssplan.json; with --apply writes index.html."""
 import re,sys,json,os
-ROOT='/home/claude/varsity/';src=open(ROOT+'index.html').read()
+import os;ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))+'/';src=open(ROOT+'index.html').read()
 # --- scan <style> blocks
 blocks=[(m.start(1),m.end(1)) for m in re.finditer(r'<style[^>]*>(.*?)</style>',src,re.S)]
 def skip_ws_comments(s,i,end):
@@ -148,7 +148,7 @@ edits.sort()
 saved=sum(b-a for a,b,_,_ in edits)
 from collections import Counter
 print('rules',len(rules),'dead decls',len(dead),'dead rules',len(deadrules),'edits',len(edits),'saves %d KB'%(saved//1024),Counter(e[2] for e in edits))
-json.dump(edits,open('/home/claude/cmp/cssplan.json','w'))
+json.dump(edits,open('/tmp/cssplan.json','w'))
 if '--apply' in sys.argv:
     out=src
     for a,b,_,_ in sorted(edits,reverse=True):out=out[:a]+out[b:]

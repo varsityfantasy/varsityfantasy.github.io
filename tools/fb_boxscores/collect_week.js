@@ -1,6 +1,6 @@
-/* Week 12 (playoffs, games dated Nov 1-9) only. Run on any https://www.maxpreps.com page in the browser pane; poll window.__PROG,
+/* One week of playoff games (default Nov 10-16 = week 13; for another week set window.__RANGE=[month,firstDay,lastDay] first). Run on any https://www.maxpreps.com page in the browser pane; poll window.__PROG,
    window.__DONE is 1 when finished. Arrays are 25 long: the 23 numbers of collect.js + tackles for loss (23) + passes defensed (24).
-   Rosters are read only for teams that played that week. Then: python3 split_w12.py (see merge.py --week 12). */
+   Rosters are read only for teams that played that week. Then: python3 split_week.py (see merge.py --week N). */
 window.__DONE=0;window.__PROG='start';(async()=>{
 const CITIES=new Set('san-diego chula-vista escondido oceanside carlsbad el-cajon la-mesa spring-valley santee poway vista san-marcos encinitas del-mar solana-beach national-city imperial-beach coronado ramona valley-center fallbrook bonita lakeside alpine julian borrego-springs campo jamul la-jolla rancho-santa-fe bonsall calexico el-centro brawley imperial holtville calipatria blythe san-ysidro lemon-grove cardiff cardiff-by-the-sea pauma-valley warner-springs pine-valley descanso potrero boulevard ocotillo seeley heber westmorland niland winterhaven'.split(' '));
 const START='/ca/san-diego/clairemont-captains/football/', LAST={m:10,d:31};   // last date of the regular season to read
@@ -14,7 +14,7 @@ while(todo.length){const team=todo.shift();if(seen.has(team))continue;seen.add(t
   const doc=new DOMParser().parseFromString(await (await fetch(team+'schedule/')).text(),'text/html');
   for(const tr of doc.querySelectorAll('tr')){const as=[...tr.querySelectorAll('a')],box=as.find(a=>/box score/i.test(a.textContent));
     for(const a of as){const m=(a.getAttribute('href')||'').match(/^(?:https:\/\/www\.maxpreps\.com)?(\/ca\/([^/]+)\/[^/]+\/football\/)$/);if(m&&CITIES.has(m[2])&&!seen.has(m[1])&&!todo.includes(m[1]))todo.push(m[1])}
-    if(box){const h=box.getAttribute('href').replace('https://www.maxpreps.com','');const dm=h.match(/\/(\d+)-(\d+)-20\d\d\//);if(dm&&(+dm[1]===11&&+dm[2]>=1&&+dm[2]<=9)){games.set(h.split('?c=')[1],h);played.add(team)}}}
+    if(box){const h=box.getAttribute('href').replace('https://www.maxpreps.com','');const dm=h.match(/\/(\d+)-(\d+)-20\d\d\//);if(dm&&(+dm[1]===(window.__RANGE||[11,10,16])[0]&&+dm[2]>=(window.__RANGE||[11,10,16])[1]&&+dm[2]<=(window.__RANGE||[11,10,16])[2])){games.set(h.split('?c=')[1],h);played.add(team)}}}
   window.__PROG='teams '+seen.size+' games '+games.size;await sleep(250)}
 console.log('teams',seen.size,'games',games.size);
 /* 2. box scores: 23 numbers per player in the app's KEYS order (passYd ... punts) */

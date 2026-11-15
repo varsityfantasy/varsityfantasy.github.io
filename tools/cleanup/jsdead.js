@@ -1,6 +1,6 @@
 // Find top-level declarations in index.html's inline scripts that nothing references.
 const fs=require('fs'),acorn=require('acorn'),walk=require('acorn-walk');
-const ROOT='/home/claude/varsity/';const src=fs.readFileSync(ROOT+'index.html','utf8');
+const ROOT=require('path').resolve(__dirname,'../..')+'/';const src=fs.readFileSync(ROOT+'index.html','utf8');
 const re=/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g;let m;const scripts=[];
 while((m=re.exec(src))){scripts.push({start:m.index+m[0].indexOf('>')+1,code:m[1]})}
 // reference corpus outside index scripts: tools that inject code + other files
@@ -37,6 +37,6 @@ for(let iter=0;iter<10;iter++){
 }
 const out=[...dead].map(d=>({name:d.name,kind:d.kind,a:scripts[d.si].start+d.start,b:scripts[d.si].start+d.end}));
 out.sort((x,y)=>x.a-y.a);
-fs.writeFileSync('/home/claude/cmp/jsplan.json',JSON.stringify(out));
+fs.writeFileSync('/tmp/jsplan.json',JSON.stringify(out));
 console.log('decls',decls.length,'dead',out.length,'bytes',out.reduce((t,d)=>t+d.b-d.a,0));
 console.log(out.map(d=>d.name+'('+(d.b-d.a)+')').join(' '));

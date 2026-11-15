@@ -6,7 +6,7 @@
 2. Save them, decoded, as data/games.json and data/rosters.json next to this file.
 3. python3 merge.py            -> dry run: prints what would change
    python3 merge.py write      -> writes window.MAXPREPS in stats.js (then run tools/make_basketball.py)
-   python3 merge.py --week 12 [write]  -> only that week (other weeks untouched); see collect_w12.js / split_w12.py.
+   python3 merge.py --week N [write]  -> only that week (other weeks untouched); see collect_week.js / split_week.py.
    Arrays may carry TFL/PBU at index 23/24; merge drops them, so run apply_tfl.py on the same pull afterwards.
 
 Rules: box scores are the source of truth for every week a team has one; weeks with no box score are kept.

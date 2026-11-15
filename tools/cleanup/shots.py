@@ -2,7 +2,7 @@
 import sys,os,json,re
 from playwright.sync_api import sync_playwright
 tag=sys.argv[1];files={'fb':sys.argv[2],'bb':sys.argv[3]};nu=sys.argv[4]
-OUT=f'/home/claude/cmp/{tag}';os.makedirs(OUT,exist_ok=True)
+OUT=f'/tmp/cmp/{tag}';os.makedirs(OUT,exist_ok=True)
 INIT="""(()=>{const F=Date.UTC(2026,10,9,18,0,0);const RD=Date;let off=0;
 class D extends RD{constructor(...a){if(a.length)super(...a);else super(F+off)}static now(){return F+off}}
 D.UTC=RD.UTC;D.parse=RD.parse;window.Date=D;performance.now=()=>off;

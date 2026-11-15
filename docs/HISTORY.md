@@ -834,3 +834,6 @@ The Capacitor app bundles games.js/ovr.js (native/build-www.sh), so scores neede
 
 ## v505 (Nov 14, owner: "make it special, exciting and formal")
 - First Team card is an awards-night formation: plaque header (serif "The National / FIRST TEAM / ALL-VARSITY"), players stand at their spots on a night field (`AV_SPOT`; basketball uses a court), gold rings (silver for sections), top scorer glows, line of scrimmage splits Defense/Offense.
+
+## v506 (Nov 15, daily scores task) Daily scores: 2 games
+- Basketball opening-day finals for Nov 14 added to tools/data/bb_2627_games.txt with tools/add_scores.py: Mount Miguel 34, Bonita Vista 68; San Ysidro 22, West Hills 84 (source: High School On SI San Diego boys basketball scoreboard, Nov 14, both marked Final). Still missing for Nov 14: Warner-Horizon Prep, La Jolla-Westview (SI shows no score), Morse-Hoover. Football: all 24 Nov 13 playoff games already scored.

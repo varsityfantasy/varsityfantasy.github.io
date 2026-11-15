@@ -875,3 +875,6 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 - "Share First/Second/Third Team as a photo" button (`data-act="avshare"`, `avCardBlob(sc,nat,ti)`): 1080x1920 picture of only the selected team, shown with `cardPreview` (Save / Share / Download), like the rank card.
 
 ## v516 — rank chip "Previous" renamed "Last week" (owner); column header and tooltip say last week too.
+
+## v517 — team share photo: spread out layout + overalls (owner)
+`avCardBlob` now has its own spot table (`SP`, rows 300px apart, so no names touch), a smaller header, DEFENSE/OFFENSE labels centered on the line of scrimmage, and each player shows fantasy points plus an "OVR nn" chip (`ovrOf(p.key)`, hidden if he has none). The bottom caption moved into the header line.

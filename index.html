@@ -3762,7 +3762,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v516 · Nov 15';
+const APP_BUILD='v517 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8675,37 +8675,45 @@ async function avCardBlob(sc,nat,ti){
   const gold=nat?'#E9C46A':'#C9D6EA',gold2=nat?'#B8860B':'#7D8FAA';
   let gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0B1A33');gr.addColorStop(1,'#050B16');g.fillStyle=gr;g.fillRect(0,0,W,H);
   let rg=g.createRadialGradient(W/2,0,0,W/2,0,W);rg.addColorStop(0,nat?'rgba(233,196,106,.28)':'rgba(201,214,234,.2)');rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(0,0,W,H);
-  g.textAlign='center';g.fillStyle='#fff';g.font=F(900,56,1);g.fillText('VARSITY',W/2,120);
-  g.fillStyle=gold;g.font="italic 400 38px Georgia,serif";g.fillText(nat?'The National':'The '+sn.full,W/2,200);
-  g.font="400 40px Georgia,serif";g.fillStyle='#F5ECD7';g.fillText((AV_T[ti]+' Team').toUpperCase().split('').join(String.fromCharCode(8202)+String.fromCharCode(8202)),W/2,265);
-  let fs=150;const t1=nat?'ALL-VARSITY':'ALL-'+String(sn.name).toUpperCase();g.font=F(900,fs,1);while(g.measureText(t1).width>W-160&&fs>60){fs-=6;g.font=F(900,fs,1)}
-  let tg=g.createLinearGradient(0,300,0,300+fs);tg.addColorStop(0,'#FFF6DA');tg.addColorStop(.55,gold);tg.addColorStop(1,gold2);g.fillStyle=tg;g.fillText(t1,W/2,300+fs*.9);
-  g.fillStyle='rgba(245,236,215,.5)';g.font=B(600,28);g.fillText(new Date().getFullYear()+' SEASON HONORS',W/2,300+fs+50);
-  const fx=50,fy=520,fw=W-100,fh=1140;
+  g.textAlign='center';g.fillStyle='#fff';g.font=F(900,50,1);g.fillText('VARSITY',W/2,90);
+  g.fillStyle=gold;g.font="italic 400 34px Georgia,serif";g.fillText(nat?'The National':'The '+sn.full,W/2,150);
+  g.font="400 36px Georgia,serif";g.fillStyle='#F5ECD7';g.fillText((AV_T[ti]+' Team').toUpperCase().split('').join(String.fromCharCode(8202)+String.fromCharCode(8202)),W/2,205);
+  let fs=124;const t1=nat?'ALL-VARSITY':'ALL-'+String(sn.name).toUpperCase();g.font=F(900,fs,1);while(g.measureText(t1).width>W-160&&fs>60){fs-=6;g.font=F(900,fs,1)}
+  let tg=g.createLinearGradient(0,230,0,230+fs);tg.addColorStop(0,'#FFF6DA');tg.addColorStop(.55,gold);tg.addColorStop(1,gold2);g.fillStyle=tg;g.fillText(t1,W/2,230+fs*.9);
+  g.fillStyle='rgba(245,236,215,.6)';g.font=B(600,26);g.fillText(new Date().getFullYear()+' SEASON HONORS  ·  '+['BEST','2ND BEST','3RD BEST'][ti]+' AT EACH POSITION',W/2,230+fs+46);
+  const fx=40,fy=430,fw=W-80,fh=1270;
+  /* spots (x %, y px inside the field): rows are 300px apart so no two players touch */
+  const SP=bb?{PG:[50,110],SG:[20,480],SF:[80,480],PF:[28,880],C:[72,880]}:{LB:[50,110],DL:[80,400],DB:[20,400],WR:[15,720],TE:[85,720],QB:[50,760],RB:[28,1050],K:[72,1050]};
   g.save();g.beginPath();g.roundRect(fx,fy,fw,fh,36);g.clip();
   let fg=g.createLinearGradient(0,fy,0,fy+fh);if(bb){fg.addColorStop(0,'#2A1A0E');fg.addColorStop(1,'#1C120A')}else{fg.addColorStop(0,'#0E2A1C');fg.addColorStop(.5,'#0A2016');fg.addColorStop(1,'#0E2A1C')}g.fillStyle=fg;g.fillRect(fx,fy,fw,fh);
-  if(!bb){g.fillStyle='rgba(255,255,255,.04)';for(let y=fy+110;y<fy+fh;y+=110)g.fillRect(fx,y,fw,2);g.fillStyle=gold;g.globalAlpha=.5;g.fillRect(fx,fy+fh*.33,fw,5);g.globalAlpha=1;g.fillStyle='rgba(245,236,215,.35)';g.font=B(600,26);g.textAlign='left';g.fillText('DEFENSE',fx+28,fy+fh*.33-26);g.fillText('OFFENSE',fx+28,fy+fh*.33+44);g.textAlign='center'}
+  if(!bb){g.fillStyle='rgba(255,255,255,.04)';for(let y=fy+110;y<fy+fh;y+=110)g.fillRect(fx,y,fw,2);
+    const ly=fy+612;g.fillStyle=gold;g.globalAlpha=.5;g.fillRect(fx,ly,fw,5);g.globalAlpha=1;
+    g.fillStyle='rgba(245,236,215,.55)';g.font=B(700,24);g.fillText('DEFENSE',W/2,ly-14);g.fillText('OFFENSE',W/2,ly+38)}
   else{g.strokeStyle='rgba(245,236,215,.18)';g.lineWidth=3;g.beginPath();g.arc(W/2,fy+fh+120,330,0,7);g.stroke()}
   g.restore();
   g.strokeStyle='rgba(255,255,255,.1)';g.lineWidth=2;g.beginPath();g.roundRect(fx,fy,fw,fh,36);g.stroke();
   const mx=Math.max(0,...L.map(x=>x.v));
   for(const x of L){
-    const q=AV_SPOT[x.pos]||[50,50],cx=Math.min(fx+fw-125,Math.max(fx+125,fx+fw*q[0]/100)),cy=fy+90+(fh-210)*q[1]/100*1.0+30,R=64,p=x.p;
-    g.beginPath();g.arc(cx,cy,R+8,0,7);let rgc=g.createLinearGradient(cx-R,cy-R,cx+R,cy+R);rgc.addColorStop(0,gold2);rgc.addColorStop(.4,'#FFF6DA');rgc.addColorStop(.7,gold);rgc.addColorStop(1,gold2);g.fillStyle=rgc;
+    const q=SP[x.pos]||[50,600],cx=Math.min(fx+fw-135,Math.max(fx+135,fx+fw*q[0]/100)),cy=fy+q[1],R=58,p=x.p;
+    g.beginPath();g.arc(cx,cy,R+7,0,7);let rgc=g.createLinearGradient(cx-R,cy-R,cx+R,cy+R);rgc.addColorStop(0,gold2);rgc.addColorStop(.4,'#FFF6DA');rgc.addColorStop(.7,gold);rgc.addColorStop(1,gold2);g.fillStyle=rgc;
     if(x.v===mx){g.save();g.shadowColor=gold;g.shadowBlur=36}g.fill();if(x.v===mx)g.restore();
     g.beginPath();g.arc(cx,cy,R,0,7);g.fillStyle='hsl('+(hash(p.school||p.name)%360)+' 45% 38%)';g.fill();
     const src=(window.SCHOOL_LOGOS||{})[p.school];let drew=false;
     if(src){try{const im=new Image();im.src=src;await im.decode();g.save();g.beginPath();g.arc(cx,cy,R,0,7);g.fillStyle='#fff';g.fill();g.clip();const k=Math.min(R*1.6/im.width,R*1.6/im.height);g.drawImage(im,cx-im.width*k/2,cy-im.height*k/2,im.width*k,im.height*k);g.restore();drew=true}catch(_){}}
-    if(!drew){g.fillStyle='#fff';g.font=F(800,60);g.textBaseline='middle';g.fillText(String(p.name).split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase(),cx,cy+3);g.textBaseline='alphabetic'}
-    g.font=F(900,34,1);const bw=g.measureText(x.pos).width+30;g.fillStyle=gold;g.beginPath();g.roundRect(cx-bw/2,cy+R-4,bw,40,8);g.fill();g.fillStyle='#070D1F';g.fillText(x.pos,cx,cy+R+27);
-    let nf=40;const nm=String(p.name).replace(/ Claimed profile$/,'');g.font=B(700,nf);while(g.measureText(nm).width>230&&nf>22){nf-=2;g.font=B(700,nf)}
-    g.fillStyle='#fff';g.fillText(nm,cx,cy+R+84);
-    let sf=28;g.font=B(500,sf);while(g.measureText(p.school).width>230&&sf>18){sf-=2;g.font=B(500,sf)}g.fillStyle='rgba(245,236,215,.65)';g.fillText(p.school,cx,cy+R+118);
-    g.fillStyle=gold;g.font=F(800,40);g.fillText(f1(x.v),cx,cy+R+160);
+    if(!drew){g.fillStyle='#fff';g.font=F(800,54);g.textBaseline='middle';g.fillText(String(p.name).split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase(),cx,cy+3);g.textBaseline='alphabetic'}
+    g.font=F(900,32,1);const bw=g.measureText(x.pos).width+30;g.fillStyle=gold;g.beginPath();g.roundRect(cx-bw/2,cy+R-6,bw,38,8);g.fill();g.fillStyle='#070D1F';g.fillText(x.pos,cx,cy+R+23);
+    let nf=36;const nm=String(p.name).replace(/ Claimed profile$/,'');g.font=B(700,nf);while(g.measureText(nm).width>250&&nf>24){nf-=2;g.font=B(700,nf)}
+    g.fillStyle='#fff';g.fillText(nm,cx,cy+R+76);
+    let sf=26;g.font=B(500,sf);while(g.measureText(p.school).width>250&&sf>18){sf-=2;g.font=B(500,sf)}g.fillStyle='rgba(245,236,215,.7)';g.fillText(p.school,cx,cy+R+108);
+    /* points + overall on one line */
+    const pt=f1(x.v),ov=(typeof ovrOf==='function'&&ovrOf(p.key))||'';
+    g.font=F(800,38);const pw=g.measureText(pt).width;g.font=F(800,28);const ot=ov?'OVR '+ov:'',ow=ov?g.measureText(ot).width+26:0,gap=ov?16:0,tot=pw+gap+ow,x0=cx-tot/2,yy=cy+R+152;
+    g.textAlign='left';g.fillStyle=gold;g.font=F(800,38);g.fillText(pt,x0,yy);
+    if(ov){const bx=x0+pw+gap;g.strokeStyle=gold;g.lineWidth=2;g.fillStyle='rgba(7,13,31,.85)';g.beginPath();g.roundRect(bx,yy-30,ow,38,10);g.fill();g.stroke();g.fillStyle='#fff';g.font=F(800,28);g.fillText(ot,bx+13,yy-2)}
+    g.textAlign='center';
   }
-  g.fillStyle='rgba(245,236,215,.55)';g.font="italic 30px Georgia,serif";g.fillText((['Best','Second best','Third best'][ti])+' season fantasy total at each position'+(nat?' across every section':''),W/2,fy+fh+70);
   g.fillStyle='rgba(255,255,255,.14)';g.fillRect(90,H-170,W-180,2);
-  g.textAlign='left';g.fillStyle='#98A8BA';g.font=F(800,36);g.fillText(String(window.MAXPREPS&&MAXPREPS.through||'').split(' (')[0].toUpperCase(),90,H-105);
+  g.textAlign='left';g.fillStyle='#98A8BA';g.font=F(800,36);g.fillText(String(window.MAXPREPS&&MAXPREPS.through||'').split(' (')[0].toUpperCase()+'  ·  SEASON FANTASY POINTS',90,H-105);
   g.textAlign='right';g.fillStyle='#fff';g.font=F(900,40,1);g.fillText('VARSITY',W-90,H-105);
   return await new Promise(r=>c.toBlob(r,'image/png'));
 }

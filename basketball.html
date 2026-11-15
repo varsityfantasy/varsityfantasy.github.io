@@ -3773,7 +3773,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v515 · Nov 15';
+const APP_BUILD='v516 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4191,8 +4191,8 @@ async function act(fn,ok){
 }
 const bigV=a=>f1(a.v);
 const subV=a=>UI.rank==='prev'?(a.w?`week ${a.w} game`:'no games'):UI.scope!=='season'?'this week':`${f1(a.n?a.v/a.n:0)} per game`;
-const scopeSel=(id,off)=>`<label class="fld"><span>Scoring period</span><select id="${id}" data-act="scope" ${off?'disabled title="Previous ranks by each player’s last game"':''}>${['season',...Array.from({length:MPW},(_,i)=>i+1)].map(v=>`<option value="${v}" ${String(UI.scope)===String(v)?'selected':''}>${v==='season'?'Season total':WKL(v)+(v===CURW()?' (current)':'')}</option>`).join('')}</select></label>`;
-const rankSw=()=>`<div class="fld"><span>Rank by</span><div class="chips" role="group" aria-label="Rank by">${[['total','Total'],['prev','Previous'],['ovr','Overall']].filter(x=>x[0]!=='prev'||!secTot(vsec())).map(([v,l])=>`<button class="chip" data-act="rank" data-v="${v}" aria-pressed="${UI.rank===v}">${l}</button>`).join('')}</div></div>`;
+const scopeSel=(id,off)=>`<label class="fld"><span>Scoring period</span><select id="${id}" data-act="scope" ${off?'disabled title="Last week ranks by each player’s most recent game"':''}>${['season',...Array.from({length:MPW},(_,i)=>i+1)].map(v=>`<option value="${v}" ${String(UI.scope)===String(v)?'selected':''}>${v==='season'?'Season total':WKL(v)+(v===CURW()?' (current)':'')}</option>`).join('')}</select></label>`;
+const rankSw=()=>`<div class="fld"><span>Rank by</span><div class="chips" role="group" aria-label="Rank by">${[['total','Total'],['prev','Last week'],['ovr','Overall']].filter(x=>x[0]!=='prev'||!secTot(vsec())).map(([v,l])=>`<button class="chip" data-act="rank" data-v="${v}" aria-pressed="${UI.rank===v}">${l}</button>`).join('')}</div></div>`;
 /* v274 injuries (owner): name|school -> {until: last week he misses, or 99 for the season}. Shown as an OUT tag; no props while out. */
 const INJ={"Khai Agbayani|Bishop's":{until:99,note:'Out for the season'},"Jackson Binn|Bishop's":{until:13,note:'Out for week 13'},"Ryan O'Donovan|Bishop's":{until:13,note:'Out for week 13'},"Cooper Armstrong|Bishop's":{until:13,note:'Out for week 13'}};
 const injOf=(p,w)=>{const x=p&&INJ[p.name+'|'+p.school];return x&&(w==null?CURW()+1:w)<=x.until?x:null};
@@ -8622,7 +8622,7 @@ function leagueRows(){
   return q?all.filter(x=>x.p.name.toLowerCase().includes(q)):all;
 }
 function podiumHTML(rows){
-  return `<div class="podium">${[1,0,2].map(i=>{const x=rows[i];return `<button class="pod p${i+1}" data-act="player" data-id="${esc(x.p.key)}"><span class="medal">${i+1}</span>${T10b(x.p)}${av(x.p.name,x.p.school,i===0?64:52)}<b class="pn">${esc(x.p.name)}</b>${AVT(x.p)}<span class="ps">${pb(x.p.pos,x.p.sub)}${gtag(x.p)}<span>${slogo(x.p.school)}${esc(x.p.school)}</span></span><span class="pv">${UI.rank==='ovr'?ovrOf(x.p.key)||'-':bigV(x.a)}</span><small>${UI.rank==='ovr'?'overall · '+bigV(x.a)+' pts':UI.rank==='prev'?'last game pts':'fantasy pts'}</small>${UI.rank==='ovr'?'':ovrTag(x.p)}</button>`}).join('')}</div>`;
+  return `<div class="podium">${[1,0,2].map(i=>{const x=rows[i];return `<button class="pod p${i+1}" data-act="player" data-id="${esc(x.p.key)}"><span class="medal">${i+1}</span>${T10b(x.p)}${av(x.p.name,x.p.school,i===0?64:52)}<b class="pn">${esc(x.p.name)}</b>${AVT(x.p)}<span class="ps">${pb(x.p.pos,x.p.sub)}${gtag(x.p)}<span>${slogo(x.p.school)}${esc(x.p.school)}</span></span><span class="pv">${UI.rank==='ovr'?ovrOf(x.p.key)||'-':bigV(x.a)}</span><small>${UI.rank==='ovr'?'overall · '+bigV(x.a)+' pts':UI.rank==='prev'?'last week pts':'fantasy pts'}</small>${UI.rank==='ovr'?'':ovrTag(x.p)}</button>`}).join('')}</div>`;
 }
 function rowHTML(x,rank){
   return `<button class="row" data-act="player" data-id="${esc(x.p.key)}">
@@ -8699,7 +8699,7 @@ function listHTML(){
   const shown=UI.more?Math.max(5,+UI.more||5):5,vis=rows.slice(0,shown);
   const top=!UI.q.trim()&&vis.length>=3,rest=top?vis.slice(3):vis;
   const left=rows.length-shown,more=rows.length>5?`<div class="btns" style="justify-content:center">${left>0?`<button class="btn ghost" data-act="more">Show ${Math.min(10,left)} more (${left} left)</button>`:''}${shown>5?`<button class="btn ghost" data-act="less">Show less</button>`:''}</div>`:'';
-  return (top?podiumHTML(vis):'')+(rest.length?`<div class="board"><div class="row hd"><span class="rk">#</span><span></span><span class="who">Player</span><span class="ln">Stat line</span><span class="pt">${UI.rank==='ovr'?'Overall':UI.rank==='prev'?'Last game pts':'Fantasy pts'}</span></div>${rest.map(x=>rowHTML(x,x.rank)).join('')}</div>`:'')+more+leadersHTML(rows);
+  return (top?podiumHTML(vis):'')+(rest.length?`<div class="board"><div class="row hd"><span class="rk">#</span><span></span><span class="who">Player</span><span class="ln">Stat line</span><span class="pt">${UI.rank==='ovr'?'Overall':UI.rank==='prev'?'Last week pts':'Fantasy pts'}</span></div>${rest.map(x=>rowHTML(x,x.rank)).join('')}</div>`:'')+more+leadersHTML(rows);
 }
 function hotHTML(sc,force){
   if(!force&&(UI.scope!=='season'||UI.pos!=='ALL'||UI.q||UI.school!=='ALL'))return'';

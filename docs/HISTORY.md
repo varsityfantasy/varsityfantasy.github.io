@@ -873,3 +873,5 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 - `.avc-ring .av` is `display:grid` again (it was `block`, which pushed the initials off centre). Player nodes are 104px wide, clamped inside the field (`clamp(54px,x%,100%-54px)`), long names wrap instead of running off screen.
 - 2nd/3rd team skip anyone (same name+school) already on an earlier team, so a two-way player is not listed twice.
 - "Share First/Second/Third Team as a photo" button (`data-act="avshare"`, `avCardBlob(sc,nat,ti)`): 1080x1920 picture of only the selected team, shown with `cardPreview` (Save / Share / Download), like the rank card.
+
+## v516 — rank chip "Previous" renamed "Last week" (owner); column header and tooltip say last week too.

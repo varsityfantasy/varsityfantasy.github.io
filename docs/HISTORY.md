@@ -868,3 +868,8 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 - Removed the crown on the #1 podium OVR chip (`.pod.p1 .ovr-t::before` and its left padding).
 - Stats tab: the First Team All-Varsity card (`leadersHTML`) now comes after the leaderboard list and "Show more", not above the podium.
 - `avBest` also returns `teams` [1st, 2nd, 3rd]: 2nd/3rd = next best at each position, nobody on two teams. Tags (ALL-VARSITY / ALL-SECTION) still use only the 1st team. `avCard` has 1st/2nd/3rd Team chips (`UI.avt`, action `avt`); tap a player to open the card. Works for the national card and every section's card (Overall tab).
+
+## v515 — All-Varsity teams: centered initials, names fit, share as a photo (owner)
+- `.avc-ring .av` is `display:grid` again (it was `block`, which pushed the initials off centre). Player nodes are 104px wide, clamped inside the field (`clamp(54px,x%,100%-54px)`), long names wrap instead of running off screen.
+- 2nd/3rd team skip anyone (same name+school) already on an earlier team, so a two-way player is not listed twice.
+- "Share First/Second/Third Team as a photo" button (`data-act="avshare"`, `avCardBlob(sc,nat,ti)`): 1080x1920 picture of only the selected team, shown with `cardPreview` (Save / Share / Download), like the rank card.

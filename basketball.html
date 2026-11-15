@@ -1624,18 +1624,18 @@ select option{background:#0B1730;color:#EAF0F8}
 .avc-ht h3{margin:5px 0 2px;font:400 .78rem/1 Georgia,serif;letter-spacing:.42em;text-transform:uppercase;padding-left:.42em;color:#F5ECD7}
 .avc-ht b{font:900 italic 2rem/1 'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;background:linear-gradient(180deg,#FFF6DA 0%,var(--ac) 55%,var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
 .avc-yr{margin:6px 0 12px;text-align:center;font:600 .6rem/1 var(--f-body,inherit);letter-spacing:.3em;text-transform:uppercase;color:rgba(245,236,215,.45)}
-.avc-tabs{display:flex;justify-content:center;gap:6px;margin:0 0 10px}.avc-tabs .chip{font-size:.72rem;padding:5px 11px}
+.avc-sh{display:block;margin:12px auto 0}.avc-tabs{display:flex;justify-content:center;gap:6px;margin:0 0 10px}.avc-tabs .chip{font-size:.72rem;padding:5px 11px}
 .avc-f{position:relative;height:540px;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 54px),linear-gradient(180deg,#0E2A1C,#0A2016 50%,#0E2A1C);border:1px solid rgba(255,255,255,.07)}
 .avc-f::after{content:'';position:absolute;inset:0;background:radial-gradient(60% 40% at 15% 0,rgba(255,255,255,.08),transparent 70%),radial-gradient(60% 40% at 85% 0,rgba(255,255,255,.08),transparent 70%);pointer-events:none}
 .avc-f.bb{height:440px;background:radial-gradient(70% 60% at 50% 100%,rgba(255,255,255,.05),transparent),linear-gradient(180deg,#2A1A0E,#1C120A)}
 .avc-arc{position:absolute;left:50%;bottom:-120px;width:320px;height:320px;margin-left:-160px;border:1px solid rgba(245,236,215,.18);border-radius:50%}
 .avc-los{position:absolute;left:0;right:0;top:33%;height:2px;background:linear-gradient(90deg,transparent,var(--ac) 20%,var(--ac) 80%,transparent);opacity:.55}
 .avc-side{position:absolute;left:10px;font:600 .55rem/1 var(--f-body,inherit);letter-spacing:.28em;text-transform:uppercase;color:rgba(245,236,215,.35)}.avc-side.d{top:calc(33% - 16px)}.avc-side.o{top:calc(33% + 10px)}
-.avc-n{position:absolute;width:100px;transform:translate(-50%,-30px);display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;background:none;border:0;color:inherit;padding:0;animation:avRise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*90ms)}
+.avc-n{position:absolute;width:104px;transform:translate(-50%,-30px);display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;background:none;border:0;color:inherit;padding:0;animation:avRise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*90ms)}
 .avc-ring{position:relative;display:block;padding:3px;border-radius:50%;background:conic-gradient(from 210deg,var(--ac2),#FFF6DA,var(--ac),var(--ac2));box-shadow:0 6px 14px rgba(0,0,0,.5)}
-.avc-ring .av{display:block;border:2px solid #070D1F}
+.avc-ring .av{display:grid;place-items:center;border:2px solid #070D1F}
 .avc-ring i{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);font:900 italic .66rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.06em;color:#070D1F;background:var(--ac);padding:2px 6px 1px;border-radius:3px;font-style:normal}
-.avc-n b{margin-top:9px;font-size:.74rem;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 3px #000}
+.avc-n b{margin-top:9px;font-size:.72rem;line-height:1.1;max-width:100%;overflow-wrap:anywhere;white-space:normal;text-shadow:0 1px 3px #000}
 .avc-n small{font-size:.6rem;color:rgba(245,236,215,.6);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .avc-n em{font:800 .82rem/1 'Barlow Condensed','Arial Narrow',sans-serif;font-style:normal;color:var(--ac);font-variant-numeric:tabular-nums}
 .avc-n.top .avc-ring{box-shadow:0 0 0 1px var(--ac),0 0 22px rgba(233,196,106,.55),0 6px 14px rgba(0,0,0,.5)}
@@ -3306,8 +3306,8 @@ const avLoad=()=>Object.keys(SECTIONS).forEach(id=>{if(id!==HOME_SEC)secPl(id)})
 function avBest(list){const cand={};list.forEach(p=>{if(!p.mp||p.sample||!p.key)return;const P=AV_POS.filter(f=>posMatch(p,f));if(!P.length)return;const a=agg(p,'season');if(!(a.n>0&&a.v>0))return;P.forEach(f=>(cand[f]=cand[f]||[]).push({pos:f,p,v:a.v}))});
   AV_POS.forEach(f=>cand[f]&&cand[f].sort((a,b)=>b.v-a.v));
   /* v512 (owner): 1st team = best at each position (as before, tags use only this); 2nd and 3rd team = next best, nobody on two teams */
-  const L=AV_POS.map(f=>cand[f]&&cand[f][0]).filter(Boolean),used=new Set(L.map(x=>x.p.key)),teams=[L];
-  for(let t=1;t<3;t++){const T=[],here=new Set();AV_POS.forEach(f=>{const x=(cand[f]||[]).find(y=>!used.has(y.p.key)&&!here.has(y.p.key));if(x){T.push(x);here.add(x.p.key)}});T.forEach(x=>used.add(x.p.key));teams.push(T)}
+  const nk=x=>x.p.name+'|'+x.p.school,L=AV_POS.map(f=>cand[f]&&cand[f][0]).filter(Boolean),used=new Set(L.map(nk)),teams=[L];
+  for(let t=1;t<3;t++){const T=[],here=new Set();AV_POS.forEach(f=>{const x=(cand[f]||[]).find(y=>!used.has(nk(y))&&!here.has(nk(y)));if(x){T.push(x);here.add(nk(x))}});T.forEach(x=>used.add(nk(x)));teams.push(T)}
   return{list:L,set:new Set(L.map(x=>x.p.key)),teams}}
 function avCalc(){const k=_rev+'|'+_apl_k()+'|'+(typeof PRE==='function'&&PRE()?1:0);if(_avC&&_avC.k===k)return _avC;_avC={k,nat:null,sec:{}};return _avC}
 const avNat=()=>{const c=avCalc();if(!c.nat)c.nat=avBest(allPl());return c.nat};
@@ -3773,7 +3773,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v514 · Nov 15';
+const APP_BUILD='v515 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8642,8 +8642,52 @@ function avCard(sc,nat){
   const tabs=`<div class="chips avc-tabs" role="group" aria-label="Team">${AV_T.map((n,i)=>`<button type="button" class="chip" data-act="avt" data-v="${i}" aria-pressed="${(UI.avt|0)===i}">${i+1}${['st','nd','rd'][i]} Team</button>`).join('')}</div>`;
   if(!L.length)return `<section class="avc ${nat?'nat':'sec'}">${head}${tabs}<p class="avc-wait">No players on this team yet.</p></section>`;
   const mx=Math.max(...L.map(x=>x.v));
-  const nodes=L.map((x,i)=>{const q=AV_SPOT[x.pos]||[50,50];return `<button type="button" class="avc-n${x.v===mx?' top':''}" style="left:${q[0]}%;top:${q[1]}%;--i:${i}" data-act="player" data-id="${esc(x.p.key)}"><span class="avc-ring">${av(x.p.name,x.p.school,46)}<i>${x.pos}</i></span><b>${esc(x.p.name)}</b><small>${esc(x.p.school)}</small><em>${f1(x.v)}</em></button>`}).join('');
-  return `<section class="avc ${nat?'nat':'sec'}">${head}${tabs}<div class="avc-f${bb?' bb':''}" aria-label="${AV_T[UI.avt|0]} Team">${bb?'<i class="avc-arc"></i>':'<i class="avc-los"></i><span class="avc-side d">Defense</span><span class="avc-side o">Offense</span>'}${nodes}</div><p class="avc-ft">${['Best','Second best','Third best'][UI.avt|0]} season fantasy total at each position${nat?' across every section':''}</p></section>`}
+  const nodes=L.map((x,i)=>{const q=AV_SPOT[x.pos]||[50,50];return `<button type="button" class="avc-n${x.v===mx?' top':''}" style="left:clamp(54px,${q[0]}%,calc(100% - 54px));top:${q[1]}%;--i:${i}" data-act="player" data-id="${esc(x.p.key)}"><span class="avc-ring">${av(x.p.name,x.p.school,46)}<i>${x.pos}</i></span><b>${esc(x.p.name)}</b><small>${esc(x.p.school)}</small><em>${f1(x.v)}</em></button>`}).join('');
+  return `<section class="avc ${nat?'nat':'sec'}">${head}${tabs}<div class="avc-f${bb?' bb':''}" aria-label="${AV_T[UI.avt|0]} Team">${bb?'<i class="avc-arc"></i>':'<i class="avc-los"></i><span class="avc-side d">Defense</span><span class="avc-side o">Offense</span>'}${nodes}</div><p class="avc-ft">${['Best','Second best','Third best'][UI.avt|0]} season fantasy total at each position${nat?' across every section':''}</p><button type="button" class="btn ghost avc-sh" data-act="avshare" data-sc="${esc(sc)}" data-nat="${nat?1:0}">Share ${AV_T[UI.avt|0]} Team as a photo</button></section>`}
+/* v515 (owner): share the selected team as a 1080x1920 picture (same preview/save sheet as the rank card) */
+async function avCardBlob(sc,nat,ti){
+  const sn=SECTIONS[sc]||SECTIONS[HOME_SEC],bb=typeof FG_SPORT!=='undefined'&&FG_SPORT==='bb',AVB=nat?avNat():avSec(sc),L=(AVB.teams&&AVB.teams[ti])||[];
+  const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  try{await document.fonts.ready}catch(_){}
+  const F=(w,sz,it)=>`${it?'italic ':''}${w} ${sz}px 'Barlow Condensed','Arial Narrow',sans-serif`,B=(w,sz)=>`${w} ${sz}px Jost,system-ui,sans-serif`;
+  const gold=nat?'#E9C46A':'#C9D6EA',gold2=nat?'#B8860B':'#7D8FAA';
+  let gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0B1A33');gr.addColorStop(1,'#050B16');g.fillStyle=gr;g.fillRect(0,0,W,H);
+  let rg=g.createRadialGradient(W/2,0,0,W/2,0,W);rg.addColorStop(0,nat?'rgba(233,196,106,.28)':'rgba(201,214,234,.2)');rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(0,0,W,H);
+  g.textAlign='center';g.fillStyle='#fff';g.font=F(900,56,1);g.fillText('VARSITY',W/2,120);
+  g.fillStyle=gold;g.font="italic 400 38px Georgia,serif";g.fillText(nat?'The National':'The '+sn.full,W/2,200);
+  g.font="400 40px Georgia,serif";g.fillStyle='#F5ECD7';g.fillText((AV_T[ti]+' Team').toUpperCase().split('').join(String.fromCharCode(8202)+String.fromCharCode(8202)),W/2,265);
+  let fs=150;const t1=nat?'ALL-VARSITY':'ALL-'+String(sn.name).toUpperCase();g.font=F(900,fs,1);while(g.measureText(t1).width>W-160&&fs>60){fs-=6;g.font=F(900,fs,1)}
+  let tg=g.createLinearGradient(0,300,0,300+fs);tg.addColorStop(0,'#FFF6DA');tg.addColorStop(.55,gold);tg.addColorStop(1,gold2);g.fillStyle=tg;g.fillText(t1,W/2,300+fs*.9);
+  g.fillStyle='rgba(245,236,215,.5)';g.font=B(600,28);g.fillText(new Date().getFullYear()+' SEASON HONORS',W/2,300+fs+50);
+  const fx=50,fy=520,fw=W-100,fh=1140;
+  g.save();g.beginPath();g.roundRect(fx,fy,fw,fh,36);g.clip();
+  let fg=g.createLinearGradient(0,fy,0,fy+fh);if(bb){fg.addColorStop(0,'#2A1A0E');fg.addColorStop(1,'#1C120A')}else{fg.addColorStop(0,'#0E2A1C');fg.addColorStop(.5,'#0A2016');fg.addColorStop(1,'#0E2A1C')}g.fillStyle=fg;g.fillRect(fx,fy,fw,fh);
+  if(!bb){g.fillStyle='rgba(255,255,255,.04)';for(let y=fy+110;y<fy+fh;y+=110)g.fillRect(fx,y,fw,2);g.fillStyle=gold;g.globalAlpha=.5;g.fillRect(fx,fy+fh*.33,fw,5);g.globalAlpha=1;g.fillStyle='rgba(245,236,215,.35)';g.font=B(600,26);g.textAlign='left';g.fillText('DEFENSE',fx+28,fy+fh*.33-26);g.fillText('OFFENSE',fx+28,fy+fh*.33+44);g.textAlign='center'}
+  else{g.strokeStyle='rgba(245,236,215,.18)';g.lineWidth=3;g.beginPath();g.arc(W/2,fy+fh+120,330,0,7);g.stroke()}
+  g.restore();
+  g.strokeStyle='rgba(255,255,255,.1)';g.lineWidth=2;g.beginPath();g.roundRect(fx,fy,fw,fh,36);g.stroke();
+  const mx=Math.max(0,...L.map(x=>x.v));
+  for(const x of L){
+    const q=AV_SPOT[x.pos]||[50,50],cx=Math.min(fx+fw-125,Math.max(fx+125,fx+fw*q[0]/100)),cy=fy+90+(fh-210)*q[1]/100*1.0+30,R=64,p=x.p;
+    g.beginPath();g.arc(cx,cy,R+8,0,7);let rgc=g.createLinearGradient(cx-R,cy-R,cx+R,cy+R);rgc.addColorStop(0,gold2);rgc.addColorStop(.4,'#FFF6DA');rgc.addColorStop(.7,gold);rgc.addColorStop(1,gold2);g.fillStyle=rgc;
+    if(x.v===mx){g.save();g.shadowColor=gold;g.shadowBlur=36}g.fill();if(x.v===mx)g.restore();
+    g.beginPath();g.arc(cx,cy,R,0,7);g.fillStyle='hsl('+(hash(p.school||p.name)%360)+' 45% 38%)';g.fill();
+    const src=(window.SCHOOL_LOGOS||{})[p.school];let drew=false;
+    if(src){try{const im=new Image();im.src=src;await im.decode();g.save();g.beginPath();g.arc(cx,cy,R,0,7);g.fillStyle='#fff';g.fill();g.clip();const k=Math.min(R*1.6/im.width,R*1.6/im.height);g.drawImage(im,cx-im.width*k/2,cy-im.height*k/2,im.width*k,im.height*k);g.restore();drew=true}catch(_){}}
+    if(!drew){g.fillStyle='#fff';g.font=F(800,60);g.textBaseline='middle';g.fillText(String(p.name).split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase(),cx,cy+3);g.textBaseline='alphabetic'}
+    g.font=F(900,34,1);const bw=g.measureText(x.pos).width+30;g.fillStyle=gold;g.beginPath();g.roundRect(cx-bw/2,cy+R-4,bw,40,8);g.fill();g.fillStyle='#070D1F';g.fillText(x.pos,cx,cy+R+27);
+    let nf=40;const nm=String(p.name).replace(/ Claimed profile$/,'');g.font=B(700,nf);while(g.measureText(nm).width>230&&nf>22){nf-=2;g.font=B(700,nf)}
+    g.fillStyle='#fff';g.fillText(nm,cx,cy+R+84);
+    let sf=28;g.font=B(500,sf);while(g.measureText(p.school).width>230&&sf>18){sf-=2;g.font=B(500,sf)}g.fillStyle='rgba(245,236,215,.65)';g.fillText(p.school,cx,cy+R+118);
+    g.fillStyle=gold;g.font=F(800,40);g.fillText(f1(x.v),cx,cy+R+160);
+  }
+  g.fillStyle='rgba(245,236,215,.55)';g.font="italic 30px Georgia,serif";g.fillText((['Best','Second best','Third best'][ti])+' season fantasy total at each position'+(nat?' across every section':''),W/2,fy+fh+70);
+  g.fillStyle='rgba(255,255,255,.14)';g.fillRect(90,H-170,W-180,2);
+  g.textAlign='left';g.fillStyle='#98A8BA';g.font=F(800,36);g.fillText(String(window.MAXPREPS&&MAXPREPS.through||'').split(' (')[0].toUpperCase(),90,H-105);
+  g.textAlign='right';g.fillStyle='#fff';g.font=F(900,40,1);g.fillText('VARSITY',W-90,H-105);
+  return await new Promise(r=>c.toBlob(r,'image/png'));
+}
+
 function leadersHTML(rows){
   if(UI.pos!=='ALL'||UI.q||UI.school!=='ALL')return'';
   return avCard(UI.psec==='ALL'?HOME_SEC:UI.psec,UI.psec==='ALL');
@@ -10703,6 +10747,7 @@ document.addEventListener('click',async e=>{
     c.hidden=false;const b=c.querySelector('.tok-opt');if(b)b.focus()}
   else if(a==='ftoggle'){UI.fOpen=!UI.fOpen;const fp=document.querySelector('.fpanel');if(fp)fp.hidden=!UI.fOpen;t.setAttribute('aria-expanded',String(!!UI.fOpen))}
   else if(a==='pos'){const bar=document.querySelector('.tools .chips[aria-label="Position"]'),sx=bar?bar.scrollLeft:0;UI.pos=t.dataset.v;UI.more=false;render();const nb=document.querySelector('.tools .chips[aria-label="Position"]');if(nb)nb.scrollLeft=sx}
+  else if(a==='avshare'){try{const ti=UI.avt|0,blob=await avCardBlob(t.dataset.sc||HOME_SEC,t.dataset.nat==='1',ti);if(!blob)throw new Error('no image');cardPreview(blob,'varsity-'+['first','second','third'][ti]+'-team.png',AV_T[ti]+' Team')}catch(err){say('Could not make the card. Try again.')}}
   else if(a==='avt'){UI.avt=+t.dataset.v||0;if($('#lb-list'))$('#lb-list').innerHTML=listHTML();else render()}
   else if(a==='more'){UI.more=(+UI.more||5)+10;$('#lb-list').innerHTML=listHTML()}
   else if(a==='less'){UI.more=false;$('#lb-list').innerHTML=listHTML()}

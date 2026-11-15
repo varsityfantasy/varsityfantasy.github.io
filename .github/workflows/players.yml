@@ -54,11 +54,18 @@ jobs:
       - name: Read rosters, then box scores in 20-minute rounds, publishing after each round
         env:
           VARSITY_CONTACT: https://github.com/ariborkar-bot/varsity
-          SPORT: ${{ inputs.sport || (contains(join(github.event.head_commit.modified, ','), 'triggers/players-bb') && 'bb') || (contains(join(github.event.head_commit.added, ','), 'triggers/players-bb') && 'bb') || 'fb' }}
+          SPORT_IN: ${{ inputs.sport }}
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
           DELAY: ${{ inputs.delay || '0.5' }}
           MAX_GAMES: ${{ inputs.max_games || '0' }}
           MAX_MINUTES: ${{ inputs.max_minutes || '300' }}
         run: |
+          # sport: the Run workflow choice, else basketball when the push changed .github/triggers/players-bb, else football
+          SPORT="${SPORT_IN:-fb}"
+          if [ "$EVENT" = "push" ] && gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA" --jq '.files[].filename' 2>/dev/null | grep -q 'triggers/players-bb'; then SPORT=bb; fi
+          echo "sport: $SPORT"
           git config user.name "varsity-collector"
           git config user.email "actions@users.noreply.github.com"
           : > status.txt

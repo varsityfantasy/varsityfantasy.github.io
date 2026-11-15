@@ -1616,23 +1616,34 @@ select option{background:#0B1730;color:#EAF0F8}
 .avt.s{color:#EAF4FF;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%) -160% 0/60% 100% no-repeat,linear-gradient(100deg,#27528F,#3F78C4 50%,#244A80);box-shadow:0 0 6px rgba(63,120,196,.45)}
 .who .nm{flex-wrap:wrap;row-gap:3px}.who .nm b{flex:0 1 auto;min-width:min(5.5em,100%)}
 .nmt .avt{flex:none}.dh h2 .avt{font-size:.68rem}.pod .avt{align-self:center;margin-top:-2px}
-.avc{--ac:#FFC23D;position:relative;margin:0 0 14px;background:#0A1430;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;color:#fff}
-.avc.sec{--ac:#5E9BEA}
-.avc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ac)}
-.avc-h{display:flex;align-items:baseline;gap:10px;padding:12px 14px 10px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
-.avc-k{font:700 .66rem/1 var(--f-body,inherit);letter-spacing:.18em;text-transform:uppercase;color:var(--ac)}
-.avc-h h3{margin:0;flex:1;min-width:0;font:900 italic 1.45rem/1 'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.avc-tag{font:800 .6rem/1 var(--f-body,inherit);letter-spacing:.14em;text-transform:uppercase;color:#0A1430;background:var(--ac);padding:4px 7px 3px;border-radius:3px}
-.avc-cols{display:grid;grid-template-columns:44px 1fr 56px;padding:7px 14px 5px 18px;font:700 .58rem/1 var(--f-body,inherit);letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.4)}.avc-cols span:last-child{text-align:right}
-.avc-g{display:grid;grid-template-columns:1fr}
-@media (min-width:640px){.avc-g{grid-template-columns:1fr 1fr}.avc-cols{display:none}.avc-r:nth-child(odd){border-right:1px solid rgba(255,255,255,.06)}}
-.avc-r{display:grid;grid-template-columns:44px 30px 1fr auto;align-items:center;gap:10px;padding:8px 14px 8px 18px;text-align:left;color:inherit;background:none;border:0;border-top:1px solid rgba(255,255,255,.06);animation:avIn .35s ease-out both;animation-delay:calc(var(--i)*40ms)}
-.avc-r:hover,.avc-r:focus-visible{background:rgba(255,255,255,.04)}
-.avc-p{font:900 italic 1.05rem/1 'Barlow Condensed','Arial Narrow',sans-serif;color:var(--ac);letter-spacing:.02em}
-.avc-w{min-width:0;display:flex;flex-direction:column;gap:2px}.avc-w b{font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.avc-w small{font-size:.7rem;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.avc-v{font:800 1.05rem/1 'Barlow Condensed','Arial Narrow',sans-serif;font-variant-numeric:tabular-nums;text-align:right}
-.avc-wait{margin:0;padding:12px 18px;font-size:.8rem;color:rgba(255,255,255,.6)}
-@media (prefers-reduced-motion:reduce){.avt,.avc-r{animation:none!important}}
+.avc{--ac:#E9C46A;--ac2:#B8860B;position:relative;margin:0 0 16px;padding:18px 14px 12px;border-radius:16px;color:#F5ECD7;background:radial-gradient(80% 50% at 50% 0,rgba(233,196,106,.16),transparent 70%),#070D1F;border:1px solid rgba(233,196,106,.45);box-shadow:inset 0 0 0 4px #070D1F,inset 0 0 0 5px rgba(233,196,106,.25),0 14px 36px rgba(0,0,0,.4)}
+.avc.sec{--ac:#C9D6EA;--ac2:#7D8FAA;border-color:rgba(201,214,234,.4);box-shadow:inset 0 0 0 4px #070D1F,inset 0 0 0 5px rgba(201,214,234,.2),0 14px 36px rgba(0,0,0,.4);background:radial-gradient(80% 50% at 50% 0,rgba(201,214,234,.12),transparent 70%),#070D1F}
+.avc-h{display:flex;align-items:center;gap:10px}
+.avc-l{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--ac))}.avc-l.r{background:linear-gradient(270deg,transparent,var(--ac))}
+.avc-ht{text-align:center;display:flex;flex-direction:column;align-items:center}
+.avc-ht small{font:italic 400 .72rem/1 Georgia,'Times New Roman',serif;color:var(--ac);letter-spacing:.04em}
+.avc-ht h3{margin:5px 0 2px;font:400 .78rem/1 Georgia,serif;letter-spacing:.42em;text-transform:uppercase;padding-left:.42em;color:#F5ECD7}
+.avc-ht b{font:900 italic 2rem/1 'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;background:linear-gradient(180deg,#FFF6DA 0%,var(--ac) 55%,var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.avc-yr{margin:6px 0 12px;text-align:center;font:600 .6rem/1 var(--f-body,inherit);letter-spacing:.3em;text-transform:uppercase;color:rgba(245,236,215,.45)}
+.avc-f{position:relative;height:540px;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 1px,transparent 1px 54px),linear-gradient(180deg,#0E2A1C,#0A2016 50%,#0E2A1C);border:1px solid rgba(255,255,255,.07)}
+.avc-f::after{content:'';position:absolute;inset:0;background:radial-gradient(60% 40% at 15% 0,rgba(255,255,255,.08),transparent 70%),radial-gradient(60% 40% at 85% 0,rgba(255,255,255,.08),transparent 70%);pointer-events:none}
+.avc-f.bb{height:440px;background:radial-gradient(70% 60% at 50% 100%,rgba(255,255,255,.05),transparent),linear-gradient(180deg,#2A1A0E,#1C120A)}
+.avc-arc{position:absolute;left:50%;bottom:-120px;width:320px;height:320px;margin-left:-160px;border:1px solid rgba(245,236,215,.18);border-radius:50%}
+.avc-los{position:absolute;left:0;right:0;top:33%;height:2px;background:linear-gradient(90deg,transparent,var(--ac) 20%,var(--ac) 80%,transparent);opacity:.55}
+.avc-side{position:absolute;left:10px;font:600 .55rem/1 var(--f-body,inherit);letter-spacing:.28em;text-transform:uppercase;color:rgba(245,236,215,.35)}.avc-side.d{top:calc(33% - 16px)}.avc-side.o{top:calc(33% + 10px)}
+.avc-n{position:absolute;width:100px;transform:translate(-50%,-30px);display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;background:none;border:0;color:inherit;padding:0;animation:avRise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*90ms)}
+.avc-ring{position:relative;display:block;padding:3px;border-radius:50%;background:conic-gradient(from 210deg,var(--ac2),#FFF6DA,var(--ac),var(--ac2));box-shadow:0 6px 14px rgba(0,0,0,.5)}
+.avc-ring .av{display:block;border:2px solid #070D1F}
+.avc-ring i{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);font:900 italic .66rem/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.06em;color:#070D1F;background:var(--ac);padding:2px 6px 1px;border-radius:3px;font-style:normal}
+.avc-n b{margin-top:9px;font-size:.74rem;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 3px #000}
+.avc-n small{font-size:.6rem;color:rgba(245,236,215,.6);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avc-n em{font:800 .82rem/1 'Barlow Condensed','Arial Narrow',sans-serif;font-style:normal;color:var(--ac);font-variant-numeric:tabular-nums}
+.avc-n.top .avc-ring{box-shadow:0 0 0 1px var(--ac),0 0 22px rgba(233,196,106,.55),0 6px 14px rgba(0,0,0,.5)}
+.avc-n:focus-visible .avc-ring,.avc-n:hover .avc-ring{transform:scale(1.06)}.avc-ring{transition:transform .2s}
+.avc-ft{margin:10px 0 0;text-align:center;font:italic .68rem/1.3 Georgia,serif;color:rgba(245,236,215,.5)}
+.avc-wait{margin:8px 0;text-align:center;font-size:.8rem;color:rgba(245,236,215,.6)}
+@keyframes avRise{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translate(-50%,-30px)}}
+@media (prefers-reduced-motion:reduce){.avt,.avc-n{animation:none!important}}
 .sx-avr{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin}.sx-avc{flex:0 0 112px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface2)}.sx-avc>small:first-child{font-weight:800;letter-spacing:.06em;color:#FFC23D}.sx-avc b{font-size:.8rem;line-height:1.15}.sx-avc small{font-size:.68rem}.sx-avc em{font-style:normal;font-weight:800;color:var(--ink)}
 .bnd-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-bottom:8px}.bnd-s{display:flex;align-items:center;gap:10px;text-align:left;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--surface2)}.bnd-s>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.bnd-s[aria-pressed="true"]{border-color:#FFC23D;box-shadow:0 0 0 2px rgba(255,194,61,.35)}.bnd-s.dn{border-color:#2EC27E;background:rgba(46,194,126,.1)}
 .bnd-b{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}.bnd-b u{display:block;height:100%;background:linear-gradient(90deg,#FFC23D,#FF8A3D);text-decoration:none}.bnd-s.dn .bnd-b u{background:#2EC27E}
@@ -3721,7 +3732,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v504 · Nov 14';
+const APP_BUILD='v505 · Nov 14';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8567,13 +8578,16 @@ function rowHTML(x,rank){
     <span class="ln">${line(x.p.pos,x.a.s)}</span>
     <span class="pt">${UI.rank==='ovr'?`<b>${ovrOf(x.p.key)||'-'}</b><small>overall · ${bigV(x.a)} pts</small>`:`<b>${bigV(x.a)}</b><small>${ovrTag(x.p)} ${subV(x.a)} ${trTag(x.p)}</small>`}</span></button>`;
 }
-/* v504 (owner): First Team card. All sections tab = the ONE national All-Varsity team; a section tab = that section's First Team. Broadcast-graphic style. */
+/* v505 (owner): First Team as an awards-night formation: players stand in their spots on a night field (court in basketball), gold-framed honor plaque header. */
+const AV_SPOT={QB:[50,60],RB:[29,79],WR:[13,47],TE:[87,47],K:[71,79],DL:[82,15],LB:[50,9],DB:[18,15],PG:[50,16],SG:[17,40],SF:[83,40],PF:[29,74],C:[71,74]};
 function avCard(sc,nat){
-  const sn=SECTIONS[sc]||SECTIONS[HOME_SEC];
-  if(nat){avLoad();if(!avReady())return `<section class="avc nat"><header class="avc-h"><span class="avc-k">First Team</span><h3>All-Varsity</h3><span class="avc-tag">Nation</span></header><p class="avc-wait">Loading every section<em class="sl-dots"><u>.</u><u>.</u><u>.</u></em></p></section>`}
+  const sn=SECTIONS[sc]||SECTIONS[HOME_SEC],yr=new Date().getFullYear(),bb=typeof FG_SPORT!=='undefined'&&FG_SPORT==='bb';
+  const head=`<header class="avc-h"><span class="avc-l" aria-hidden="true"></span><div class="avc-ht"><small>${nat?'The National':'The '+esc(sn.full)}</small><h3>First Team</h3><b>${nat?'All-Varsity':'All-'+esc(sn.name)}</b></div><span class="avc-l r" aria-hidden="true"></span></header><p class="avc-yr">${yr} Season Honors</p>`;
+  if(nat){avLoad();if(!avReady())return `<section class="avc nat">${head}<p class="avc-wait">Tallying every section<em class="sl-dots"><u>.</u><u>.</u><u>.</u></em></p></section>`}
   const L=(nat?avNat():avSec(sc)).list;if(!L.length)return '';
-  const rows=L.map((x,i)=>`<button type="button" class="avc-r" style="--i:${i}" data-act="player" data-id="${esc(x.p.key)}"><span class="avc-p">${x.pos}</span>${av(x.p.name,x.p.school,30)}<span class="avc-w"><b>${esc(x.p.name)}</b><small>${esc(x.p.school)}</small></span><span class="avc-v">${f1(x.v)}</span></button>`).join('');
-  return `<section class="avc ${nat?'nat':'sec'}"><header class="avc-h"><span class="avc-k">First Team</span><h3>${nat?'All-Varsity':esc(sn.name)}</h3><span class="avc-tag">${nat?'Nation':'Section'}</span></header><div class="avc-cols"><span>Pos</span><span>Player</span><span>Pts</span></div><div class="avc-g">${rows}</div></section>`}
+  const mx=Math.max(...L.map(x=>x.v));
+  const nodes=L.map((x,i)=>{const q=AV_SPOT[x.pos]||[50,50];return `<button type="button" class="avc-n${x.v===mx?' top':''}" style="left:${q[0]}%;top:${q[1]}%;--i:${i}" data-act="player" data-id="${esc(x.p.key)}"><span class="avc-ring">${av(x.p.name,x.p.school,46)}<i>${x.pos}</i></span><b>${esc(x.p.name)}</b><small>${esc(x.p.school)}</small><em>${f1(x.v)}</em></button>`}).join('');
+  return `<section class="avc ${nat?'nat':'sec'}">${head}<div class="avc-f${bb?' bb':''}" aria-label="First Team">${bb?'<i class="avc-arc"></i>':'<i class="avc-los"></i><span class="avc-side d">Defense</span><span class="avc-side o">Offense</span>'}${nodes}</div><p class="avc-ft">Best season fantasy total at each position${nat?' across every section':''}</p></section>`}
 function leadersHTML(rows){
   if(UI.pos!=='ALL'||UI.q||UI.school!=='ALL')return'';
   return avCard(UI.psec==='ALL'?HOME_SEC:UI.psec,UI.psec==='ALL');

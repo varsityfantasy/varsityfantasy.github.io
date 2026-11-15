@@ -831,3 +831,6 @@ The Capacitor app bundles games.js/ovr.js (native/build-www.sh), so scores neede
 
 ## v504 (Nov 14, owner: "looks lame, less AI, national only in All tab")
 - `avCard(sc,nat)`: no tabs. All sections = national All-Varsity, a section = its First Team. Broadcast-style roster sheet (accent bar, POS/PLAYER/PTS columns, 2 columns on wide screens); removed star, foil, shine, MVP badge.
+
+## v505 (Nov 14, owner: "make it special, exciting and formal")
+- First Team card is an awards-night formation: plaque header (serif "The National / FIRST TEAM / ALL-VARSITY"), players stand at their spots on a night field (`AV_SPOT`; basketball uses a court), gold rings (silver for sections), top scorer glows, line of scrimmage splits Defense/Offense.

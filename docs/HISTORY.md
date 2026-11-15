@@ -795,3 +795,6 @@ Owner: make it like Retro Bowl. Passing concepts are named (Slants, Smash, Four 
 - `players.yml` runs rosters for either sport; pushing `.github/triggers/players-bb` starts a basketball run (sport found with the compare API: `head_commit.added` did not work, the first push ran football) (rosters, then box scores of the few games already played).
 - App: `secOvr` gives no overall until someone in the section has a stat line (it used to hand 99 to 8 random 0.0 players) and has basketball stat keys (`OVR_KEYS` PG..C).
 - Tested with fake rosters for all 10 sections (not committed): Games > section > Teams > team roster, section Players list and player card in basketball, no page errors.
+
+## v497 (Nov 14): section loading screen
+- `secLoad(what,id)` (next to `secState`) returns an animated "Scouting <section>" card (scanning field, bouncing ball, shimmer title, progress bar; orange court + basketball in basketball via `.sl.bb`; reduced-motion safe). It replaces every plain "Loading…" in the section views: Games > section (schedule, players, roster), Players, Stats and Overall tabs. CSS block `/* v497 section loading screen */`.

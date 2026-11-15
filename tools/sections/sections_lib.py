@@ -129,7 +129,7 @@ class MaxPrepsAdapter(Adapter):
         if names is None and section != 'california':
             print('  note: no names list for %s, so the crawl may wander the whole state (capped at %d teams)' % (section, self.max_teams))
         fetcher = M.Fetcher(delay=self.delay, cache=self.cache, max_age_h=self.max_age_h)
-        schools, games, blocked = {}, {}, None
+        schools, games, blocked, brackets = {}, {}, None, {}
         for sp in sports:
             if not seeds[sp]:
                 print('  no %s seeds for %s' % (sp, section)); continue
@@ -139,10 +139,16 @@ class MaxPrepsAdapter(Adapter):
             blocked = blocked or rep['blocked']
             for sid, t in teams.items():
                 if t.get('state') == 'CA' and (names is None or M.norm(t['name']) in names):
-                    schools[sid] = {'id': sid, 'name': t['name'], 'city': t['city'], 'section': t.get('section'), 'league': t.get('league'), 'division': t.get('division')}
+                    keep = schools.get(sid) or {}
+                    schools[sid] = {'id': sid, 'name': t['name'], 'city': t['city'], 'section': t.get('section') or keep.get('section'),
+                                    'league': t.get('league') or keep.get('league'), 'division': t.get('division') or keep.get('division')}
+                    for k in ('logo', 'color'):
+                        if t.get(k) or keep.get(k):
+                            schools[sid][k] = t.get(k) or keep.get(k)
             games.update(g)
+            brackets.update(rep.get('brackets') or {})
         return {'section': section, 'source': 'maxpreps', 'schools': list(schools.values()), 'players': [], 'games': list(games.values()), 'lines': [],
-                'partial': bool(blocked)}
+                'partial': bool(blocked), 'brackets': brackets}
 
 
 def split_by_section(data):
@@ -163,6 +169,8 @@ def split_by_section(data):
         out[slug] = {'section': slug, 'source': data.get('source'), 'players': [], 'lines': [],
                      'schools': [sc for sc in data['schools'] if sc['id'] in mine],
                      'games': [g for g in data['games'] if g.get('home_id') in mine or g.get('away_id') in mine]}
+        used = {g.get('bracket') for g in out[slug]['games'] if g.get('bracket')}
+        out[slug]['brackets'] = {k: v for k, v in (data.get('brackets') or {}).items() if k in used}
     return out, unmatched
 
 
@@ -204,6 +212,13 @@ def upsert(old, new):
     merged['players'] = merge(lambda x: x['id'], old.get('players', []), new['players'])
     merged['games'] = merge(lambda x: x['id'], old.get('games', []), new['games'])
     merged['lines'] = merge(lambda x: (x['game'], x['player']), old.get('lines', []), new['lines'])
+    merged['brackets'] = dict(old.get('brackets') or {}, **(new.get('brackets') or {}))   # playoff bracket id -> {name, tournament}
+    # a school keeps a logo, league or division an earlier run found when this run did not see it
+    olds = {x['id']: x for x in old.get('schools', [])}
+    for sc in merged['schools']:
+        for k, v in (olds.get(sc['id']) or {}).items():
+            if sc.get(k) in (None, '') and v not in (None, ''):
+                sc[k] = v
     return merged, changes
 
 

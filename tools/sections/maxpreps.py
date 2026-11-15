@@ -57,6 +57,9 @@ def _score(v):
     return None
 
 
+ZERO_ID = '00000000-0000-0000-0000-000000000000'
+
+
 def decode_contests(contests, sport):
     """-> (games, rejects, checked). Games are dicts; unplayed games have hs/as None.
     home/away come from t[11] (0 home, 1 away). When MaxPreps has not set it (neutral site, not yet scheduled) the page's
@@ -102,6 +105,8 @@ def decode_contests(contests, sport):
             games.append({'id': 'mp:' + cid, 'sport': sport, 'date': date, 'time': start[11:16], 'home': home[14], 'away': away[14],
                           'home_id': 'mp:' + home[1], 'away_id': 'mp:' + away[1], 'hs': hs, 'as': as_, 'ha': ha, 'forfeit': forfeit,
                           'state': (r[28] or '').replace('ContestState is ', '').rstrip('.'), 'url': r[18] if isinstance(r[18], str) else None})
+            if isinstance(r[12], str) and UUID_RE.match(r[12]) and r[12] != ZERO_ID:   # r[12]: playoff bracket id (zeros in the regular season)
+                games[-1]['bracket'] = r[12]
         except (ValueError, TypeError, IndexError, KeyError) as e:
             rejects.append((str(r[1])[:8] if isinstance(r, list) and len(r) > 1 else '?', str(e)))
     # a few odd rows on a page are dropped one by one (the crawl stops if too many fail over the whole run, see crawl());
@@ -114,7 +119,11 @@ def decode_contests(contests, sport):
 def team_meta(pp):
     """The page's own team: id and its section / league / division (pp.teamContext.data)."""
     d = ((pp.get('teamContext') or {}).get('data')) or {}
-    return {'team_id': d.get('teamId'), 'section': d.get('sectionName'), 'league': d.get('leagueName'), 'division': d.get('sectionDivisionName')}
+    br = {}
+    for t in pp.get('tournaments') or []:
+        if isinstance(t, dict) and t.get('tournamentBracketId'):
+            br[t['tournamentBracketId']] = {'name': t.get('bracketName') or '', 'tournament': t.get('tournamentName') or ''}
+    return {'team_id': d.get('teamId'), 'section': d.get('sectionName'), 'league': d.get('leagueName'), 'division': d.get('sectionDivisionName'), 'brackets': br}
 
 
 def teams_in(contests):
@@ -127,6 +136,10 @@ def teams_in(contests):
             try:
                 if UUID_RE.match(str(t[1])) and t[14]:
                     out['mp:' + t[1]] = {'name': t[14], 'city': t[15], 'state': t[16], 'url': t[13] if isinstance(t[13], str) else None}
+                    if len(t) > 22 and isinstance(t[20], str) and t[20].startswith('https://image.maxpreps.io/'):
+                        out['mp:' + t[1]]['logo'] = t[20]
+                        if isinstance(t[22], str) and re.fullmatch(r'[0-9A-Fa-f]{6}', t[22]):
+                            out['mp:' + t[1]]['color'] = t[22]
             except (TypeError, IndexError):
                 pass
     return out
@@ -193,7 +206,8 @@ class Fetcher:
         path = os.path.join(self.cache, hashlib.sha1(url.encode()).hexdigest() + '.json') if self.cache else None
         if path and os.path.exists(path) and time.time() - os.path.getmtime(path) < self.max_age:
             c = json.load(open(path))
-            return {'contests': c['contests'], 'meta': c.get('meta') or {}}
+            if 'brackets' in (c.get('meta') or {}) or '/football/' not in url:   # pages cached before brackets were read are fetched again (football)
+                return {'contests': c['contests'], 'meta': c.get('meta') or {}}
         if not self.allowed(url):
             raise Blocked('robots.txt disallows ' + url)
         pp = next_data(self._open(url))['props']['pageProps']
@@ -263,6 +277,7 @@ def crawl(seeds, sport, names=None, state='CA', max_teams=300, fetcher=None, log
             games.setdefault(g['id'], g)
         for sid, t in teams_in(contests).items():
             teams.setdefault(sid, t)
+        report.setdefault('brackets', {}).update(meta.get('brackets') or {})
         if meta.get('team_id') and 'mp:' + meta['team_id'] in teams:
             teams['mp:' + meta['team_id']].update({k: meta.get(k) for k in ('section', 'league', 'division')})
         for sid, t in teams_in(contests).items():

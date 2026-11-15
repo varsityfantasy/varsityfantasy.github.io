@@ -145,6 +145,9 @@ def build_weekly(sec_id, sport, rows, keys, base):
     return len(out)
 
 
+LOGO_BASE = 'https://image.maxpreps.io/school-mascot/'
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--data', default=os.path.join(ROOT, 'data', 'sections'))
@@ -169,6 +172,16 @@ def main(argv=None):
             if np:
                 (info.get(s) or info.setdefault(s, {'teams': 0, 'games': 0, 'played': 0, 'weeks': 0}))['players'] = np
         info = {s: v for s, v in info.items() if v}
+        # logos.json: {school name: logo path}. The app shows https://image.maxpreps.io/school-mascot/<path>&width=96&height=96
+        logos = {}
+        for sc in sec.get('schools', []):
+            u = sc.get('logo') or ''
+            if u.startswith(LOGO_BASE):
+                logos.setdefault(sc['name'], u[len(LOGO_BASE):].split('&width=')[0])
+        if logos and info:
+            os.makedirs(os.path.join(a.out, 'sections', sec['section']), exist_ok=True)
+            with open(os.path.join(a.out, 'sections', sec['section'], 'logos.json'), 'w', encoding='utf-8') as f:
+                json.dump({'base': LOGO_BASE, 'logos': logos}, f, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
         if info:
             idx[sec['section']] = {'id': sec['section'], 'partial': bool(sec.get('partial')), 'sports': info,
                                    'links': {s: 'sections/%s/%s/' % (sec['section'], s) for s in info}}

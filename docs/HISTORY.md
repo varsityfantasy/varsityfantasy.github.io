@@ -923,3 +923,6 @@ Me tab: when a share-card style is equipped, a styled rank card (`.rk-live`, bui
 ## v532 — Francis Parker and their football opponents removed (owner)
 Owner: remove Francis Parker and every football team they play, football only. All of their games are out of `games.js` (4 games: Francis Parker vs Public Safety Academy, Poly/Pasadena, California Lutheran, St. Joseph Academy; 529 -> 525 games), so those teams, their Pick em and props are gone. They were never in `SD_SCHOOLS` and have no box-score players. `tools/add_scores.py` now skips fb scores that involve them (`FB_REMOVED`). Basketball, the logos and the generated `api/v1/sections` + `data/` files are untouched (the section API still lists them as teams).
 - Also fixed `tools/add_scores.py`: it crashed (KeyError hs) on the week-14 games that have no score keys, which would have broken the daily score task; it now reads missing scores with `.get`.
+
+## v533 — Parlay slip was squished (owner)
+The loading screen bar and the player-props parlay slip both used the class `sl-bar`, so the slip got the loader bar rules (height 5px, overflow hidden). The loader bar is now `sl-load`.

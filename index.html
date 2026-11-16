@@ -1327,8 +1327,8 @@ select option{background:#0B1730;color:#EAF0F8}
 .sl-t{font-family:'Bebas Neue',inherit;font-size:1.7rem;letter-spacing:.06em;line-height:1;text-transform:uppercase;background:linear-gradient(90deg,#fff,#ffd75a,#fff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:slShine 2.2s linear infinite}
 .sl-s{font-size:.85rem;opacity:.8}
 .sl-dots u{text-decoration:none;display:inline-block;animation:slDot 1.2s infinite}.sl-dots u:nth-child(2){animation-delay:.2s}.sl-dots u:nth-child(3){animation-delay:.4s}
-.sl-bar{width:min(260px,70%);height:5px;margin-top:8px;border-radius:9px;background:rgba(255,255,255,.14);overflow:hidden}
-.sl-bar i{display:block;height:100%;width:40%;border-radius:9px;background:linear-gradient(90deg,#2f6bff,#ffd75a);animation:slBar 1.3s ease-in-out infinite}
+.sl-load{width:min(260px,70%);height:5px;margin-top:8px;border-radius:9px;background:rgba(255,255,255,.14);overflow:hidden}
+.sl-load i{display:block;height:100%;width:40%;border-radius:9px;background:linear-gradient(90deg,#2f6bff,#ffd75a);animation:slBar 1.3s ease-in-out infinite}
 @keyframes slIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes slScan{0%{left:-46px}100%{left:100%}}
 @keyframes slBall{0%{left:-6%;transform:translateY(8px) rotate(0)}25%{transform:translateY(-20px) rotate(180deg)}50%{transform:translateY(8px) rotate(360deg)}75%{transform:translateY(-14px) rotate(540deg)}100%{left:100%;transform:translateY(8px) rotate(720deg)}}
@@ -1336,7 +1336,7 @@ select option{background:#0B1730;color:#EAF0F8}
 @keyframes slShine{to{background-position:-200% 0}}
 @keyframes slDot{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-3px)}}
 @keyframes slBar{0%{margin-left:-40%}100%{margin-left:100%}}
-@media (prefers-reduced-motion:reduce){.sl,.sl-scan,.sl-ball,.sl-shadow,.sl-t,.sl-dots u,.sl-bar i{animation:none!important}.sl-bar i{width:60%}}
+@media (prefers-reduced-motion:reduce){.sl,.sl-scan,.sl-ball,.sl-shadow,.sl-t,.sl-dots u,.sl-load i{animation:none!important}.sl-load i{width:60%}}
 .sl.bb .sl-fld{background:repeating-linear-gradient(90deg,#b8793c 0 38px,#c4854a 38px 76px);border-color:#f3e6cf}.sl.bb .sl-yd{background:rgba(243,230,207,.75)}.sl.bb .sl-ball{width:24px;height:24px;top:30px;background:radial-gradient(circle at 35% 30%,#ff9a45,#d3570f 70%)}.sl.bb .sl-ball::before{left:0;right:0;height:2px;background:#4a1d05;opacity:.7}.sl.bb .sl-ball::after{left:11px;top:0;width:2px;height:24px;box-shadow:none;background:#4a1d05;opacity:.7}.sl.bb .sl-shadow{width:24px}
 .sbr-secs .chip.sbr-off{opacity:.55}.sec-dd{margin:0 0 10px;max-width:320px}.sbr-note{margin:6px 0 10px;font-size:.85rem}
 .sbr-gl{padding:6px 14px}.sbr-p{display:grid;grid-template-columns:26px 36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}.sbr-p:first-child{border-top:0}.sbr-rk{font-weight:800;color:var(--muted);text-align:center}.sbr-pn{display:flex;flex-direction:column;min-width:0}.sbr-pn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sbr-pn small{color:var(--muted);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sbr-fp{text-align:right}.sbr-fp b{font-size:1.05rem;display:block}.sbr-fp small{font-size:.66rem;color:var(--muted)}.sbr-g{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:.9rem}.sbr-g:first-child{border-top:0}
@@ -3467,7 +3467,7 @@ function secPl(id){if(!id||id===HOME_SEC||!SECTIONS[id])return null;if(SECP[id])
 const secTot=sc=>!!(sc&&SECP[sc]&&SECP[sc].tot);
 /* v497: section loading screen: a field being "scouted" instead of plain Loading text */
 const secLoad=(what,id)=>{const sc=(typeof SECTIONS!=='undefined'&&SECTIONS[id])||null,nm=sc?sc.name:'',w=['Scouting','Pulling film on','Warming up','Lining up'][(nm.length+String(what).length)%4];
-  return `<div class="sl${typeof FG_SPORT!=='undefined'&&FG_SPORT==='bb'?' bb':''}" role="status" aria-live="polite"><div class="sl-fld" aria-hidden="true"><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-scan"></i><i class="sl-ball"></i><i class="sl-shadow"></i></div><b class="sl-t">${w} ${nm?esc(nm):'the section'}</b><span class="sl-s">${esc(what)}<em class="sl-dots"><u>.</u><u>.</u><u>.</u></em></span><div class="sl-bar" aria-hidden="true"><i></i></div></div>`};
+  return `<div class="sl${typeof FG_SPORT!=='undefined'&&FG_SPORT==='bb'?' bb':''}" role="status" aria-live="polite"><div class="sl-fld" aria-hidden="true"><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-yd"></i><i class="sl-scan"></i><i class="sl-ball"></i><i class="sl-shadow"></i></div><b class="sl-t">${w} ${nm?esc(nm):'the section'}</b><span class="sl-s">${esc(what)}<em class="sl-dots"><u>.</u><u>.</u><u>.</u></em></span><div class="sl-load" aria-hidden="true"><i></i></div></div>`};
 const secState=id=>SECP[id]?'ready':SBR.err['wk:'+id]?'none':'loading';
 const secByKey=k=>{if(typeof k!=='string'||k[0]!=='x')return undefined;for(const id in SECP){const p=SECP[id].map[k];if(p)return p}return undefined};
 const secT10=sc=>{const S_=SECP[sc];if(!S_)return new Set();if(!S_.t10)S_.t10=new Set(S_.list.map(x=>({k:x.key,v:agg(x,'season')})).filter(x=>x.v.n>0).sort((a,b)=>b.v.v-a.v.v).slice(0,10).map(x=>x.k));return S_.t10};
@@ -3843,7 +3843,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v532 · Nov 15';
+const APP_BUILD='v533 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

@@ -966,3 +966,6 @@ League health value and labels renamed (`Waiting`, "Waiting to draft", "N league
 
 ## v547 — Error log ignores in-app browser noise
 First (and only) logged error after logging was fixed: `Can't find variable: SCDynimacBridge` on an iPhone, twice, one user. Not in our code: injected by an in-app browser. `logErr()` now skips it (and `webkit.messageHandlers`, bare `Script error.`).
+
+## v548 — 5 Card Draw: no player under 65 OVR (owner)
+`fcPool()` keeps only players with `ovrOf() >= FC_MIN_OVR` (65), for deals and redraws. Falls back to everyone only if fewer than 5 qualify or nobody has an overall yet. Hands already dealt are unchanged. Preview: football pool 704 players, basketball 48 on the next game day.

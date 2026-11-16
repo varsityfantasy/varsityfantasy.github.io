@@ -3856,7 +3856,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v547 · Nov 16';
+const APP_BUILD='v548 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4656,7 +4656,9 @@ const fcRnd=n=>{try{const a=new Uint32Array(1);crypto.getRandomValues(a);return 
 /* anyone with a game on record and no stats in yet this week, and a team that is not on a bye */
 /* only players whose team still has a game this week that has not started (when this week's schedule is listed) */
 const fcPlays=p=>{const gs=fcGamesOf(fcCur());return !gs.length||gs.some(g=>(g.h===p.school||g.a===p.school)&&!started(g))};
-const fcPool=ex=>{const s=fcCur();return players().filter(p=>p.mp&&mgOk(p)&&!ex.has(p.key)&&!fcPts(p,s)&&!fcStarted(p,s)&&fcPlays(p)&&agg(p,'season').n>0&&(FC_DAILY||!(oppInfo(p.school)||{}).bye))};
+const FC_MIN_OVR=65;   /* v548 (owner): 5 Card Draw never deals a player under 65 OVR */
+const fcPool=ex=>{const s=fcCur(),base=players().filter(p=>p.mp&&mgOk(p)&&!ex.has(p.key)&&!fcPts(p,s)&&!fcStarted(p,s)&&fcPlays(p)&&agg(p,'season').n>0&&(FC_DAILY||!(oppInfo(p.school)||{}).bye)),hi=base.filter(p=>ovrOf(p.key)>=FC_MIN_OVR);
+  return hi.length>=FC_SIZE||!base.some(p=>ovrOf(p.key)>0)?(hi.length>=FC_SIZE?hi:base):hi};   /* if nobody has an overall yet (basketball before stats), deal from everyone */
 const fcDraw=(pool,n)=>{const out=[],a=pool.slice();while(out.length<n&&a.length){out.push(a.splice(fcRnd(a.length),1)[0].key)}return out};
 let _fcBusy=false;
 async function fcDeal(){

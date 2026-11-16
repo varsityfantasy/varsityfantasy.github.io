@@ -935,3 +935,6 @@ The schedule (`games.js`) says Mount Carmel / San Diego High / Christian High / 
 
 ## v536 — No home-field edge in odds (owner)
 `oddsFor()` no longer gives the home team 45 Elo points or the fitted home margin `R.H`, and `spreadFor()` drops `R.H` too: win chances and spreads depend only on the two teams ratings. The fit in `ridgeRatings()` still estimates home field so past home wins are not over-credited, and the 10-0 sim still uses it. Applies to basketball too. Bets already saved keep the odds they were saved with.
+
+## v537 — Two playoff odds set by hand (owner)
+`ODDS_PIN`: Cathedral Catholic at Carlsbad (Nov 21) 50-50; Granite Hills 55% at Torrey Pines (Nov 20). `spreadFor()` now follows a pin for games not yet played. Why: out-of-section opponents (Orange Lutheran, Chandler, De La Salle) have 1-2 games in our data and rate as average, which drags Cathedral down. OPEN: leave out-of-section games out of the ratings?

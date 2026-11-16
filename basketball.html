@@ -3854,7 +3854,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v536 · Nov 16';
+const APP_BUILD='v537 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4438,7 +4438,7 @@ function ridgeRatings(){
   const out={};T.forEach((t,i)=>{out[t]=r[i]});_rg={r:out,H,s};return _rg;
 }
 /* v366 (owner): set win chances for specific games, home team's chance, keyed 'date|home|away'. Odds follow from it (7% cut). */
-const ODDS_PIN={'2026-11-13|Carlsbad|Santa Fe Christian':.80};
+const ODDS_PIN={'2026-11-13|Carlsbad|Santa Fe Christian':.80,'2026-11-21|Carlsbad|Cathedral Catholic':.50,'2026-11-20|Torrey Pines|Granite Hills':.45};   /* home team's win chance. v537 (owner): Open Division game is 50-50, Granite Hills slightly favored (55%) at Torrey Pines */
 function oddsFor(g){
   const pin=ODDS_PIN[g.d+'|'+g.h+'|'+g.a];
   if(pin!=null){const dec=p=>Math.round(Math.min(12,Math.max(1.05,.93/p))*100)/100;return {ph:pin,h:dec(pin),a:dec(1-pin)}}
@@ -6736,7 +6736,7 @@ function viewSim(){
 const ATS_PAY=1.91,ATS_K=2.2;
 const atsOf=u=>((S.picks[u]||{}).ats)||{};
 function spreadFor(g){
-  const R=ridgeRatings(),raw=(R.r[g.h]||0)-(R.r[g.a]||0);
+  const R=ridgeRatings(),pin=gDone(g)?null:ODDS_PIN[g.d+'|'+g.h+'|'+g.a],raw=pin!=null?R.s*Math.log(pin/(1-pin)):(R.r[g.h]||0)-(R.r[g.a]||0);   /* v537: a pinned win chance sets the spread too (upcoming games only) */
   let L=-ATS_K*raw;L=Math.max(-25,Math.min(25,L));
   L=Math.round(L-.5)+.5;
   return L;

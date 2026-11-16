@@ -944,3 +944,6 @@ The `data-dash` click handler saves `.adm-main` scrollTop (and window scroll) be
 
 ## v539 — Admin dashboard says why usage is empty (owner)
 Owner saw 0 visits / 0 min for everyone. Usage is read straight from `docs` (id `usage`) under row security, which returns 0 rows with no error when `is_admin()` is false; the user list comes from the `admin_users` RPC. `dashLoad()` now sets `DASH.err` when 0 usage rows come back (and reports what `is_admin` says). Cause not confirmed: Supabase is not reachable from the cloud session. Suspects: admin unlock not seen by row security for the v509 shared PIN accounts, or usage docs not being written.
+
+## v540 — Admin: opens and exact total time per person (owner)
+Users table: `Opens` (all-time app opens, `u.sAll`, now shown on phones too) and `Total time` (all-time, to the second, `fmtExact(u.tAll)`); both sort. The account detail card shows App opens, Total time on app, Days used. CSV has `opens_all_time`, `seconds_all_time`, `time_all_time`. Time is counted in 2-second ticks while the app is on screen and touched in the last 2 minutes, and saved about once a minute, so it is exact to within a couple of seconds per visit. The two admin accounts are not tracked.

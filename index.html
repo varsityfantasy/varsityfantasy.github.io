@@ -3845,7 +3845,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v546 · Nov 16';
+const APP_BUILD='v547 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10326,7 +10326,8 @@ setInterval(()=>{if(!useOn()||!USE.doc)return;
   const a=S.settings&&S.settings.ann;if(a&&a.id&&a.text){USE.doc.ann=USE.doc.ann||{};if(!USE.doc.ann[a.id]){USE.doc.ann[a.id]=1;USE.dirty=true}}},2000);
 /* errors on someone's phone are kept in their private doc data/users/<uid>/errors (last 25), for the admins to read */
 const ERRQ={n:0,busy:false,list:[]};
-function logErr(msg,src,line){try{if(!ME.uid||ME.mode!=='live'||ME.admin||ERRQ.n>=10)return;ERRQ.n++;
+function logErr(msg,src,line){try{if(/SCDynimacBridge|webkit\.messageHandlers|Script error\.?$/i.test(String(msg)))return;   /* v547: noise from in-app browsers (code they inject, not ours) */
+  if(!ME.uid||ME.mode!=='live'||ME.admin||ERRQ.n>=10)return;ERRQ.n++;
   ERRQ.list.push({t:NOW(),m:String(msg||'').slice(0,300),s:String(src||'').split('/').pop().slice(0,80),l:line||0,v:useTab(),d:matchMedia('(max-width:759px)').matches?'phone':'desktop',ua:navigator.userAgent.slice(0,120),b:typeof APP_BUILD!=='undefined'?APP_BUILD:''});
   if(ERRQ.busy)return;ERRQ.busy=true;setTimeout(async()=>{try{const ref=DB.doc('data/users/'+ME.uid+'/errors'),s=await ref.get(),old=(s.exists&&s.data().list)||[];await ref.set({list:old.concat(ERRQ.list).slice(-25)});ERRQ.list=[]}catch(_){}ERRQ.busy=false},4000)}catch(_){}}
 addEventListener('error',e=>logErr(e.message,e.filename,e.lineno));

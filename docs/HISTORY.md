@@ -963,3 +963,6 @@ League health value and labels renamed (`Waiting`, "Waiting to draft", "N league
 
 ## v546 — Admin Users: who is on the app now (owner)
 `u.on` = usage doc `last` within `ON_MS` (2.5 min). Users table shows a green "On now" in the Last active column (sort by it puts them first) and "N on now" next to All users. `lastAct` is now always a ms number. The dashboard refreshes itself every 30 s on Overview / Users / Schools while on screen (not while typing or a sheet is open) and `admRefresh()` keeps the scroll position. Usage saves about once a minute and when the app is hidden, so someone can show as on for up to 2.5 min after leaving.
+
+## v547 — Error log ignores in-app browser noise
+First (and only) logged error after logging was fixed: `Can't find variable: SCDynimacBridge` on an iPhone, twice, one user. Not in our code: injected by an in-app browser. `logErr()` now skips it (and `webkit.messageHandlers`, bare `Script error.`).

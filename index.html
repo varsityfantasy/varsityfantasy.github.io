@@ -2123,7 +2123,7 @@ html,body{overflow-x:clip;max-width:100%}
 .adm-nav{color:#8FA89B}.adm-nav:hover{background:rgba(28,155,94,.07);color:#E6EDE9}
 .adm-nav.on{background:rgba(28,155,94,.1);color:#1C9B5E;box-shadow:inset 2px 0 0 #1C9B5E}
 .adm-side-foot{border-top-color:#12201A}
-.adm-top{background:rgba(3,5,4,.92)!important;border-bottom:1px solid #12201A}
+.adm-top{box-shadow:0 -40px 0 #030504!important;background:rgba(3,5,4,.92)!important;border-bottom:1px solid #12201A}
 .adm-crumb,.adm-crumb b,.adm-upd{color:#6F8A7B}.adm-crumb b{color:#E6EDE9}
 .adm-upd::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#1C9B5E;margin-right:7px;box-shadow:0 0 8px #1C9B5E;}
 @keyframes admLive{50%{opacity:.25}}
@@ -2176,6 +2176,7 @@ html,body{overflow-x:clip;max-width:100%}
 .adm-dl.up,.adm-dl.dn{padding:2px 8px;border-radius:6px;font-weight:700}
 .adm-dl.up{background:rgba(37,194,110,.16);color:#25C26E}.adm-dl.dn{background:rgba(229,64,79,.18);color:#F0525F}
 .adm-nav.on,.adm-pri{box-shadow:none}
+.adm-sch>div>span:first-child{display:flex;align-items:center;gap:7px;min-width:0}.adm-sch>div{grid-template-columns:minmax(120px,190px) 1fr auto!important}
 @media (max-width:759px){.dtab .hide-s{display:none}.dks{grid-template-columns:repeat(2,1fr)}.dk b{font-size:1.4rem}}
 /* Ring Chaser */
 .rc-card{text-align:left}.rc-card .fg-hero,.rc-card>h3{text-align:center}
@@ -3843,7 +3844,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v541 · Nov 16';
+const APP_BUILD='v542 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10171,12 +10172,12 @@ function dashHTML(){
 }
 /* ---------- admin console: a light, separate-looking dashboard (owner asked for a standard admin look, not the app theme) ---------- */
 const ADM_NAV=[['overview','Overview','M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'],['usage','App usage','M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z'],['growth','Growth','M3 17l6-6 4 4 8-8M15 7h6v6'],
-  ['users','Users','M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6'],['engagement','Engagement','M4 20V10M10 20V4M16 20v-7M22 20H2'],['sponsors','Sponsors & tokens','M4 5h16v14H4zM10 9l5 3-5 3z'],
+  ['users','Users','M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6'],['schools','Schools','M3 21h18M5 21V9l7-5 7 5v12M10 21v-6h4v6'],['engagement','Engagement','M4 20V10M10 20V4M16 20v-7M22 20H2'],['sponsors','Sponsors & tokens','M4 5h16v14H4zM10 9l5 3-5 3z'],
   ['games','Games','M6 12h4M8 10v4M15 11h.01M18 13h.01M7 6h10a5 5 0 0 1 5 5v2a4 4 0 0 1-7 2.5L13.5 14h-3L9 15.5A4 4 0 0 1 2 13v-2a5 5 0 0 1 5-5z'],['leagues','Leagues','M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4'],
   ['health','Data health','M22 12h-4l-3 9L9 3l-3 9H2'],['removals','Removal requests','M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3'],['errors','Error log','M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'],['announce','Announcements','M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM16 8a5 5 0 0 1 0 8'],
   ['weekly','Weekly report','M8 2v4M16 2v4M3 8h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'],['tools','Accounts & tools','M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z']];
-const ADM_GROUPS=[['Dashboard',['overview','weekly']],['People',['users','growth','engagement','leagues']],['App',['usage','games','sponsors']],['Problems',['removals','errors','health']],['Manage',['announce','tools']]];
-const ADM_DESC={overview:'Big numbers and alerts',weekly:'Last 7 days in one page',users:'Everyone who signed up',growth:'Sign-ups, retention, funnel',engagement:'Who plays what, busy times',leagues:'League health and drafts',usage:'Time spent per tab',games:'Scores and schedule',sponsors:'Videos, tokens, rewards',errors:'App crashes and bugs',removals:'Player removal requests',health:'Missing scores and stats',announce:'Banner for all users',tools:'Admin accounts, resets'};
+const ADM_GROUPS=[['Dashboard',['overview','weekly']],['People',['users','schools','growth','engagement','leagues']],['App',['usage','games','sponsors']],['Problems',['removals','errors','health']],['Manage',['announce','tools']]];
+const ADM_DESC={overview:'Big numbers and alerts',weekly:'Last 7 days in one page',users:'Everyone who signed up',schools:'Users and time by school',growth:'Sign-ups, retention, funnel',engagement:'Who plays what, busy times',leagues:'League health and drafts',usage:'Time spent per tab',games:'Scores and schedule',sponsors:'Videos, tokens, rewards',errors:'App crashes and bugs',removals:'Player removal requests',health:'Missing scores and stats',announce:'Banner for all users',tools:'Admin accounts, resets'};
 const ADM_MAIN=['overview','users','usage','errors'];
 const admIco=(d,c='')=>`<svg viewBox="0 0 24 24" class="${c}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
 const admAgo=t=>{if(!t)return'never';const m=Math.round((Date.now()-new Date(t))/6e4);if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+(h===1?' hour ago':' hours ago');const d=Math.round(h/24);return d<31?d+(d===1?' day ago':' days ago'):adWhen(t).split(',')[0]};
@@ -10271,6 +10272,16 @@ function admHTML(){
       <div class="adm-card"><div class="adm-ch"><h3>Share of time</h3></div>${admDonut(Object.entries(grp).sort((a,b)=>b[1]-a[1]).map(([g,v])=>[g,Math.round(v/60),cols[g]]))}<p class="adm-mut" style="margin:10px 0 0;font-size:12px">Center number is total minutes.</p></div>
       <div class="adm-card adm-span3"><div class="adm-ch"><h3>Every tab</h3>${sel}</div><div class="adm-tw"><table class="adm-t"><thead><tr><th>Tab</th><th class="n">Time</th><th class="n">Share</th><th class="n">Opens</th><th class="n adm-hs">Avg per open</th><th class="n adm-hs">People</th></tr></thead><tbody>
       ${T.map(x=>`<tr><td><b>${esc(x.n)}</b>${x.mg?' <span class="adm-pill g">Minigame</span>':''}</td><td class="n"><b>${fmtDur(x.t)}</b></td><td class="n">${Math.round(x.t/tot*100)}%</td><td class="n">${x.c}</td><td class="n adm-hs">${fmtDur(x.c?x.t/x.c:0)}</td><td class="n adm-hs">${x.u}</td></tr>`).join('')||'<tr><td colspan="6" class="adm-mut">No tab data yet. It starts collecting the day this ships.</td></tr>'}</tbody></table></div></div></div>`}
+  else if(P==='schools'){
+    /* v542 (owner): which schools have the most users and spend the most time. All-time, by the school on each person's profile. */
+    const m={};D.users.forEach(u=>{const k=u.school||'No school set',o=m[k]||(m[k]={n:0,t:0,s:0,pl:0,tr:0});o.n++;o.t+=u.tAll;o.s+=u.sAll;if(u.role==='player')o.pl++;if(u.u&&u.tAll)o.tr++});
+    const L=Object.entries(m).map(([k,o])=>({k,...o})),byN=[...L].sort((a,b)=>b.n-a.n||b.t-a.t),byT=[...L].sort((a,b)=>b.t-a.t||b.n-a.n),mxN=Math.max(1,...L.map(x=>x.n)),mxT=Math.max(1,...L.map(x=>x.t));
+    const bar=(x,v,mx,txt,c)=>`<div><span>${slogo(x.k,18)} ${esc(x.k)}</span><span class="adm-hbt"><i style="width:${v/mx*100}%;background:${c}"></i></span><b style="white-space:nowrap">${txt}</b></div>`;
+    const real=L.filter(x=>x.k!=='No school set');
+    body=title('Schools','All-time, by the school on each profile. Time only counts from Nov 16, when tracking was fixed.')+`<div class="adm-kpis">${kpi('M3 21h18M5 21V9l7-5 7 5v12','#5B9BD5','Schools with users',real.length,'',D.signups)}${kpi('M16 11a4 4 0 1 0-8 0','#25C26E','Most users',byN[0]?esc(byN[0].k):'none',byN[0]?`<span class="adm-dl">${byN[0].n} users</span>`:'',D.signups)}${kpi('M12 7v5l3 2','#25C26E','Most time',byT[0]&&byT[0].t?esc(byT[0].k):'none yet',byT[0]&&byT[0].t?`<span class="adm-dl">${fmtExact(byT[0].t)}</span>`:'',D.time)}</div>
+    <div class="adm-grid"><div class="adm-card adm-span3"><div class="adm-ch"><h3>Most users</h3></div><div class="adm-hb adm-sch">${byN.slice(0,15).map(x=>bar(x,x.n,mxN,x.n,'#25C26E')).join('')||'<p class="adm-mut">No users yet.</p>'}</div></div>
+    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Most time on the app</h3></div><div class="adm-hb adm-sch">${byT.filter(x=>x.t).slice(0,15).map(x=>bar(x,x.t,mxT,fmtExact(x.t),'#5B9BD5')).join('')||'<p class="adm-mut">No time recorded yet. It fills in as people open the updated app.</p>'}</div></div>
+    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Every school <span class="adm-mut">(${L.length})</span></h3></div><div class="adm-tw"><table class="adm-t"><thead><tr><th>School</th><th class="n">Users</th><th class="n adm-hs">Players</th><th class="n">Total time</th><th class="n adm-hs">Time per user</th><th class="n adm-hs">Opens</th></tr></thead><tbody>${byN.map(x=>`<tr><td><span class="adm-user">${slogo(x.k,22)}<b>${esc(x.k)}</b></span></td><td class="n">${x.n}</td><td class="n adm-hs">${x.pl}</td><td class="n" style="white-space:nowrap"><b>${x.t?fmtExact(x.t):'none yet'}</b></td><td class="n adm-hs">${x.tr?fmtExact(x.t/x.tr):''}</td><td class="n adm-hs">${x.s.toLocaleString()}</td></tr>`).join('')}</tbody></table></div></div></div>`}
   else if(P==='users')body=title('Users','Everyone with an account. Opens and Total time are all-time: how many times they opened the app and exactly how long they used it. Tap a row to open their account.')+usersTable();
   else if(P==='engagement')body=title('Engagement','Time spent and visits. Time counts only while the app is open and in use.')+`<div class="adm-kpis">${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#25C26E','Total time',fmtDur(K.time),dl(K.time,D.prev.time),D.time)}${kpi('M3 12h18','#5B9BD5','Time per person / day',fmtDur(K.perUserDay),'',D.time)}${kpi('M5 12h14M12 5l7 7-7 7','#25C26E','Visits',K.ses.toLocaleString(),dl(K.ses,D.prev.ses),D.ses)}${kpi('M12 7v5','#E5404F','Avg visit',fmtDur(K.perSes),'',D.ses)}</div>
     <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Minutes on the app</h3>${sel}</div>${admBars(D.days,D.time.map(x=>Math.round(x/60)),{c:'#5B9BD5',label:'Minutes per day'})}</div>

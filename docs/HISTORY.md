@@ -950,3 +950,6 @@ Users table: `Opens` (all-time app opens, `u.sAll`, now shown on phones too) and
 
 ## v541 — Usage tracking was off for everyone; fixed (owner)
 Found on the live site (admin session in Chrome): 169 accounts, 160 `seen` docs, but only 4 `usage` docs and no `errors` docs. `useOn()` and `logErr()` skipped any account with `ME.adminAcct`, and the `is_admin_account` RPC evidently answers true for ordinary accounts (any signed-in account may try the admin PIN), so nobody was tracked. Both now skip only `ME.admin` (an unlocked admin); admin rows are filtered out of the dashboard anyway. Time and opens before this version cannot be recovered. Users table: someone who has signed in but has no usage doc shows `1+` opens and `not recorded` instead of 0 and 0s. NOT VERIFIED as an ordinary user (no test account): check that usage docs appear after deploy.
+
+## v542 — Admin Schools page (owner)
+New admin page `schools` (People group): KPIs, Most users and Most time on the app bars (top 15), and a table of every school (users, players, total time to the second, time per tracked user, opens). All-time, grouped by profile school; people with no school are "No school set". Also fixed a light strip above the admin top bar on phones (old `box-shadow` colour).

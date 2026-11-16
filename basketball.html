@@ -3855,7 +3855,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v543 · Nov 16';
+const APP_BUILD='v544 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10055,7 +10055,7 @@ async function dashLoad(){
   if(DASH.loading)return;DASH.loading=true;DASH.err='';
   try{
     if(ME.mode==='demo'){DASH.use={};DASH.ex={err:{},leagues:[]}}
-    else{const out={};for(const pre of ['data/users/','bb_data/users/']){const data=await admAll('usage',pre);
+    else{const out={},PRE=['data/users/','bb_data/users/'],got=await Promise.all(PRE.map(p=>admAll('usage',p)));for(let pi=0;pi<PRE.length;pi++){const pre=PRE[pi],data=got[pi];
         for(const r of data||[]){const uid=r.coll.slice(pre.length),sp=pre.startsWith('bb')?'bb':'fb',o=out[uid]||(out[uid]={days:{},ses:{},ads:{},sp:{},first:null,last:null,dev:null});o.sp[sp]=1;
           for(const f of ['days','ses','ads'])for(const [k,v] of Object.entries(r.data[f]||{})){o[f][k]=(o[f][k]||0)+(+v||0);(o.spd||(o.spd={}))[sp+k]=1}
           for(const f of ['as'])for(const [k,v] of Object.entries(r.data[f]||{})){(o[f]||(o[f]={}))[k]=(o[f][k]||0)+(+v||0)}
@@ -10066,7 +10066,7 @@ async function dashLoad(){
       /* v539 (owner asked why everyone shows 0 visits): the server hides other people's usage rows without an error when it does not see an admin session, so say so instead of showing zeros */
       if(!Object.keys(out).length){let adm=null;try{adm=!!(await SB.rpc('is_admin')).data}catch(_){}
         DASH.err=adm===false?'Usage is hidden: the server no longer sees your admin unlock. Tap Lock admin, unlock again, then Refresh.':'The server sent back 0 usage rows (admin check: '+(adm===null?'failed':'ok')+'). Visits and time will show 0 until this is fixed.'}}
-    await dashLoadExtra();
+    DASH.ex=DASH.ex||{err:{},leagues:null,rem:[]};dashLoadExtra().then(()=>{if(UI.view==='admin'&&!ADMR.busy)render()}).catch(()=>{});
   }catch(e){DASH.err='Could not load usage. Your admin unlock may have timed out. Lock admin and unlock again.';DASH.use=DASH.use||{}}
   DASH.loading=false;if(UI.view==='admin'&&!ADMR.busy)render();
 }
@@ -10303,8 +10303,9 @@ addEventListener('unhandledrejection',e=>{const r=e.reason;logErr('Promise: '+((
 
 /* error log and league list for the admin pages (empty in the preview files) */
 async function dashLoadExtra(){if(ME.mode==='demo'){DASH.ex={err:{},leagues:[]};return}
-  const err={};try{for(const pre of ['data/users/','bb_data/users/']){const data=await admAll('errors',pre);for(const r of data||[]){const uid=r.coll.slice(pre.length);err[uid]=(err[uid]||[]).concat(((r.data||{}).list)||[])}}}catch(_){}
-  const rem=[];try{for(const pre of ['data/users/','bb_data/users/']){const data=await admAll('removal',pre);for(const r of data||[]){const uid=r.coll.slice(pre.length);for(const q of ((r.data||{}).list)||[])rem.push(Object.assign({},q,{uid,coll:r.coll}))}}}catch(_){}
+  const PRE=['data/users/','bb_data/users/'],G=await Promise.all(PRE.map(p=>admAll('errors',p).catch(()=>[])).concat(PRE.map(p=>admAll('removal',p).catch(()=>[]))));
+  const err={};try{for(let i=0;i<2;i++){const pre=PRE[i],data=G[i];for(const r of data||[]){const uid=r.coll.slice(pre.length);err[uid]=(err[uid]||[]).concat(((r.data||{}).list)||[])}}}catch(_){}
+  const rem=[];try{for(let i=0;i<2;i++){const pre=PRE[i],data=G[2+i];for(const r of data||[]){const uid=r.coll.slice(pre.length);for(const q of ((r.data||{}).list)||[])rem.push(Object.assign({},q,{uid,coll:r.coll}))}}}catch(_){}
   DASH.ex={err,leagues:null,rem}}
 const remList=()=>((DASH.ex&&DASH.ex.rem)||[]).slice().sort((a,b)=>b.at-a.at);
 async function remDone(coll,id){try{const ref=DB.doc(coll+'/removal'),sn=await ref.get(),list=((sn.exists&&sn.data().list)||[]).map(q=>q.id===id?Object.assign({},q,{st:'done'}):q);await ref.set({list});const q=((DASH.ex&&DASH.ex.rem)||[]).find(x=>x.id===id&&x.coll===coll);if(q)q.st='done';render()}catch(_){say('Could not update that request.')}}
@@ -11403,7 +11404,9 @@ async function boot(){
     let session=null;try{session=(await SB.auth.getSession()).data.session}catch(_){}
     /* v371: a session from a sign-in before REAUTH_AT is signed out once on this device, so everyone signs in again with email + password */
     if(session&&session.user&&session.user.last_sign_in_at&&Date.parse(session.user.last_sign_in_at)<REAUTH_AT){try{await SB.auth.signOut({scope:'local'})}catch(_){}session=null;try{sessionStorage.setItem('vs-reauth','1')}catch(_){}}
-    if(session){ME.uid=session.user.id;ME.email=session.user.email;ME.mode='live';try{const a=await SB.rpc('is_admin_account');ME.adminAcct=!!a.data;if(ME.adminAcct){const {data}=await SB.rpc('is_admin');ME.admin=!!data}}catch(_){}}
+    if(session){ME.uid=session.user.id;ME.email=session.user.email;ME.mode='live';/* v544 (owner: refresh was slow for admins): the two admin checks run together, and the admin lists start loading right away instead of after the whole app has loaded */
+      try{const [a,b]=await Promise.all([SB.rpc('is_admin_account'),SB.rpc('is_admin')]);ME.adminAcct=!!a.data;ME.admin=!!(a.data&&b.data)}catch(_){}
+      if(ME.admin)setTimeout(()=>{try{if(AD.rows===null&&!AD.loading)adLoad();if(DASH.use===null&&!DASH.loading)dashLoad()}catch(_){}},0)}
     else{ME.uid=null;ME.mode='guest';ME.admin=false}
     try{const v=JSON.parse(sessionStorage.getItem('varsity-viewas')||'null');if(v&&v.uid&&ME.admin&&ME.mode==='live'&&v.uid!==ME.uid){VA={uid:v.uid,name:v.name||'this member',real:ME.uid};ME.uid=v.uid;ME.mode='readonly'}else sessionStorage.removeItem('varsity-viewas')}catch(_){}
     window.AUTH_READY=true;

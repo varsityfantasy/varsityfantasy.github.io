@@ -1337,7 +1337,7 @@ select option{background:#0B1730;color:#EAF0F8}
 @keyframes slBar{0%{margin-left:-40%}100%{margin-left:100%}}
 @media (prefers-reduced-motion:reduce){.sl,.sl-scan,.sl-ball,.sl-shadow,.sl-t,.sl-dots u,.sl-bar i{animation:none!important}.sl-bar i{width:60%}}
 .sl.bb .sl-fld{background:repeating-linear-gradient(90deg,#b8793c 0 38px,#c4854a 38px 76px);border-color:#f3e6cf}.sl.bb .sl-yd{background:rgba(243,230,207,.75)}.sl.bb .sl-ball{width:24px;height:24px;top:30px;background:radial-gradient(circle at 35% 30%,#ff9a45,#d3570f 70%)}.sl.bb .sl-ball::before{left:0;right:0;height:2px;background:#4a1d05;opacity:.7}.sl.bb .sl-ball::after{left:11px;top:0;width:2px;height:24px;box-shadow:none;background:#4a1d05;opacity:.7}.sl.bb .sl-shadow{width:24px}
-.sbr-secs .chip.sbr-off{opacity:.55}.sbr-note{margin:6px 0 10px;font-size:.85rem}
+.sbr-secs .chip.sbr-off{opacity:.55}.sec-dd{margin:0 0 10px;max-width:320px}.sbr-note{margin:6px 0 10px;font-size:.85rem}
 .sbr-gl{padding:6px 14px}.sbr-p{display:grid;grid-template-columns:26px 36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}.sbr-p:first-child{border-top:0}.sbr-rk{font-weight:800;color:var(--muted);text-align:center}.sbr-pn{display:flex;flex-direction:column;min-width:0}.sbr-pn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sbr-pn small{color:var(--muted);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sbr-fp{text-align:right}.sbr-fp b{font-size:1.05rem;display:block}.sbr-fp small{font-size:.66rem;color:var(--muted)}.sbr-g{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:.9rem}.sbr-g:first-child{border-top:0}
 .sbr-d{font-weight:700}.sbr-d small{display:block;font-weight:500;font-size:.72rem;color:var(--muted)}.sbr-ts{display:flex;flex-direction:column;gap:3px;min-width:0}.sbr-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sbr-t.win,.sbr-t.win .tlk{font-weight:800}
 .sbr-ss{display:flex;flex-direction:column;gap:3px;text-align:right;min-width:26px}.sbr-ss b{font-weight:500;color:var(--muted)}.sbr-ss b.win{font-weight:800;color:inherit}.sbr-ss small{font-size:.66rem;color:var(--muted)}
@@ -3242,6 +3242,8 @@ function secSchools(){for(const id in SECTIONS){if(id===HOME_SEC||SEC_SCH[id]||S
 const mySec=()=>{const p=myProfile();if(!p)return HOME_SEC;if(p.sec&&SECTIONS[p.sec])return p.sec;if(p.school&&!SD_SCHOOLS.includes(p.school)){for(const k in SEC_SCH)if(SEC_SCH[k].includes(p.school))return k}return HOME_SEC};
 /* section chips: your section first */
 const secFirst=ids=>{const m=mySec();return ME&&ME.uid&&myProfile()&&ids.includes(m)?[m,...ids.filter(x=>x!==m)]:ids};
+/* v515 (owner): section picker is a dropdown; All sections always on top, then your own section, then the rest */
+const secDD=(act,list,cur)=>`<label class="fld sec-dd"><span>Section</span><select data-secsel="${act}" aria-label="Section">${list.map(([v,l])=>`<option value="${v}"${cur===v?' selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 /* every player in the country: San Diego plus each section loaded so far */
 let _apl=null,_t10A=null;const _apl_k=()=>{allPl();return _apl.k};
 function allPl(){const ids=Object.keys(SECTIONS).filter(id=>id!==HOME_SEC&&SECP[id]),k=_rev+'|'+ids.join(',');
@@ -3566,6 +3568,7 @@ document.addEventListener('click',async e=>{
   AUTH.busy=false;openAuth();
 });
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='au-age')AUTH.age=e.target.checked});
+document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.secsel)return;const b=document.createElement('button');b.hidden=true;b.dataset.act=t.dataset.secsel;b.dataset.v=t.value;document.body.appendChild(b);b.click();b.remove()});
 /* v390 (owner): codes put their own dashes in as you type. Admin PIN: ## - ## - #### (digits only). Invite codes (league, Pick 'em league): ABC-1234 (letters and digits, upper case). */
 document.addEventListener('input',e=>{const t=e.target,id=t&&t.id;if(!id)return;let v;
   if(id==='aa-pin'||id==='ad-pin'){const d=t.value.replace(/\D/g,'').slice(0,8);v=d.slice(0,2)+(d.length>2?' - '+d.slice(2,4):'')+(d.length>4?' - '+d.slice(4):'')}
@@ -3764,7 +3767,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v518 · Nov 15';
+const APP_BUILD='v519 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8289,7 +8292,7 @@ const sbRec=x=>x.w+'-'+x.l+(x.t?'-'+x.t:'');
 const sbPct=x=>x.w/((x.w+x.l+x.t)||1);
 function sbChips(){
   const ix=(sbIdx()||{sections:{}}).sections;
-  return `<div class="chips gm-wks sbr-secs" role="group" aria-label="Section">${secFirst(Object.keys(SECTIONS)).map(k=>SECTIONS[k]).map(s=>{const n=s.id===HOME_SEC?1:(ix[s.id]||{}).games;return `<button class="chip${n?'':' sbr-off'}" data-act="sb" data-v="${s.id}" aria-pressed="${UI.sb===s.id}">${esc(s.name)}</button>`}).join('')}</div>`;
+  return secDD('sb',secFirst(Object.keys(SECTIONS)).map(k=>[k,SECTIONS[k].name]),UI.sb);
 }
 /* players of one section: every player in the API file (api/v1/sections/<id>/<sport>/players.json), loaded when you open it. Same layout as the San Diego Players tab: search, position chips, school filter, podium, ranked rows, Show more. */
 SBR.pl={};SBR.pn=10;UI.sbq='';UI.sbpos='ALL';UI.sbsch='ALL';
@@ -8838,7 +8841,7 @@ function viewLeague(){
   if(xr&&UI.pos==='TE'&&!SECP[xs].hasTE)UI.pos='ALL';
   if(xr&&secTot(xs)){UI.scope='season';if(UI.rank==='prev')UI.rank='total'}
   const fN=(UI.scope!=='season'?1:0)+(UI.school!=='ALL'?1:0)+(UI.grade?1:0);
-  const secRow=`<div class="chips gm-wks sbr-secs" role="group" aria-label="Section">${(()=>{const L=[['ALL','All sections']].concat(Object.values(SECTIONS).map(x=>[x.id,x.name])),m=mySec();return ME&&ME.uid&&myProfile()&&SECTIONS[m]?[L.find(x=>x[0]===m),L[0],...L.slice(1).filter(x=>x[0]!==m)]:L})().map(([v,l])=>`<button class="chip${v!=='ALL'&&!nSec[v]&&!(ix[v]||{}).games?' sbr-off':''}" data-act="psec" data-v="${v}" aria-pressed="${UI.psec===v}">${esc(l)}</button>`).join('')}</div>`;
+  const secRow=secDD('psec',(()=>{const L=[['ALL','All sections']].concat(Object.values(SECTIONS).map(x=>[x.id,x.name])),m=mySec();return ME&&ME.uid&&myProfile()&&SECTIONS[m]?[L[0],L.find(x=>x[0]===m),...L.slice(1).filter(x=>x[0]!==m)]:L})(),UI.psec);
   const secId=UI.psec==='ALL'?HOME_SEC:UI.psec;
   if(UI.stab==='overall')return `<div class="head"><h2>Overall</h2><p>${esc(SECTIONS[secId].full)}: teams, scoring and the biggest games.</p></div>${seg}${secRow}${sbOverall(secId)}`;
   if(UI.stab==='stats')return `<div class="head"><h2>Stats</h2><p>${secId===HOME_SEC?'Leaders, hot streaks and top teams.':esc(SECTIONS[secId].full)+': leaders by position and top teams.'}</p></div>${seg}${secRow}${secId===HOME_SEC||xr?(xr?hotHTML(xs,true):'')+statsHTML():xst==='loading'?secLoad('Crunching the stats',secId):sbSecStats(secId)}`;

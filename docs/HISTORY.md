@@ -881,3 +881,6 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 
 ## v518 — rank by exact position (owner)
 `posK(p)` / `posNm(p)`: defenders count as DB, LB or DL (players with no known position stay "defender"). `myRanks`, the Me-tab rank cards ("Among DBs at school / in the section", comparison table, leaderboard) and both share pictures now compare you only to your own position (a DB is ranked against 728 DBs, not all 2,330 defenders). Offense/K/basketball were already per position.
+
+## v519 (Nov 15, owner: "when searching for section it is a dropdown menu with all sections always at the top")
+- Section chip rows on Players/Stats/Overall (`psec`) and Games (`sb`) are now a dropdown (`secDD(act,list,cur)`, `select[data-secsel]`). Players: All sections first, then your team's section, then the rest; Games: your section first (no All there). A `change` listener clicks a hidden `[data-act]` button so the existing `sb`/`psec` handlers run unchanged.

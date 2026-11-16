@@ -972,3 +972,6 @@ First (and only) logged error after logging was fixed: `Can't find variable: SCD
 
 ## v549 — Transfer Portal bonus is now 300 tokens + a Pro pack (owner)
 The one-time bonus for listing a card (`tpBonusCheck`) gives 300 tokens (`TP_BONUS`) and a Pro pack (`TP_BPACK`, gift pack id `tpbonus` in inv.fr.gp). Accounts already paid 500 under v543 keep it and get nothing more.
+
+## v550 — Transfer Portal tutorial + bonus announcement (owner)
+`tpTutSteps`: a 5-step Portal tour (reuses the tour overlay, `TUT.set="tp"`) the first time someone opens the Portal (`tpTutMaybe` in `viewPortal`, saved as profiles.tpt). `tpPromoMaybe` (next to `anPopup`) shows a big one-time announcement of the listing bonus (`TUT.set="promo"`, `.tut-big`, saved as profiles.tpp); "Take me to the Portal" opens #portal, which then starts the tour. `tutOpen(replay,set)`.

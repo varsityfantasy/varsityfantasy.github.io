@@ -890,3 +890,6 @@ Read from the MaxPreps scoreboard in Chrome: Horizon Prep 54 @ Warner 33, La Jol
 
 ## v521 — 50 tokens for sharing a card (owner)
 Finishing the share sheet (`navigator.share` resolves) on any card picture (rank card, player card, All-Varsity team) pays `SH_PAY`=50 tokens, once per calendar day (`shr:{n,d}` in picks/uid, `shBonus`, `shPay()`; counted in both token balance formulas). Not mentioned anywhere in the app (owner). The app cannot see which app the person picked (Instagram or another), so any completed share counts. Download / press-and-hold saves do not pay.
+
+## v522 — admin view-as can open a member's Locker (owner)
+View-as sets `ME.mode='readonly'`, and `viewLocker` treated that as signed out ("Sign in to keep your items"). It now allows read-only mode when `VA` is set. Because an admin can write any picks doc, `upsert/setDoc/delDoc` now refuse writes to the viewed person's docs while `VA` is active (`vaBlock`: toast "View only. Nothing was changed."). Admin controls (a separate page) still edits lockers on purpose. The Shop / pack pages still say Sign in while viewing as someone.

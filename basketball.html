@@ -3778,7 +3778,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v521 · Nov 15';
+const APP_BUILD='v522 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -3792,12 +3792,15 @@ const wr=(path,fn)=>{wq[path]=(wq[path]||Promise.resolve()).catch(()=>{}).then(f
 /* v311: saving any of these keys in your picks doc counts as playing a game today (daily bonus + account streak, see playMark) */
 const PLAY_K=['fc','sim','cup','fg','rc','bk','pkl','bets','props','ats'];
 const playHook=(path,data,r)=>{if(ME.uid&&path==='picks/'+ME.uid&&data&&typeof data==='object'&&PLAY_K.some(k=>k in data))setTimeout(()=>{try{playMark()}catch(_){}},0);return r};
+/* v522: while an admin is viewing as someone, nothing may be written to that person's docs */
+const vaBlock=path=>{if(VA&&ME.uid&&String(path).endsWith('/'+ME.uid)){try{say('View only. Nothing was changed.')}catch(_){}return true}return false};
 function upsert(path,data){
+  if(vaBlock(path))return Promise.reject({code:'view-only'});
   const ref=DB.doc(path);
   return wr(path,async()=>{try{await ref.update(data)}catch(e){if(e&&e.code==='invalid_argument')await ref.set(data);else throw e}}).then(r=>playHook(path,data,r));
 }
-const setDoc=(path,data)=>wr(path,()=>DB.doc(path).set(data)).then(r=>playHook(path,data,r));
-const delDoc=path=>wr(path,()=>DB.doc(path).delete());
+const setDoc=(path,data)=>vaBlock(path)?Promise.reject({code:'view-only'}):wr(path,()=>DB.doc(path).set(data)).then(r=>playHook(path,data,r));
+const delDoc=path=>vaBlock(path)?Promise.reject({code:'view-only'}):wr(path,()=>DB.doc(path).delete());
 
 /* ---------- derived data ---------- */
 /* Only admin-approved lines count. Player-entered lines wait in the approval queue. */
@@ -6257,7 +6260,7 @@ function viewShop(){
   return head+top+body;
 }
 function viewLocker(){
-  const can=ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly';
+  const can=ME.uid&&ME.mode!=='guest'&&(ME.mode!=='readonly'||!!VA);   /* v522 (owner): admin view-as can open the person's Locker (view only, writes are blocked below) */
   const head=`<div class="head"><h2>My Locker</h2><p>Everything you have pulled. Tap a cosmetic to equip it. Epic+ pulls get a walkout ${ii('walkout')}</p></div>`;
   if(!can)return head+'<p class="empty">Sign in to keep your items.</p>';
   const ownN=cosOwnCount(ME.uid),totN=cosTotal(),cardN=Object.keys(cardsOf(ME.uid)).reduce((n,id)=>n+cardVers(ME.uid,id).length,0)+achOwned(ME.uid).length,pct=Math.min(100,ownN/Math.max(1,totN)*100);

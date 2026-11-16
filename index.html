@@ -3767,7 +3767,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v522 · Nov 15';
+const APP_BUILD='v523 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6424,8 +6424,8 @@ function activeCard(){
 }
 function mgBoard(title,rows,empty,sub){
   if(!rows.length)return `<section class="card bt-board"><div class="qh"><h3>${title}</h3></div><p class="muted">${empty||'No one is on the board yet. Lock in a pick to be first.'}</p></section>`;
-  const more=!!UI.mgMore,top=more?rows:rows.slice(0,3),meI=rows.findIndex(x=>x.u===ME.uid),line=(x,i)=>{const bn=eqOf(x.u,'banner');return `<div class="bt-h ${x.u===ME.uid?'me':''} ${bn?'bn bn-row '+bn:''}" style="${bn?cosStyle(bn):''}"><span><span class="rk">${i+1}</span> <b>${nmC(x.u,esc(nm(x.u)))}${x.u===ME.uid?' (you)':''}</b></span>${x.h||'<b>'+x.v+'</b>'}</div>`};
-  return `<section class="card bt-board"><div class="qh"><h3>${title}</h3></div>${sub?`<p class="muted tk-sub">${sub}</p>`:''}${top.map(line).join('')}${!more&&meI>=3?`<div class="bt-gap muted">···</div>${line(rows[meI],meI)}`:''}${rows.length>3?`<button class="btn sm ghost bt-more" data-act="mgMore">${more?'Show less':'Show more ('+(rows.length-3)+')'}</button>`:''}</section>`;
+  const shown=Math.min(rows.length,3+10*(+UI.mgN||0)),more=shown>=rows.length&&rows.length>3,top=rows.slice(0,shown),meI=rows.findIndex(x=>x.u===ME.uid),line=(x,i)=>{const bn=eqOf(x.u,'banner');return `<div class="bt-h ${x.u===ME.uid?'me':''} ${bn?'bn bn-row '+bn:''}" style="${bn?cosStyle(bn):''}"><span><span class="rk">${i+1}</span> <b>${nmC(x.u,esc(nm(x.u)))}${x.u===ME.uid?' (you)':''}</b></span>${x.h||'<b>'+x.v+'</b>'}</div>`};
+  return `<section class="card bt-board"><div class="qh"><h3>${title}</h3></div>${sub?`<p class="muted tk-sub">${sub}</p>`:''}${top.map(line).join('')}${shown<rows.length&&meI>=shown?`<div class="bt-gap muted">···</div>${line(rows[meI],meI)}`:''}${rows.length>3?`<button class="btn sm ghost bt-more" data-act="mgMore" ${more?'data-reset="1"':''}>${more?'Show less':'Show more ('+Math.min(10,rows.length-shown)+')'}</button>`:''}</section>`;
 }
 const n1=v=>Math.round(v);
 function resCard(hist,label){
@@ -10859,8 +10859,8 @@ document.addEventListener('click',async e=>{
   else if(a==='ltab'){UI.ltab=t.dataset.v;render()}
   else if(a==='cupGo'){UI.ltab='cup';location.hash='#groups'}
   else if(a==='fgPlay'){if(t.dataset.v==='free'&&UI.fgm!=='free'){UI.fgm='free';render()}fgOpen(t.dataset.v)}
-  else if(a==='fgm'){UI.fgm=t.dataset.v;UI.mgMore=false;render()}
-  else if(a==='fgb'){UI.fgb=t.dataset.v;UI.mgMore=false;render()}
+  else if(a==='fgm'){UI.fgm=t.dataset.v;UI.mgMore=false;UI.mgN=0;render()}
+  else if(a==='fgb'){UI.fgb=t.dataset.v;UI.mgMore=false;UI.mgN=0;render()}
   else if(a==='rcStart'){rcoStop();rcStart()}
   else if(a==='hbOpen')hbOpen(t.dataset.m);
   else if(a==='hbWg'){UI.hbW=+t.dataset.v||0;render(true)}
@@ -10891,7 +10891,7 @@ document.addEventListener('click',async e=>{
   else if(a==='gmore'){UI.gmore=(UI.gmore||5)+5;render()}
   else if(a==='gsec'){UI.gsec=t.dataset.v;render()}
   else if(a==='mgRes'){UI.mgRes=!UI.mgRes;render()}
-  else if(a==='mgMore'){UI.mgMore=!UI.mgMore;render()}
+  else if(a==='mgMore'){UI.mgN=t.dataset.reset?0:(+UI.mgN||0)+1;render()}
   else if(a==='pkMoreW'){UI.pkWeeks=(UI.pkWeeks||1)+1;render()}
   else if(a==='atClear'){UI.at={};render()}
   else if(a==='bfClear'){UI.bf={dv:'',w:'',sc:''};UI.ppN=24;render()}

@@ -893,3 +893,6 @@ Finishing the share sheet (`navigator.share` resolves) on any card picture (rank
 
 ## v522 — admin view-as can open a member's Locker (owner)
 View-as sets `ME.mode='readonly'`, and `viewLocker` treated that as signed out ("Sign in to keep your items"). It now allows read-only mode when `VA` is set. Because an admin can write any picks doc, `upsert/setDoc/delDoc` now refuse writes to the viewed person's docs while `VA` is active (`vaBlock`: toast "View only. Nothing was changed."). Admin controls (a separate page) still edits lockers on purpose. The Shop / pack pages still say Sign in while viewing as someone.
+
+## v523 — token leaderboard "Show more" adds 10 at a time (owner)
+`mgBoard` (token leaderboard and the other mini-game boards that share it) starts at 3 rows; each "Show more" adds 10 (`UI.mgN`), the button says how many are next, and "Show less" (`data-reset`) goes back to 3. Your own row still appears under a gap while you are not in the visible rows. Replaces the old all-at-once `UI.mgMore`.

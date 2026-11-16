@@ -3767,7 +3767,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v520 · Nov 15';
+const APP_BUILD='v521 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4370,7 +4370,7 @@ const betsOf=u=>((S.picks[u]||{}).bets)||{};
 const gameMap=()=>{const m={};((GAMES&&GAMES.games)||[]).forEach(g=>{m[gid(g)]=g});return m};
 function betResult(b,g){if(!g||!gDone(g))return'open';if(g.hs===g.as)return'push';return((b.s==='h')===(g.hs>g.as))?'won':'lost'}
 function bank(u){
-  const gm=gameMap();let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+invBonus(u)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0);
+  const gm=gameMap();let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+invBonus(u)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u);
   Object.entries(betsOf(u)).forEach(([id,b])=>{const st=+b.stake||0,res=betResult(b,gm[id]);t-=st;if(res==='won')t+=st+(st*b.odds-st)*(1+(b.bx==='b'?.25:0)+Math.min(500,+b.cb||0)/100);else if(res==='push'||(res==='lost'&&b.bx==='i'))t+=st});
   Object.entries(atsOf(u)).forEach(([id,b])=>{const st=+b.stake||0,res=atsResult(b,gm[id]);t-=st;if(res==='won')t+=st*b.odds;else if(res==='push')t+=st});
   Object.values(parlOf(u)).forEach(b=>{const st=+b.stake||0,res=parlResult(b,gm);t-=st;if(res==='won')t+=st+parlWin(b,gm);else if(res==='push')t+=st});
@@ -4400,7 +4400,7 @@ const rwOf=u=>((S.picks[u]||{}).rw)||{};
    challenge, minigame pay, duplicate refunds, gifts received, and winnings on picks and props). Spending tokens or
    losing a wager never lowers it. The current balance (bank) shows next to it and does not affect rank. */
 function earned(u){
-  const gm=gameMap(),v=invOf(u);let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+(+v.dup||0)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0);
+  const gm=gameMap(),v=invOf(u);let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+(+v.dup||0)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u);
   for(const x of giftsIn(u))t+=+x.a||0;
   const win=b=>{const st=+b.stake||0;return (st*b.odds-st)*(1+(b.bx==='b'?.25:0)+Math.min(500,+b.cb||0)/100)};
   Object.entries(betsOf(u)).forEach(([id,b])=>{if(betResult(b,gm[id])==='won')t+=win(b)});
@@ -7830,6 +7830,9 @@ const RC_SLOTS=[
   {k:'TE',label:'TE',elig:['TE']},{k:'FLEX',label:'FLEX',elig:['RB','WR','TE']},
   {k:'DL',label:'DL',elig:['DEF'],sub:['DL']},{k:'LB',label:'LB',elig:['DEF'],sub:['LB']},{k:'DB',label:'DB',elig:['DEF'],sub:['DB','CB','S']}];
 const rcRec=u=>((S.picks[u]||{}).rc)||{};
+/* v520 (owner): 50 tokens the first time each day you finish sharing a card (rank card, player card or All-Varsity team) from the share sheet. Not mentioned anywhere in the app. */
+const SH_PAY=50,shRec=u=>((S.picks[u]||{}).shr)||{},shBonus=u=>SH_PAY*(+shRec(u).n||0);
+async function shPay(){if(!ME.uid)return;const r=shRec(ME.uid),d=new Date().toLocaleDateString('en-CA');if(r.d===d)return;const o={n:(+r.n||0)+1,d};if(await act(()=>upsert('picks/'+ME.uid,{shr:o})))say('+'+SH_PAY+' tokens');render(true)}
 const hbRec=u=>((S.picks[u]||{}).hb)||{};   /* v465: Hoops Battle wagers, net tokens in .wn (counted in bank) */
 /* everything in Ring Chaser is per game: average fantasy points and average stats */
 const rcAvg=p=>{const a=agg(p,'season');return a.n?Math.round(a.v/a.n*10)/10:0};
@@ -9845,7 +9848,7 @@ function cardPreview(blob,fn,title){
   document.body.appendChild(o);
   const close=()=>{o.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
   o.querySelector('.shp-x').onclick=close;o.addEventListener('click',e=>{if(e.target===o)close()});
-  const sh=o.querySelector('.shp-sh');if(sh)sh.onclick=async()=>{try{await navigator.share({files:[file],title:title||'Varsity'})}catch(_){}};
+  const sh=o.querySelector('.shp-sh');if(sh)sh.onclick=async()=>{let ok=false;try{await navigator.share({files:[file],title:title||'Varsity'});ok=true}catch(_){}if(ok)shPay()};
   o.querySelector('.shp-dl').onclick=async()=>{if(DL){try{await DL.save({filename:fn,data:blob});say('Saved to your device')}catch(_){}}else{const l=document.createElement('a');l.href=url;l.download=fn;document.body.appendChild(l);l.click();l.remove();say('Saved')}};
 }
 function cardBlob(info,me){

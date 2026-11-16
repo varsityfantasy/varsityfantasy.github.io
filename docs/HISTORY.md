@@ -887,3 +887,6 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 
 ## v520 — basketball scores Nov 14 (owner recheck)
 Read from the MaxPreps scoreboard in Chrome: Horizon Prep 54 @ Warner 33, La Jolla 57 @ Westview 55 (added); West Hills 84 San Ysidro 22 and Bonita Vista 68 Mount Miguel 34 were already in and match. Morse at Hoover is in our schedule for Nov 14 but MaxPreps now lists it Nov 27 (no score; schedule date not changed yet). No player box scores are posted on MaxPreps for any of the 4 games (no player rows), so no stat lines were added.
+
+## v521 — 50 tokens for sharing a card (owner)
+Finishing the share sheet (`navigator.share` resolves) on any card picture (rank card, player card, All-Varsity team) pays `SH_PAY`=50 tokens, once per calendar day (`shr:{n,d}` in picks/uid, `shBonus`, `shPay()`; counted in both token balance formulas). Not mentioned anywhere in the app (owner). The app cannot see which app the person picked (Instagram or another), so any completed share counts. Download / press-and-hold saves do not pay.

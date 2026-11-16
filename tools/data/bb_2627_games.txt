@@ -1,7 +1,7 @@
 NAMES:Army-Navy|Bayfront Charter|Bishop's|Bonita Vista|Bonsall|Borrego Springs|Bostonia Global|Brawley|Calexico|Calexico Mission|Calipatria|Calvin Christian|Canyon Crest Academy|Canyon Hills|Carlsbad|Castle Park|Cathedral Catholic|Central|Christian|Chula Vista|Chula Vista Learning Community Charter|Clairemont|Classical Academy|Coastal Academy|Coronado|Crawford|Cristo Rey|Del Lago Academy|Del Norte|Eastlake|El Cajon Valley|El Camino|El Capitan|Escondido|Escondido Adventist Academy|Escondido Charter|Fallbrook|Foothills Christian|Francis Parker|Gompers Prep Academy|Granite Hills|Grossmont|Guajome Park Academy|Health Sciences|Helix|High Tech CV|High Tech Mesa|High Tech NC|High Tech SD|Hilltop|Holtville|Hoover|Horizon Prep|Imperial|Julian|Kearny|King-Chavez Community|La Costa Canyon|La Jolla|La Jolla Country Day|Liberty Charter|Lincoln|Logan Memorial Education Campus|Madison|Mar Vista|Maranatha Christian|Mater Dei Catholic|Mira Mesa|Mission Bay|Mission Hills|Mission Vista|Monarch|Monte Vista|Montgomery|Morse|Mount Miguel|Mountain Empire|Mt. Carmel|O'Farrell Charter|Ocean View Christian|Oceanside|Olympian|Orange Glen|Otay Ranch|Pacific Ridge|Palo Verde Valley|Patrick Henry|Point Loma|Poway|Preuss UCSD|Ramona|Rancho Bernardo|Rancho Buena Vista|Rock Academy|Sage Creek|San Diego|San Diego Academy|San Diego Jewish Academy|San Dieguito Academy|San Marcos|San Pasqual|San Pasqual Academy|San Ysidro|Santa Fe Christian|Santana|School for Entrepreneurship & Technology|Scripps Ranch|Southern California Yeshiva|Southwest EC|Southwest SD|St. Augustine|St. Joseph Academy|Steele Canyon|Sweetwater|The Cambridge School|Torrey Pines|Tri-City Christian|University City|Valhalla|Valley Center|Victory Christian Academy|Vincent Memorial|Vista|Warner|West Hills|West Shores|Westview
 1114 1130 102 124 22-84
-1114 1230 123 52
-1114 1600 58 126
+1114 1230 123 52 33-54
+1114 1600 58 126 57-55
 1114 1700 75 3 34-68
 1114 1800 74 51
 1116 0000 ~Desert Mirage 9

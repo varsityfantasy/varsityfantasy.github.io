@@ -884,3 +884,6 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 
 ## v519 (Nov 15, owner: "when searching for section it is a dropdown menu with all sections always at the top")
 - Section chip rows on Players/Stats/Overall (`psec`) and Games (`sb`) are now a dropdown (`secDD(act,list,cur)`, `select[data-secsel]`). Players: All sections first, then your team's section, then the rest; Games: your section first (no All there). A `change` listener clicks a hidden `[data-act]` button so the existing `sb`/`psec` handlers run unchanged.
+
+## v520 — basketball scores Nov 14 (owner recheck)
+Read from the MaxPreps scoreboard in Chrome: Horizon Prep 54 @ Warner 33, La Jolla 57 @ Westview 55 (added); West Hills 84 San Ysidro 22 and Bonita Vista 68 Mount Miguel 34 were already in and match. Morse at Hoover is in our schedule for Nov 14 but MaxPreps now lists it Nov 27 (no score; schedule date not changed yet). No player box scores are posted on MaxPreps for any of the 4 games (no player rows), so no stat lines were added.

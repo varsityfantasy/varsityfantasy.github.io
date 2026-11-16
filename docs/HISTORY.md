@@ -953,3 +953,4 @@ Found on the live site (admin session in Chrome): 169 accounts, 160 `seen` docs,
 
 ## v542 — Admin Schools page (owner)
 New admin page `schools` (People group): KPIs, Most users and Most time on the app bars (top 15), and a table of every school (users, players, total time to the second, time per tracked user, opens). All-time, grouped by profile school; people with no school are "No school set". Also fixed a light strip above the admin top bar on phones (old `box-shadow` colour).
+- v543 (Nov 16, owner): one-time 500-token Transfer Portal bonus (`TP_BONUS`). `tpBonusCheck()` runs after `tpLoad`: if you have ever listed a card (any `tp_listings` row with seller = you, past listings count) and `inv.tpb` is unset, it saves `inv.tpb=500` (counted in `invBonus` and `earned`) and toasts "+500 tokens · Transfer Portal bonus". Skipped while an admin views as someone. Football and basketball have separate banks, so each sport pays it once.

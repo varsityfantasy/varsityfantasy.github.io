@@ -3855,7 +3855,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v542 · Nov 16';
+const APP_BUILD='v543 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4484,7 +4484,7 @@ const rwOf=u=>((S.picks[u]||{}).rw)||{};
    challenge, minigame pay, duplicate refunds, gifts received, and winnings on picks and props). Spending tokens or
    losing a wager never lowers it. The current balance (bank) shows next to it and does not affect rank. */
 function earned(u){
-  const gm=gameMap(),v=invOf(u);let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+(+v.dup||0)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u);
+  const gm=gameMap(),v=invOf(u);let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+(+v.dup||0)+(+v.tpb||0)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u);
   for(const x of giftsIn(u))t+=+x.a||0;
   const win=b=>{const st=+b.stake||0;return (st*b.odds-st)*(1+(b.bx==='b'?.25:0)+Math.min(500,+b.cb||0)/100)};
   Object.entries(betsOf(u)).forEach(([id,b])=>{if(betResult(b,gm[id])==='won')t+=win(b)});
@@ -5155,7 +5155,7 @@ const isCos=id=>{const x=ITEM[id];return !!x&&COS_K.includes(x.k)};
 function invLeft(u,id){const v=invOf(u),own=invHas(u,id);
   if(id==='t_boost'||id==='t_insure'){const f=id==='t_boost'?'b':'i';let used=0;for(const b of [...Object.values(betsOf(u)),...Object.values(propsOf(u))])if(b&&b.bx===f)used++;return Math.max(0,own-used)}
   return Math.max(0,own-(+((v.use||{})[id])||0))}
-const invBonus=u=>{const v=invOf(u);return (+v.dup||0)-(+v.sp||0)+(+v.tp||0)+giftBonus(u)};
+const invBonus=u=>{const v=invOf(u);return (+v.dup||0)-(+v.sp||0)+(+v.tp||0)+(+v.tpb||0)+giftBonus(u)};
 /* free packs: the starter pack, plus one Rookie pack for every 7 days you play the daily challenge */
 /* packs given to an account by the owner (v346): inv.fr.gp={id:{t:'god'}} lists them, inv.fr.gpo={id:1} marks the ones already opened */
 const giftPacks=u=>{const f=invOf(u).fr||{},o=f.gpo||{};return Object.keys(f.gp||{}).filter(id=>!o[id]&&PACKS[(f.gp[id]||{}).t]).map(id=>({id,type:f.gp[id].t,m:f.gp[id].m||''})).sort((x,y)=>(y.type==='alls')-(x.type==='alls'))};   /* v428 (owner): Special Edition packs come first */
@@ -5521,9 +5521,22 @@ async function tpLoad(force){
   if(!force&&Date.now()-TP.t<8000)return;TP.t=Date.now();
   try{await SB.rpc('tp_settle');const {data,error}=await SB.from('tp_listings').select('*').eq('pre',tpPre()).or('status.eq.open,seller.eq.'+ME.uid+',bidder.eq.'+ME.uid).order('ends_at');if(error)throw error;TP.rows=data||[];TP.err='';TP.ok=1}
   catch(e){TP.err=String((e&&e.message)||e);TP.ok=0}
+  tpBonusCheck();
   try{await SB.rpc('tp_trade_settle');const {data,error}=await SB.from('tp_trades').select('*').eq('pre',tpPre()).order('created_at',{ascending:false}).limit(60);if(error)throw error;TP.tr=data||[];TP.trOk=1;TP.trErr=''}
   catch(e){TP.tr=[];TP.trOk=0;TP.trErr=String((e&&e.message)||e)}
   if(UI.view==='portal')render(true)}
+/* v543 (owner): one-time 500-token bonus for putting a card on the Transfer Portal. Anyone who has ever listed a card (past listings count)
+   gets it once, saved as inv.tpb (counted by invBonus and earned). Football and basketball keep separate token banks, so each sport pays it once. */
+const TP_BONUS=500;let _tpbBusy=false;
+async function tpBonusCheck(){
+  if(_tpbBusy||VA||!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!TP.ok)return;
+  const v=invOf(ME.uid);if(+v.tpb)return;
+  if(!TP.rows.some(l=>l.seller===ME.uid))return;
+  _tpbBusy=true;
+  try{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:Object.assign({},v,{tpb:TP_BONUS})});
+    try{await upsert('picks/'+ME.uid,{inv:{tpb:TP_BONUS}})}catch(_){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:v});return}
+    say('+'+TP_BONUS+' tokens · Transfer Portal bonus');try{SFX.coin()}catch(_){}render(true)}
+  finally{_tpbBusy=false}}
 async function tpCall(fn,args,ok){
   if(!SB)return false;
   try{const {error}=await SB.rpc(fn,args);if(error)throw error;say(ok);SFX.coin();await tpLoad(true);return true}

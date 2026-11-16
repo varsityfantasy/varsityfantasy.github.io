@@ -2487,6 +2487,18 @@ div.lk-seg{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:mi
 .lk-seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);margin-bottom:14px}
 .lk-seg button{border:0;background:transparent;padding:10px 6px;border-radius:10px;font:800 .82rem var(--f-display,inherit);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .lk-seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px -6px var(--accent)}
+/* v531 (owner): Locker tabs are easy to see (icon, word, count, own outline) and the Me tab shows your equipped share-card style live */
+.lk-seg{gap:6px;padding:6px}
+div.lk-seg button,.lk-seg button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px 8px;font-size:.72rem;border:1.5px solid var(--line);background:var(--surface);color:var(--text,inherit);position:relative}
+.lk-te{font-size:1.25rem;line-height:1}.lk-tl{font-weight:900}
+.lk-seg button em{font:800 .66rem/1 var(--f-display,inherit);font-style:normal;opacity:.75}
+.lk-seg button[aria-selected="true"]{border-color:var(--accent);transform:translateY(-1px)}
+.lk-seg button[aria-selected="true"] em{opacity:1}
+.rk-live{border:3px solid rgba(255,255,255,.18);border-radius:16px;padding:16px 14px;margin:0 0 12px;box-shadow:0 10px 24px -14px rgba(0,0,0,.6)}
+.rk-lh{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}.rk-lh b{font:900 1.25rem var(--f-display,inherit);text-transform:uppercase;letter-spacing:.03em}.rk-lh span{font-weight:700;font-size:.8rem;color:var(--rs)}
+.rk-lg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.rk-lg div{display:flex;flex-direction:column;gap:2px}
+.rk-lg b{font:900 1.5rem var(--f-display,inherit);color:var(--rn)}.rk-lg small{font-size:.66rem;font-weight:700;line-height:1.15;color:var(--rs)}
+@media (max-width:420px){.rk-lg{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .lk-catrow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-2px -2px 12px;padding:2px}.lk-catrow::-webkit-scrollbar{display:none}.lk-catrow .chip{flex:0 0 auto;white-space:nowrap}.lk-catrow .chip small{opacity:.7;margin-left:2px}
 .sh-h{margin:18px 0 8px;font:900 1.1rem var(--f-display,inherit);text-transform:uppercase;letter-spacing:.04em}
 details.lk-col>summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none}details.lk-col>summary::-webkit-details-marker{display:none}details.lk-col[open]>summary{margin-bottom:12px}
@@ -3842,7 +3854,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v530 · Nov 15';
+const APP_BUILD='v531 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6330,7 +6342,7 @@ function viewLocker(){
   const ownN=cosOwnCount(ME.uid),totN=cosTotal(),cardN=Object.keys(cardsOf(ME.uid)).reduce((n,id)=>n+cardVers(ME.uid,id).length,0)+achOwned(ME.uid).length,pct=Math.min(100,ownN/Math.max(1,totN)*100);
   const v=invOf(ME.uid),bal=bank(ME.uid),fp=freePacks(ME.uid),eq=v.eq||{};
   const BHON=FG_SPORT!=='bb',tab=['cards','cos','boost','bnd'].concat(BHON?['av']:[]).includes(UI.lk)?UI.lk:'cards';   /* v427 (owner): the Locker opens on Cards */
-  const tabs=`<div class="lk-seg" role="tablist" aria-label="Locker">${[['cards','Cards']].concat(BHON?[['av','Avatar']]:[]).concat([['cos','Cosmetics'],['boost','Boosts'],['bnd','Binder']]).map(([k,l])=>`<button role="tab" data-act="lkTab" data-v="${k}" aria-selected="${tab===k}" aria-pressed="${tab===k}">${l}</button>`).join('')}</div>`;
+  const tabs=`<div class="lk-seg" role="tablist" aria-label="Locker">${[['cards','Cards','🃏',cardN],['av','Avatar','🧑',''],['cos','Cosmetics','🎨',ownN],['boost','Boosts','⚡',''],['bnd','Binder','📒','']].filter(x=>x[0]!=='av'||BHON).map(([k,l,e,n])=>`<button role="tab" data-act="lkTab" data-v="${k}" aria-selected="${tab===k}" aria-pressed="${tab===k}"><span class="lk-te" aria-hidden="true">${e}</span><span class="lk-tl">${l}</span>${n!==''?`<em>${n}</em>`:''}</button>`).join('')}</div>`;
   /* v427 (owner): Cards come first in the Locker and have their own big button above the other tabs */
   const cardsBtn=`<button type="button" class="lk-cardsb" data-act="lkTab" data-v="cards" aria-pressed="${tab==='cards'}"><span class="lk-cbi" aria-hidden="true"></span><span><b>My Cards</b><small>${cardN} card${cardN===1?'':'s'} · players, teams, Duos and special</small></span><i aria-hidden="true">›</i></button>`;
   const top=`<section class="lk-hero"><div class="lk-ring" style="--p:${pct.toFixed(1)}"><b>${pct>0&&pct<1?'<1':Math.floor(pct)}%</b><small>collected</small></div>
@@ -9555,7 +9567,9 @@ function viewMe(){
   let ranks='',near='',schoolBoard='',avgCard='',weekCard='';
   if(info){
     const mc=(label,c)=>`<div class="metric"><small>${label}</small><b>#${c.rank}</b><small>of ${c.of} ${c.of===1?'player':'players'}</small></div>`;
-    ranks=`<div class="metric-grid">${mc('Among '+PW+'s at '+esc(me.school),info.school.pos)}${mc('Overall at '+esc(me.school),info.school.all)}${mc('Among '+PW+'s in the section',info.section.pos)}${mc('Overall in the section',info.section.all)}</div>
+    const rkSk=ME.uid&&eqOf(ME.uid,'share'),rkD=rkSk&&SHARE[rkSk.slice(3)]?SHARE[rkSk.slice(3)][2]:null;
+    const rkLive=rkD?`<div class="rk-live" style="${shCss(rkD)};${rkD.border?'border-color:'+rkD.border+';':''}--rn:${rkD.num||'#fff'};--rs:${rkD.sub||rkD.ink}"><div class="rk-lh"><b>${esc(me.name)}</b><span>${esc(me.school)} · ${PW}</span></div><div class="rk-lg"><div><b>#${info.school.pos.rank}</b><small>${PW}s at school</small></div><div><b>#${info.school.all.rank}</b><small>at school</small></div><div><b>#${info.section.pos.rank}</b><small>${PW}s in section</small></div><div><b>#${info.section.all.rank}</b><small>in section</small></div></div></div>`:'';
+    ranks=rkLive+`<div class="metric-grid">${mc('Among '+PW+'s at '+esc(me.school),info.school.pos)}${mc('Overall at '+esc(me.school),info.school.all)}${mc('Among '+PW+'s in the section',info.section.pos)}${mc('Overall in the section',info.section.all)}</div>
       <button class="rank-cta" type="button" data-act="share"><span class="rank-cta-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="2.5" width="14" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 15l2 2 4-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="rank-cta-t"><b>Save your rank card</b><small>Show it off on your story</small></span><span class="rank-cta-go" aria-hidden="true">→</span></button>`;
     const brow=(x,i)=>`<div class="row ${x.p.key===me.key?'me':''}"><span class="rk">${i+1}</span>${av(x.p.name,x.p.school,40)}<span class="who"><b>${esc(x.p.name)}${x.p.key===me.key?' (you)':''}</b><i>${pb(x.p.pos)}<span>${slogo(x.p.school)}${esc(x.p.school)}</span>${vtag(x.p,x.a)}</i></span><span class="ln">${line(x.p.pos,x.a.s)}</span><span class="pt"><b>${bigV(x.a)}</b><small>${subV(x.a)}</small></span></div>`;
     const schPos=info.pool.filter(x=>x.p.school===me.school&&posK(x.p)===posK(me)),secPos=info.pool.filter(x=>posK(x.p)===posK(me));

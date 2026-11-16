@@ -916,3 +916,6 @@ Scrolling ticker tape under the admin top bar (users, active, time, videos, new,
 
 ## v530 — Gift pop-up shows live, not only after a refresh (owner)
 Bug: `giftPopup()` set `_gPop=true` when it opened and `gpOk` never cleared it (`anOk` did), so after the first gift pop-up of a visit no later gift opened until the app was reloaded. `gpOk` now sets `_gPop=false`. Gifts already arrive live (Realtime + 20 s poll call `touch()`, which calls `giftPopup()`).
+
+## v531 — Live rank card on Me + clearer Locker tabs (owner)
+Me tab: when a share-card style is equipped, a styled rank card (`.rk-live`, built with `shCss()` from `SHARE[k][2]`, name, school/position, 4 ranks) sits above the rank tiles and changes as soon as you equip another style. Locker tabs (`.lk-seg`) now have an emoji, the word, a count (cards, cosmetics) and their own outline.

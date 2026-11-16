@@ -3854,7 +3854,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v535 · Nov 16';
+const APP_BUILD='v536 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4406,7 +4406,7 @@ const adDay=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 const adOf=u=>((S.picks[u]||{}).ad)||{};
 const adLeft=u=>Math.max(0,ADS.perDay-(adOf(u).d===adDay()?+adOf(u).n||0:0));
 const adBonus=u=>+adOf(u).t||0;
-/* odds: an Elo rating for every team from this season's finals, home field to the higher seed, and a 7% house cut */
+/* odds: an Elo rating for every team from this season's finals, no home-field edge (v536, owner), and a 7% house cut */
 let _rt=null,_rtN=-1;
 function ratings(){
   const gs=(GAMES&&GAMES.games)||[];if(_rt&&_rtN===gs.length)return _rt;
@@ -4443,8 +4443,8 @@ function oddsFor(g){
   const pin=ODDS_PIN[g.d+'|'+g.h+'|'+g.a];
   if(pin!=null){const dec=p=>Math.round(Math.min(12,Math.max(1.05,.93/p))*100)/100;return {ph:pin,h:dec(pin),a:dec(1-pin)}}
   const r=ratings(),rh=r[g.h]===undefined?1500:r[g.h],ra=r[g.a]===undefined?1500:r[g.a];
-  const pe=1/(1+Math.pow(10,(ra-rh-45)/400));
-  const R=ridgeRatings(),pr=1/(1+Math.exp(-(((R.r[g.h]||0)-(R.r[g.a]||0))+R.H)/R.s));
+  const pe=1/(1+Math.pow(10,(ra-rh)/400));
+  const R=ridgeRatings(),pr=1/(1+Math.exp(-((R.r[g.h]||0)-(R.r[g.a]||0))/R.s));
   const ph=Math.min(.94,Math.max(.06,(pe+pr)/2));
   const dec=p=>Math.round(Math.min(12,Math.max(1.05,.93/p))*100)/100;
   return {ph,h:dec(ph),a:dec(1-ph)};
@@ -6736,7 +6736,7 @@ function viewSim(){
 const ATS_PAY=1.91,ATS_K=2.2;
 const atsOf=u=>((S.picks[u]||{}).ats)||{};
 function spreadFor(g){
-  const R=ridgeRatings(),raw=(R.r[g.h]||0)-(R.r[g.a]||0)+R.H;
+  const R=ridgeRatings(),raw=(R.r[g.h]||0)-(R.r[g.a]||0);
   let L=-ATS_K*raw;L=Math.max(-25,Math.min(25,L));
   L=Math.round(L-.5)+.5;
   return L;

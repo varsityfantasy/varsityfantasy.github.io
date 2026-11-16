@@ -932,3 +932,6 @@ Removed the emoji from the `.lk-seg` tabs; the word is larger (.82rem) with more
 
 ## v535 — Player props for Mount Carmel, San Diego High and 5 more schools (owner)
 The schedule (`games.js`) says Mount Carmel / San Diego High / Christian High / Central Union / Army and Navy Academy / Southwest San Diego / Southwest (El Centro); the box scores say Mt. Carmel / San Diego / Christian / Central / Army-Navy / Southwest SD / Southwest EC (`LOGO_ALIAS`). `propCands()` looked players up by the schedule name only, so these teams never had prop lines. It now also looks under the alias. Their stats were already complete through week 13. OPEN: other `g.h===p.school` comparisons (fantasy card lock `fcStarted`, `lgPlIn`, player page opponents) have the same mismatch for these 7 schools.
+
+## v536 — No home-field edge in odds (owner)
+`oddsFor()` no longer gives the home team 45 Elo points or the fitted home margin `R.H`, and `spreadFor()` drops `R.H` too: win chances and spreads depend only on the two teams ratings. The fit in `ridgeRatings()` still estimates home field so past home wins are not over-credited, and the 10-0 sim still uses it. Applies to basketball too. Bets already saved keep the odds they were saved with.

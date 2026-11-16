@@ -196,6 +196,7 @@ input[type=number]{width:100%}
 .fc-flip{animation:fcFlip .7s both}
 .fc-flip>*:not(.fc-cover){animation:fcShow .7s both;animation-delay:inherit}
 .fc-cover{position:absolute;inset:-1px;z-index:3;border-radius:inherit;border:1px solid #9B6BFF;background:radial-gradient(circle at 50% 40%,#2c1b63 0%,#0d0a26 75%);display:grid;place-items:center;font:900 4.2rem/1 var(--f-display);color:#FFD27A;text-shadow:0 0 14px #9B6BFF,0 0 34px #6A3DFF;animation:fcCover .7s both;animation-delay:inherit}
+.sb-card.fc-flip,.sb-card.fc-flip>*,.sb-card.fc-flip>.fc-cover{animation-duration:.4s!important}
 @keyframes fcFlip{0%{transform:perspective(700px) rotateY(0);animation-timing-function:ease-in}50%{transform:perspective(700px) rotateY(90deg)}50.01%{transform:perspective(700px) rotateY(-90deg);animation-timing-function:ease-out}100%{transform:perspective(700px) rotateY(0)}}
 @keyframes fcShow{0%,49.9%{visibility:hidden}50%,100%{visibility:visible}}
 @keyframes fcCover{0%,49.9%{visibility:visible}50%,100%{visibility:hidden}}
@@ -3767,7 +3768,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v524 · Nov 15';
+const APP_BUILD='v525 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6540,13 +6541,13 @@ function simStart(){
     const p=pool[fcRnd(pool.length)];ex.add(simKey(p));c.push(p.key)}
   UI.simSeenDef=false;UI.simTab='off';
   UI.sim={c,left:{off:SIM_RESPINS,def:SIM_RESPINS},done:false,seen:[...ex],flip:'deal',res:null};render();
-  setTimeout(()=>{if(UI.sim&&UI.sim.flip==='deal'){UI.sim.flip=null;render()}},3600);
+  setTimeout(()=>{if(UI.sim&&UI.sim.flip==='deal'){UI.sim.flip=null;render()}},1200);   /* v525 (owner): faster deal and respin flips, respin stays clickable while cards turn */
 }
 function simRespin(i){
-  const m=UI.sim;if(!m)return;const u=SIM_UNIT(SIM_SLOTS[i].k);if(m.done||m.left[u]<1||m.flip==='deal'||(m.flip&&m.flip.i!=null))return;
+  const m=UI.sim;if(!m)return;const u=SIM_UNIT(SIM_SLOTS[i].k);if(m.done||m.left[u]<1||(m.fl&&m.fl[i]))return;
   const ex=new Set(m.seen),pool=simPool(SIM_SLOTS[i],ex);if(!pool.length){say('No new players to draw at that spot');return}
-  const p=pool[fcRnd(pool.length)];m.c[i]=p.key;m.seen.push(simKey(p));m.left[u]--;m.flip={i};render();
-  setTimeout(()=>{if(UI.sim&&UI.sim.flip&&UI.sim.flip.i===i){UI.sim.flip=null;render()}},1000);
+  const p=pool[fcRnd(pool.length)];m.c[i]=p.key;m.seen.push(simKey(p));m.left[u]--;if(m.flip==='deal')m.flip=null;(m.fl=m.fl||{})[i]=1;render();
+  setTimeout(()=>{if(UI.sim&&UI.sim.fl&&UI.sim.fl[i]){delete UI.sim.fl[i];render()}},450);
 }
 async function simFinish(go){
   const m=UI.sim;if(!m||m.done)return;
@@ -6667,19 +6668,19 @@ function viewSim(){
   const board=mgBoard('Best teams · points per game',rows);
   if(!m)return head+`<section class="card fc-hero"><div class="qh"><h3>Build your team</h3></div><p class="muted">12 random players. Highest total wins.</p>${myBest}${SIM_SLOTS.every(sl=>simPool(sl,new Set()).length)?'<div class="fc-deal"><button class="btn" data-act="simStart">Deal my team</button></div>':'<p class="hint sim-wait">Build your team opens once players have at least 2 games of stats.</p>'}</section>${board}`;
   const total=m.c.reduce((t,k)=>t+(pByKey(k)?simTot(pByKey(k)):0),0);
-  const dealing=m.flip==='deal',busy=dealing||(m.flip&&m.flip.i!=null);
+  const dealing=m.flip==='deal',busy=false;
   const HASDEF=SIM_SLOTS.some(x=>SIM_UNIT(x.k)==='def'),tab=UI.simTab==='def'&&HASDEF?'def':'off',unitTot=u=>m.c.reduce((t,k,i)=>t+(SIM_UNIT(SIM_SLOTS[i].k)===u&&pByKey(k)?simTot(pByKey(k)):0),0),unitN=u=>SIM_SLOTS.filter(x=>SIM_UNIT(x.k)===u).length;
-  const card=(k,i)=>{const p=pByKey(k),sl=SIM_SLOTS[i];if(!p||SIM_UNIT(sl.k)!==tab)return '';const a=agg(p,'season'),fl=dealing?{d:.6+i*.1}:(m.flip&&m.flip.i===i?{d:.3}:null),pos=SIM_POS[sl.k],nmp=String(p.name).trim().split(/\s+/),sn=nmp.length>1?nmp[0][0]+'. '+nmp.slice(1).join(' '):p.name;
+  const card=(k,i)=>{const p=pByKey(k),sl=SIM_SLOTS[i];if(!p||SIM_UNIT(sl.k)!==tab)return '';const a=agg(p,'season'),fl=dealing?{d:.05+i*.045}:(m.fl&&m.fl[i]?{d:0}:null),pos=SIM_POS[sl.k],nmp=String(p.name).trim().split(/\s+/),sn=nmp.length>1?nmp[0][0]+'. '+nmp.slice(1).join(' '):p.name;
     return `<div class="sb-slot" style="left:${pos[0]}%;top:${pos[1]}%"><div class="fc-card sb-card ${fl?'fc-flip':''}" style="--pc:${SIM_COL[sl.label]};${fl?`animation-delay:${fl.d}s`:''}">${fl?'<div class="fc-cover">?</div>':''}${T10(p).replace(/class="top10/g,'class="top10 sm')}<span class="sim-pos">${sl.label}${sl.label==='FLEX'?`<i>${p.pos}</i>`:''}</span>${av(p.name,p.school,38)}<b class="sb-nm"><span class="n-s">${esc(sn)}</span><span class="n-l">${esc(p.name)}</span></b><small class="sb-sc">${esc(p.school)}</small>
       <div class="sb-pts"><b>${f1(a.n?a.v/a.n:0)}<u>PPG</u></b><small>${f1(a.v)} pts<em> · ${a.n} gp</em></small></div>
-      ${m.done?'':`<button class="sb-rs ${m.left[SIM_UNIT(sl.k)]>0&&!busy?'':'off'}${m.flip&&m.flip.i===i?' spin':''}" data-act="simRespin" data-i="${i}" ${m.left[SIM_UNIT(sl.k)]>0&&!busy?'':'disabled'} aria-label="Respin ${sl.label}"><i aria-hidden="true"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span>Respin</span></button>`}</div></div>`};
+      ${m.done?'':`<button class="sb-rs ${m.left[SIM_UNIT(sl.k)]>0&&!busy?'':'off'}${m.fl&&m.fl[i]?' spin':''}" data-act="simRespin" data-i="${i}" ${m.left[SIM_UNIT(sl.k)]>0&&!busy?'':'disabled'} aria-label="Respin ${sl.label}"><i aria-hidden="true"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span>Respin</span></button>`}</div></div>`};
   const bar=`<div class="fc-bar"><div><small>Team total</small><b>${f1(total)}</b></div><div><small>Offense respins</small><b>${m.left.off}</b></div><div><small>Defense respins</small><b>${m.left.def}</b></div><div><small>Team PPG</small><b>${f1(teamPPG(m.c))}</b></div></div>`;
   let res='';
   if(m.done&&m.res){const r=m.res,pc=Math.round(r.pct*100),bt=Math.round(r.beat*100),gr=bt>=98?'S':bt>=90?'A':bt>=70?'B':bt>=40?'C':'D';
     res=`<section class="card sim-res"><div class="sim-gr">${gr}</div><div><h3>${f1(teamPPG(m.c))} PPG <small class="muted">· ${f1(r.total)} season pts</small></h3><p class="muted">Better than ${bt}% of randomly drawn teams. The best possible team scores ${f1(r.max)} points, and you got ${pc}% of that.${my.best&&my.best>=Math.round(r.total*10)/10?` Your best is ${f1(my.best)}.`:''}</p></div>
       <details class="sim-opt"><summary>See the best possible team</summary>${r.best.list.map(x=>`<div class="bt-r"><b>${x.l} · ${esc(x.p.name)}</b><small class="muted">${esc(x.p.school)}</small><b class="d">${f1(simTot(x.p))}</b></div>`).join('')}</details>
       <div class="btns">${m.season?'':'<button class="btn" data-act="simSeason">Simulate a season</button>'}<button class="btn ghost" data-act="simStart">Build another team</button></div></section>`}
-  const act2=m.done?'':`<button class="btn sim-go" data-act="simGo" ${busy?'disabled':''}><span aria-hidden="true">▶</span> Simulate season<small>Lock in this team and play a ${SIM_GAMES}-game season</small></button><div class="bt-go" style="margin-top:10px"><button class="btn ghost" data-act="simReset">Start over</button></div><p class="hint">${m.left.off+m.left.def>0?`You have ${m.left.off} offense and ${m.left.def} defense ${m.left.off+m.left.def===1?'respin':'respins'} left. You do not have to use them.`:'No respins left. Simulate your season when you are ready.'}${can?'':' Sign in to save your best team.'}</p>`;
+  const act2=m.done?'':`<button class="btn sim-go" data-act="simGo" ${dealing?'disabled':''}><span aria-hidden="true">▶</span> Simulate season<small>Lock in this team and play a ${SIM_GAMES}-game season</small></button><div class="bt-go" style="margin-top:10px"><button class="btn ghost" data-act="simReset">Start over</button></div><p class="hint">${m.left.off+m.left.def>0?`You have ${m.left.off} offense and ${m.left.def} defense ${m.left.off+m.left.def===1?'respin':'respins'} left. You do not have to use them.`:'No respins left. Simulate your season when you are ready.'}${can?'':' Sign in to save your best team.'}</p>`;
   const stage=m.done&&m.stage==='pick'?simPickHTML(m):m.done&&m.stage==='season'&&m.season?simSeasonHTML(m):'';
   return head+stage+(m.stage==='pick'?'':res)+`<section class="card fc-hero sim-hero${jerseyStyle()}">${bar}<div class="sim-heads" role="tablist" aria-label="Unit">${[['off','Offense'],['def','Defense']].map(([u,l])=>`<button type="button" role="tab" class="sim-ch ${u} ${u==='def'&&tab!=='def'&&!UI.simSeenDef?'nudge':''}" aria-selected="${tab===u}" data-act="simTab" data-v="${u}">${l}${u==='def'&&tab!=='def'&&!UI.simSeenDef?'<em class="tapme">Tap</em>':''}<small>${unitN(u)} spots · ${f1(unitTot(u))} pts</small></button>`).join('')}</div><div class="sim-board sim-${tab}">${simSkin(simField(tab))}${HASDEF?`<div class="sim-unit-tag ${tab}">${tab==='def'?'Defense':'Offense'}</div>`:''}${m.c.map(card).join('')}</div>${HASDEF?(tab==='off'?`<button type="button" class="btn sim-next def" data-act="simTab" data-v="def">See your defense <span aria-hidden="true">→</span><small>${unitN('def')} players · ${f1(unitTot('def'))} pts</small></button>`:`<button type="button" class="btn ghost sim-next" data-act="simTab" data-v="off"><span aria-hidden="true">←</span> Back to your offense</button>`):''}${act2}</section>${board}`;
 }

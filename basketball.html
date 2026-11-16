@@ -3842,7 +3842,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v529 · Nov 15';
+const APP_BUILD='v530 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6285,7 +6285,7 @@ document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest
   else if(a==='gfAmt'){GF.a=+v;giftSheet()}
   else if(a==='gfItem'){GF.i=GF.i===v?'':v;const g=document.querySelector('.gf-items'),y=g?g.scrollTop:0;giftSheet();const g2=document.querySelector('.gf-items');if(g2)g2.scrollTop=y}
   else if(a==='anOk'){const at=+t.dataset.at||NOW();closeConfirm();_anPop=false;S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{ansn:at});upsert('picks/'+ME.uid,{ansn:at}).catch(()=>{})}
-  else if(a==='gpOk'){const at=+t.dataset.at||NOW();closeConfirm();S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{gsn:at});upsert('picks/'+ME.uid,{gsn:at}).catch(()=>{})}
+  else if(a==='gpOk'){const at=+t.dataset.at||NOW();closeConfirm();_gPop=false;S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{gsn:at});upsert('picks/'+ME.uid,{gsn:at}).catch(()=>{})}
   else if(a==='gfSend')giftSend();
   else if(a==='wpOpen')wpOpen();
   else if(a==='spOpen')spSheet();

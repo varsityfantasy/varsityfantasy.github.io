@@ -975,3 +975,6 @@ The one-time bonus for listing a card (`tpBonusCheck`) gives 300 tokens (`TP_BON
 
 ## v550 — Transfer Portal tutorial + bonus announcement (owner)
 `tpTutSteps`: a 5-step Portal tour (reuses the tour overlay, `TUT.set="tp"`) the first time someone opens the Portal (`tpTutMaybe` in `viewPortal`, saved as profiles.tpt). `tpPromoMaybe` (next to `anPopup`) shows a big one-time announcement of the listing bonus (`TUT.set="promo"`, `.tut-big`, saved as profiles.tpp); "Take me to the Portal" opens #portal, which then starts the tour. `tutOpen(replay,set)`.
+
+## v551 — Over / Under buttons restyled in the app (owner)
+Player props (and the `plSide` over/under row) buttons get class `ou ou-o|ou-u`: green with an up arrow / red with a down arrow, line in bold caps, % chance under it, payout in a bright badge; stronger fill + ring when picked, "Your pick" pill below. Sizes step down at 400 px and 350 px so the line never runs into the badge. Pick em buttons unchanged.

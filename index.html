@@ -1778,6 +1778,20 @@ select option{background:#0B1730;color:#EAF0F8}
 .pp-m{font:700 .78rem/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:#FFC23D;margin:4px 0 8px}
 .pp-stat{font-size:.74rem;margin:8px 0 2px}.pp-stat b{color:var(--ink,#fff)}
 .pp .bt-t{padding:10px 6px}
+/* v551 (owner): Over / Under buttons like the share pictures: green up / red down, payout in a badge */
+.bt-t.ou{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:7px;row-gap:1px;padding:10px 9px;text-align:left;border-width:1.5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.bt-t.ou::before{grid-column:1;grid-row:1/span 2;font-size:.62rem;line-height:1}
+.bt-t.ou b{grid-column:2;grid-row:1;text-align:left;font:900 1.05rem/1 var(--f-display);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;color:#fff}
+.bt-t.ou small{grid-column:2;grid-row:2;font-size:.66rem;color:rgba(255,255,255,.75)}
+.bt-t.ou .bt-o{grid-column:3;grid-row:1/span 2;font:900 1rem/1 var(--f-display);padding:5px 6px 4px;border-radius:8px;color:#06130D}
+.bt-t.ou-o{background:linear-gradient(180deg,rgba(37,194,110,.30),rgba(37,194,110,.10));border-color:#25C26E}.bt-t.ou-o::before{content:"\25B2";color:#3BE08A}.bt-t.ou-o .bt-o{background:#3BE08A}
+.bt-t.ou-u{background:linear-gradient(180deg,rgba(229,64,79,.30),rgba(229,64,79,.10));border-color:#E5404F}.bt-t.ou-u::before{content:"\25BC";color:#FF6B78}.bt-t.ou-u .bt-o{background:#FF6B78}
+.bt-t.ou-o.on{background:linear-gradient(180deg,rgba(37,194,110,.62),rgba(37,194,110,.34));box-shadow:0 0 0 2.5px rgba(59,224,138,.55)}
+.bt-t.ou-u.on{background:linear-gradient(180deg,rgba(229,64,79,.62),rgba(229,64,79,.34));box-shadow:0 0 0 2.5px rgba(255,107,120,.55)}
+.bt-t.ou.saved::after{grid-column:1/-1;grid-row:3;justify-self:start;margin-top:5px}
+@media (max-width:400px){.bt-t.ou{column-gap:5px;padding:10px 7px}.bt-t.ou b{font-size:.9rem;letter-spacing:0}.bt-t.ou .bt-o{font-size:.84rem;padding:4px 4px 3px}}
+@media (max-width:350px){.bt-t.ou::before{display:none}.bt-t.ou b{font-size:.86rem}}
+
 
 .mk-row{display:flex;flex-direction:column;gap:6px;margin:8px 0}
 .mk-lb{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.mk-lb small{display:block;font-size:.76rem}
@@ -3869,7 +3883,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v550 · Nov 16';
+const APP_BUILD='v551 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -5362,7 +5376,7 @@ function parlHTML(cur,L){
     const legRow=(k,i)=>{const grp=by[k],sel=(u['l'+i]&&grp.find(y=>y.id===u['l'+i].id))||grp[0],s=u['l'+i]&&u['l'+i].s,p=pByKey(k)||{};
       return `<div class="parl-leg"><div class="parl-who">${av(p.name,p.school,26)}<b>${esc(p.name||'')}</b><small class="muted">${esc(p.pos||'')}</small></div>
         ${grp.length>1?`<div class="pp-mk">${grp.map(y=>`<button class="pp-mc${y===sel?' on':''}" data-act="plLine" data-d="${esc(id)}" data-i="${i}" data-id="${esc(y.id)}" aria-pressed="${y===sel}"><span>${esc(PP_MK[y.m].l)}</span><b>${fmtN(y.line)}</b></button>`).join('')}</div>`:`<div class="pp-m">${esc(PP_MK[sel.m].l)}</div>`}
-        <div class="bt-row">${[['o','Over',sel.over],['u','Under',sel.under]].map(([sd,t,od])=>`<button class="bt-t ${s===sd?'on':''}" data-act="plSide" data-d="${esc(id)}" data-i="${i}" data-id="${esc(sel.id)}" data-s="${sd}" ${b||locked||!can?'disabled':''}><b>${t} ${fmtN(sel.line)}</b><span class="bt-o">${od.toFixed(2)}x</span></button>`).join('')}</div></div>`};
+        <div class="bt-row">${[['o','Over',sel.over],['u','Under',sel.under]].map(([sd,t,od])=>`<button class="bt-t ou ou-${sd} ${s===sd?'on':''}" data-act="plSide" data-d="${esc(id)}" data-i="${i}" data-id="${esc(sel.id)}" data-s="${sd}" ${b||locked||!can?'disabled':''}><b>${t} ${fmtN(sel.line)}</b><span class="bt-o">${od.toFixed(2)}x</span></button>`).join('')}</div></div>`};
     let foot='';
     if(b){const res=parlResult(b,gm);foot=`<p class="muted">Locked in: ${b.legs.map(l=>`${esc(lastN((pByKey(l.k)||{}).name))} ${l.s==='o'?'Over':'Under'} ${fmtN(l.line)} ${esc(PP_MK[l.m].l.toLowerCase())}`).join(' + ')} for ${tk(b.stake)} at ${(+b.odds).toFixed(2)}x${b.cb?` (+${b.cb}% duo boost)`:''}.${res!=='open'?` <b class="parl-${res}">${res==='won'?'Won +'+n1(parlWin(b,gm)):res==='push'?'Push':'Lost'}</b>`:''}</p>`}
     else if(locked)foot='<p class="muted">Closed for this game.</p>';
@@ -6986,7 +7000,7 @@ function propsHTML(){
   const shown=all.slice(0,UI.ppN);
   const card=(x,grp)=>{
     const id=x.id,b=mine[id],M=PP_MK[x.m],locked=started(x.game),side=UI.sl.legs[id]||(b&&b.s)||'';
-    const btn=(sd,t,odd)=>`<button class="bt-t ${side===sd?'on':''} ${b&&b.s===sd?'saved':''}" data-act="slLeg" data-id="${esc(id)}" data-s="${sd}" ${locked||b||!can?'disabled':''}><b>${t} ${fmtN(x.line)}</b><span class="bt-o">${odd.toFixed(2)}x</span><small>${Math.round((sd==='o'?x.po:1-x.po)*100)}% chance</small></button>`;
+    const btn=(sd,t,odd)=>`<button class="bt-t ou ou-${sd} ${side===sd?'on':''} ${b&&b.s===sd?'saved':''}" data-act="slLeg" data-id="${esc(id)}" data-s="${sd}" ${locked||b||!can?'disabled':''}><b>${t} ${fmtN(x.line)}</b><span class="bt-o">${odd.toFixed(2)}x</span><small>${Math.round((sd==='o'?x.po:1-x.po)*100)}% chance</small></button>`;
     const room=bal+(b?+b.stake:0),od=side==='o'?x.over:side==='u'?x.under:0;let foot='';
     if(!ME.uid||ME.mode==='guest')foot='<p class="muted">Sign in to play.</p>';
     else if(ME.mode==='readonly')foot=b?`<p class="muted">Picked ${b.s==='o'?'Over':'Under'} ${fmtN(b.line)} for ${tk(b.stake)}.</p>`:'';

@@ -2176,6 +2176,7 @@ html,body{overflow-x:clip;max-width:100%}
 .adm-dl.up,.adm-dl.dn{padding:2px 8px;border-radius:6px;font-weight:700}
 .adm-dl.up{background:rgba(37,194,110,.16);color:#25C26E}.adm-dl.dn{background:rgba(229,64,79,.18);color:#F0525F}
 .adm-nav.on,.adm-pri{box-shadow:none}
+.adm-on{display:inline-flex;align-items:center;gap:6px;color:#25C26E;font:700 12px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;text-transform:none;vertical-align:middle}.adm-on i{width:8px;height:8px;border-radius:50%;background:#25C26E;box-shadow:0 0 0 3px rgba(37,194,110,.22)}
 .adm-sch>div>span:first-child{display:flex;align-items:center;gap:7px;min-width:0}.adm-sch>div{grid-template-columns:minmax(120px,190px) 1fr auto!important}
 @media (max-width:759px){.dtab .hide-s{display:none}.dks{grid-template-columns:repeat(2,1fr)}.dk b{font-size:1.4rem}}
 /* Ring Chaser */
@@ -3855,7 +3856,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v545 · Nov 16';
+const APP_BUILD='v546 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10072,6 +10073,7 @@ async function dashLoad(){
 }
 const dKey=t=>t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
 /* v540 (owner): exact time, to the second */
+const ON_MS=150000;   /* v546 (owner): 'on the app now' = their usage was saved in the last 2.5 minutes (it saves about once a minute while they use the app, and when they leave) */
 const fmtExact=s=>{s=Math.round(s||0);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+'h ':'')+(h||m?m+'m ':'')+x+'s'};
 const fmtDur=s=>{s=Math.round(s||0);if(s<60)return s+'s';const m=Math.round(s/60);if(m<60)return m+'m';const h=Math.floor(m/60);return h+'h '+(m%60)+'m'};
 function dashData(){
@@ -10087,7 +10089,7 @@ function dashData(){
   const sum=a=>a.reduce((x,y)=>x+y,0);
   const user=r=>{let t=0,s=0,a=0,dd=0;if(r.u)for(const d of days){t+=+r.u.days[d]||0;s+=+r.u.ses[d]||0;a+=+r.u.ads[d]||0;if(r.u.days[d]||r.u.ses[d])dd++}
     let tAll=0,sAll=0;if(r.u){for(const d in r.u.days)tAll+=+r.u.days[d]||0;for(const d in r.u.ses)sAll+=+r.u.ses[d]||0}
-    return {...r,t,s,a,dd,tAll,sAll,name:(r.p&&r.p.name)||r.email||'Account',role:r.is_admin?'admin':(r.p&&r.p.role)||'none',school:(r.p&&r.p.school)||'',lastAct:(r.u&&r.u.last)||r.last_sign_in_at||null,adsAll:Math.round((+adOf(r.uid).t||0)/ADS.reward)}};
+    return {...r,t,s,a,dd,tAll,sAll,name:(r.p&&r.p.name)||r.email||'Account',role:r.is_admin?'admin':(r.p&&r.p.role)||'none',school:(r.p&&r.p.school)||'',lastAct:(r.u&&+r.u.last)||(r.last_sign_in_at?Date.parse(r.last_sign_in_at):0)||null,on:!!(r.u&&r.u.last&&Date.now()-r.u.last<ON_MS),adsAll:Math.round((+adOf(r.uid).t||0)/ADS.reward)}};
   const users=pool.map(user),active=users.filter(u=>u.dd>0),userDays=sum(dau);
   /* the period before, for the up/down arrows */
   const prevNew=pool.filter(r=>{const c=r.created_at&&dKey(new Date(r.created_at));return c&&c<start&&c>=dKey(new Date(Date.now()-(2*N-1)*864e5))}).length;
@@ -10122,7 +10124,7 @@ function dashHTML(){
   const card=(l,v,s)=>`<div class="dk"><small>${l}</small><b>${v}</b><span>${s||''}</span></div>`;
   const chip=(k,v,l)=>`<button class="chip" data-dash="${k}" data-v="${v}" aria-pressed="${String(DASH[k])===String(v)}">${l}</button>`;
   let list=D.users.filter(u=>!DASH.q||[u.name,u.email,u.school].join(' ').toLowerCase().includes(DASH.q.toLowerCase()));
-  const sk={name:u=>u.name.toLowerCase(),role:u=>u.role,school:u=>u.school,joined:u=>u.created_at||'',last:u=>u.lastAct||'',ses:u=>u.sAll,time:u=>u.tAll,ads:u=>u.a}[DASH.sort];
+  const sk={name:u=>u.name.toLowerCase(),role:u=>u.role,school:u=>u.school,joined:u=>u.created_at||'',last:u=>u.lastAct||0,ses:u=>u.sAll,time:u=>u.tAll,ads:u=>u.a}[DASH.sort];
   list.sort((a,b)=>{const x=sk(a),y=sk(b);return (x<y?-1:x>y?1:0)*DASH.dir});
   const th=(k,l,cl='')=>`<th class="${cl}"><button data-dash="sort" data-v="${k}">${l}${DASH.sort===k?(DASH.dir<0?' ▼':' ▲'):''}</button></th>`;
   const shown=list.slice(0,DASH.show);
@@ -10221,12 +10223,12 @@ function admHTML(){
     <div class="adm-tw"><table class="adm-t"><thead><tr><th>User</th><th>Action</th><th class="adm-hs">Details</th><th>When</th></tr></thead><tbody>
     ${ev.slice(0,n).map(e=>`<tr data-ad="open" data-id="${esc(e.u.uid)}" tabindex="0"><td><span class="adm-user"><span class="adm-av s">${esc(e.u.name.slice(0,1).toUpperCase())}</span>${esc(e.u.name)}</span></td><td><span class="adm-pill ${e.c}">${e.a}</span></td><td class="adm-hs">${esc(e.det)}</td><td class="adm-mut">${admAgo(e.t)}</td></tr>`).join('')||'<tr><td colspan="4" class="adm-mut">No activity yet.</td></tr>'}</tbody></table></div></div>`;
   const usersTable=()=>{let list=D.users.filter(u=>!DASH.q||[u.name,u.email,u.school].join(' ').toLowerCase().includes(DASH.q.toLowerCase()));
-    const sk={name:u=>u.name.toLowerCase(),role:u=>u.role,school:u=>u.school,joined:u=>u.created_at||'',last:u=>u.lastAct||'',ses:u=>u.sAll,time:u=>u.tAll,ads:u=>u.a}[DASH.sort];
+    const sk={name:u=>u.name.toLowerCase(),role:u=>u.role,school:u=>u.school,joined:u=>u.created_at||'',last:u=>u.lastAct||0,ses:u=>u.sAll,time:u=>u.tAll,ads:u=>u.a}[DASH.sort];
     list.sort((a,b)=>{const x=sk(a),y=sk(b);return (x<y?-1:x>y?1:0)*DASH.dir});
     const th=(k,l,cl='')=>`<th class="${cl}"><button data-dash="sort" data-v="${k}">${l}${DASH.sort===k?(DASH.dir<0?' ↓':' ↑'):''}</button></th>`;
-    return `<div class="adm-card"><div class="adm-ch"><h3>All users <span class="adm-mut">(${list.length})</span></h3><button class="adm-btn" data-dash="csv">${admIco('M12 3v12M7 10l5 5 5-5M5 21h14')}Export CSV</button></div>
+    return `<div class="adm-card"><div class="adm-ch"><h3>All users <span class="adm-mut">(${list.length})</span> <span class="adm-on"><i></i>${list.filter(u=>u.on).length} on now</span></h3><button class="adm-btn" data-dash="csv">${admIco('M12 3v12M7 10l5 5 5-5M5 21h14')}Export CSV</button></div>
       <div class="adm-tw"><table class="adm-t"><thead><tr>${th('name','User')}${th('role','Role','adm-hs')}${th('school','School','adm-hs')}${th('joined','Joined','adm-hs')}${th('last','Last active')}${th('ses','Opens','n')}${th('time','Total time','n')}${th('ads','Videos','n')}<th class="n"><span class="adm-vh">Remove</span></th></tr></thead><tbody>
-      ${list.slice(0,DASH.show).map(u=>`<tr data-ad="open" data-id="${esc(u.uid)}" tabindex="0"><td><span class="adm-user"><span class="adm-av s">${esc(u.name.slice(0,1).toUpperCase())}</span><span><b>${esc(u.name)}</b>${u.is_admin?' <span class="adm-pill p">Admin</span>':''}<small>${esc(u.email||'')}</small></span></span></td><td class="adm-hs"><span class="adm-pill ${u.role==='player'?'g':u.role==='admin'?'p':'b'}">${esc(u.role)}</span></td><td class="adm-hs">${esc(u.school)}</td><td class="adm-hs adm-mut">${adWhen(u.created_at).split(',')[0]}</td><td class="adm-mut">${admAgo(u.lastAct)}</td><td class="n">${u.u?Math.max(1,u.sAll).toLocaleString():(u.last_sign_in_at?'1+':'0')}</td><td class="n" style="white-space:nowrap">${u.u&&u.tAll?`<b>${fmtExact(u.tAll)}</b>`:(u.last_sign_in_at?'<span class="adm-mut" title="They used the app before time tracking was fixed on Nov 16">not recorded</span>':'0s')}</td><td class="n">${u.a}</td><td class="n">${u.is_admin||u.uid===ME.uid?'':`<button class="adm-del" data-ad="rm" data-id="${esc(u.uid)}" title="Remove ${esc(u.name)}" aria-label="Remove ${esc(u.name)}">${admIco('M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3')}</button>`}</td></tr>`).join('')}</tbody></table></div>
+      ${list.slice(0,DASH.show).map(u=>`<tr data-ad="open" data-id="${esc(u.uid)}" tabindex="0"><td><span class="adm-user"><span class="adm-av s">${esc(u.name.slice(0,1).toUpperCase())}</span><span><b>${esc(u.name)}</b>${u.is_admin?' <span class="adm-pill p">Admin</span>':''}<small>${esc(u.email||'')}</small></span></span></td><td class="adm-hs"><span class="adm-pill ${u.role==='player'?'g':u.role==='admin'?'p':'b'}">${esc(u.role)}</span></td><td class="adm-hs">${esc(u.school)}</td><td class="adm-hs adm-mut">${adWhen(u.created_at).split(',')[0]}</td><td class="adm-mut" style="white-space:nowrap">${u.on?'<span class="adm-on"><i></i>On now</span>':admAgo(u.lastAct)}</td><td class="n">${u.u?Math.max(1,u.sAll).toLocaleString():(u.last_sign_in_at?'1+':'0')}</td><td class="n" style="white-space:nowrap">${u.u&&u.tAll?`<b>${fmtExact(u.tAll)}</b>`:(u.last_sign_in_at?'<span class="adm-mut" title="They used the app before time tracking was fixed on Nov 16">not recorded</span>':'0s')}</td><td class="n">${u.a}</td><td class="n">${u.is_admin||u.uid===ME.uid?'':`<button class="adm-del" data-ad="rm" data-id="${esc(u.uid)}" title="Remove ${esc(u.name)}" aria-label="Remove ${esc(u.name)}">${admIco('M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3')}</button>`}</td></tr>`).join('')}</tbody></table></div>
       ${(()=>{const have=new Set((AD.rows||[]).map(r=>r.uid)),orph=(AD.rows&&AD.rows.length)?Object.entries(S.profiles).filter(([id,p])=>p&&!have.has(id)&&!/^demo|^sample/.test(id)):[];
         return orph.length?`<div class="adm-orph"><h4>Profiles with no login (${orph.length})</h4><p class="adm-mut">Left behind by deleted or unfinished accounts. Remove them to clean up lists and leaderboards.</p>${orph.map(([id,p])=>`<div class="adm-orow"><span class="adm-user"><span class="adm-av s">${esc(String(p.name||'?').slice(0,1).toUpperCase())}</span><span><b>${esc(p.name||'No name')}</b><small>${esc([p.role,p.school].filter(Boolean).join(' · '))}</small></span></span><button class="adm-btn red" data-ad="rm" data-id="${esc(id)}">Remove</button></div>`).join('')}</div>`:''})()}
       ${list.length>DASH.show?`<div class="adm-more"><button class="adm-btn" data-dash="more">Show 20 more (${list.length-DASH.show} left)</button></div>`:''}</div>`};
@@ -10577,7 +10579,9 @@ const ADMR={at:0,busy:false};
 async function admRefresh(){if(ADMR.busy||!ME.admin)return;ADMR.busy=true;admSpin();
   try{const jobs=[dashLoad()];if(ME.mode!=='demo')jobs.push(adLoad());
     await Promise.all(jobs)}catch(_){}
-  ADMR.at=Date.now();ADMR.busy=false;if(UI.view==='admin'&&ME.admin){const f=document.activeElement;if(!(f&&f.id==='dash-q'))render()}}
+  ADMR.at=Date.now();ADMR.busy=false;if(UI.view==='admin'&&ME.admin){const f=document.activeElement;if(!(f&&f.id==='dash-q')){const m0=document.querySelector('.adm-main'),y0=m0?m0.scrollTop:0;render();const m1=document.querySelector('.adm-main');if(m1)m1.scrollTop=y0}}}
+/* v546: the dashboard refreshes itself every 30 s while it is on screen, so 'On now' stays current */
+setInterval(()=>{try{if(UI.view==='admin'&&ME.admin&&ME.mode==='live'&&!document.hidden&&!ADMR.busy&&Date.now()-ADMR.at>29000&&['overview','users','schools'].includes(UI.admp||'overview')&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')&&!document.querySelector('.adm-sheet'))admRefresh()}catch(_){}},10000);
 function admSpin(){document.querySelectorAll('[data-dash=reload]').forEach(b=>b.classList.add('spin'))}
 setInterval(()=>{if(UI.view==='admin'&&ME.admin&&document.visibilityState==='visible'&&(UI.adtab||'dash')==='dash')admRefresh()},60000);
 async function admRemove(id){const r=(AD.rows||[]).find(x=>x.uid===id),p=S.profiles[id]||{},who=p.name||(r&&r.email)||'this profile';

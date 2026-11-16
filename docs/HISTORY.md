@@ -960,3 +960,6 @@ New admin page `schools` (People group): KPIs, Most users and Most time on the a
 
 ## v545 — Admin leagues: "Stuck" is now "Waiting" (owner)
 League health value and labels renamed (`Waiting`, "Waiting to draft", "N leagues are waiting to draft"). Same rule: 2+ members, draft not started.
+
+## v546 — Admin Users: who is on the app now (owner)
+`u.on` = usage doc `last` within `ON_MS` (2.5 min). Users table shows a green "On now" in the Last active column (sort by it puts them first) and "N on now" next to All users. `lastAct` is now always a ms number. The dashboard refreshes itself every 30 s on Overview / Users / Schools while on screen (not while typing or a sheet is open) and `admRefresh()` keeps the scroll position. Usage saves about once a minute and when the app is hidden, so someone can show as on for up to 2.5 min after leaving.

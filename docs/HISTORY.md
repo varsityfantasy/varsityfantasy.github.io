@@ -929,3 +929,6 @@ The loading screen bar and the player-props parlay slip both used the class `sl-
 
 ## v534 — Locker tabs: no emojis, bigger names (owner)
 Removed the emoji from the `.lk-seg` tabs; the word is larger (.82rem) with more padding; counts stay.
+
+## v535 — Player props for Mount Carmel, San Diego High and 5 more schools (owner)
+The schedule (`games.js`) says Mount Carmel / San Diego High / Christian High / Central Union / Army and Navy Academy / Southwest San Diego / Southwest (El Centro); the box scores say Mt. Carmel / San Diego / Christian / Central / Army-Navy / Southwest SD / Southwest EC (`LOGO_ALIAS`). `propCands()` looked players up by the schedule name only, so these teams never had prop lines. It now also looks under the alias. Their stats were already complete through week 13. OPEN: other `g.h===p.school` comparisons (fantasy card lock `fcStarted`, `lgPlIn`, player page opponents) have the same mismatch for these 7 schools.

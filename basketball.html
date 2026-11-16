@@ -3854,7 +3854,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v534 · Nov 15';
+const APP_BUILD='v535 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6785,6 +6785,8 @@ function propCands(){
     key=gs.length+'|'+_rev+'|'+((window.MAXPREPS&&MAXPREPS.updated)||'')+'|'+[...own].sort().join(',');
   if(_ppC&&_ppC.k===key)return _ppC.list;
   const by={};players().forEach(p=>{if(p.mp&&p.school&&mgOk(p)){(by[p.school]=by[p.school]||[]).push(p)}});
+  /* v535: the schedule says 'Mount Carmel' / 'San Diego High', the box scores say 'Mt. Carmel' / 'San Diego' (7 schools in LOGO_ALIAS), so those teams never got prop lines */
+  Object.keys(LOGO_ALIAS).forEach(k=>{if(!by[k]&&by[LOGO_ALIAS[k]])by[k]=by[LOGO_ALIAS[k]]});
   const list=[];
   gs.forEach(g=>{[[g.h,g.a],[g.a,g.h]].forEach(([sc,opp])=>{
     const rows={};

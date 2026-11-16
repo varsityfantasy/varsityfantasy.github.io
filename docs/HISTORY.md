@@ -969,3 +969,6 @@ First (and only) logged error after logging was fixed: `Can't find variable: SCD
 
 ## v548 — 5 Card Draw: no player under 65 OVR (owner)
 `fcPool()` keeps only players with `ovrOf() >= FC_MIN_OVR` (65), for deals and redraws. Falls back to everyone only if fewer than 5 qualify or nobody has an overall yet. Hands already dealt are unchanged. Preview: football pool 704 players, basketball 48 on the next game day.
+
+## v549 — Transfer Portal bonus is now 300 tokens + a Pro pack (owner)
+The one-time bonus for listing a card (`tpBonusCheck`) gives 300 tokens (`TP_BONUS`) and a Pro pack (`TP_BPACK`, gift pack id `tpbonus` in inv.fr.gp). Accounts already paid 500 under v543 keep it and get nothing more.

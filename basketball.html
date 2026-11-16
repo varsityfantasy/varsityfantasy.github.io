@@ -3856,7 +3856,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v548 · Nov 16';
+const APP_BUILD='v549 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -5530,15 +5530,16 @@ async function tpLoad(force){
   if(UI.view==='portal')render(true)}
 /* v543 (owner): one-time 500-token bonus for putting a card on the Transfer Portal. Anyone who has ever listed a card (past listings count)
    gets it once, saved as inv.tpb (counted by invBonus and earned). Football and basketball keep separate token banks, so each sport pays it once. */
-const TP_BONUS=500;let _tpbBusy=false;
+const TP_BONUS=300,TP_BPACK='player';   /* v549 (owner): 300 tokens + a Pro pack (3rd cheapest pack in the Shop). Accounts already paid 500 keep it. */let _tpbBusy=false;
 async function tpBonusCheck(){
   if(_tpbBusy||VA||!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!TP.ok)return;
   const v=invOf(ME.uid);if(+v.tpb)return;
   if(!TP.rows.some(l=>l.seller===ME.uid))return;
   _tpbBusy=true;
-  try{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:Object.assign({},v,{tpb:TP_BONUS})});
-    try{await upsert('picks/'+ME.uid,{inv:{tpb:TP_BONUS}})}catch(_){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:v});return}
-    say('+'+TP_BONUS+' tokens · Transfer Portal bonus');try{SFX.coin()}catch(_){}render(true)}
+  const fr=v.fr||{},patch={tpb:TP_BONUS,fr:{gp:{tpbonus:{t:TP_BPACK,m:'Transfer Portal bonus'}}}};
+  try{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:Object.assign({},v,{tpb:TP_BONUS,fr:Object.assign({},fr,{gp:Object.assign({},fr.gp,patch.fr.gp)})})});
+    try{await upsert('picks/'+ME.uid,{inv:patch})}catch(_){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:v});return}
+    say('+'+TP_BONUS+' tokens + a '+PACKS[TP_BPACK].n+' · Transfer Portal bonus');try{SFX.coin()}catch(_){}render(true)}
   finally{_tpbBusy=false}}
 async function tpCall(fn,args,ok){
   if(!SB)return false;

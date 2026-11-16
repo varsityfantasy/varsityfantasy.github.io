@@ -926,3 +926,6 @@ Owner: remove Francis Parker and every football team they play, football only. A
 
 ## v533 — Parlay slip was squished (owner)
 The loading screen bar and the player-props parlay slip both used the class `sl-bar`, so the slip got the loader bar rules (height 5px, overflow hidden). The loader bar is now `sl-load`.
+
+## v534 — Locker tabs: no emojis, bigger names (owner)
+Removed the emoji from the `.lk-seg` tabs; the word is larger (.82rem) with more padding; counts stay.

@@ -2489,8 +2489,8 @@ div.lk-seg{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:mi
 .lk-seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px -6px var(--accent)}
 /* v531 (owner): Locker tabs are easy to see (icon, word, count, own outline) and the Me tab shows your equipped share-card style live */
 .lk-seg{gap:6px;padding:6px}
-div.lk-seg button,.lk-seg button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px 8px;font-size:.72rem;border:1.5px solid var(--line);background:var(--surface);color:var(--text,inherit);position:relative}
-.lk-te{font-size:1.25rem;line-height:1}.lk-tl{font-weight:900}
+div.lk-seg button,.lk-seg button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:13px 2px 12px;font-size:.82rem;border:1.5px solid var(--line);background:var(--surface);color:var(--text,inherit);position:relative}
+.lk-te{font-size:1.25rem;line-height:1}.lk-tl{font-weight:900;font-size:.82rem;letter-spacing:.02em}
 .lk-seg button em{font:800 .66rem/1 var(--f-display,inherit);font-style:normal;opacity:.75}
 .lk-seg button[aria-selected="true"]{border-color:var(--accent);transform:translateY(-1px)}
 .lk-seg button[aria-selected="true"] em{opacity:1}
@@ -3843,7 +3843,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v533 · Nov 15';
+const APP_BUILD='v534 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6364,7 +6364,7 @@ function viewLocker(){
   const ownN=cosOwnCount(ME.uid),totN=cosTotal(),cardN=Object.keys(cardsOf(ME.uid)).reduce((n,id)=>n+cardVers(ME.uid,id).length,0)+achOwned(ME.uid).length,pct=Math.min(100,ownN/Math.max(1,totN)*100);
   const v=invOf(ME.uid),bal=bank(ME.uid),fp=freePacks(ME.uid),eq=v.eq||{};
   const BHON=FG_SPORT!=='bb',tab=['cards','cos','boost','bnd'].concat(BHON?['av']:[]).includes(UI.lk)?UI.lk:'cards';   /* v427 (owner): the Locker opens on Cards */
-  const tabs=`<div class="lk-seg" role="tablist" aria-label="Locker">${[['cards','Cards','🃏',cardN],['av','Avatar','🧑',''],['cos','Cosmetics','🎨',ownN],['boost','Boosts','⚡',''],['bnd','Binder','📒','']].filter(x=>x[0]!=='av'||BHON).map(([k,l,e,n])=>`<button role="tab" data-act="lkTab" data-v="${k}" aria-selected="${tab===k}" aria-pressed="${tab===k}"><span class="lk-te" aria-hidden="true">${e}</span><span class="lk-tl">${l}</span>${n!==''?`<em>${n}</em>`:''}</button>`).join('')}</div>`;
+  const tabs=`<div class="lk-seg" role="tablist" aria-label="Locker">${[['cards','Cards','🃏',cardN],['av','Avatar','🧑',''],['cos','Cosmetics','🎨',ownN],['boost','Boosts','⚡',''],['bnd','Binder','📒','']].filter(x=>x[0]!=='av'||BHON).map(([k,l,e,n])=>`<button role="tab" data-act="lkTab" data-v="${k}" aria-selected="${tab===k}" aria-pressed="${tab===k}"><span class="lk-tl">${l}</span>${n!==''?`<em>${n}</em>`:''}</button>`).join('')}</div>`;
   /* v427 (owner): Cards come first in the Locker and have their own big button above the other tabs */
   const cardsBtn=`<button type="button" class="lk-cardsb" data-act="lkTab" data-v="cards" aria-pressed="${tab==='cards'}"><span class="lk-cbi" aria-hidden="true"></span><span><b>My Cards</b><small>${cardN} card${cardN===1?'':'s'} · players, teams, Duos and special</small></span><i aria-hidden="true">›</i></button>`;
   const top=`<section class="lk-hero"><div class="lk-ring" style="--p:${pct.toFixed(1)}"><b>${pct>0&&pct<1?'<1':Math.floor(pct)}%</b><small>collected</small></div>

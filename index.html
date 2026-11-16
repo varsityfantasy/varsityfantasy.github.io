@@ -3843,7 +3843,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v537 · Nov 16';
+const APP_BUILD='v538 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10559,7 +10559,9 @@ function dashCSV(){const D=dashData(),h=['name','email','role','school','joined'
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-adtab]');if(b&&ME.admin){UI.adtab=b.dataset.adtab;render();return}});
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-dash]');if(!t||t.tagName==='SELECT'||!ME.admin)return;const k=t.dataset.dash,v=t.dataset.v;
   if(k==='rng'){DASH.rng=v==='all'?'all':+v;DASH.show=20}else if(k==='sort'){if(DASH.sort===v)DASH.dir*=-1;else{DASH.sort=v;DASH.dir=['name','role','school'].includes(v)?1:-1}}
-  else if(k==='more')DASH.show+=20;else if(k==='csv'){dashCSV();return}else if(k==='reload'){admRefresh();return}else return;render()});
+  else if(k==='more')DASH.show+=20;else if(k==='csv'){dashCSV();return}else if(k==='reload'){admRefresh();return}else return;
+  /* v538 (owner): Show more / sort keep your place; render() rebuilds .adm-main, which scrolled it back to the top */
+  const m0=document.querySelector('.adm-main'),y0=m0?m0.scrollTop:0,wy=window.scrollY;render();const m1=document.querySelector('.adm-main');if(m1&&k!=='rng')m1.scrollTop=y0;if(k!=='rng')window.scrollTo(0,wy)});
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||!t.dataset.dash||t.tagName!=='SELECT')return;DASH[t.dataset.dash]=t.value;DASH.show=20;render()});
 document.addEventListener('input',e=>{if(e.target.id==='dash-q'){DASH.q=e.target.value;const pos=e.target.selectionStart;render();const f=$('#dash-q');if(f){f.focus();try{f.setSelectionRange(pos,pos)}catch(_){}}}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-ad]'))e.target.click()});

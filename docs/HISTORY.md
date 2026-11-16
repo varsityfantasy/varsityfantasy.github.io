@@ -938,3 +938,6 @@ The schedule (`games.js`) says Mount Carmel / San Diego High / Christian High / 
 
 ## v537 — Two playoff odds set by hand (owner)
 `ODDS_PIN`: Cathedral Catholic at Carlsbad (Nov 21) 50-50; Granite Hills 55% at Torrey Pines (Nov 20). `spreadFor()` now follows a pin for games not yet played. Why: out-of-section opponents (Orange Lutheran, Chandler, De La Salle) have 1-2 games in our data and rate as average, which drags Cathedral down. OPEN: leave out-of-section games out of the ratings?
+
+## v538 — Admin Show more keeps your scroll position (owner)
+The `data-dash` click handler saves `.adm-main` scrollTop (and window scroll) before `render()` and restores it after, for Show 20 more and column sorts (not for a range change).

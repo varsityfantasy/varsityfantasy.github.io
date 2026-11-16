@@ -957,3 +957,6 @@ New admin page `schools` (People group): KPIs, Most users and Most time on the a
 
 ## v544 — Faster refresh for admins (owner)
 `boot()` runs `is_admin_account` and `is_admin` together (was one after the other) and starts `adLoad()` + `dashLoad()` as soon as it knows you are an admin (was after the whole app had loaded). `dashLoad()` fetches football and basketball usage together and draws as soon as usage is in; errors and removal requests (`dashLoadExtra`, 4 fetches, now parallel) fill in afterwards. Was 2 + 6 requests in a row, now 1 + 1 round trip before the dashboard draws.
+
+## v545 — Admin leagues: "Stuck" is now "Waiting" (owner)
+League health value and labels renamed (`Waiting`, "Waiting to draft", "N leagues are waiting to draft"). Same rule: 2+ members, draft not started.

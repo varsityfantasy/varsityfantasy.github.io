@@ -3855,7 +3855,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v544 · Nov 16';
+const APP_BUILD='v545 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10234,7 +10234,7 @@ function admHTML(){
   const sel=`<span class="adm-chip">${rngLbl}</span>`;
   const tabBars=list=>{const mx=Math.max(1,...list.map(x=>x.t)),tot=D.tabList.reduce((a,x)=>a+x.t,0)||1;return `<div class="adm-hb adm-tb">${list.map(x=>`<div><span>${esc(x.n)}</span><span class="adm-hbt"><i style="width:${x.t/mx*100}%;background:${x.mg?'#25C26E':'#5B9BD5'}"></i></span><b>${fmtDur(x.t)}</b><em>${Math.round(x.t/tot*100)}%</em></div>`).join('')||'<p class="adm-mut">No tab data yet. It starts collecting the day this ships.</p>'}</div>`};
   const rc=k=>D.pool.filter(r=>!r.is_admin&&(k?(r.p&&r.p.role)===k:!(r.p&&['player','fan'].includes(r.p.role)))).length,roles=[['Players',rc('player'),'#25C26E'],['Fans',rc('fan'),'#5B9BD5'],['No profile',rc(''),'#2A3F34']].filter(p=>p[1]>0);
-  const X=dashData2(D);try{BDG={removals:remList().filter(r=>r.st!=='done').length,errors:X.errs.filter(e=>Date.now()-new Date(e.t)<7*864e5).length,health:X.health.noScore.length,leagues:X.lg.filter(x=>x.health==='Stuck').length}}catch(_){}const ext=admPages(P,D,K,X,kpi,title,sel,hbars,dl);
+  const X=dashData2(D);try{BDG={removals:remList().filter(r=>r.st!=='done').length,errors:X.errs.filter(e=>Date.now()-new Date(e.t)<7*864e5).length,health:X.health.noScore.length,leagues:X.lg.filter(x=>x.health==='Waiting').length}}catch(_){}const ext=admPages(P,D,K,X,kpi,title,sel,hbars,dl);
   let body='';
   if(ext)body=ext;
   else if(P==='overview')body=title('Overview','How Varsity is doing: users, time on the app and sponsor videos.')+admAlerts(X)+kpis+`<div class="adm-grid">
@@ -10337,7 +10337,7 @@ function dashData2(D){
   /* leagues */
   const L=(DASH.ex&&DASH.ex.leagues)||[...Object.entries(S.groups||{}),...Object.entries(S.fgroups||{})].filter(([,g])=>g).map(([id,g])=>({id,...g,lineups:Object.keys(g.members||{}).filter(u=>((S.lineups[u]||{}).g||{})[id]).length}));
   const lg=L.map(g=>{const m=Object.keys(g.members||{}).length,st=g.draft?(g.draft.status==='done'||(g.draft.picks&&g.draft.order&&Object.keys(g.draft.picks).length>=g.draft.order.length*slotsOf(g).length)?'Draft done':g.draft.status==='live'?'Drafting':'Waiting to draft'):'No draft';
-    return {id:g.id,name:g.name||'League',m,st,lu:g.lineups||0,made:g.createdAt||g.at||null,health:m<2?'Empty':st==='Waiting to draft'?'Stuck':st==='Drafting'?'Drafting':(g.lineups||0)>=Math.ceil(m/2)?'Active':'Quiet'}});
+    return {id:g.id,name:g.name||'League',m,st,lu:g.lineups||0,made:g.createdAt||g.at||null,health:m<2?'Empty':st==='Waiting to draft'?'Waiting':st==='Drafting'?'Drafting':(g.lineups||0)>=Math.ceil(m/2)?'Active':'Quiet'}});
   /* errors in range */
   const errs=[];Object.entries((DASH.ex&&DASH.ex.err)||{}).forEach(([uid,list])=>list.forEach(e=>{if(e&&e.t&&dKey(new Date(e.t))>=D.days[0])errs.push({...e,uid})}));errs.sort((a,b)=>b.t<a.t?-1:1);
   const byMsg={};errs.forEach(e=>{const k=e.m.slice(0,120);(byMsg[k]=byMsg[k]||{m:k,n:0,u:new Set(),last:e.t,v:e.v}).n++;byMsg[k].u.add(e.uid)});
@@ -10363,7 +10363,7 @@ function admHeat(hr){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],mx=M
   return `<div class="adm-heat"><div class="adm-hrow adm-hh"><span></span>${[...Array(24)].map((_,h)=>`<i>${h%3===0?lab(h):''}</i>`).join('')}</div>${days.map((dn,d)=>`<div class="adm-hrow"><span>${dn}</span>${[...Array(24)].map((_,h)=>`<b title="${dn} ${lab(h)}: ${fmtDur(hr[d+'-'+h]||0)}" style="background:rgba(91,95,239,${(.06+c(d,h)*.94).toFixed(2)})"></b>`).join('')}</div>`).join('')}</div>
     ${best?`<p class="adm-mut" style="margin:10px 0 0">Busiest: <b style="color:#E6EDE9">${days[+best[0].split('-')[0]]} around ${lab(+best[0].split('-')[1])}</b>. Times are in each person's own time zone.</p>`:''}`}
 function admAlerts(X){const a=[];if(X.health.noScore.length)a.push(['r',`${X.health.noScore.length} played games have no score`,'health']);if(X.health.gaps.length)a.push(['o',`${X.health.gaps.reduce((t,x)=>t+x.miss.length,0)} scored games have no player stats yet`,'health']);
-  const e7=X.errs.filter(e=>Date.now()-new Date(e.t)<7*864e5).length;if(e7)a.push(['r',`${e7} app errors in the last week`,'errors']);const st=X.lg.filter(x=>x.health==='Stuck').length;if(st)a.push(['o',`${st} leagues are stuck before their draft`,'leagues']);
+  const e7=X.errs.filter(e=>Date.now()-new Date(e.t)<7*864e5).length;if(e7)a.push(['r',`${e7} app errors in the last week`,'errors']);const st=X.lg.filter(x=>x.health==='Waiting').length;if(st)a.push(['o',`${st} leagues are waiting to draft`,'leagues']);
   return a.length?`<div class="adm-alerts">${a.map(([c,t,p])=>`<button class="adm-alert ${c}" data-admp="${p}">${admIco('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z')}<span>${t}</span><b>View →</b></button>`).join('')}</div>`:''}
 /* ---------- Admin controls (v382, owner): ban with a message, appeals, and gift / add / remove cards, packs, items and tokens on any account ----------
    Admins can write every picks doc (is_admin() policy). Cards are removed by setting that rarity to 0 (merges can't delete keys); tokens are
@@ -10490,11 +10490,11 @@ function admPages(P,D,K,X,kpi,title,sel,hbars,dl){
     <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Videos started vs finished</h3>${sel}</div><div class="adm-leg"><span><i style="background:#5A1B28"></i>Started</span><span><i style="background:#E5404F"></i>Finished</span></div>${admBars(D.days,X.as,{c:'#5A1B28',line:D.ads,lc:'#E5404F',label:'Sponsor videos started and finished'})}</div>
       <div class="adm-card"><div class="adm-ch"><h3>Token balances</h3></div><div class="adm-glance"><div><small>Average</small><b>${Math.round(X.tok.avg)}</b></div><div><small>Middle person</small><b>${Math.round(X.tok.med)}</b></div><div><small>All tokens out there</small><b>${Math.round(X.tok.sum).toLocaleString()}</b></div><div><small>Start with</small><b>${TOK0}</b></div></div><p class="adm-mut" style="font-size:12px;margin:10px 0 0">Tokens are free and can't be bought. People run low after losing picks, then watch videos to top up.</p></div>
       <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top watchers</h3>${sel}</div>${hbars(D.users.filter(u=>u.a).sort((a,b)=>b.a-a.a).slice(0,10).map(u=>[u.name,u.a]),'#E5404F')}</div></div>`}
-  if(P==='leagues'){const L=X.lg,cnt=h=>L.filter(x=>x.health===h).length,col={Active:'g',Quiet:'b',Drafting:'o',Stuck:'r',Empty:'x'};
-    return title('League health','Every fantasy league: is it drafting, playing or stuck?')+`<div class="adm-kpis">
+  if(P==='leagues'){const L=X.lg,cnt=h=>L.filter(x=>x.health===h).length,col={Active:'g',Quiet:'b',Drafting:'o',Waiting:'r',Empty:'x'};
+    return title('League health','Every fantasy league: is it drafting, playing or waiting?')+`<div class="adm-kpis">
       ${kpi('M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6','#5B9BD5','Leagues',L.length,`<span class="adm-dl">${f1(L.reduce((a,x)=>a+x.m,0)/Math.max(1,L.length))} members on average</span>`,L.map(x=>x.m))}
       ${kpi('M5 12l5 5L20 7','#25C26E','Active',cnt('Active'),'<span class="adm-dl">most members set a lineup</span>',L.map(x=>x.lu))}
-      ${kpi('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','#E5404F','Stuck before the draft',cnt('Stuck'),'<span class="adm-dl">never started drafting</span>',L.map(x=>x.m))}
+      ${kpi('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','#E5404F','Waiting to draft',cnt('Waiting'),'<span class="adm-dl">never started drafting</span>',L.map(x=>x.m))}
       ${kpi('M16 11a4 4 0 1 0-8 0','#25C26E','Empty',cnt('Empty'),'<span class="adm-dl">only the owner</span>',L.map(x=>x.m))}</div>
     <div class="adm-card"><div class="adm-ch"><h3>All leagues</h3></div><div class="adm-tw"><table class="adm-t"><thead><tr><th>League</th><th>Status</th><th class="n">Members</th><th class="adm-hs">Draft</th><th class="n adm-hs">Lineups set</th><th class="adm-hs">Made</th></tr></thead><tbody>
       ${L.sort((a,b)=>b.m-a.m).map(x=>`<tr><td><b>${esc(x.name)}</b></td><td><span class="adm-pill ${col[x.health]}">${x.health}</span></td><td class="n">${x.m}</td><td class="adm-hs">${x.st}</td><td class="n adm-hs">${x.lu} of ${x.m}</td><td class="adm-hs adm-mut">${x.made?admAgo(x.made):'—'}</td></tr>`).join('')||'<tr><td colspan="6" class="adm-mut">No leagues yet.</td></tr>'}</tbody></table></div></div>`}

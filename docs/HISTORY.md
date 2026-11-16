@@ -978,3 +978,6 @@ The one-time bonus for listing a card (`tpBonusCheck`) gives 300 tokens (`TP_BON
 
 ## v551 — Over / Under buttons restyled in the app (owner)
 Player props (and the `plSide` over/under row) buttons get class `ou ou-o|ou-u`: green with an up arrow / red with a down arrow, line in bold caps, % chance under it, payout in a bright badge; stronger fill + ring when picked, "Your pick" pill below. Sizes step down at 400 px and 350 px so the line never runs into the badge. Pick em buttons unchanged.
+
+## v552 — Transfer Portal bonus once per account (owner)
+`tpBonusCheck` now records the claim on the shared profile (`profiles.tpbc`, written BEFORE the payout), so football and basketball pay it once between them. Accounts paid before v552 (inv.tpb in this sport, or in the other sport's picks doc read straight from `docs` coll `picks`/`bb_picks`) get tpbc backfilled with no second payout. If the other sport's doc can't be read, nothing is paid that time.

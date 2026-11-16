@@ -3894,7 +3894,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v551 · Nov 16';
+const APP_BUILD='v552 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -5571,9 +5571,20 @@ async function tpLoad(force){
 const TP_BONUS=300,TP_BPACK='player';   /* v549 (owner): 300 tokens + a Pro pack (3rd cheapest pack in the Shop). Accounts already paid 500 keep it. */let _tpbBusy=false;
 async function tpBonusCheck(){
   if(_tpbBusy||VA||!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!TP.ok)return;
-  const v=invOf(ME.uid);if(+v.tpb)return;
+  const v=invOf(ME.uid),pr=myProfile();if(!pr)return;
+  /* v552 (owner): once per ACCOUNT, not per sport. The claim is saved on the shared profile (profiles.tpbc); accounts paid before
+     v552 are found by their inv.tpb in either sport's bank and get tpbc backfilled without a second payout. */
+  const mark=()=>{S.profiles[ME.uid]=Object.assign({},myProfile(),{tpbc:1});return upsert('profiles/'+ME.uid,{tpbc:1}).catch(()=>{})};
+  if(pr.tpbc)return;
+  if(+v.tpb){_tpbBusy=true;try{await mark()}finally{_tpbBusy=false}return}
   if(!TP.rows.some(l=>l.seller===ME.uid))return;
   _tpbBusy=true;
+  try{const oc=(FG_SPORT==='bb')?'picks':'bb_picks',{data,error}=await SB.from('docs').select('data').eq('coll',oc).eq('id',ME.uid).maybeSingle();
+    if(error){_tpbBusy=false;return}
+    if(data&&data.data&&data.data.inv&&+data.data.inv.tpb){await mark();_tpbBusy=false;return}}
+  catch(_){_tpbBusy=false;return}
+  try{await upsert('profiles/'+ME.uid,{tpbc:1})}catch(_){_tpbBusy=false;return}
+  S.profiles[ME.uid]=Object.assign({},myProfile(),{tpbc:1});
   const fr=v.fr||{},patch={tpb:TP_BONUS,fr:{gp:{tpbonus:{t:TP_BPACK,m:'Transfer Portal bonus'}}}};
   try{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:Object.assign({},v,{tpb:TP_BONUS,fr:Object.assign({},fr,{gp:Object.assign({},fr.gp,patch.fr.gp)})})});
     try{await upsert('picks/'+ME.uid,{inv:patch})}catch(_){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:v});return}

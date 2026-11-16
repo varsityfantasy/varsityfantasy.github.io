@@ -3194,6 +3194,8 @@ const av=(name,seed,size=40,fu)=>{const ini=String(name).split(/\s+/).map(w=>w[0
 const FILTERS=['ALL','PG','SG','SF','PF','C'];
 const FLABEL={ALL:'All'};
 const posMatch=(p,f)=>f==='ALL'||p.pos===f;
+/* v518 (owner): rank by exact position — a DB is ranked against DBs, not all defenders */
+const posK=p=>p.pos==='DEF'&&['DB','LB','DL'].includes(p.sub)?p.sub:p.pos,posNm=p=>posK(p)==='DEF'?'defender':posK(p);
 const pb=(pos,sub)=>`<span class="pos ${pos}">${sub||pos}</span>`;
 const NOW=()=>Date.now();
 
@@ -3773,7 +3775,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v517 · Nov 15';
+const APP_BUILD='v518 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4175,8 +4177,8 @@ function myRanks(me){
   const pool=(me.ext&&SECP[me.sec]?SECP[me.sec].list:players()).map(p=>({p,a:aggR(p)})).filter(x=>x.a.n>0);
   const calc=l=>({rank:1+l.filter(x=>x.p.key!==me.key&&metric(x.a)>val).length,of:l.length});
   return{a,val,pool,
-    school:{all:calc(pool.filter(x=>x.p.school===me.school)),pos:calc(pool.filter(x=>x.p.school===me.school&&x.p.pos===me.pos))},
-    section:{all:calc(pool),pos:calc(pool.filter(x=>x.p.pos===me.pos))}};
+    school:{all:calc(pool.filter(x=>x.p.school===me.school)),pos:calc(pool.filter(x=>x.p.school===me.school&&posK(x.p)===posK(me)))},
+    section:{all:calc(pool),pos:calc(pool.filter(x=>posK(x.p)===posK(me)))}};
 }
 
 
@@ -5046,7 +5048,7 @@ function shareDraw(k,me,info){
   x.restore();
   const yS=top+(lines.length-1)*lh+90;
   x.fillStyle=D.sub;x.font=`600 46px ${D.font==='serif'?serif:body}`;x.fillText(`${me.pos} · ${me.school}`,L,yS);
-  x.font=`600 40px ${body}`;x.fillText(`#${info.section.pos.rank} of ${info.section.pos.of} ${me.pos}s in the San Diego section`,L,yS+64);
+  x.font=`600 40px ${body}`;x.fillText(`#${info.section.pos.rank} of ${info.section.pos.of} ${posNm(me)}s in the San Diego section`,L,yS+64);
   /* boxed stats */
   const bx=[[f1(info.a.n?info.a.v/info.a.n:0),'PER GAME'],['#'+info.section.pos.rank,'SECTION'],['#'+info.school.pos.rank,'AT SCHOOL']];
   const gap=24,bw=(TW-gap*2)/3,bh=190,by=iy+ih-bh-(D.frame?60:120);
@@ -9475,7 +9477,7 @@ function viewMe(){
   const me=meP()||{key:ME.uid,uid:ME.uid,name:pr.name,school:pr.school,pos:pr.pos,games:Array(WEEKS).fill(null)};
   const info=myRanks(me);
   /* v376: defenders are ranked together, so say "defenders" instead of DEF */
-  const PW=me.pos==='DEF'?'defender':me.pos;
+  const PW=posNm(me);
   const cell=c=>`<div class="rc"><b>#${c.rank}</b><small>of ${c.of}, top ${Math.ceil(c.rank/c.of*100)}%</small></div>`;
   let ranks='',near='',schoolBoard='',avgCard='',weekCard='';
   if(info){
@@ -9483,7 +9485,7 @@ function viewMe(){
     ranks=`<div class="metric-grid">${mc('Among '+PW+'s at '+esc(me.school),info.school.pos)}${mc('Overall at '+esc(me.school),info.school.all)}${mc('Among '+PW+'s in the section',info.section.pos)}${mc('Overall in the section',info.section.all)}</div>
       <button class="rank-cta" type="button" data-act="share"><span class="rank-cta-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="2.5" width="14" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 15l2 2 4-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="rank-cta-t"><b>Save your rank card</b><small>Show it off on your story</small></span><span class="rank-cta-go" aria-hidden="true">→</span></button>`;
     const brow=(x,i)=>`<div class="row ${x.p.key===me.key?'me':''}"><span class="rk">${i+1}</span>${av(x.p.name,x.p.school,40)}<span class="who"><b>${esc(x.p.name)}${x.p.key===me.key?' (you)':''}</b><i>${pb(x.p.pos)}<span>${slogo(x.p.school)}${esc(x.p.school)}</span>${vtag(x.p,x.a)}</i></span><span class="ln">${line(x.p.pos,x.a.s)}</span><span class="pt"><b>${bigV(x.a)}</b><small>${subV(x.a)}</small></span></div>`;
-    const schPos=info.pool.filter(x=>x.p.school===me.school&&x.p.pos===me.pos),secPos=info.pool.filter(x=>x.p.pos===me.pos);
+    const schPos=info.pool.filter(x=>x.p.school===me.school&&posK(x.p)===posK(me)),secPos=info.pool.filter(x=>posK(x.p)===posK(me));
     const sl=[...schPos].sort((p,q)=>metric(q.a)-metric(p.a)),si=sl.findIndex(x=>x.p.key===me.key);
     const unit=UI.rank==='prev'?'points in their last game':'points';
     const sgap=sl.length<2?`You are the only ${PW} at ${esc(me.school)} with approved games.`:si===0?`You lead the ${PW}s at ${esc(me.school)} by ${f1(info.val-metric(sl[1].a))} ${unit}.`:`${f1(metric(sl[si-1].a)-info.val)} ${unit} behind ${esc(sl[si-1].p.name)}, the next ${me.pos} up.`;
@@ -9828,8 +9830,8 @@ function cardBlob(info,me){
     x.fillStyle='#fff';x.font=F(800,76,body);x.fillText(me.name.slice(0,26),72,330);
     x.font=F(500,38,body);x.fillStyle='rgba(255,255,255,.9)';x.fillText(`${me.school} · ${me.pos}`,72,384);
     x.fillStyle='#FFC21A';x.font=F(800,380,disp);x.fillText('#'+info.section.pos.rank,66,720);
-    x.fillStyle='#fff';x.font=F(600,48,body);x.fillText(`of ${info.section.pos.of} ${me.pos}s in the San Diego section`,72,790);
-    const cols=[[f1(info.a.v),UI.scope==='season'?'Season points':'Week points'],[f1(info.a.v/info.a.n),'Per game'],['#'+info.school.pos.rank+' of '+info.school.pos.of,me.pos+'s at '+me.school.slice(0,16)]];
+    x.fillStyle='#fff';x.font=F(600,48,body);x.fillText(`of ${info.section.pos.of} ${posNm(me)}s in the San Diego section`,72,790);
+    const cols=[[f1(info.a.v),UI.scope==='season'?'Season points':'Week points'],[f1(info.a.v/info.a.n),'Per game'],['#'+info.school.pos.rank+' of '+info.school.pos.of,posNm(me)+'s at '+me.school.slice(0,16)]];
     cols.forEach((cc,i)=>{const cx=72+i*320;x.fillStyle='#fff';x.font=F(800,64,disp);x.fillText(cc[0],cx,930);x.fillStyle='rgba(255,255,255,.8)';x.font=F(500,28,body);x.fillText(cc[1],cx,972)});
     x.fillStyle='rgba(255,255,255,.7)';x.font=F(500,24,body);x.fillText('Approved stats only',72,1030);
     c.toBlob(b=>res(b),'image/png');

@@ -878,3 +878,6 @@ The week-13 box scores were in stats.js since v510 but invisible: `mpP` built ea
 
 ## v517 — team share photo: spread out layout + overalls (owner)
 `avCardBlob` now has its own spot table (`SP`, rows 300px apart, so no names touch), a smaller header, DEFENSE/OFFENSE labels centered on the line of scrimmage, and each player shows fantasy points plus an "OVR nn" chip (`ovrOf(p.key)`, hidden if he has none). The bottom caption moved into the header line.
+
+## v518 — rank by exact position (owner)
+`posK(p)` / `posNm(p)`: defenders count as DB, LB or DL (players with no known position stay "defender"). `myRanks`, the Me-tab rank cards ("Among DBs at school / in the section", comparison table, leaderboard) and both share pictures now compare you only to your own position (a DB is ranked against 728 DBs, not all 2,330 defenders). Offense/K/basketball were already per position.

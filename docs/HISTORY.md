@@ -902,3 +902,6 @@ Added the 13 San Diego playoff games from the MaxPreps scoreboard (read in Chrom
 
 ## v525 — 10-0 deal and respin are faster, respin is always clickable (owner)
 Deal: cards turn in 0.4 s each with a 45 ms stagger (was 0.7 s with 0.1 s steps, locked 3.6 s); the deal lock is 1.2 s and only "Simulate season" waits for it. Respin: the card flips in 0.4 s (`.sb-card.fc-flip` overrides the shared 0.7 s), the lock is per card (`m.fl[i]`, 450 ms) so you can respin another spot, or press Respin during the deal; the first respin during the deal ends the deal lock. Football tested; basketball has no players with stats yet so it cannot deal.
+
+## v526 — Admin dashboard terminal look (owner)
+Black background, neon green up / red down, mono numbers, glowing sparklines and bars, dark tables, inputs and mobile sheet. Override CSS block before the 759px media query in index.html (light rules untouched); chart colours in admSpark/admBars/admDonut/kpi/admPages recoloured (green #00E676 up, red #FF3D5A down, cyan #22D3EE new). No behaviour change.

@@ -2113,6 +2113,57 @@ html,body{overflow-x:clip;max-width:100%}
 .dtw{overflow-x:auto;margin:0 -4px}.dtab{width:100%;border-collapse:collapse;font-size:.86rem}.dtab th{text-align:left;padding:0}.dtab th button{background:none;border:0;color:var(--muted);font:700 .72rem/1 inherit;text-transform:uppercase;letter-spacing:.05em;padding:8px 6px;cursor:pointer;white-space:nowrap}
 .dtab td{padding:9px 6px;border-top:1px solid var(--line,#22344B);vertical-align:top}.dtab td small{display:block;color:var(--muted);font-size:.74rem;overflow-wrap:anywhere}.dtab .n{text-align:right;white-space:nowrap}.dtab th.n button{float:right}
 .dtab tbody tr{cursor:pointer}.dtab tbody tr:hover{background:rgba(255,255,255,.04)}
+/* v526 (owner): admin dashboard "terminal" look: black, neon green up / red down, mono numbers. Overrides only; the light rules above are untouched. */
+.adm{background:#030504 radial-gradient(900px 420px at 80% -10%,rgba(0,230,118,.07),transparent 60%);color:#CFE3D8}
+.adm *{scrollbar-color:#1F3A2C #050807}
+.adm-side{background:#050807;border-right:1px solid #12201A;color:#8FA89B}
+.adm-brand b{color:#E8FFF3;letter-spacing:.14em!important;text-transform:uppercase!important;font-size:14px}.adm-brand small{background:rgba(0,230,118,.12);color:#00E676;border:1px solid rgba(0,230,118,.35)}
+.adm-logo{background:linear-gradient(135deg,#00E676,#00B359);color:#00140A;box-shadow:0 0 18px rgba(0,230,118,.45)}
+.adm-gl{color:#4F6B5C}
+.adm-nav{color:#8FA89B}.adm-nav:hover{background:rgba(0,230,118,.07);color:#E8FFF3}
+.adm-nav.on{background:rgba(0,230,118,.1);color:#00E676;box-shadow:inset 2px 0 0 #00E676}
+.adm-side-foot{border-top-color:#12201A}
+.adm-top{background:rgba(3,5,4,.92)!important;border-bottom:1px solid #12201A}
+.adm-crumb,.adm-crumb b,.adm-upd{color:#6F8A7B}.adm-crumb b{color:#E8FFF3}
+.adm-upd::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#00E676;margin-right:7px;box-shadow:0 0 8px #00E676;animation:admLive 1.6s ease-in-out infinite}
+@keyframes admLive{50%{opacity:.25}}
+.adm-search,.adm-ibtn,.adm-seg{background:#070C0A;border-color:#17281F;color:#8FA89B}.adm-search input{color:#E8FFF3}
+.adm-seg button{color:#8FA89B}.adm-seg button.on,.adm-seg button[aria-pressed="true"]{background:rgba(0,230,118,.14);color:#00E676}
+.adm .adm-sel,.adm input,.adm select,.adm textarea{background:#070C0A!important;border-color:#17281F!important;color:#E8FFF3!important}
+.adm-av{background:#00B359;color:#00140A}.adm-me{color:#E8FFF3}
+.adm-ph h1,.adm h1{color:#E8FFF3;font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.02em!important}.adm-ph p{color:#6F8A7B}
+.adm-card{background:linear-gradient(180deg,#0A100D,#070B09);border:1px solid #15261D;box-shadow:0 0 0 1px rgba(0,230,118,.03),0 10px 30px rgba(0,0,0,.5)}
+.adm-card h3,.adm-ch h3{color:#E8FFF3;font-size:13px;letter-spacing:.1em!important;text-transform:uppercase!important}
+.adm-kpi-h{color:#6F8A7B;text-transform:uppercase!important;letter-spacing:.08em!important;font-size:11px}
+.adm-kpi b{color:#F2FFF8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;font-size:28px;text-shadow:0 0 18px rgba(0,230,118,.22)}
+.adm-kic{box-shadow:0 0 14px currentColor}
+.adm-dl{color:#6F8A7B;font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important}.adm-dl.up{color:#00E676;text-shadow:0 0 10px rgba(0,230,118,.55)}.adm-dl.dn{color:#FF3D5A;text-shadow:0 0 10px rgba(255,61,90,.55)}
+.adm-spark path:last-child,.adm-chart rect,.adm-chart polyline{filter:drop-shadow(0 0 4px currentColor)}
+.adm-spark{filter:drop-shadow(0 0 6px rgba(0,230,118,.35))}
+.adm-ax{fill:#5F7A6B;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.adm-dn-v{fill:#E8FFF3;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.adm-chip,.adm-tags span{background:#0B1410;border-color:#1B3025;color:#9DB8A9}
+.adm-leg{color:#6F8A7B}
+.adm-donut li{color:#9DB8A9}.adm-donut li b{color:#E8FFF3}
+.adm-t th{color:#5F7A6B;text-transform:uppercase!important;letter-spacing:.07em!important;font-size:11px}
+.adm-t td{border-top-color:#122019;color:#CFE3D8}.adm-t tbody tr:hover{background:rgba(0,230,118,.05)}
+.adm-t .n,.adm-list b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important}
+.adm-user{color:#E8FFF3}
+.adm-pill{background:#0B1410;color:#9DB8A9;border:1px solid #1B3025}.adm-pill.g{background:rgba(0,230,118,.12);color:#00E676;border-color:rgba(0,230,118,.4)}.adm-pill.r{background:rgba(255,61,90,.12);color:#FF3D5A;border-color:rgba(255,61,90,.4)}.adm-pill.x{background:#0B1410;color:#6F8A7B}
+.adm-mut,.adm-lbl{color:#6F8A7B}.adm-link{color:#22D3EE}
+.adm-list>div{border-top-color:#122019;color:#CFE3D8}
+.adm-hbt{background:#0F1A14}.adm-hb>div,.adm-fun small{color:#9DB8A9}.adm-fun-h{color:#CFE3D8}
+.adm-cell{color:#00E676}
+.adm-pre,.adm .adm-code{background:#060A08;color:#9DF5C4;border:1px solid #15261D}
+.adm-alert{background:#0B1410;border-color:#1B3025;color:#CFE3D8}.adm-alert.r{background:rgba(255,61,90,.1);border-color:rgba(255,61,90,.4);color:#FF8CA0}.adm-alert.g{background:rgba(0,230,118,.08);border-color:rgba(0,230,118,.35);color:#7DF0B0}
+.adm-demo{background:rgba(255,176,32,.08);color:#FFB020;border-color:rgba(255,176,32,.3)}.adm-demo.err{background:rgba(255,61,90,.1);color:#FF8CA0;border-color:rgba(255,61,90,.4)}
+.adm-ann{background:rgba(34,211,238,.1);color:#7DE8F8}.adm-ann.warn{background:rgba(255,176,32,.1);color:#FFC766}
+.adm-btn,.adm-exit{background:#0B1410;border-color:#1B3025;color:#CFE3D8}.adm-btn:hover{background:rgba(0,230,118,.12);color:#00E676}
+.adm-pri{background:#00E676!important;color:#00140A!important;border-color:#00E676!important;box-shadow:0 0 18px rgba(0,230,118,.35)}
+.adm-btn.red,.adm-del{background:rgba(255,61,90,.1);color:#FF3D5A;border-color:rgba(255,61,90,.4)}.adm-btn.red:hover{background:#FF3D5A;color:#fff}
+.adm-orph{border-top-color:#15261D}
+.adm-sheet{background:rgba(0,0,0,.7)}.adm-sh{background:#070C0A;color:#CFE3D8;border:1px solid #15261D}.adm-sh-i{background:#0A100D;border-color:#17281F;color:#CFE3D8}.adm-sh-i svg{color:#00E676}.adm-sh-i.on{border-color:#00E676;box-shadow:0 0 0 2px rgba(0,230,118,.25)}
+.adm-bdg{background:#FF3D5A;box-shadow:0 0 10px rgba(255,61,90,.6)}
+.adm-alert.o{background:rgba(255,176,32,.08);border-color:rgba(255,176,32,.35);color:#FFC766}.adm-alert.r{background:rgba(255,61,90,.1);border-color:rgba(255,61,90,.4);color:#FF8CA0}
 @media (max-width:759px){.dtab .hide-s{display:none}.dks{grid-template-columns:repeat(2,1fr)}.dk b{font-size:1.4rem}}
 /* Ring Chaser */
 .rc-card{text-align:left}.rc-card .fg-hero,.rc-card>h3{text-align:center}
@@ -3779,7 +3830,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v525 · Nov 15';
+const APP_BUILD='v526 · Nov 15';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10070,10 +10121,10 @@ function admSpark(v,c){const W=120,H=34,mx=Math.max(1,...v),n=v.length,pts=v.map
   const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
   return `<svg viewBox="0 0 ${W} ${H}" class="adm-spark" preserveAspectRatio="none"><path d="${d} L${W} ${H} L0 ${H}Z" fill="${c}" opacity=".12"/><path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round"/></svg>`}
 function admBars(days,v,o={}){const W=640,H=230,P={l:40,r:8,t:14,b:26},w=W-P.l-P.r,h=H-P.t-P.b,n=days.length,mx=Math.max(4,...v),p=Math.pow(10,Math.floor(Math.log10(mx))),top=Math.ceil(mx/p)*p,Y=x=>P.t+h-x/top*h,bw=w/n;
-  const fmt=o.fmt||(x=>Math.round(x)),g=[0,.25,.5,.75,1].map(f=>`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(top*f)}" y2="${Y(top*f)}" stroke="#EEF0F5"/><text x="${P.l-8}" y="${Y(top*f)+4}" text-anchor="end" class="adm-ax">${fmt(top*f)}</text>`).join('');
+  const fmt=o.fmt||(x=>Math.round(x)),g=[0,.25,.5,.75,1].map(f=>`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(top*f)}" y2="${Y(top*f)}" stroke="#16241D"/><text x="${P.l-8}" y="${Y(top*f)+4}" text-anchor="end" class="adm-ax">${fmt(top*f)}</text>`).join('');
   const step=Math.ceil(n/8),xl=days.map((d,i)=>i%step===0||(i===n-1&&i%step>step/2)?`<text x="${P.l+bw*i+bw/2}" y="${H-7}" text-anchor="middle" class="adm-ax">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+d.slice(5,7)-1]} ${+d.slice(8)}</text>`:'').join('');
-  const b=v.map((x,i)=>x?`<rect x="${P.l+bw*i+bw*.2}" y="${Y(x)}" width="${Math.max(2,bw*.6)}" height="${P.t+h-Y(x)}" rx="${Math.min(4,bw*.2)}" fill="${o.c||'#F26B3A'}"><title>${days[i]}: ${fmt(x)}</title></rect>`:'').join('');
-  const line=o.line?`<polyline fill="none" stroke="${o.lc||'#5B5FEF'}" stroke-width="2.5" stroke-linejoin="round" points="${o.line.map((x,i)=>`${P.l+bw*i+bw/2},${Y(Math.min(x,top))}`).join(' ')}"/>`:'';
+  const b=v.map((x,i)=>x?`<rect x="${P.l+bw*i+bw*.2}" y="${Y(x)}" width="${Math.max(2,bw*.6)}" height="${P.t+h-Y(x)}" rx="${Math.min(4,bw*.2)}" fill="${o.c||'#00E676'}"><title>${days[i]}: ${fmt(x)}</title></rect>`:'').join('');
+  const line=o.line?`<polyline fill="none" stroke="${o.lc||'#22D3EE'}" stroke-width="2.5" stroke-linejoin="round" points="${o.line.map((x,i)=>`${P.l+bw*i+bw/2},${Y(Math.min(x,top))}`).join(' ')}"/>`:'';
   return `<svg viewBox="0 0 ${W} ${H}" class="adm-chart" role="img" aria-label="${esc(o.label||'')}">${g}${b}${line}${xl}</svg>`}
 function admDonut(parts){const tot=parts.reduce((a,p)=>a+p[1],0)||1,R=52,C=2*Math.PI*R;let off=0;
   const arcs=parts.map(([l,v,c])=>{const len=v/tot*C,s=`<circle r="${R}" cx="70" cy="70" fill="none" stroke="${c}" stroke-width="22" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=len;return s}).join('');
@@ -10109,10 +10160,10 @@ function admHTML(){
     <select data-dash="role" class="adm-sel">${[['all','Everyone'],['player','Players'],['fan','Fans']].map(([v,l])=>`<option value="${v}" ${DASH.role===v?'selected':''}>${l}</option>`).join('')}</select></div>`;
   const title=(t,sub)=>`<div class="adm-ph"><div><h1>${t}</h1><p>${sub}</p></div>${filters}</div>`;
   const kpis=`<div class="adm-kpis">
-    ${kpi('M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6','#5B5FEF','Total users',K.total.toLocaleString(),`<span class="adm-dl up">+${K.newU} new</span>`,D.signups.reduce((a,x,i)=>(a.push((a[i-1]||0)+x),a),[]))}
-    ${kpi('M22 12h-4l-3 9L9 3l-3 9H2','#22B07D','Active users',K.active.toLocaleString(),dl(K.active,D.prev.active),D.dau)}
-    ${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#F26B3A','Time on app',fmtDur(K.time),dl(K.time,D.prev.time),D.time)}
-    ${kpi('M4 5h16v14H4zM10 9l5 3-5 3z','#E0455B','Sponsor videos',K.ads.toLocaleString(),dl(K.ads,D.prev.ads),D.ads)}</div>`;
+    ${kpi('M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6','#22D3EE','Total users',K.total.toLocaleString(),`<span class="adm-dl up">+${K.newU} new</span>`,D.signups.reduce((a,x,i)=>(a.push((a[i-1]||0)+x),a),[]))}
+    ${kpi('M22 12h-4l-3 9L9 3l-3 9H2','#39FF88','Active users',K.active.toLocaleString(),dl(K.active,D.prev.active),D.dau)}
+    ${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#00E676','Time on app',fmtDur(K.time),dl(K.time,D.prev.time),D.time)}
+    ${kpi('M4 5h16v14H4zM10 9l5 3-5 3z','#FF3D5A','Sponsor videos',K.ads.toLocaleString(),dl(K.ads,D.prev.ads),D.ads)}</div>`;
   const ev=[];D.users.forEach(u=>{if(u.created_at)ev.push({u,t:u.created_at,a:'Joined',c:'g',det:u.school?u.role+' · '+u.school:u.role});if(u.u&&u.u.last)ev.push({u,t:u.u.last,a:'Active',c:'b',det:fmtDur(u.t)+' in range'});
     if(u.u){const ds=Object.keys(u.u.ads||{}).sort();const last=ds[ds.length-1];if(last)ev.push({u,t:last+'T20:00:00',a:'Watched video',c:'o',det:(u.u.ads[last])+' sponsor '+(u.u.ads[last]>1?'videos':'video')})}});
   ev.sort((a,b)=>new Date(b.t)-new Date(a.t));
@@ -10131,13 +10182,13 @@ function admHTML(){
       ${list.length>DASH.show?`<div class="adm-more"><button class="adm-btn" data-dash="more">Show 20 more (${list.length-DASH.show} left)</button></div>`:''}</div>`};
   const hbars=(list,c)=>{const mx=Math.max(1,...list.map(x=>x[1]));return `<div class="adm-hb">${list.map(([l,v])=>`<div><span>${esc(l)}</span><span class="adm-hbt"><i style="width:${v/mx*100}%;background:${c}"></i></span><b>${v}</b></div>`).join('')||'<p class="adm-mut">No data yet.</p>'}</div>`};
   const sel=`<span class="adm-chip">${rngLbl}</span>`;
-  const tabBars=list=>{const mx=Math.max(1,...list.map(x=>x.t)),tot=D.tabList.reduce((a,x)=>a+x.t,0)||1;return `<div class="adm-hb adm-tb">${list.map(x=>`<div><span>${esc(x.n)}</span><span class="adm-hbt"><i style="width:${x.t/mx*100}%;background:${x.mg?'#22B07D':'#5B5FEF'}"></i></span><b>${fmtDur(x.t)}</b><em>${Math.round(x.t/tot*100)}%</em></div>`).join('')||'<p class="adm-mut">No tab data yet. It starts collecting the day this ships.</p>'}</div>`};
-  const rc=k=>D.pool.filter(r=>!r.is_admin&&(k?(r.p&&r.p.role)===k:!(r.p&&['player','fan'].includes(r.p.role)))).length,roles=[['Players',rc('player'),'#F26B3A'],['Fans',rc('fan'),'#5B5FEF'],['No profile',rc(''),'#C9CEDA']].filter(p=>p[1]>0);
+  const tabBars=list=>{const mx=Math.max(1,...list.map(x=>x.t)),tot=D.tabList.reduce((a,x)=>a+x.t,0)||1;return `<div class="adm-hb adm-tb">${list.map(x=>`<div><span>${esc(x.n)}</span><span class="adm-hbt"><i style="width:${x.t/mx*100}%;background:${x.mg?'#39FF88':'#22D3EE'}"></i></span><b>${fmtDur(x.t)}</b><em>${Math.round(x.t/tot*100)}%</em></div>`).join('')||'<p class="adm-mut">No tab data yet. It starts collecting the day this ships.</p>'}</div>`};
+  const rc=k=>D.pool.filter(r=>!r.is_admin&&(k?(r.p&&r.p.role)===k:!(r.p&&['player','fan'].includes(r.p.role)))).length,roles=[['Players',rc('player'),'#00E676'],['Fans',rc('fan'),'#22D3EE'],['No profile',rc(''),'#2A3F34']].filter(p=>p[1]>0);
   const X=dashData2(D);try{BDG={removals:remList().filter(r=>r.st!=='done').length,errors:X.errs.filter(e=>Date.now()-new Date(e.t)<7*864e5).length,health:X.health.noScore.length,leagues:X.lg.filter(x=>x.health==='Stuck').length}}catch(_){}const ext=admPages(P,D,K,X,kpi,title,sel,hbars,dl);
   let body='';
   if(ext)body=ext;
   else if(P==='overview')body=title('Overview','How Varsity is doing: users, time on the app and sponsor videos.')+admAlerts(X)+kpis+`<div class="adm-grid">
-    <div class="adm-card adm-span2"><div class="adm-ch"><h3>Daily active users</h3>${sel}</div><div class="adm-leg"><span><i style="background:#F26B3A"></i>Active users</span><span><i style="background:#5B5FEF"></i>New sign-ups</span></div>${admBars(D.days,D.dau,{line:D.signups,label:'Daily active users'})}</div>
+    <div class="adm-card adm-span2"><div class="adm-ch"><h3>Daily active users</h3>${sel}</div><div class="adm-leg"><span><i style="background:#00E676"></i>Active users</span><span><i style="background:#22D3EE"></i>New sign-ups</span></div>${admBars(D.days,D.dau,{line:D.signups,label:'Daily active users'})}</div>
     <div class="adm-card"><div class="adm-ch"><h3>Users by role</h3></div>${admDonut(roles)}</div>
     ${actTable(6)}
         <div class="adm-card"><div class="adm-ch"><h3>At a glance</h3></div><div class="adm-glance"><div><small>Most-used tab</small><b>${esc(D.tabList[0]?D.tabList[0].n:'—')}</b></div><div><small>Avg daily active</small><b>${f1(K.avgDau)}</b></div><div><small>Time per person / day</small><b>${fmtDur(K.perUserDay)}</b></div><div><small>Avg visit</small><b>${fmtDur(K.perSes)}</b></div><div><small>Leagues</small><b>${X.lg.length}</b></div><div><small>Phones / computers</small><b>${D.dev.phone||0} / ${D.dev.desktop||0}</b></div><div><small>Videos all time</small><b>${K.adsAll}</b></div></div></div>
@@ -10145,31 +10196,31 @@ function admHTML(){
 </div>`;
   else if(P==='usage'){const T=D.tabList,tot=T.reduce((a,x)=>a+x.t,0)||1,mg=T.filter(x=>x.mg),mgT=mg.reduce((a,x)=>a+x.t,0),visits=T.reduce((a,x)=>a+x.c,0);
     const grp={};T.forEach(x=>{const g=x.mg?'Minigames':x.n.startsWith('Stats')?'Stats':x.n.startsWith('Leagues')||x.n.startsWith('Mock')?'Leagues':x.n.startsWith('Me')?'Me':x.n.startsWith('Games')?'Games':x.n.startsWith('Player cards')?'Player cards':'Other';grp[g]=(grp[g]||0)+x.t});
-    const cols={Stats:'#5B5FEF',Leagues:'#F26B3A',Minigames:'#22B07D',Me:'#E0455B','Player cards':'#F5B83D',Games:'#3BA7E0',Other:'#C9CEDA'};
+    const cols={Stats:'#22D3EE',Leagues:'#00E676',Minigames:'#39FF88',Me:'#FF3D5A','Player cards':'#FFB020',Games:'#38BDF8',Other:'#2A3F34'};
     body=title('App usage','Which tabs and games people spend their time on. Time counts only while the app is open and in use.')+`<div class="adm-kpis">
-      ${kpi('M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z','#5B5FEF','Most-used tab',esc(T[0]?T[0].n:'—'),T[0]?`<span class="adm-dl">${Math.round(T[0].t/tot*100)}% of all time</span>`:'',D.time)}
-      ${kpi(ADM_NAV.find(x=>x[0]==='games')[2],'#22B07D','Top minigame',esc(mg[0]?mg[0].n:'—'),mg[0]?`<span class="adm-dl">${fmtDur(mg[0].t)}</span>`:'',D.time)}
-      ${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#F26B3A','Time in minigames',Math.round(mgT/tot*100)+'%',`<span class="adm-dl">${fmtDur(mgT)}</span>`,D.time)}
-      ${kpi('M5 12h14M12 5l7 7-7 7','#E0455B','Tabs per visit',f1(visits/Math.max(1,K.ses)),`<span class="adm-dl">${visits.toLocaleString()} tab opens</span>`,D.ses)}</div>
+      ${kpi('M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z','#22D3EE','Most-used tab',esc(T[0]?T[0].n:'—'),T[0]?`<span class="adm-dl">${Math.round(T[0].t/tot*100)}% of all time</span>`:'',D.time)}
+      ${kpi(ADM_NAV.find(x=>x[0]==='games')[2],'#39FF88','Top minigame',esc(mg[0]?mg[0].n:'—'),mg[0]?`<span class="adm-dl">${fmtDur(mg[0].t)}</span>`:'',D.time)}
+      ${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#00E676','Time in minigames',Math.round(mgT/tot*100)+'%',`<span class="adm-dl">${fmtDur(mgT)}</span>`,D.time)}
+      ${kpi('M5 12h14M12 5l7 7-7 7','#FF3D5A','Tabs per visit',f1(visits/Math.max(1,K.ses)),`<span class="adm-dl">${visits.toLocaleString()} tab opens</span>`,D.ses)}</div>
     <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Time by tab</h3>${sel}</div>${tabBars(T)}</div>
       <div class="adm-card"><div class="adm-ch"><h3>Share of time</h3></div>${admDonut(Object.entries(grp).sort((a,b)=>b[1]-a[1]).map(([g,v])=>[g,Math.round(v/60),cols[g]]))}<p class="adm-mut" style="margin:10px 0 0;font-size:12px">Center number is total minutes.</p></div>
       <div class="adm-card adm-span3"><div class="adm-ch"><h3>Every tab</h3>${sel}</div><div class="adm-tw"><table class="adm-t"><thead><tr><th>Tab</th><th class="n">Time</th><th class="n">Share</th><th class="n">Opens</th><th class="n adm-hs">Avg per open</th><th class="n adm-hs">People</th></tr></thead><tbody>
       ${T.map(x=>`<tr><td><b>${esc(x.n)}</b>${x.mg?' <span class="adm-pill g">Minigame</span>':''}</td><td class="n"><b>${fmtDur(x.t)}</b></td><td class="n">${Math.round(x.t/tot*100)}%</td><td class="n">${x.c}</td><td class="n adm-hs">${fmtDur(x.c?x.t/x.c:0)}</td><td class="n adm-hs">${x.u}</td></tr>`).join('')||'<tr><td colspan="6" class="adm-mut">No tab data yet. It starts collecting the day this ships.</td></tr>'}</tbody></table></div></div></div>`}
   else if(P==='users')body=title('Users','Everyone with an account. Tap a row to open their account.')+usersTable();
-  else if(P==='engagement')body=title('Engagement','Time spent and visits. Time counts only while the app is open and in use.')+`<div class="adm-kpis">${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#F26B3A','Total time',fmtDur(K.time),dl(K.time,D.prev.time),D.time)}${kpi('M3 12h18','#5B5FEF','Time per person / day',fmtDur(K.perUserDay),'',D.time)}${kpi('M5 12h14M12 5l7 7-7 7','#22B07D','Visits',K.ses.toLocaleString(),dl(K.ses,D.prev.ses),D.ses)}${kpi('M12 7v5','#E0455B','Avg visit',fmtDur(K.perSes),'',D.ses)}</div>
-    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Minutes on the app</h3>${sel}</div>${admBars(D.days,D.time.map(x=>Math.round(x/60)),{c:'#5B5FEF',label:'Minutes per day'})}</div>
-    <div class="adm-card"><div class="adm-ch"><h3>Devices</h3></div>${admDonut([['Phones',D.dev.phone||0,'#F26B3A'],['Computers',D.dev.desktop||0,'#5B5FEF']].filter(p=>p[1]))}</div>
-    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Visits per day</h3>${sel}</div>${admBars(D.days,D.ses,{c:'#22B07D',label:'Visits per day'})}</div></div>`;
-  else if(P==='sponsors')body=title('Sponsor videos','Watched through Get tokens. Each finished video pays '+ADS.reward+' tokens, up to '+ADS.perDay+' a day.')+`<div class="adm-kpis">${kpi('M4 5h16v14H4zM10 9l5 3-5 3z','#E0455B','Videos watched',K.ads.toLocaleString(),dl(K.ads,D.prev.ads),D.ads)}${kpi('M4 5h16v14H4z','#5B5FEF','All time',K.adsAll.toLocaleString(),'',D.ads)}${kpi('M16 11a4 4 0 1 0-8 0','#22B07D','Watchers',D.users.filter(u=>u.a).length,'',D.ads)}${kpi('M12 7v5','#F26B3A','Per watcher',f1(K.ads/Math.max(1,D.users.filter(u=>u.a).length)),'',D.ads)}</div>
-    <div class="adm-grid"><div class="adm-card adm-span3"><div class="adm-ch"><h3>Videos per day</h3>${sel}</div>${admBars(D.days,D.ads,{c:'#E0455B',label:'Sponsor videos per day'})}</div>
-    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top watchers</h3>${sel}</div>${hbars(D.users.filter(u=>u.a).sort((a,b)=>b.a-a.a).slice(0,10).map(u=>[u.name,u.a]),'#E0455B')}</div></div>`;
+  else if(P==='engagement')body=title('Engagement','Time spent and visits. Time counts only while the app is open and in use.')+`<div class="adm-kpis">${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#00E676','Total time',fmtDur(K.time),dl(K.time,D.prev.time),D.time)}${kpi('M3 12h18','#22D3EE','Time per person / day',fmtDur(K.perUserDay),'',D.time)}${kpi('M5 12h14M12 5l7 7-7 7','#39FF88','Visits',K.ses.toLocaleString(),dl(K.ses,D.prev.ses),D.ses)}${kpi('M12 7v5','#FF3D5A','Avg visit',fmtDur(K.perSes),'',D.ses)}</div>
+    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Minutes on the app</h3>${sel}</div>${admBars(D.days,D.time.map(x=>Math.round(x/60)),{c:'#22D3EE',label:'Minutes per day'})}</div>
+    <div class="adm-card"><div class="adm-ch"><h3>Devices</h3></div>${admDonut([['Phones',D.dev.phone||0,'#00E676'],['Computers',D.dev.desktop||0,'#22D3EE']].filter(p=>p[1]))}</div>
+    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Visits per day</h3>${sel}</div>${admBars(D.days,D.ses,{c:'#39FF88',label:'Visits per day'})}</div></div>`;
+  else if(P==='sponsors')body=title('Sponsor videos','Watched through Get tokens. Each finished video pays '+ADS.reward+' tokens, up to '+ADS.perDay+' a day.')+`<div class="adm-kpis">${kpi('M4 5h16v14H4zM10 9l5 3-5 3z','#FF3D5A','Videos watched',K.ads.toLocaleString(),dl(K.ads,D.prev.ads),D.ads)}${kpi('M4 5h16v14H4z','#22D3EE','All time',K.adsAll.toLocaleString(),'',D.ads)}${kpi('M16 11a4 4 0 1 0-8 0','#39FF88','Watchers',D.users.filter(u=>u.a).length,'',D.ads)}${kpi('M12 7v5','#00E676','Per watcher',f1(K.ads/Math.max(1,D.users.filter(u=>u.a).length)),'',D.ads)}</div>
+    <div class="adm-grid"><div class="adm-card adm-span3"><div class="adm-ch"><h3>Videos per day</h3>${sel}</div>${admBars(D.days,D.ads,{c:'#FF3D5A',label:'Sponsor videos per day'})}</div>
+    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top watchers</h3>${sel}</div>${hbars(D.users.filter(u=>u.a).sort((a,b)=>b.a-a.a).slice(0,10).map(u=>[u.name,u.a]),'#FF3D5A')}</div></div>`;
   else if(P==='games'){const tt=k=>{const x=D.tabList.filter(t=>t.mg&&((k==='mg:fg'&&/Field Goal|Hoops/.test(t.n))||t.n.startsWith(({'mg:picks':'Pick','mg:props':'Player props','mg:draw':'5 Card','mg:sim':'82-0','mg:rc':'Ring'})[k]||'~')));return x.reduce((a,y)=>a+y.t,0)};
     body=title('Games and schools','Every minigame: who plays, how much, and the best scores. Plus leagues and schools.')+`<div class="adm-card" style="margin-bottom:16px"><div class="adm-ch"><h3>Minigames</h3>${sel}</div><div class="adm-tw"><table class="adm-t"><thead><tr><th>Game</th><th class="n">People</th><th class="n">Plays</th><th class="n">Time spent</th><th class="n adm-hs">Per player</th><th class="n adm-hs">Best score</th></tr></thead><tbody>
       ${D.gstat.map(g=>{const t=tt(g.k);return `<tr><td><b>${esc(g.l)}</b></td><td class="n">${g.people}</td><td class="n">${g.plays}</td><td class="n"><b>${fmtDur(t)}</b></td><td class="n adm-hs">${fmtDur(g.people?t/g.people:0)}</td><td class="n adm-hs">${g.best===null?'—':f1(g.best)}</td></tr>`}).join('')}</tbody></table></div>
       <p class="adm-mut" style="font-size:12px;margin:10px 0 0">Plays: Pick ’em and props count picks, 5 Card Draw counts weekly hands, the others count finished runs. Time spent is for the date range.</p></div>
-    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Minigames</h3><span class="adm-chip">People who have played</span></div>${hbars(D.games.map(g=>[g.l,g.v]),'#5B5FEF')}</div>
+    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Minigames</h3><span class="adm-chip">People who have played</span></div>${hbars(D.games.map(g=>[g.l,g.v]),'#22D3EE')}</div>
     <div class="adm-card"><div class="adm-ch"><h3>Leagues</h3></div><div class="adm-big">${K.leagues}</div><p class="adm-mut">fantasy leagues created</p></div>
-    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top schools</h3><span class="adm-chip">Users</span></div>${hbars(D.schools,'#F26B3A')}</div></div>`}
+    <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top schools</h3><span class="adm-chip">Users</span></div>${hbars(D.schools,'#00E676')}</div></div>`}
   return shell(body);
 }
 document.addEventListener('click',e=>{const mm=e.target.closest&&e.target.closest('[data-admmenu]');if(mm&&ME.admin){if(mm.dataset.admmenu==='0'&&e.target.closest('.adm-sh')&&!e.target.closest('.adm-ibtn'))return;UI.admMenu=mm.dataset.admmenu==='1';render();return}});
@@ -10244,12 +10295,12 @@ function dashData2(D){
   return {ret:{d1:ret(1),d7:ret(7),d30:ret(30)},weeks,wkNew,wkRet,cohorts,funnel,hr,as,tok,lg,errs,byMsg:Object.values(byMsg).sort((a,b)=>b.n-a.n),health:{noScore,noStats,gaps,pend,updated:MP?MP.updated:'',through:MP?MP.through:'',players:mp.length}};
 }
 function admStack(labels,series){const W=640,H=220,P={l:36,r:8,t:12,b:26},w=W-P.l-P.r,h=H-P.t-P.b,n=labels.length,tot=labels.map((_,i)=>series.reduce((a,s)=>a+s.v[i],0)),mx=Math.max(2,...tot),Y=x=>h*x/mx,bw=w/n;
-  return `<svg viewBox="0 0 ${W} ${H}" class="adm-chart">${[0,.5,1].map(f=>`<line x1="${P.l}" x2="${W-P.r}" y1="${P.t+h-h*f}" y2="${P.t+h-h*f}" stroke="#EEF0F5"/><text x="${P.l-8}" y="${P.t+h-h*f+4}" text-anchor="end" class="adm-ax">${Math.round(mx*f)}</text>`).join('')}
+  return `<svg viewBox="0 0 ${W} ${H}" class="adm-chart">${[0,.5,1].map(f=>`<line x1="${P.l}" x2="${W-P.r}" y1="${P.t+h-h*f}" y2="${P.t+h-h*f}" stroke="#16241D"/><text x="${P.l-8}" y="${P.t+h-h*f+4}" text-anchor="end" class="adm-ax">${Math.round(mx*f)}</text>`).join('')}
     ${labels.map((l,i)=>{let y=P.t+h;return series.map(s=>{const hh=Y(s.v[i]);y-=hh;return hh?`<rect x="${P.l+bw*i+bw*.2}" y="${y}" width="${bw*.6}" height="${hh}" fill="${s.c}" rx="3"><title>${l}: ${s.v[i]} ${s.n}</title></rect>`:''}).join('')+`<text x="${P.l+bw*i+bw/2}" y="${H-7}" text-anchor="middle" class="adm-ax">${l}</text>`}).join('')}</svg>`}
 function admHeat(hr){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],mx=Math.max(1,...Object.values(hr)),c=(d,h)=>(hr[d+'-'+h]||0)/mx,lab=h=>h===0?'12a':h<12?h+'a':h===12?'12p':(h-12)+'p';
   let best=null;Object.entries(hr).forEach(([k,v])=>{if(!best||v>best[1])best=[k,v]});
   return `<div class="adm-heat"><div class="adm-hrow adm-hh"><span></span>${[...Array(24)].map((_,h)=>`<i>${h%3===0?lab(h):''}</i>`).join('')}</div>${days.map((dn,d)=>`<div class="adm-hrow"><span>${dn}</span>${[...Array(24)].map((_,h)=>`<b title="${dn} ${lab(h)}: ${fmtDur(hr[d+'-'+h]||0)}" style="background:rgba(91,95,239,${(.06+c(d,h)*.94).toFixed(2)})"></b>`).join('')}</div>`).join('')}</div>
-    ${best?`<p class="adm-mut" style="margin:10px 0 0">Busiest: <b style="color:#1C2033">${days[+best[0].split('-')[0]]} around ${lab(+best[0].split('-')[1])}</b>. Times are in each person's own time zone.</p>`:''}`}
+    ${best?`<p class="adm-mut" style="margin:10px 0 0">Busiest: <b style="color:#E8FFF3">${days[+best[0].split('-')[0]]} around ${lab(+best[0].split('-')[1])}</b>. Times are in each person's own time zone.</p>`:''}`}
 function admAlerts(X){const a=[];if(X.health.noScore.length)a.push(['r',`${X.health.noScore.length} played games have no score`,'health']);if(X.health.gaps.length)a.push(['o',`${X.health.gaps.reduce((t,x)=>t+x.miss.length,0)} scored games have no player stats yet`,'health']);
   const e7=X.errs.filter(e=>Date.now()-new Date(e.t)<7*864e5).length;if(e7)a.push(['r',`${e7} app errors in the last week`,'errors']);const st=X.lg.filter(x=>x.health==='Stuck').length;if(st)a.push(['o',`${st} leagues are stuck before their draft`,'leagues']);
   return a.length?`<div class="adm-alerts">${a.map(([c,t,p])=>`<button class="adm-alert ${c}" data-admp="${p}">${admIco('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z')}<span>${t}</span><b>View →</b></button>`).join('')}</div>`:''}
@@ -10305,7 +10356,7 @@ function ctlHTML(){
       <h4 style="margin:16px 0 6px">Cards in their locker (${cardRows.length}${cardRows.length!==cardAll.length?' of '+cardAll.length:''})</h4>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><select id="ctl-lsort" class="ctl-i" aria-label="Sort cards">${[['name','Sort: Name A-Z'],['rhi','Sort: Rarity high to low'],['rlo','Sort: Rarity low to high'],['school','Sort: School'],['type','Sort: Card type'],['copies','Sort: Most versions']].map(o=>`<option value="${o[0]}" ${CTL.lsort===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><select id="ctl-lrar" class="ctl-i" aria-label="Filter by rarity"><option value="">All rarities</option>${RAR_ORD.concat(['x']).filter(r=>RAR[r]).map(r=>`<option value="${r}" ${CTL.lrar===r?'selected':''}>${RAR[r].n}</option>`).join('')}</select><select id="ctl-ltype" class="ctl-i" aria-label="Filter by card type">${[['','All card types'],['player','Player'],['team','Team'],['duo','Duo'],['special','Special Edition'],['ach','Achievement']].map(o=>`<option value="${o[0]}" ${CTL.ltype===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><input id="ctl-lq" type="search" class="ctl-i" placeholder="Filter by name or school" value="${esc(CTL.lq||'')}"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px"><button class="btn sm ghost" data-ctl="ckall" data-id="${esc(u)}">Select all</button><button class="btn sm ghost" data-ctl="ckclr" data-id="${esc(u)}">Clear</button><button class="btn sm" id="ctl-rmbtn" data-ctl="ckrm" data-id="${esc(u)}">Remove selected (${Object.keys(CTL.sel).length})</button></div>
-      <div style="max-height:260px;overflow:auto;border:1px solid #ECEEF4;border-radius:10px"><table class="ctl-t"><tbody>${cardRows.map(x=>`<tr><td><b>${esc(cardInfo(x.id).name)}</b> <span class="muted">${esc(cardInfo(x.id).sub||'')}</span></td><td class="n">${x.rs.map(r=>`<label style="display:inline-flex;align-items:center;gap:5px;margin-left:8px;white-space:nowrap;color:${RAR[r].c};font-weight:700"><input type="checkbox" data-ctl="ck" data-c="${esc(x.id)}" data-r="${r}" ${CTL.sel[x.id+'|'+r]?'checked':''}>${RAR[r].n}</label>`).join('')}</td></tr>`).join('')||'<tr><td class="muted">No cards.</td></tr>'}</tbody></table></div>
+      <div style="max-height:260px;overflow:auto;border:1px solid #16241D;border-radius:10px"><table class="ctl-t"><tbody>${cardRows.map(x=>`<tr><td><b>${esc(cardInfo(x.id).name)}</b> <span class="muted">${esc(cardInfo(x.id).sub||'')}</span></td><td class="n">${x.rs.map(r=>`<label style="display:inline-flex;align-items:center;gap:5px;margin-left:8px;white-space:nowrap;color:${RAR[r].c};font-weight:700"><input type="checkbox" data-ctl="ck" data-c="${esc(x.id)}" data-r="${r}" ${CTL.sel[x.id+'|'+r]?'checked':''}>${RAR[r].n}</label>`).join('')}</td></tr>`).join('')||'<tr><td class="muted">No cards.</td></tr>'}</tbody></table></div>
       <h4 style="margin:16px 0 6px">Give a card</h4>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="ctl-cq" type="search" class="ctl-i" placeholder="Search a player or school" value="${esc(CTL.cq)}"><select id="ctl-cr" class="ctl-i">${['c','u','r','e','l','m'].map(r=>`<option value="${r}" ${CTL.cr===r?'selected':''}>${RAR[r].n}</option>`).join('')}</select></div>
       <div id="ctl-res" style="display:flex;flex-direction:column;gap:6px;margin:8px 0">${ctlResHTML()}</div>
@@ -10360,38 +10411,38 @@ function admPages(P,D,K,X,kpi,title,sel,hbars,dl){
   const pc=x=>x==null?'—':Math.round(x*100)+'%';
   if(P==='growth'){const f0=X.funnel[0][1]||1;
     return title('Growth and retention','Do people come back, and where do new people drop off?')+`<div class="adm-kpis">
-      ${kpi('M3 12h18','#5B5FEF','Back after 1 day',pc(X.ret.d1&&X.ret.d1.p),X.ret.d1?`<span class="adm-dl">${X.ret.d1.b} of ${X.ret.d1.n} people</span>`:'',X.wkRet)}
-      ${kpi('M3 12h18','#22B07D','Back after 7 days',pc(X.ret.d7&&X.ret.d7.p),X.ret.d7?`<span class="adm-dl">${X.ret.d7.b} of ${X.ret.d7.n} people</span>`:'',X.wkRet)}
-      ${kpi('M3 12h18','#F26B3A','Back after 30 days',pc(X.ret.d30&&X.ret.d30.p),X.ret.d30?`<span class="adm-dl">${X.ret.d30.b} of ${X.ret.d30.n} people</span>`:'<span class="adm-dl">needs 30 days of data</span>',X.wkRet)}
-      ${kpi('M16 11a4 4 0 1 0-8 0','#E0455B','Returning this week',X.wkRet[7],dl(X.wkRet[7],X.wkRet[6]),X.wkRet)}</div>
-    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>New vs returning people</h3><span class="adm-chip">per week</span></div><div class="adm-leg"><span><i style="background:#5B5FEF"></i>Returning</span><span><i style="background:#F26B3A"></i>New</span></div>${admStack(X.weeks.map(w=>(+w.slice(5,7))+'/'+(+w.slice(8))),[{n:'returning',v:X.wkRet,c:'#5B5FEF'},{n:'new',v:X.wkNew,c:'#F26B3A'}])}</div>
-      <div class="adm-card"><div class="adm-ch"><h3>Sign-up funnel</h3><span class="adm-chip">all time</span></div><div class="adm-fun">${X.funnel.map(([l,v],i)=>`<div><div class="adm-fun-h"><span>${esc(l)}</span><b>${v}</b></div><span class="adm-hbt"><i style="width:${v/f0*100}%;background:${['#5B5FEF','#6F73F2','#22B07D','#F26B3A','#F59E3B','#E0455B'][i]}"></i></span><small>${Math.round(v/f0*100)}% of sign-ups${i&&i<5?` · ${Math.round(v/Math.max(1,X.funnel[i-1][1])*100)}% of the step before`:''}</small></div>`).join('')}</div></div>
+      ${kpi('M3 12h18','#22D3EE','Back after 1 day',pc(X.ret.d1&&X.ret.d1.p),X.ret.d1?`<span class="adm-dl">${X.ret.d1.b} of ${X.ret.d1.n} people</span>`:'',X.wkRet)}
+      ${kpi('M3 12h18','#39FF88','Back after 7 days',pc(X.ret.d7&&X.ret.d7.p),X.ret.d7?`<span class="adm-dl">${X.ret.d7.b} of ${X.ret.d7.n} people</span>`:'',X.wkRet)}
+      ${kpi('M3 12h18','#00E676','Back after 30 days',pc(X.ret.d30&&X.ret.d30.p),X.ret.d30?`<span class="adm-dl">${X.ret.d30.b} of ${X.ret.d30.n} people</span>`:'<span class="adm-dl">needs 30 days of data</span>',X.wkRet)}
+      ${kpi('M16 11a4 4 0 1 0-8 0','#FF3D5A','Returning this week',X.wkRet[7],dl(X.wkRet[7],X.wkRet[6]),X.wkRet)}</div>
+    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>New vs returning people</h3><span class="adm-chip">per week</span></div><div class="adm-leg"><span><i style="background:#22D3EE"></i>Returning</span><span><i style="background:#00E676"></i>New</span></div>${admStack(X.weeks.map(w=>(+w.slice(5,7))+'/'+(+w.slice(8))),[{n:'returning',v:X.wkRet,c:'#22D3EE'},{n:'new',v:X.wkNew,c:'#00E676'}])}</div>
+      <div class="adm-card"><div class="adm-ch"><h3>Sign-up funnel</h3><span class="adm-chip">all time</span></div><div class="adm-fun">${X.funnel.map(([l,v],i)=>`<div><div class="adm-fun-h"><span>${esc(l)}</span><b>${v}</b></div><span class="adm-hbt"><i style="width:${v/f0*100}%;background:${['#22D3EE','#A78BFA','#39FF88','#00E676','#FFB020','#FF3D5A'][i]}"></i></span><small>${Math.round(v/f0*100)}% of sign-ups${i&&i<5?` · ${Math.round(v/Math.max(1,X.funnel[i-1][1])*100)}% of the step before`:''}</small></div>`).join('')}</div></div>
       <div class="adm-card adm-span2"><div class="adm-ch"><h3>Busiest times</h3><span class="adm-chip">time on the app</span></div>${admHeat(X.hr)}</div>
       <div class="adm-card"><div class="adm-ch"><h3>Weekly groups</h3><span class="adm-chip">% back each week</span></div><div class="adm-tw"><table class="adm-t adm-coh"><thead><tr><th>Joined week of</th><th class="n">People</th><th class="n">W1</th><th class="n">W2</th><th class="n">W3</th><th class="n">W4</th></tr></thead><tbody>
       ${X.cohorts.map(c=>`<tr><td>${+c.w.slice(5,7)}/${+c.w.slice(8)}</td><td class="n">${c.n}</td>${c.cells.map(v=>v==null?'<td class="n adm-mut">—</td>':`<td class="n"><span class="adm-cell" style="background:rgba(34,176,125,${(.1+v*.8).toFixed(2)})">${Math.round(v*100)}%</span></td>`).join('')}</tr>`).join('')}</tbody></table></div></div></div>`}
   if(P==='sponsors'){const st=X.as.reduce((a,b)=>a+b,0),fin=K.ads;
     return title('Sponsors and tokens','Sponsor videos started and finished, and the token economy. Each finished video pays '+ADS.reward+' tokens, up to '+ADS.perDay+' a day.')+`<div class="adm-kpis">
-      ${kpi('M4 5h16v14H4zM10 9l5 3-5 3z','#E0455B','Videos finished',fin.toLocaleString(),dl(fin,D.prev.ads),D.ads)}
-      ${kpi('M5 12l5 5L20 7','#22B07D','Finish rate',st?Math.round(fin/st*100)+'%':'—',`<span class="adm-dl">${st.toLocaleString()} started</span>`,X.as)}
-      ${kpi('M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6','#F59E3B','Tokens from sponsors',Math.round(X.tok.fromAds).toLocaleString(),'<span class="adm-dl">all time</span>',D.ads)}
-      ${kpi('M16 11a4 4 0 1 0-8 0','#5B5FEF','Out of tokens',X.tok.broke,`<span class="adm-dl">people under 5 tokens</span>`,D.dau)}</div>
-    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Videos started vs finished</h3>${sel}</div><div class="adm-leg"><span><i style="background:#F7B4BF"></i>Started</span><span><i style="background:#E0455B"></i>Finished</span></div>${admBars(D.days,X.as,{c:'#F7B4BF',line:D.ads,lc:'#E0455B',label:'Sponsor videos started and finished'})}</div>
+      ${kpi('M4 5h16v14H4zM10 9l5 3-5 3z','#FF3D5A','Videos finished',fin.toLocaleString(),dl(fin,D.prev.ads),D.ads)}
+      ${kpi('M5 12l5 5L20 7','#39FF88','Finish rate',st?Math.round(fin/st*100)+'%':'—',`<span class="adm-dl">${st.toLocaleString()} started</span>`,X.as)}
+      ${kpi('M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6','#FFB020','Tokens from sponsors',Math.round(X.tok.fromAds).toLocaleString(),'<span class="adm-dl">all time</span>',D.ads)}
+      ${kpi('M16 11a4 4 0 1 0-8 0','#22D3EE','Out of tokens',X.tok.broke,`<span class="adm-dl">people under 5 tokens</span>`,D.dau)}</div>
+    <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Videos started vs finished</h3>${sel}</div><div class="adm-leg"><span><i style="background:#5A1B28"></i>Started</span><span><i style="background:#FF3D5A"></i>Finished</span></div>${admBars(D.days,X.as,{c:'#5A1B28',line:D.ads,lc:'#FF3D5A',label:'Sponsor videos started and finished'})}</div>
       <div class="adm-card"><div class="adm-ch"><h3>Token balances</h3></div><div class="adm-glance"><div><small>Average</small><b>${Math.round(X.tok.avg)}</b></div><div><small>Middle person</small><b>${Math.round(X.tok.med)}</b></div><div><small>All tokens out there</small><b>${Math.round(X.tok.sum).toLocaleString()}</b></div><div><small>Start with</small><b>${TOK0}</b></div></div><p class="adm-mut" style="font-size:12px;margin:10px 0 0">Tokens are free and can't be bought. People run low after losing picks, then watch videos to top up.</p></div>
-      <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top watchers</h3>${sel}</div>${hbars(D.users.filter(u=>u.a).sort((a,b)=>b.a-a.a).slice(0,10).map(u=>[u.name,u.a]),'#E0455B')}</div></div>`}
+      <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top watchers</h3>${sel}</div>${hbars(D.users.filter(u=>u.a).sort((a,b)=>b.a-a.a).slice(0,10).map(u=>[u.name,u.a]),'#FF3D5A')}</div></div>`}
   if(P==='leagues'){const L=X.lg,cnt=h=>L.filter(x=>x.health===h).length,col={Active:'g',Quiet:'b',Drafting:'o',Stuck:'r',Empty:'x'};
     return title('League health','Every fantasy league: is it drafting, playing or stuck?')+`<div class="adm-kpis">
-      ${kpi('M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6','#5B5FEF','Leagues',L.length,`<span class="adm-dl">${f1(L.reduce((a,x)=>a+x.m,0)/Math.max(1,L.length))} members on average</span>`,L.map(x=>x.m))}
-      ${kpi('M5 12l5 5L20 7','#22B07D','Active',cnt('Active'),'<span class="adm-dl">most members set a lineup</span>',L.map(x=>x.lu))}
-      ${kpi('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','#E0455B','Stuck before the draft',cnt('Stuck'),'<span class="adm-dl">never started drafting</span>',L.map(x=>x.m))}
-      ${kpi('M16 11a4 4 0 1 0-8 0','#F26B3A','Empty',cnt('Empty'),'<span class="adm-dl">only the owner</span>',L.map(x=>x.m))}</div>
+      ${kpi('M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6','#22D3EE','Leagues',L.length,`<span class="adm-dl">${f1(L.reduce((a,x)=>a+x.m,0)/Math.max(1,L.length))} members on average</span>`,L.map(x=>x.m))}
+      ${kpi('M5 12l5 5L20 7','#39FF88','Active',cnt('Active'),'<span class="adm-dl">most members set a lineup</span>',L.map(x=>x.lu))}
+      ${kpi('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','#FF3D5A','Stuck before the draft',cnt('Stuck'),'<span class="adm-dl">never started drafting</span>',L.map(x=>x.m))}
+      ${kpi('M16 11a4 4 0 1 0-8 0','#00E676','Empty',cnt('Empty'),'<span class="adm-dl">only the owner</span>',L.map(x=>x.m))}</div>
     <div class="adm-card"><div class="adm-ch"><h3>All leagues</h3></div><div class="adm-tw"><table class="adm-t"><thead><tr><th>League</th><th>Status</th><th class="n">Members</th><th class="adm-hs">Draft</th><th class="n adm-hs">Lineups set</th><th class="adm-hs">Made</th></tr></thead><tbody>
       ${L.sort((a,b)=>b.m-a.m).map(x=>`<tr><td><b>${esc(x.name)}</b></td><td><span class="adm-pill ${col[x.health]}">${x.health}</span></td><td class="n">${x.m}</td><td class="adm-hs">${x.st}</td><td class="n adm-hs">${x.lu} of ${x.m}</td><td class="adm-hs adm-mut">${x.made?admAgo(x.made):'—'}</td></tr>`).join('')||'<tr><td colspan="6" class="adm-mut">No leagues yet.</td></tr>'}</tbody></table></div></div>`}
   if(P==='health'){const H=X.health,warn=H.noScore.length+H.gaps.length;
     return title('Data health','Is the app’s data complete? Check here before your users notice.')+`<div class="adm-kpis">
-      ${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#5B5FEF','Player stats updated',esc(H.updated||'—'),`<span class="adm-dl">${esc(H.through||'')}</span>`,D.dau)}
-      ${kpi('M12 8v4M12 16h.01','#E0455B','Games missing a score',H.noScore.length,`<span class="adm-dl ${H.noScore.length?'dn':'up'}">${H.noScore.length?'played, no final score':'all good'}</span>`,D.dau)}
-      ${kpi('M16 11a4 4 0 1 0-8 0','#F26B3A','Games with no player stats',H.gaps.reduce((a,x)=>a+x.miss.length,0),`<span class="adm-dl">scored, but no box score yet · ${H.gaps.length} teams</span>`,D.dau)}
-      ${kpi('M4 4h16v16H4z','#22B07D','Schools with no stats',H.noStats.length,`<span class="adm-dl">${H.players.toLocaleString()} player cards in all</span>`,D.dau)}</div>
+      ${kpi('M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','#22D3EE','Player stats updated',esc(H.updated||'—'),`<span class="adm-dl">${esc(H.through||'')}</span>`,D.dau)}
+      ${kpi('M12 8v4M12 16h.01','#FF3D5A','Games missing a score',H.noScore.length,`<span class="adm-dl ${H.noScore.length?'dn':'up'}">${H.noScore.length?'played, no final score':'all good'}</span>`,D.dau)}
+      ${kpi('M16 11a4 4 0 1 0-8 0','#00E676','Games with no player stats',H.gaps.reduce((a,x)=>a+x.miss.length,0),`<span class="adm-dl">scored, but no box score yet · ${H.gaps.length} teams</span>`,D.dau)}
+      ${kpi('M4 4h16v16H4z','#39FF88','Schools with no stats',H.noStats.length,`<span class="adm-dl">${H.players.toLocaleString()} player cards in all</span>`,D.dau)}</div>
     <div class="adm-grid"><div class="adm-card"><div class="adm-ch"><h3>Games missing a score</h3><span class="adm-chip">${H.noScore.length}</span></div><div class="adm-list">${H.noScore.slice(0,12).map(g=>`<div><span>${esc(g.a)} at ${esc(g.h)}</span><small>${g.d}</small></div>`).join('')||'<p class="adm-mut">None. Every played game has a score.</p>'}</div><p class="adm-mut" style="font-size:12px;margin:10px 0 0">The 5:41 am task fills these from news sites. Ask Claude to fill the rest.</p></div>
       <div class="adm-card"><div class="adm-ch"><h3>Games with no player stats</h3><span class="adm-chip">${H.gaps.length} teams</span></div><div class="adm-list">${H.gaps.slice(0,14).map(x=>`<div><span>${esc(x.sc)}</span><small>week ${x.miss.join(', ')} · ${x.miss.length} of ${x.of}</small></div>`).join('')||'<p class="adm-mut">Every scored game has player stats.</p>'}</div><p class="adm-mut" style="font-size:12px;margin:10px 0 0">Usually the team hasn't entered that box score on MaxPreps yet. Ask Claude to re-check.</p></div>
       <div class="adm-card"><div class="adm-ch"><h3>Schools with no player stats</h3><span class="adm-chip">${H.noStats.length}</span></div><div class="adm-tags">${H.noStats.map(s=>`<span>${esc(s)}</span>`).join('')||'<p class="adm-mut">Every school has stats.</p>'}</div><p class="adm-mut" style="font-size:12px;margin:10px 0 0">Usually these schools never enter stats on MaxPreps.</p></div></div>
@@ -10401,10 +10452,10 @@ function admPages(P,D,K,X,kpi,title,sel,hbars,dl){
       ${R.map(r=>`<tr><td class="adm-mut">${admAgo(r.at)}</td><td><b>${esc(r.n)}</b>${r.sp==='bb'?' <span class="adm-pill b">Basketball</span>':''}</td><td>${esc(r.s||'')}</td><td>${esc(who[r.w]||r.w)}</td><td class="adm-hs">${esc(r.e||'')}</td><td class="adm-hs adm-mut">${esc(r.m||'')}</td><td class="n">${r.st==='done'?'<span class="adm-pill g">Done</span>':`<button class="adm-btn" data-ad="remdone" data-id="${esc(r.id)}" data-coll="${esc(r.coll)}">Mark done</button>`}</td></tr>`).join('')||'<tr><td colspan="7" class="adm-mut">No requests yet.</td></tr>'}</tbody></table></div></div>`}
   if(P==='errors'){const E=X.errs;
     return title('Error log','Crashes and failures on people’s phones and computers, newest first.')+`<div class="adm-kpis">
-      ${kpi('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','#E0455B','Errors',E.length,`<span class="adm-dl">${DASH.rng==='all'?'all time':'last '+DASH.rng+' days'}</span>`,D.days.map(d=>E.filter(e=>dKey(new Date(e.t))===d).length))}
-      ${kpi('M16 11a4 4 0 1 0-8 0','#F26B3A','People affected',new Set(E.map(e=>e.uid)).size,'',D.dau)}
-      ${kpi('M4 4h16v16H4z','#5B5FEF','Different problems',X.byMsg.length,'',D.dau)}
-      ${kpi('M7 3h10v18H7z','#22B07D','On phones',E.length?Math.round(E.filter(e=>e.d==='phone').length/E.length*100)+'%':'—','',D.dau)}</div>
+      ${kpi('M12 8v4M12 16h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','#FF3D5A','Errors',E.length,`<span class="adm-dl">${DASH.rng==='all'?'all time':'last '+DASH.rng+' days'}</span>`,D.days.map(d=>E.filter(e=>dKey(new Date(e.t))===d).length))}
+      ${kpi('M16 11a4 4 0 1 0-8 0','#00E676','People affected',new Set(E.map(e=>e.uid)).size,'',D.dau)}
+      ${kpi('M4 4h16v16H4z','#22D3EE','Different problems',X.byMsg.length,'',D.dau)}
+      ${kpi('M7 3h10v18H7z','#39FF88','On phones',E.length?Math.round(E.filter(e=>e.d==='phone').length/E.length*100)+'%':'—','',D.dau)}</div>
     <div class="adm-card" style="margin-bottom:16px"><div class="adm-ch"><h3>Most common problems</h3></div><div class="adm-tw"><table class="adm-t"><thead><tr><th>Problem</th><th class="n">Times</th><th class="n">People</th><th class="adm-hs">Where</th><th>Last</th></tr></thead><tbody>
       ${X.byMsg.slice(0,10).map(m=>`<tr><td><code class="adm-code">${esc(m.m)}</code></td><td class="n">${m.n}</td><td class="n">${m.u.size}</td><td class="adm-hs">${esc(tabName(m.v||''))}</td><td class="adm-mut">${admAgo(m.last)}</td></tr>`).join('')||'<tr><td colspan="5" class="adm-mut">No errors. Nice.</td></tr>'}</tbody></table></div></div>
     <div class="adm-card"><div class="adm-ch"><h3>Latest</h3></div><div class="adm-tw"><table class="adm-t"><thead><tr><th>When</th><th>Who</th><th>Problem</th><th class="adm-hs">Screen</th><th class="adm-hs">Device</th><th class="adm-hs">Version</th></tr></thead><tbody>

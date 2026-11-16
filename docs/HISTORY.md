@@ -941,3 +941,6 @@ The schedule (`games.js`) says Mount Carmel / San Diego High / Christian High / 
 
 ## v538 — Admin Show more keeps your scroll position (owner)
 The `data-dash` click handler saves `.adm-main` scrollTop (and window scroll) before `render()` and restores it after, for Show 20 more and column sorts (not for a range change).
+
+## v539 — Admin dashboard says why usage is empty (owner)
+Owner saw 0 visits / 0 min for everyone. Usage is read straight from `docs` (id `usage`) under row security, which returns 0 rows with no error when `is_admin()` is false; the user list comes from the `admin_users` RPC. `dashLoad()` now sets `DASH.err` when 0 usage rows come back (and reports what `is_admin` says). Cause not confirmed: Supabase is not reachable from the cloud session. Suspects: admin unlock not seen by row security for the v509 shared PIN accounts, or usage docs not being written.

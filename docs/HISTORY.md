@@ -910,3 +910,6 @@ Black background, neon green up / red down, mono numbers, glowing sparklines and
 Muted green #2EBD85 / red #E5534B / blue #5B9BD5 / amber #D9A441 instead of neon; glows, pulsing dot and green-tinted background gradient removed. Same override block and chart colour spots as v526.
 
 ## v528 — Admin colours: stock-style dark green #1C9B5E / dark red #C62F3B (owner)
+
+## v529 — Admin trading-desk look (owner)
+Scrolling ticker tape under the admin top bar (users, active, time, videos, new, leagues with up/down arrows, from dashData), KPI cards tinted green/red by their delta (class up/dn from kpi()), pill deltas, stronger sparkline fills, brighter chart green #25C26E / red #E5404F (the v528 shades looked the same as before on screen). Reduced-motion stops the tape.

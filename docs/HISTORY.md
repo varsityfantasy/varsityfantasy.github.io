@@ -905,3 +905,6 @@ Deal: cards turn in 0.4 s each with a 45 ms stagger (was 0.7 s with 0.1 s steps,
 
 ## v526 — Admin dashboard terminal look (owner)
 Black background, neon green up / red down, mono numbers, glowing sparklines and bars, dark tables, inputs and mobile sheet. Override CSS block before the 759px media query in index.html (light rules untouched); chart colours in admSpark/admBars/admDonut/kpi/admPages recoloured (green #00E676 up, red #FF3D5A down, cyan #22D3EE new). No behaviour change.
+
+## v527 — Admin theme toned down (owner)
+Muted green #2EBD85 / red #E5534B / blue #5B9BD5 / amber #D9A441 instead of neon; glows, pulsing dot and green-tinted background gradient removed. Same override block and chart colour spots as v526.

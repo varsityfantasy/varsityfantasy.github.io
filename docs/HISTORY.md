@@ -919,3 +919,7 @@ Bug: `giftPopup()` set `_gPop=true` when it opened and `gpOk` never cleared it (
 
 ## v531 — Live rank card on Me + clearer Locker tabs (owner)
 Me tab: when a share-card style is equipped, a styled rank card (`.rk-live`, built with `shCss()` from `SHARE[k][2]`, name, school/position, 4 ranks) sits above the rank tiles and changes as soon as you equip another style. Locker tabs (`.lk-seg`) now have an emoji, the word, a count (cards, cosmetics) and their own outline.
+
+## v532 — Francis Parker and their football opponents removed (owner)
+Owner: remove Francis Parker and every football team they play, football only. All of their games are out of `games.js` (4 games: Francis Parker vs Public Safety Academy, Poly/Pasadena, California Lutheran, St. Joseph Academy; 529 -> 525 games), so those teams, their Pick em and props are gone. They were never in `SD_SCHOOLS` and have no box-score players. `tools/add_scores.py` now skips fb scores that involve them (`FB_REMOVED`). Basketball, the logos and the generated `api/v1/sections` + `data/` files are untouched (the section API still lists them as teams).
+- Also fixed `tools/add_scores.py`: it crashed (KeyError hs) on the week-14 games that have no score keys, which would have broken the daily score task; it now reads missing scores with `.get`.

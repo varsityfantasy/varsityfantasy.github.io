@@ -34,6 +34,7 @@ import datetime, json, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FB_FILE = os.path.join(ROOT, 'games.js')
 BB_FILE = os.path.join(ROOT, 'tools', 'data', 'bb_2627_games.txt')
+FB_REMOVED = {'Francis Parker', 'Public Safety Academy', 'Poly/Pasadena', 'California Lutheran', 'St. Joseph Academy'}
 ALIAS_FILE = os.path.join(ROOT, 'tools', 'data', 'team_aliases.txt')
 INDEX = os.path.join(ROOT, 'index.html')
 FB_WEEK1_MONDAY = datetime.date(2026, 8, 17)     # football week 1 is the week of Aug 17, 2026
@@ -186,7 +187,7 @@ def main(argv):
         upto = datetime.date.fromisoformat(args[0]) if args else today_pacific()
         _, data, _ = fb_load()
         for g in data['games']:
-            if g['hs'] is None and datetime.date.fromisoformat(g['d']) <= upto:
+            if g.get('hs') is None and datetime.date.fromisoformat(g['d']) <= upto:
                 print('fb|%s|%s|?|%s|?' % (g['d'], g['h'], g['a']))
         _, games = bb_load()
         for g in games:
@@ -226,10 +227,10 @@ def main(argv):
         if best:
             g = best[1]
             hs, as_ = (r['hs'], r['as_']) if g['h'] == h else (r['as_'], r['hs'])
-            if g['hs'] == hs and g['as'] == as_:
+            if g.get('hs') == hs and g.get('as') == as_:
                 report.append('SAME   ' + tag)
                 continue
-            if g['hs'] is not None and not force:
+            if g.get('hs') is not None and not force:
                 report.append('CONFLICT %s (app has %s %s, %s %s; use --force to replace)' % (tag, g['h'], g['hs'], g['a'], g['as']))
                 continue
             g['hs'], g['as'] = hs, as_
@@ -238,6 +239,9 @@ def main(argv):
             continue
         # not in the schedule: add it if a San Diego Section school played
         hn, an = h or r['h'], a or r['a']
+        if sp == 'fb' and (hn in FB_REMOVED or an in FB_REMOVED):   # owner, Nov 15: these football teams are not in the app
+            report.append('SKIPPED %s (football team removed from the app)' % tag)
+            continue
         if hn not in sd and an not in sd:
             why = 'no San Diego Section school recognised' if (h or a) else 'team names not recognised'
             report.append('SKIPPED %s (%s; add a line to tools/data/team_aliases.txt if a name is spelled differently)' % (tag, why))

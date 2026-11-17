@@ -2223,6 +2223,7 @@ html,body{overflow-x:clip;max-width:100%}
 .adm-dl.up,.adm-dl.dn{padding:2px 8px;border-radius:6px;font-weight:700}
 .adm-dl.up{background:rgba(37,194,110,.16);color:#25C26E}.adm-dl.dn{background:rgba(229,64,79,.18);color:#F0525F}
 .adm-nav.on,.adm-pri{box-shadow:none}
+.adm-where{margin-top:16px;padding-top:14px;border-top:1px solid #15261D}.adm-where h4{margin:0 0 10px;font:700 12px/1 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8FA89B}
 .adm-on{display:inline-flex;align-items:center;gap:6px;color:#25C26E;font:700 12px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;text-transform:none;vertical-align:middle}.adm-on i{width:8px;height:8px;border-radius:50%;background:#25C26E;box-shadow:0 0 0 3px rgba(37,194,110,.22)}
 .adm-sch>div>span:first-child{display:flex;align-items:center;gap:7px;min-width:0}.adm-sch>div{grid-template-columns:minmax(120px,190px) 1fr auto!important}
 @media (max-width:759px){.dtab .hide-s{display:none}.dks{grid-template-columns:repeat(2,1fr)}.dk b{font-size:1.4rem}}
@@ -3930,7 +3931,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v555 · Nov 16';
+const APP_BUILD='v556 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10385,6 +10386,12 @@ document.addEventListener('click',e=>{const mm=e.target.closest&&e.target.closes
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-admp]');if(!b||!ME.admin)return;UI.admMenu=false;const p=b.dataset.admp;if(p==='tools'){UI.adtab='accounts';render();window.scrollTo(0,0);return}UI.admp=p;DASH.show=20;render();const m=document.querySelector('.adm-main');if(m)m.scrollTop=0});
 const TAB_NAMES={me:'Me',games:'Games','stats:players':'Stats · Players','stats:stats':'Stats · Stats',leagues:'Leagues',mock:'Mock Draft',team:'Team pages',player:'Player cards',scoring:'Scoring',account:'Account',privacy:'Privacy',simulate:'82-0',
   'mg:picks':'Pick ’em','mg:props':'Player props','mg:draw':'5 Card Draw','mg:sim':'82-0','mg:rc':'Ring Chaser','mg:fg':'FGH menu','mg:fgplay':'FGH (playing)'};
+const TAB_MORE={portal:'Home',shop:'Shop',locker:'Locker',cup:'Leagues · Cup',pkl:'Leagues · Pick ’em league',groups:'Leagues',league:'Stats',minigames:'Minigames',rules:'Rules',other:'Other','mg:ats':'Spreads','mg:hb':'1-on-1','mg:gd':'1-on-1','mg:tp':'Transfer Portal','mg:arc':'Arcade','mg:adv':'Props Advisor'};
+/* v556 (owner): in a person's account card, where their time went (all-time, from usage.tv = seconds per day per screen) */
+function admWhere(uid){const u=(DASH.use||{})[uid],m={};if(u&&u.tv)for(const d in u.tv)for(const [k,v] of Object.entries(u.tv[d]||{}))m[k]=(m[k]||0)+(+v||0);
+  const L=Object.entries(m).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),tot=L.reduce((a,x)=>a+x[1],0),mx=L.length?L[0][1]:1;
+  const nm=k=>{const t=k.includes('|')?k.split('|')[1]:k;return TAB_NAMES[t]||!TAB_MORE[t]?tabName(k):tabName(k).replace(t,TAB_MORE[t])};
+  return `<div class="adm-where"><h4>Where they spend their time</h4>${L.length?`<div class="adm-hb adm-sch">${L.slice(0,12).map(([k,v])=>`<div><span>${esc(nm(k))}</span><span class="adm-hbt"><i style="width:${v/mx*100}%;background:#25C26E"></i></span><b style="white-space:nowrap">${fmtExact(v)} · ${Math.round(v/tot*100)}%</b></div>`).join('')}</div>${L.length>12?`<small class="adm-mut">and ${L.length-12} more screens</small>`:''}`:'<p class="adm-mut">Nothing recorded yet. This fills in once they use the updated app (tracking was fixed on Nov 16).</p>'}</div>`}
 const tabName=key=>{const [app,t]=key.includes('|')?key.split('|'):['fb',key];let n=TAB_NAMES[t]||t;return app==='bb'?n.replace('FGH','Hoops')+' · basketball':n.replace('FGH','Field Goal')};
 /* ---------- extra tracking for the admin console: busy hours, sponsor starts, announcements seen, app errors ---------- */
 function useAdStart(){if(!USE.doc)return;const k=useDay();USE.doc.as=USE.doc.as||{};USE.doc.as[k]=(+USE.doc.as[k]||0)+1;USE.dirty=true}
@@ -10713,7 +10720,7 @@ function viewAdmin(){
   const detail=sel?(()=>{const p=sel.p||{},lg=leagues(sel.uid),g=S.games[sel.uid],lines=g&&g.weeks?Object.keys(g.weeks).length:0;
     return `<section class="card"><div class="qh"><h3>${esc(p.name||'No profile yet')}${sel.is_admin?' <span class="ad-tag">Admin</span>':''}</h3><button class="btn sm ghost" data-ad="close">Close</button></div>
     <div class="ad-grid"><div><small>Email</small>${esc(sel.email||'none')}</div><div><small>Role</small>${esc(p.role||'none')}</div><div><small>School</small>${esc(p.school||'none')}</div><div><small>Position</small>${esc(p.pos||'none')}</div>
-    <div><small>Joined</small>${adWhen(sel.created_at)}</div><div><small>Last sign in</small>${adWhen(sel.last_sign_in_at)}</div><div><small>Email confirmed</small>${sel.confirmed?'Yes':'No'}</div><div><small>Leagues</small>${lg.length?esc(lg.map(x=>x.name||'League').join(', ')):'none'}</div><div><small>Stat weeks entered</small>${lines}</div>${(()=>{const u=(DASH.use||{})[sel.uid];if(!u)return '<div><small>App opens</small>'+(sel.last_sign_in_at?'1+ (not counted before Nov 16)':'0')+'</div><div><small>Total time on app</small>not recorded before Nov 16</div>';let t=0,n=0;for(const d in u.days)t+=+u.days[d]||0;for(const d in u.ses)n+=+u.ses[d]||0;return `<div><small>App opens</small>${n.toLocaleString()}</div><div><small>Total time on app</small>${fmtExact(t)}</div><div><small>Days used</small>${Object.keys(u.days).filter(d=>u.days[d]||u.ses[d]).length}</div>`})()}</div>
+    <div><small>Joined</small>${adWhen(sel.created_at)}</div><div><small>Last sign in</small>${adWhen(sel.last_sign_in_at)}</div><div><small>Email confirmed</small>${sel.confirmed?'Yes':'No'}</div><div><small>Leagues</small>${lg.length?esc(lg.map(x=>x.name||'League').join(', ')):'none'}</div><div><small>Stat weeks entered</small>${lines}</div>${(()=>{const u=(DASH.use||{})[sel.uid];if(!u)return '<div><small>App opens</small>'+(sel.last_sign_in_at?'1+ (not counted before Nov 16)':'0')+'</div><div><small>Total time on app</small>not recorded before Nov 16</div>';let t=0,n=0;for(const d in u.days)t+=+u.days[d]||0;for(const d in u.ses)n+=+u.ses[d]||0;return `<div><small>App opens</small>${n.toLocaleString()}</div><div><small>Total time on app</small>${fmtExact(t)}</div><div><small>Days used</small>${Object.keys(u.days).filter(d=>u.days[d]||u.ses[d]).length}</div>`})()}</div>${admWhere(sel.uid)}
     ${sel.uid!==(VA?VA.real:ME.uid)?`<div class="btns"><button class="btn sm" data-ad="viewas" data-id="${esc(sel.uid)}">View the app as ${esc(p.name||'this person')}</button></div><p class="muted">Opens the whole app exactly as they see it. It is view only, so nothing is changed on their account.</p>`:''}
     ${sel.p&&!sel.is_admin?`<div class="btns"><label class="fld" style="max-width:220px"><span>School</span><input id="ad-school" value="${esc(p.school||'')}"></label><button class="btn sm" data-ad="saveSchool" data-id="${esc(sel.uid)}">Save school</button></div>`:''}
     ${sel.is_admin||sel.uid===ME.uid?'':`<div class="btns"><button class="btn sm ghost" data-ad="remove" data-id="${esc(sel.uid)}">Remove this member</button></div><p class="muted">Removing deletes their profile, stats, lineups and login. It cannot be undone.</p>`}</section>`})():'';

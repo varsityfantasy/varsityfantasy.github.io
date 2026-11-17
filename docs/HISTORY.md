@@ -1033,3 +1033,6 @@ New Stats-tab card `sxPG(D)` (basketball only, between Position leaders and On t
 
 ## v567 — Basketball: Last game, Per game, fewer "week"s (owner)
 Rank by chips on the Players list (`rankSw`) in basketball: Total, **Per game** (new, `UI.rank==='pg'`, `pgAgg`: average over the games he played, shown as "pts per game"), **Last game** (was Last week; ranks by his most recent game, labels "last game pts"), Overall. Football keeps Total / Last week / Overall. Player profile: "Projected next game" and "the latest count most" instead of week wording (all keyed on `GAME_L==='Game'`). Still saying week in basketball: Players of the Week card, School Cup · Week N, header chip, Games tab week chips, Scoring period list, Pick 'em / leagues (they are weekly by design).
+
+## v568 — Basketball Games tab by day (owner)
+Basketball only (`GAME_L==='Game'`): "All games by day" (`viewSchedDays`, chips `gday`): Upcoming first, then every day with games up to today, latest first; opens on the most recent day with final scores; finished games first within a day, then by tip-off; Upcoming lists the next 7 days with games. School filter kept. The projected playoff bracket is hidden behind a Show/Hide button (`gbr`, `UI.gbr`; title "Projected playoff bracket"). Football keeps the bracket and weeks.

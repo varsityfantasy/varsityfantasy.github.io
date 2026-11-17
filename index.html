@@ -3927,7 +3927,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v567 · Nov 16';
+const APP_BUILD='v568 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4452,7 +4452,28 @@ function brCur(b){const t=TODAY(),i=b.rounds.findIndex(r=>r.games.some(g=>g.d&&g
 function bracketHTML(b){const cur=brCur(b),d0=((b.rounds[cur]||{}).games||[{}])[0].d,soon=d0&&(new Date(d0+'T12:00:00Z')-new Date(TODAY()+'T12:00:00Z'))<=7*864e5&&d0>=TODAY();
   return `<div class="br" style="--cols:${b.rounds.length}">${b.rounds.map((r,ri)=>`<div class="br-col${ri===cur?' cur'+(soon?' now':''):''}"><h4>${esc(r.name)}</h4><div class="br-games" style="--gap:${Math.pow(2,ri)*10}px">${r.games.map(g=>gameCard(g)).join('')}</div></div>`).join('')}</div>`;
 }
+/* v568 (owner): basketball's Games tab goes by DAY, newest scores first. Chips: Upcoming, then every day with games up to today, latest first;
+   it opens on the most recent day that has final scores. */
+UI.gday=null;
+function viewSchedDays(head){
+  const gs=(GAMES&&GAMES.games)||[];if(!gs.length)return head+`<p class="empty">The schedule and scores are being loaded. Check back soon.</p>`;
+  const today=TODAY(),mine=(myProfile()||{}).school,schools=[...new Set(gs.flatMap(g=>[g.h,g.a]))].filter(n=>SD_SCHOOLS.includes(n)).sort();
+  const fl=UI.gschool!=='ALL'?gs.filter(g=>g.h===UI.gschool||g.a===UI.gschool):gs;
+  const past=[...new Set(fl.filter(g=>g.d<=today).map(g=>g.d))].sort().reverse(),lastScored=[...past].find(d=>fl.some(g=>g.d===d&&gDone(g)));
+  const sel=UI.gday==='up'||past.includes(UI.gday)?UI.gday:(lastScored||(past[0])||'up');
+  const dl=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const tabs=`<div class="chips gm-wks" role="group" aria-label="Day"><button class="chip" data-act="gday" data-v="up" aria-pressed="${sel==='up'}">Upcoming</button>${past.map(d=>`<button class="chip" data-act="gday" data-v="${d}" aria-pressed="${sel===d}">${esc(dl(d))}</button>`).join('')}</div>`;
+  const srt=(a,b)=>{const m=(b.h===mine||b.a===mine)-(a.h===mine||a.a===mine);if(m)return m;const x=a.t||'',y=b.t||'';return x<y?-1:x>y?1:a.h.localeCompare(b.h)};
+  const card=g=>gameCard(g,{mine:mine&&(g.h===mine||g.a===mine)});
+  let body;
+  if(sel==='up'){const up=fl.filter(g=>g.d>today),days=[...new Set(up.map(g=>g.d))].sort().slice(0,7);
+    body=days.length?days.map(d=>{const l=up.filter(g=>g.d===d).sort(srt);return `<div class="qh"><h3>${esc(dl(d))}</h3><span class="muted">${l.length} ${l.length===1?'game':'games'}</span></div><div class="gm-grid">${l.map(card).join('')}</div>`}).join('')+(up.length&&new Set(up.map(g=>g.d)).size>7?'<p class="muted">Showing the next 7 days with games.</p>':''):'<p class="empty">No upcoming games.</p>'}
+  else{const l=fl.filter(g=>g.d===sel).sort((a,b)=>(gDone(b)-gDone(a))||srt(a,b)),fin=l.filter(gDone).length;
+    body=`<div class="qh"><h3>${esc(dl(sel))}</h3><span class="muted">${l.length} ${l.length===1?'game':'games'}${fin?` · ${fin} final`:''}</span></div><div class="gm-grid">${l.map(card).join('')}</div>`}
+  return head+`<div class="tools">${tabs}<label class="fld"><span>School</span><select data-act="gschool"><option value="ALL">All schools</option>${schools.map(x=>`<option ${UI.gschool===x?'selected':''}>${esc(x)}</option>`).join('')}</select></label></div>`+body;
+}
 function viewSched(head){
+  if(GAME_L==='Game')return viewSchedDays(head);
   if(!GAMES||!GAMES.games||!GAMES.games.length)return head+`<p class="empty">The schedule and scores are being loaded. Check back soon.</p>`;
   const gs=GAMES.games,weeks=[...new Set(gs.map(g=>g.w))].sort((a,b)=>a-b);
   const today=TODAY();
@@ -8847,7 +8868,8 @@ function viewGames(){
   const tabs=`<div class="chips gm-tabs" role="group" aria-label="Games sections">${[['sched','Schedule'],['stand','Standings']].map(([v,l])=>`<button class="chip" data-act="gtab" data-v="${v}" aria-pressed="${T===v}">${l}</button>`).join('')}</div>`;
   const gs=(GAMES&&GAMES.games)||[];
   if(T==='stand')return head+sbChips()+tabs+standingsHTML(gs,UI.gschool);
-  return head+sbChips()+tabs+`<div class="qh"><h2 class="h-sec">Playoff bracket</h2></div>`+playoffsHTML()+`<div class="gm-split" style="margin-top:28px"><div class="gm-half">${anticipatedHTML()}<div class="qh" style="margin-top:28px"><h2 class="h-sec">All games by week</h2></div>${viewSched('')}</div><div class="gm-half gm-side"><div class="qh"><h2 class="h-sec">Standings</h2></div>${standingsHTML(gs,UI.gschool)}</div></div>`;
+  const bbG=GAME_L==='Game';
+  return head+sbChips()+tabs+(bbG?`<div class="qh"><h2 class="h-sec">Projected playoff bracket</h2><button class="btn sm ghost" data-act="gbr" aria-expanded="${!!UI.gbr}">${UI.gbr?'Hide':'Show'}</button></div>${UI.gbr?playoffsHTML():''}`:`<div class="qh"><h2 class="h-sec">Playoff bracket</h2></div>`+playoffsHTML())+`<div class="gm-split" style="margin-top:28px"><div class="gm-half">${anticipatedHTML()}<div class="qh" style="margin-top:28px"><h2 class="h-sec">All games by ${bbG?'day':'week'}</h2></div>${viewSched('')}</div><div class="gm-half gm-side"><div class="qh"><h2 class="h-sec">Standings</h2></div>${standingsHTML(gs,UI.gschool)}</div></div>`;
 }
 
 
@@ -11133,6 +11155,8 @@ document.addEventListener('click',async e=>{
   else if(a==='fgroup'){UI.fi=id;render()}
   else if(a==='member'){UI.member=t.dataset.m;render()}
   else if(a==='mweek'){UI.mw=+t.dataset.w;render()}
+  else if(a==='gday'){UI.gday=t.dataset.v;render()}
+  else if(a==='gbr'){UI.gbr=!UI.gbr;render()}
   else if(a==='gweek'){UI.gw=t.dataset.w==='P'?'P':+t.dataset.w;render()}
   else if(a==='gpo'){UI.gpo=t.dataset.v;render()}
   else if(a==='bkDiv'){UI.bkdiv=t.dataset.v;render()}

@@ -3938,11 +3938,13 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v561 · Nov 16';
+const APP_BUILD='v562 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
 const CURW=()=>Math.min(WEEKS,Math.max(1,parseInt(S.settings&&S.settings.week,10)||window.BB_CUR||WEEKS));
+/* v562 (owner): the week shown in the header is the real calendar week (Mon-Sun, `wkOf(TODAY())`), not stuck at WEEKS=12: Nov 16-22 is week 14 = Playoffs 3. Capped at the last week that has games (football); basketball keeps CURW. */
+const CALW=()=>{if(FG_SPORT==='bb')return CURW();try{const gs=(GAMES&&GAMES.games)||[];const mx=gs.reduce((m,g)=>Math.max(m,+g.w||0),0)||WEEKS;return Math.max(CURW(),Math.min(mx,wkOf(TODAY())))}catch(_){return CURW()}};
 const myProfile=()=>S.profiles[ME.uid];
 const canDesk=()=>ME.admin||(myProfile()&&myProfile().role==='coach');
 const nm=u=>{const p=S.profiles[u];return p&&p.name?p.name:'Former member'};
@@ -10879,8 +10881,8 @@ function chrome(v){
   document.querySelectorAll('.tabs a').forEach(a=>{a.removeAttribute('aria-current');if(a.getAttribute('href')==='#'+(v==='team'?'games':v))a.setAttribute('aria-current','page')});
   
   const n=computeNotes().length,bc=$('#bcount');if(bc){bc.textContent=n;bc.hidden=!n}try{ntPush()}catch(_){}
-  const wk=$('#wk');if(wk)wk.textContent=WKL(CURW());
-  const wk2=$('#wk2');if(wk2)wk2.textContent=WKL(CURW());
+  const wk=$('#wk');if(wk)wk.textContent=WKL(CALW());
+  const wk2=$('#wk2');if(wk2)wk2.textContent=WKL(CALW());
   /* tokens + Shop in the header on every tab (v258) */
   try{const on=!!(ME.uid&&ME.mode!=='guest'),h=on?coinIc(ME.uid)+'<b>'+Math.round(bank(ME.uid)).toLocaleString()+'</b>':'';
     document.querySelectorAll('.hdr-tk').forEach(e=>{e.hidden=!on});document.querySelectorAll('.hdr-tokn').forEach(e=>{if(e.innerHTML!==h)e.innerHTML=h});

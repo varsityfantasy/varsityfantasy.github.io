@@ -1014,3 +1014,6 @@ Everyone has `<site>/?ref=<8 hex of their uid>` (`refCode`, `refLink`). The earl
 
 ## v561 — Get tokens window order (owner)
 Order is now: balance, invite card, Watch a sponsor video, Daily tasks (the 25-token daily bonus is the first row of the list, `dtHTML`, done when `dly.d` is today), streak, packs, starter rewards, leaderboard. The separate daily-bonus row is gone.
+
+## v562 — Header week follows the calendar (owner)
+The header chip (`#wk`, `#wk2`) showed `WKL(CURW())` = "Playoffs 1" because `CURW` is capped at `WEEKS`=12. It now shows `WKL(CALW())`: `max(CURW, min(last week in games.js, wkOf(TODAY())))`, so Nov 16-22 is week 14 = Playoffs 3 (basketball unchanged). Only the label changed: fantasy lineups, scoring periods and `nextWeek` still use `CURW`/`WEEKS`.

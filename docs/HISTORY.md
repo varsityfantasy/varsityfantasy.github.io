@@ -1039,3 +1039,6 @@ Basketball only (`GAME_L==='Game'`): "All games by day" (`viewSchedDays`, chips 
 
 ## v569 — Players of the Week change on Monday (owner)
 `weekTop()` / `secPOTW()` now take the latest COMPLETED week (`w <= wkOf(TODAY())-1`, `potwLim()`), so the top 3 (card, POTW tags, card bands) change on Monday morning Pacific, not as box scores arrive mid-week. Before any week has finished they use the week in progress. Cache is keyed by day (`.d`), so an app left open rolls over at midnight. Applies to football and basketball. Tested with the clock on Nov 18 (basketball week 1: Dillon, Stokes, Castaneda) and Nov 24 (week 2: Jahries, Davis, Swisher).
+
+## v570 — Basketball: Game of the Day (owner)
+Basketball's "Game of the Week" is now **Game of the Day** (`anticipated()` keys on the date when `GAME_L==='Game'`): the best unfinished game on the next day that has games, today or later (old unscored days are skipped); a new one every day there are games. Ranked by the ridge ratings (last season's scoring until 20 games are final) instead of the few results so far. Football keeps Game of the Week.

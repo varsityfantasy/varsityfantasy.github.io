@@ -3940,7 +3940,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v569 · Nov 16';
+const APP_BUILD='v570 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6715,13 +6715,14 @@ function picksHTML(){
 }
 /* most anticipated: the best teams, closest to each other. Upcoming games first, then the biggest finals. */
 function anticipated(){
-  const gs=((GAMES&&GAMES.games)||[]),r=ratings(),R=n=>r[n]===undefined?1500:r[n];
-  const score=g=>(R(g.h)+R(g.a))/2-Math.abs(R(g.h)-R(g.a))*.4;
+  const gs=((GAMES&&GAMES.games)||[]),r=ratings(),bbR=GAME_L==='Game'?ridgeRatings().r:null,R=bbR?(n=>(bbR[n]||0)):(n=>r[n]===undefined?1500:r[n]);   /* basketball: ridge ratings (last season's scoring until 20 games are final), so a day's best game is not decided by two results */
+  const score=g=>bbR?((R(g.h)+R(g.a))/2-Math.abs(R(g.h)-R(g.a))*.1):(R(g.h)+R(g.a))/2-Math.abs(R(g.h)-R(g.a))*.4;
   /* v555 (owner: "fix the game of the week"): it picked Escondido Charter at Vincent Memorial (Division V-AA) over the Open Division game, because small-division teams pile up rating points against each other.
      Now: only the next week with games, and in the playoffs the highest division comes first (Open, then I, II, ...); the rating score only breaks ties. */
   const DV=['Open Division','Division I','Division II','Division III','Division IV','Division V','Division V-AA','Division VI'],dvr=g=>{const i=DV.indexOf(g.dv||'');return i<0?(g.dv?DV.length:DV.length+1):i};
-  const all=gs.filter(g=>!gDone(g)),w0=all.length?Math.min(...all.map(g=>g.w)):0;
-  const up=all.filter(g=>g.w===w0).sort((a,b)=>dvr(a)-dvr(b)||score(b)-score(a)).concat(all.filter(g=>g.w!==w0).sort((a,b)=>a.w-b.w||dvr(a)-dvr(b)||score(b)-score(a)));
+  /* v570 (owner): basketball has a Game of the DAY: the best game on the next day that still has an unfinished game (so a new one every day there are games) */
+  const kf=GAME_L==='Game'?(g=>g.d):(g=>g.w),all=gs.filter(g=>!gDone(g)&&(GAME_L!=='Game'||g.d>=TODAY())),w0=all.length?all.reduce((m,g)=>kf(g)<m?kf(g):m,kf(all[0])):0;
+  const up=all.filter(g=>kf(g)===w0).sort((a,b)=>dvr(a)-dvr(b)||score(b)-score(a)).concat(all.filter(g=>kf(g)!==w0).sort((a,b)=>(kf(a)<kf(b)?-1:kf(a)>kf(b)?1:0)||dvr(a)-dvr(b)||score(b)-score(a)));
   return up;
 }
 function anticipatedHTML(){
@@ -6729,11 +6730,11 @@ function anticipatedHTML(){
   if(!list.length)return'<p class="empty">No upcoming games yet. New matchups show up here as they are set.</p>';
   const g=list[0],o=oddsFor(g),pa=Math.round((1-o.ph)*100),ph=100-pa;
   const side=(n,p,fav)=>`<div class="gotw-t ${fav?'fav':''}">${slogo(n,58)}<b>${tlk(n)}</b><span>${p}%</span></div>`;
-  return `<div class="qh"><h2 class="h-sec">Game of the Week</h2></div>
+  return `<div class="qh"><h2 class="h-sec">Game of the ${GAME_L==='Game'?'Day':'Week'}</h2></div>
     <section class="card gotw"><div class="gm-h"><span>${esc(fmtDate(g.d)+(g.time?' · '+g.time:''))}</span>${g.dv?`<span class="gm-k p">${esc(g.dv)}</span>`:g.k==='P'?'<span class="gm-k p">Playoffs</span>':''}</div>
       <div class="gotw-row">${side(g.a,pa,pa>ph)}<span class="gotw-at">at</span>${side(g.h,ph,ph>=pa)}</div>
       <div class="gotw-bar" aria-label="Win chances"><i style="width:${pa}%"></i></div>
-      <p class="muted">${g.dv?'The top playoff game this week: the highest division on the schedule.':'The closest, highest-rated matchup this week, by Varsity’s team ratings.'}</p></section>`;
+      <p class="muted">${g.dv?'The top playoff game this week: the highest division on the schedule.':(GAME_L==='Game'?'The closest, highest-rated matchup of the day, by Varsity’s team ratings.':'The closest, highest-rated matchup this week, by Varsity’s team ratings.')}</p></section>`;
 }
 /* ---------- Simulate: build the best team you can ---------- */
 const SIM_RESPINS=5;

@@ -3420,10 +3420,12 @@ const classOf=(n,s)=>_gm[_gk(n,s)]||0;
 /* TOP 10: the ten highest season fantasy scorers in the app. The tag follows each of them wherever their name appears. */
 let T10S=null;
 const isT10=p=>{if(!p||!p.key)return false;if(UI.view==='league'&&UI.psec==='ALL'&&UI.stab==='players'&&allLoading()===0){if(!_t10A||_t10A.k!==_apl_k()){_t10A={k:_apl_k(),s:new Set(allPl().filter(x=>x.mp).map(x=>({k:x.key,v:agg(x,'season')})).filter(x=>x.v.n>0).sort((a,b)=>b.v.v-a.v.v).slice(0,10).map(x=>x.k))}}return _t10A.s.has(p.key)}if(p.ext)return secT10(p.sec).has(p.key);if(!T10S){try{T10S=new Set(players().filter(x=>x.mp).map(x=>({k:x.key,v:agg(x,'season')})).filter(x=>x.v.n>0).sort((a,b)=>b.v.v-a.v.v).slice(0,10).map(x=>x.k))}catch(_){T10S=new Set()}}return T10S.has(p.key)};
-/* Player of the Week: the top fantasy scorer of the latest week that has box scores. Gets his own tag, like TOP 10. */
+/* Player of the Week: the top 3 fantasy scorers of the latest COMPLETED week (Monday to Sunday) that has box scores. v569 (owner): it changes on Monday morning
+   (Pacific), not as games come in during the week; before any week has finished it uses the week in progress. Gets his own tag, like TOP 10. */
+const potwLim=()=>{try{return wkOf(TODAY())-1}catch(_){return 99}};
 let POTW_C=null;
-function weekTop(sc){if(sc&&SECP[sc])return secPOTW(sc);if(POTW_C)return POTW_C;POTW_C={w:0,list:[]};try{const ps=players().filter(x=>x.mp);let w=0;ps.forEach(p=>p.games.forEach((g,i)=>{if(g&&g.stat&&i+1>w)w=i+1}));
-  if(w){POTW_C={w,list:ps.map(p=>{const g=p.games[w-1];return g&&g.stat?{p,v:pts(g.stat)}:null}).filter(Boolean).sort((a,b)=>b.v-a.v).slice(0,3)}}}catch(_){}return POTW_C}
+function weekTop(sc){if(sc&&SECP[sc])return secPOTW(sc);if(POTW_C&&POTW_C.d===TODAY())return POTW_C;POTW_C={w:0,list:[],d:TODAY()};try{const ps=players().filter(x=>x.mp),lim=potwLim();let w=0,w2=0;ps.forEach(p=>p.games.forEach((g,i)=>{if(g&&g.stat){if(i+1>w2)w2=i+1;if(i+1<=lim&&i+1>w)w=i+1}}));if(!w)w=w2;
+  if(w){POTW_C={d:TODAY(),w,list:ps.map(p=>{const g=p.games[w-1];return g&&g.stat?{p,v:pts(g.stat)}:null}).filter(Boolean).sort((a,b)=>b.v-a.v).slice(0,3)}}}catch(_){}return POTW_C}
 const potwRank=p=>{if(!p)return 0;const i=weekTop(p.ext?p.sec:'').list.findIndex(x=>x.p.key===p.key);return i+1};
 const isPOTW=p=>potwRank(p)>0;
 const POTWT=p=>{const r=potwRank(p);return r===1?'<em class="top10 potw">POTW</em>':r?'<em class="top10 potw s">POTW</em>':''};
@@ -3532,8 +3534,8 @@ const secLoad=(what,id)=>{const sc=(typeof SECTIONS!=='undefined'&&SECTIONS[id])
 const secState=id=>SECP[id]?'ready':SBR.err['wk:'+id]?'none':'loading';
 const secByKey=k=>{if(typeof k!=='string'||k[0]!=='x')return undefined;for(const id in SECP){const p=SECP[id].map[k];if(p)return p}return undefined};
 const secT10=sc=>{const S_=SECP[sc];if(!S_)return new Set();if(!S_.t10)S_.t10=new Set(S_.list.map(x=>({k:x.key,v:agg(x,'season')})).filter(x=>x.v.n>0).sort((a,b)=>b.v.v-a.v.v).slice(0,10).map(x=>x.k));return S_.t10};
-function secPOTW(sc){const S_=SECP[sc];if(!S_||S_.tot)return{w:0,list:[]};if(!S_.potw){let w=0;S_.list.forEach(p=>p.games.forEach((g,i)=>{if(g&&g.stat&&!g.zero&&i+1>w)w=i+1}));
-  S_.potw={w,list:w?S_.list.map(p=>{const g=p.games[w-1];return g&&g.stat?{p,v:pts(g.stat)}:null}).filter(Boolean).sort((a,b)=>b.v-a.v).slice(0,3):[]}}return S_.potw}
+function secPOTW(sc){const S_=SECP[sc];if(!S_||S_.tot)return{w:0,list:[]};if(!S_.potw||S_.potw.d!==TODAY()){let w=0,w2=0;const lim=potwLim();S_.list.forEach(p=>p.games.forEach((g,i)=>{if(g&&g.stat&&!g.zero){if(i+1>w2)w2=i+1;if(i+1<=lim&&i+1>w)w=i+1}}));if(!w)w=w2;
+  S_.potw={d:TODAY(),w,list:w?S_.list.map(p=>{const g=p.games[w-1];return g&&g.stat?{p,v:pts(g.stat)}:null}).filter(Boolean).sort((a,b)=>b.v-a.v).slice(0,3):[]}}return S_.potw}
 /* the section whose players the Players / Stats tabs are showing ('' = San Diego and "All sections") */
 const vsec=()=>UI.psec&&UI.psec!=='ALL'&&UI.psec!==HOME_SEC&&SECP[UI.psec]?UI.psec:'';
 const vpl=()=>{const sc=vsec();return sc?SECP[sc].list:players()};
@@ -3927,7 +3929,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v568 · Nov 16';
+const APP_BUILD='v569 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

@@ -1036,3 +1036,6 @@ Rank by chips on the Players list (`rankSw`) in basketball: Total, **Per game** 
 
 ## v568 — Basketball Games tab by day (owner)
 Basketball only (`GAME_L==='Game'`): "All games by day" (`viewSchedDays`, chips `gday`): Upcoming first, then every day with games up to today, latest first; opens on the most recent day with final scores; finished games first within a day, then by tip-off; Upcoming lists the next 7 days with games. School filter kept. The projected playoff bracket is hidden behind a Show/Hide button (`gbr`, `UI.gbr`; title "Projected playoff bracket"). Football keeps the bracket and weeks.
+
+## v569 — Players of the Week change on Monday (owner)
+`weekTop()` / `secPOTW()` now take the latest COMPLETED week (`w <= wkOf(TODAY())-1`, `potwLim()`), so the top 3 (card, POTW tags, card bands) change on Monday morning Pacific, not as box scores arrive mid-week. Before any week has finished they use the week in progress. Cache is keyed by day (`.d`), so an app left open rolls over at midnight. Applies to football and basketball. Tested with the clock on Nov 18 (basketball week 1: Dillon, Stokes, Castaneda) and Nov 24 (week 2: Jahries, Davis, Swisher).

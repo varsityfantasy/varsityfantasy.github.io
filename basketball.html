@@ -3938,7 +3938,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v560 · Nov 16';
+const APP_BUILD='v561 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7424,9 +7424,9 @@ function dtMark(keys){
   add.forEach(x=>{k[x]=1});const nx={d:t,k,t:(+o.t||0)+DT_PAY*add.length};
   S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{dt:nx});
   upsert('picks/'+ME.uid,{dt:nx}).then(()=>{say(`+${DT_PAY*add.length} tokens · daily task${add.length>1?'s':''}: ${add.map(x=>DT_TASKS.find(y=>y[0]===x)[1]).join(', ')}`);render(true)},()=>{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{dt:o})})}
-function dtHTML(){const d=dtDone(ME.uid),n=DT_TASKS.filter(x=>d[x[0]]).length;
-  return `<div class="rw"><div class="rw-h"><b>Daily tasks</b><small class="muted">${n} of ${DT_TASKS.length} today · +${DT_PAY} each · resets daily</small></div>
-    <ul>${DT_TASKS.map(([k,l])=>`<li class="${d[k]?'ok':''}"><span class="rw-c" aria-hidden="true">${d[k]?'✓':''}</span><span>${esc(l)}</span><b>+${DT_PAY}</b></li>`).join('')}</ul></div>`}
+function dtHTML(){const d=dtDone(ME.uid),dl=dlyOf(ME.uid).d===TODAY(),n=DT_TASKS.filter(x=>d[x[0]]).length+(dl?1:0);
+  return `<div class="rw"><div class="rw-h"><b>Daily tasks</b><small class="muted">${n} of ${DT_TASKS.length+1} today · resets daily</small></div>
+    <ul><li class="${dl?'ok':''}"><span class="rw-c" aria-hidden="true">${dl?'✓':''}</span><span>Daily bonus: play any game</span><b>+${DLY_PAY}</b></li>${DT_TASKS.map(([k,l])=>`<li class="${d[k]?'ok':''}"><span class="rw-c" aria-hidden="true">${d[k]?'✓':''}</span><span>${esc(l)}</span><b>+${DT_PAY}</b></li>`).join('')}</ul></div>`}
 function dlyOf(u){return ((S.picks[u]||{}).dly)||{}}
 function dlyBonus(u){const d=dlyOf(u);return d.t!=null?+d.t||0:50*(+d.n||0)}
 let dlyPend='';
@@ -11047,11 +11047,10 @@ document.addEventListener('click',async e=>{
     c.innerHTML=`<div class="gcard tok-sheet" role="dialog" aria-modal="true" aria-labelledby="tk-t"><button type="button" class="tok-x" data-c="no" aria-label="Close">✕</button><h2 id="tk-t">Get tokens</h2>
       <div class="tok-bal"><small>You have</small><b>${Math.round(bank(ME.uid))}</b><small>tokens</small></div>
       ${refCard()}
-      <div class="tok-opt" style="cursor:default"><span class="tok-ic" aria-hidden="true">☀</span><span><b>Daily bonus: +${DLY_PAY} tokens</b><small>${dlyOf(ME.uid).d===TODAY()?'Collected today ✓':'Added the first time you play a game each day'}</small></span></div>
-      <div class="tok-opt" style="cursor:default"><span class="tok-ic" aria-hidden="true">↻</span><span><b>Daily streak: ${fgStreak(ME.uid)} ${fgStreak(ME.uid)===1?'day':'days'}</b><small>Any game counts · ${strFreeLeft(ME.uid)} free ${strFreeLeft(ME.uid)===1?'freeze':'freezes'} left this month</small></span></div>
       <button type="button" class="tok-opt tok-ad" data-act="adWatch" ${l?'':'disabled'}><span class="tok-ic" aria-hidden="true">▶</span><span><b>Watch a sponsor video</b><small>${l?l+' left today':'Back tomorrow'}</small></span><em>+${ADS.reward}</em></button>
-      <button type="button" class="tok-opt" data-act="goLocker"><span class="tok-ic" aria-hidden="true">▣</span><span><b>Open packs in the Shop</b><small>${freePacks(ME.uid)?freePacks(ME.uid)+' free '+(freePacks(ME.uid)===1?'pack':'packs')+' waiting · ':''}Ball skins, frames, perks, boosts</small></span></button>
       ${dtHTML()}
+      <div class="tok-opt" style="cursor:default"><span class="tok-ic" aria-hidden="true">↻</span><span><b>Daily streak: ${fgStreak(ME.uid)} ${fgStreak(ME.uid)===1?'day':'days'}</b><small>Any game counts · ${strFreeLeft(ME.uid)} free ${strFreeLeft(ME.uid)===1?'freeze':'freezes'} left this month</small></span></div>
+      <button type="button" class="tok-opt" data-act="goLocker"><span class="tok-ic" aria-hidden="true">▣</span><span><b>Open packs in the Shop</b><small>${freePacks(ME.uid)?freePacks(ME.uid)+' free '+(freePacks(ME.uid)===1?'pack':'packs')+' waiting · ':''}Ball skins, frames, perks, boosts</small></span></button>
       ${rwHTML()}
       ${(()=>{const r=tokRows(),i=r.findIndex(x=>x.u===ME.uid);return r.length?`<div class="rw"><div class="rw-h"><b>Token leaderboard</b><small class="muted">${i>=0?'You are #'+(i+1)+' of '+r.length:''}</small></div><ul>${r.slice(0,5).map((x,k)=>`<li class="${x.u===ME.uid?'me':''}"><span class="rw-c">${k+1}</span><span>${esc(x.u===ME.uid?'You':nm(x.u))}</span><span class="tk-v"><b>${x.t.toLocaleString()}</b><small>${x.b.toLocaleString()} now</small></span></li>`).join('')}</ul></div>`:''})()}
       <p class="muted">Tokens are free, are shared by every game in Minigames, and have no cash value.</p>

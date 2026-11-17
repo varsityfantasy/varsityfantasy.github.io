@@ -1011,3 +1011,6 @@ Everyone has `<site>/?ref=<8 hex of their uid>` (`refCode`, `refLink`). The earl
 
 ## v560 — Defensive interception = 5.5 points (owner)
 `PTS.dInt` 5 → 5.5 (also `FB_PTS` in `tools/sections/players.py`). Points and rankings follow it. Overalls are NOT changed on purpose: `ovr.js` is a static file and was not rebuilt; a future `make_ovr.py` run reads stats, not points, so it would not move either.
+
+## v561 — Get tokens window order (owner)
+Order is now: balance, invite card, Watch a sponsor video, Daily tasks (the 25-token daily bonus is the first row of the list, `dtHTML`, done when `dly.d` is today), streak, packs, starter rewards, leaderboard. The separate daily-bonus row is gone.

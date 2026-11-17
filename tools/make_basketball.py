@@ -131,6 +131,47 @@ def assign_positions(rows):
     return rows
 
 
+BOX_FILE = os.path.join(os.path.dirname(DATA), 'bb_2627_box.txt')
+
+
+def merge_box(real):
+    """tools/data/bb_2627_box.txt: real 2026-27 box scores (MaxPreps game pages). '#date|school|opponent', then one player per line:
+    name-slug|class|careerid|pts|reb|ast|stl|blk|tov|3pm. Each line becomes one game (row['box']) of the player at that school; a player who
+    is not on the roster list yet is added (his class year is the real current one)."""
+    if not os.path.exists(BOX_FILE):
+        return
+    import difflib
+    by = {t['name']: t for t in real}
+    team, n_g, n_new = None, 0, 0
+    for ln in open(BOX_FILE, encoding='utf-8').read().split('\n'):
+        if not ln.strip() or ln.startswith('//'):
+            continue
+        if ln.startswith('#'):
+            d, sch, opp = ln[1:].split('|')
+            team = by.get(sch)
+            if team is None:
+                print('box: school not found', sch)
+            cur = (d, opp)
+            continue
+        if team is None:
+            continue
+        f = ln.split('|')
+        name = ' '.join(w.capitalize() for w in f[0].split('-'))
+        grade = {'Fr': 1, 'So': 2, 'Jr': 3, 'Sr': 4}.get(f[1], 0)
+        k = nkey(name)
+        row = next((r for r in team['rows'] if nkey(r['n']) == k), None)
+        if row is None:
+            m = difflib.get_close_matches(k, [nkey(r['n']) for r in team['rows']], 1, .9)
+            row = next((r for r in team['rows'] if m and nkey(r['n']) == m[0]), None)
+        if row is None:
+            row = dict(n=name, g=grade, pos='', gp=0, st=None, cur=True)
+            team['rows'].append(row)
+            n_new += 1
+        row.setdefault('box', []).append(dict(d=cur[0], o=cur[1], s=[int(x) for x in f[3:10]]))
+        n_g += 1
+    print('box scores: %d player games, %d players added' % (n_g, n_new))
+
+
 def load_games():
     """tools/data/bb_2627_games.txt: the real 2026-27 schedule from MaxPreps. First line NAMES:a|b|c, then one game per line
     'MMDD HHMM home away' where home/away are an index into NAMES or ~Name for a school outside the list.
@@ -222,6 +263,7 @@ def build_data():
     # schools that never post stats (no stat line for anyone last season) stay out of the minigames until they have real ones
     nostat = sorted(t['name'] for t in real if ppg[t['name']] == 0)
 
+    merge_box(real)
     games = load_games()
 
     players, pid = [], 3000
@@ -238,7 +280,17 @@ def build_data():
                 for wk in range(1, nw + 1):
                     w[str(wk)] = line
             # grades are moved up one year for 2026-27 (Fr->So, So->Jr, Jr->Sr; 0 = unknown stays 0)
-            players.append({'id': str(pid), 'n': x['n'], 's': t['name'], 'g': x['g'] if x.get('cur') else (x['g'] + 1 if x['g'] in (1, 2, 3) else x['g']), 'p': x['p'], 'u': x['p'], 'w': w})
+            pl = {'id': str(pid), 'n': x['n'], 's': t['name'], 'g': x['g'] if x.get('cur') else (x['g'] + 1 if x['g'] in (1, 2, 3) else x['g']), 'p': x['p'], 'u': x['p'], 'w': w}
+            if x.get('box'):
+                # real 2026-27 games: one line per game, a week holds the sum and the number of games (engine v312)
+                gm = {}
+                for b in x['box']:
+                    wk = str(PRIOR + 1 + (datetime.date.fromisoformat(b['d']) - START).days // 7)
+                    gm.setdefault(wk, []).append(dict(d=b['d'], o=b['o'], s=b['s']))
+                for wk, gl in gm.items():
+                    w[wk] = [sum(r['s'][j] for r in gl) for j in range(7)] + [len(gl)]
+                pl['gm'] = gm
+            players.append(pl)
     # hidden preseason order: last season's fantasy points under the current scoring, weighted by games played.
     # It never shows as a stat; it only decides who sits at the top while everyone is at 0.0.
     rank = {}

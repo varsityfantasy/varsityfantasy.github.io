@@ -1,0 +1,49 @@
+// Real 2026-27 San Diego Section boys basketball box scores (MaxPreps game pages, read in Chrome). Read by make_basketball.py.
+// '#date|school|opponent' starts a team's game; then one player per line: name-slug|class|careerid|pts|reb|ast|stl|blk|tov|3pm
+// A team whose game has no player stats on MaxPreps (not entered) has no block here.
+#2026-11-14|West Hills|San Ysidro
+elijah-demers|Jr|jjecq3j71vso8|2|1|1|0|0|1|0
+malekai-dillon|Jr|gj223bl8r1etd|19|5|2|4|0|1|3
+andrew-palin|So|b2evmtjns5566|6|2|2|1|0|1|0
+cruz-castaneda|Sr|pl378r4r6gjbb|8|3|8|7|0|3|0
+zach-spicer|Jr|tsmlm25ao4mvf|8|0|0|1|0|0|2
+miles-masek|Sr|6tm5f8a14abg0|4|3|1|0|1|1|0
+bryden-hendricks|Jr|q41jc5v7teb99|4|1|0|1|0|1|0
+jose-belnavis|Jr|4j58l20a6dd22|4|3|0|1|0|3|0
+jaymz-shaw|Jr|q3b54nkeok3l5|15|3|2|5|0|2|4
+henry-ward|Jr|o19ikb8sgrtsc|0|1|0|0|0|0|0
+noah-spencer|Sr|h423vd40ajhl5|4|0|0|2|0|2|0
+jackson-davis|Jr|h4dua3gn6ofp9|10|8|2|2|0|2|0
+#2026-11-14|Bonita Vista|Mount Miguel
+jerry-stokes|Sr|h9tknamldimsc|20|3|2|5|0|2|0
+cameron-ackerman|Sr|u6mifvr4lj2sc|10|3|1|4|1|2|0
+elijah-west|Jr|f3uoa98bpokff|2|3|1|0|3|5|0
+alejandro-belmudez|Jr|vod4gbqagc355|0|0|0|0|1|0|0
+kai-gatdula|Sr|0bau5dgvsn7td|15|1|0|0|0|1|5
+sawyer-rhoades|Jr|kpdhul6co0l11|11|4|2|3|2|2|1
+frederick-bueno|Jr|c8m3bt31pbe22|0|0|0|0|0|0|0
+joey-boniske|Sr|olir6aq9k0dqa|2|3|1|0|2|1|0
+brandon-rosales|Jr|vfdqu7v577qqa|3|1|0|3|0|1|1
+jacob-diaz|Jr|1p88uc73qoop9|0|4|6|2|0|2|0
+jayren-sunico|Sr|4qdv7pdvs9gsc|2|2|0|0|0|1|0
+damian-francisco|Sr|pam6lq8li46o8|3|0|0|0|0|0|1
+ayden-mitchell|Jr|7pgc2nj3piasc|0|2|0|0|0|1|0
+#2026-11-16|San Ysidro|Mar Vista
+abner-ketema|Jr|i3ujaalfsd944|0|1|0|0|0|0|0
+#2026-11-16|Sage Creek|Temecula Valley
+jaylon-davis|Jr|edmhip5qggqsc|26|10|1|2|1|3|3
+josh-liguori|Jr|lcms4oi2fejcc|2|2|0|1|0|2|0
+robert-ghazaryan|So|4039oa90gdkm6|0|2|0|0|0|1|0
+jacob-nguyen|Jr|q55dgcmg9b9l5|0|1|0|0|0|1|0
+lincoln-swisher|Jr|4dhii6ca7d766|2|1|1|3|0|0|0
+cole-creighton|Jr|cfc5iq40qcjj3|0|6|0|0|0|2|0
+jayden-bringas|Sr|jubasen15bm44|0|5|0|0|1|1|0
+samuel-jahries|Sr|tbi13tc372dp9|30|5|0|2|4|0|0
+#2026-11-16|Desert Mirage|Calexico Mission
+frank-de-la-rosa|Sr|2ssku7qlncf33|14|22|1|4|1|3|0
+abraham-dominguez|Sr|98sb0ofchhfee|3|6|1|0|0|4|1
+adair-chaidez|Sr|8cnguv2sfmfsc|4|5|2|4|1|4|0
+ian-rubio|Sr|gjgpalvhni9ee|18|3|2|6|0|6|1
+eric-paredes|Sr|mndfc6f2sd7rb|7|7|3|1|0|0|1
+joel-gamboa|Fr|4v9dl6lubngbb|3|0|0|1|0|0|1
+ismael-barriga|So|a80vf0jrvopee|0|1|0|0|0|0|0

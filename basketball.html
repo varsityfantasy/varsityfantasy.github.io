@@ -3938,7 +3938,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v565 · Nov 16';
+const APP_BUILD='v566 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -9021,6 +9021,18 @@ function sxLeaders(D){
     ${L.length?`<ol class="sx-list">${L.map((y,i)=>`<li><button class="sx-li ${i===0?'sx-top':''}" data-act="player" data-id="${esc(y.x.p.key)}"><span class="sx-rk">${i+1}</span>${sxWho(y.x.p,`<span>· ${y.x.n} gp</span>`)}<span class="sx-val"><b>${sxFmt(y.v,dec)}</b><i class="sx-bar"><i style="width:${Math.max(4,y.v/mx*100).toFixed(1)}%"></i></i></span></button></li>`).join('')}</ol>`:`<p class="empty">No ${esc(lab.toLowerCase())} recorded at this position yet.</p>`}
   </section>`;
 }
+/* v566 (owner): basketball "Per game leaders": top 10 players of the whole league by points, rebounds, assists, steals, blocks or fantasy points per game.
+   Needs 3 games once someone has played that many; early in the season it needs as many as the most-played player has (at least 1). */
+function sxPG(D){
+  if(FG_SPORT!=='bb')return '';
+  const gp=D.rows.reduce((m,x)=>Math.max(m,x.n),0),mg=Math.max(1,Math.min(3,gp)),ks=[['fp','Fantasy pts'],['pts','Points'],['reb','Rebounds'],['ast','Assists'],['stl','Steals'],['blk','Blocks']];
+  const k=ks.some(x=>x[0]===UI.sx.pg)?UI.sx.pg:'fp';
+  const L=D.rows.filter(x=>x.n>=mg).map(x=>({x,v:(k==='fp'?x.fp:(x.tot[k]||0))/x.n})).filter(y=>y.v>0).sort((a,b)=>b.v-a.v||b.x.n-a.x.n).slice(0,10),mx=L.length?L[0].v:1,lab=(ks.find(x=>x[0]===k)||[0,''])[1];
+  return `<section class="card sx-card"><div class="qh"><h3>Per game leaders</h3><span class="muted">${mg>1?mg+'+ games':'averages, 1+ game'}</span></div>
+    <div class="chips sx-chips sx-stat" role="group" aria-label="Per game stat">${ks.map(([s,l])=>`<button class="chip" data-act="sxPG" data-v="${s}" aria-pressed="${s===k}">${l}</button>`).join('')}</div>
+    ${L.length?`<ol class="sx-list">${L.map((y,i)=>`<li><button class="sx-li ${i===0?'sx-top':''}" data-act="player" data-id="${esc(y.x.p.key)}"><span class="sx-rk">${i+1}</span>${sxWho(y.x.p,`<span>· ${y.x.n} gp</span>`)}<span class="sx-val"><b>${f1(y.v)}</b><i class="sx-bar"><i style="width:${Math.max(4,y.v/mx*100).toFixed(1)}%"></i></i></span></button></li>`).join('')}</ol>`:`<p class="empty">No ${esc(lab.toLowerCase())} per game yet.</p>`}
+  </section>`;
+}
 function sxForm(D){
   const up=UI.sx.tr!=='down',all=[...D.form].sort((a,b)=>up?b.d-a.d:a.d-b.d).filter(x=>up?x.d>0:x.d<0),L=all.slice(0,5);   /* owner: just 5 people */
   return `<section class="card sx-card"><div class="qh"><h3>${up?'On the rise':'Cooling off'}</h3><div class="pr-seg sx-tr" role="group" aria-label="Trend"><button data-act="sxTr" data-v="up" aria-pressed="${up}">Rising</button><button data-act="sxTr" data-v="down" aria-pressed="${!up}">Cooling</button></div></div>
@@ -9054,7 +9066,7 @@ function statsHTML(){
   const best=D.lines.reduce((m,x)=>x.v>m.v?x:m,D.lines[0]),nl=D.tot?D.rows.reduce((a,x)=>a+x.n,0):D.lines.length,avg=D.lines.reduce((a,x)=>a+x.v,0)/nl;
   const tile=(v,l,act)=>`<div class="sx-tile">${act?`<button class="sx-tb" data-act="player" data-id="${esc(act)}">`:'<div class="sx-tb">'}<b>${v}</b><small>${l}</small>${act?'</button>':'</div>'}</div>`;
   return `<div class="sx-tiles">${tile(D.rows.length.toLocaleString(),'players with stats')}${tile(nl.toLocaleString(),'box score lines')}${tile(f1(avg),'avg pts per game')}${tile(f1(best.v),(D.tot?'best season · ':'best game · ')+esc(best.p.name),best.p.key)}</div>
-    ${sxAllV(D)}${sxLeaders(D)}
+    ${sxAllV(D)}${sxLeaders(D)}${sxPG(D)}
     <div class="sx-two">${sxForm(D)}${sxBest(D)}</div>
     ${sxTeams(D)}`;
 }
@@ -11125,6 +11137,7 @@ document.addEventListener('click',async e=>{
   else if(a==='stTab'){UI.stab=['stats','overall'].includes(t.dataset.v)?t.dataset.v:'players';render()}
   else if(a==='sxPos'){UI.sx.pos=t.dataset.v;UI.sx.k='';render()}
   else if(a==='sxK'){UI.sx.k=t.dataset.v;render()}
+  else if(a==='sxPG'){UI.sx.pg=t.dataset.v;render()}
   else if(a==='sxPer'){UI.sx.per=t.dataset.v==='1';render()}
   else if(a==='sxTr'){UI.sx.tr=t.dataset.v;render()}
   else if(a==='info'){const h=t.closest('.head'),pop=h&&h.querySelector('.ib-pop');if(pop){pop.hidden=!pop.hidden;t.setAttribute('aria-expanded',String(!pop.hidden))}}

@@ -1027,3 +1027,6 @@ The player profile log (`logBB` in the player page, only when `GAME_L==='Game'` 
 
 ## v565 — Basketball scoring: steal and block 2 points (owner)
 `PTS` for basketball is now point 1, rebound 1.2, assist 1.5, steal 2, block 2, turnover -2, 3-pointers 0 (no bonus, as before): `make_basketball.py` (PTS line, hidden preseason rank, Scoring page example = 39.1) and `BB_PTS` in `tools/sections/players.py`. Football is unchanged.
+
+## v566 — Basketball "Per game leaders" (owner)
+New Stats-tab card `sxPG(D)` (basketball only, between Position leaders and On the rise): top 10 of the whole league by per-game fantasy points, points, rebounds, assists, steals or blocks (chips, `UI.sx.pg`, action `sxPG`). Minimum games = the most any player has played, capped at 3 (so it works from game 1). The older Position leaders Total / Per game switch (3+ games) is unchanged.

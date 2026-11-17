@@ -23,6 +23,11 @@ i=s.index('window.MAXPREPS=')+len('window.MAXPREPS=');j=s.index('\n',i)
 D=json.loads(s[i:j].rstrip().rstrip(';'));P=D['players']
 G=json.load(open(''+os.path.dirname(os.path.abspath(__file__))+'/data/games.json'))      # {cid:{d,h,t:[{l,p:[[slug|career,name,arr]]}]}}
 R=json.load(open(''+os.path.dirname(os.path.abspath(__file__))+'/data/rosters.json'))    # {career:[pos,grade]}
+# MaxPreps roster rows end with "Claimed profile" for athletes who claimed their page: not part of the name
+_cp=lambda n:re.sub(r'\s*Claimed profile\s*$','',n or '')
+for _r in R.values():
+    if _r and isinstance(_r[0],str):_r[0]=_cp(_r[0])
+for _p in P:_p['n']=_cp(_p['n'])
 def slug(n):n=unicodedata.normalize('NFKD',n).encode('ascii','ignore').decode().lower();return re.sub(r'[^a-z0-9]+','-',n).strip('-')
 schools=set(x['s'] for x in P)
 WEEK=int(sys.argv[sys.argv.index('--week')+1]) if '--week' in sys.argv else 0

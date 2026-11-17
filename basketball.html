@@ -1791,6 +1791,17 @@ select option{background:#0B1730;color:#EAF0F8}
 .bt-t.ou.saved::after{grid-column:1/-1;grid-row:3;justify-self:start;margin-top:5px}
 @media (max-width:400px){.bt-t.ou{column-gap:5px;padding:10px 7px}.bt-t.ou b{font-size:.9rem;letter-spacing:0}.bt-t.ou .bt-o{font-size:.84rem;padding:4px 4px 3px}}
 @media (max-width:350px){.bt-t.ou::before{display:none}.bt-t.ou b{font-size:.86rem}}
+/* v555 (owner): on a computer the prop cards sit four across and are only ~250px wide, so the line ran into the payout. Narrow cards stack the button: line, chance, payout underneath. */
+.pp{container-type:inline-size}
+@container (max-width:330px){
+  .bt-t.ou{grid-template-columns:auto minmax(0,1fr);column-gap:6px;row-gap:3px;padding:10px 8px 9px}
+  .bt-t.ou::before{grid-row:1}
+  .bt-t.ou b{font-size:.95rem;letter-spacing:0}
+  .bt-t.ou small{grid-column:1/-1;grid-row:2}
+  .bt-t.ou .bt-o{grid-column:1/-1;grid-row:3;justify-self:stretch;text-align:center;margin-top:3px;font-size:.95rem}
+  .bt-t.ou.saved::after{grid-row:4}
+  .pp .gm-h{align-items:flex-start}.pp .gm-h .gm-k{white-space:nowrap;flex:none}
+}
 
 
 .mk-row{display:flex;flex-direction:column;gap:6px;margin:8px 0}
@@ -1840,6 +1851,11 @@ select option{background:#0B1730;color:#EAF0F8}
 .tok-bal{display:flex;align-items:baseline;gap:8px;margin:4px 0 14px}.tok-bal b{font:800 2.4rem/1 'Barlow Condensed',sans-serif;color:#FFC23D}
 .tok-opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid var(--line,#22344B);background:var(--surface2,#16253A);color:inherit;cursor:pointer;margin-bottom:10px}
 .tok-opt:disabled{opacity:.5;cursor:default}
+/* v555 (owner): the sponsor video row is its own colour so people tap it */
+.tok-opt.tok-ad{background:linear-gradient(135deg,#1FB96A,#0E8A4C);border-color:#3BE08A;color:#fff;box-shadow:0 10px 22px -12px rgba(31,185,106,.9)}
+.tok-opt.tok-ad small{opacity:.92}.tok-opt.tok-ad .tok-ic{background:rgba(255,255,255,.2);color:#fff;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;flex:none}
+.tok-opt.tok-ad em{margin-left:auto;flex:none;font:900 1.15rem/1 var(--f-display,inherit);font-style:normal;background:#fff;color:#0B6B3A;border-radius:999px;padding:7px 11px 6px;white-space:nowrap}
+.tok-opt.tok-ad:disabled{background:var(--surface2,#16253A);border-color:var(--line,#22344B);box-shadow:none}.tok-opt.tok-ad:disabled em{background:rgba(255,255,255,.15);color:inherit}
 .tok-opt b{display:block}.tok-opt small{display:block;opacity:.75;margin-top:3px}
 .tok-ic{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#2F6BFF;color:#fff;flex:none}
 
@@ -2820,6 +2836,10 @@ details.lk-col>summary{display:flex;justify-content:space-between;align-items:ce
 .lk-duo .lk-art,.pko-pack.lk-duo .pko-pk{background:linear-gradient(135deg,#B48CFF 0%,#5B2BD9 48%,#FFC23D 52%,#C2281E 100%);color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5)}
 .parl-c{border:1px solid color-mix(in srgb,var(--rc) 55%,transparent)}.parl-h{display:flex;gap:10px;align-items:center;margin-bottom:8px}.parl-h small{display:block}
 .parl-leg{display:flex;flex-direction:column;gap:6px}.parl-who{display:flex;gap:8px;align-items:center}.parl-plus{text-align:center;font:900 1.1rem/1 var(--f-display,inherit);color:var(--rc);margin:4px 0}
+/* v555 (owner): the parlay amount box reads as a field you type in, not another chip */
+.sl-type{flex:1 1 100%;display:flex;align-items:center;gap:10px;margin-top:2px;padding:8px 12px;border-radius:14px;border:1.5px dashed rgba(242,194,48,.55);background:rgba(242,194,48,.07)}
+.sl-type span{font-weight:700;font-size:.85rem;white-space:nowrap}.sl-type i{font-style:normal;font-size:.78rem;opacity:.7;white-space:nowrap}
+.sl-type .sl-amt{flex:1;min-width:70px;width:auto;border-radius:10px;border:1.5px solid var(--gold,#F2C230);background:var(--surface,#0B1730);font:800 1.1rem var(--f-display,inherit);padding:8px 10px}
 .sl-leg{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}.sl-leg>span:first-child{flex:1;min-width:0}.sl-leg small{display:block}.sl-o{font:800 .9rem/1 var(--f-display,inherit)}.sl-bar .bt-go{flex-wrap:wrap;gap:8px}.sl-bar{padding:10px 12px!important}.sl-bar .qh{margin:0 0 2px!important}.sl-bar .qh h3{font-size:1rem}.sl-bar p{margin:2px 0}.sl-leg{padding:3px 0!important}.sl-leg .btn{padding:0 10px;min-height:28px}.sl-bar .bt-stk{margin:6px 0 4px;flex-wrap:wrap;gap:6px}.sl-bar .bt-stk .chip{padding:5px 11px;min-height:0}.sl-bar .bt-amt{width:76px;flex:none}.sl-bar{position:fixed;left:8px;right:8px;bottom:76px;z-index:40;max-width:560px;margin:0 auto;max-height:56vh;overflow:auto;box-shadow:0 -6px 24px rgba(0,0,0,.55);border:1px solid var(--gold,#FFB800)}.sl-sp{height:56vh}.parl-won{color:#3DDC84}.parl-lost{color:#FF4F6D}
 .sl-duo{display:flex;gap:10px;align-items:center;margin:8px 0}.sl-duo small{display:block}.wko-pos.sm{font-size:clamp(2.6rem,15vw,5rem)}
 .wko-door{position:absolute;top:0;bottom:0;width:50.5%;z-index:4;background:linear-gradient(90deg,#0b1220,#1a2640 48%,#0b1220),repeating-linear-gradient(0deg,transparent 0 46px,rgba(255,255,255,.05) 46px 48px);box-shadow:inset 0 0 60px #000;pointer-events:none;animation:wkoDoorL 1s .15s cubic-bezier(.7,0,.3,1) forwards}
@@ -3910,7 +3930,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v554 · Nov 16';
+const APP_BUILD='v555 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6270,6 +6290,7 @@ const CARD_FIX=[{id:'zh-ig',who:ZH,name:'Isaiah Garcia',school:'Bishop\'s',r:'l'
   {id:'ml-wp-1',who:ML,wp:1},
   {id:'is-lx',who:/^\s*isaac\s+smedra\s*$/i,rar:['x','l']},
   {id:'no-sc-1',who:/^/,sp:1},   /* v453 (owner, Nov 11): every special card (sc:) removed from every account's locker, once per account on its next open */   /* v409 (owner): every Immortal and Legendary card removed from Isaac Smedra */
+  {id:'ab-tok-1',who:AB,tok:-2794},   /* v555 (owner, Nov 16): take 2,794 tokens from Ari Borkar */
   {id:'zh-rk-1',who:ZH,gp:'rookie',m:'A Rookie pack to test with'},   /* v554 (owner asked for one to test) */
   {id:'ab-duo-1',who:AB,gp:'duo'},{id:'ab-spot-1',who:AB,gp:'spot'},{id:'ab-spot-2',who:AB,gp:'spot'},{id:'se-all-1',who:ABZH,gp:'alls',m:'Here’s all of the new special edition cards'},{id:'se-all-2',who:AB,gp:'alls',m:'Here’s another Special Edition pack'},{id:'se-all-3',who:AB,gp:'alls',m:'Here’s a new Special Edition pack'},{id:'zh-spot-1',who:ZH,gp:'spot',m:'Here’s a Spotlight pack with the new special player cards'}];   /* v408 (owner): Ari Borkar gets a free Duo pack (a gift pack in the Shop) */   /* v366 (owner): Max London gets another welcome pack */   /* v353: Zed gets another welcome pack */   /* v350: Ari and Zed get a new welcome pack */
 function cardFix(){const u=ME.uid;if(!u||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!S.loaded.picks||!S.loaded.profiles)return;
@@ -6279,6 +6300,8 @@ function cardFix(){const u=ME.uid;if(!u||ME.mode==='guest'||ME.mode==='readonly'
   if(+old.wp>0&&(+old.wpv||1)<3&&!rv['wp-v3']){rv['wp-v3']=1;patch.wp=0;n++}
   for(const f of CARD_FIX){if(rv[f.id]||!f.who.test(nmU))continue;rv[f.id]=1;n++;
     if(f.wp){patch.wp=0;continue}
+    if(f.tok){let d=f.tok;if(d<0){let have=0;try{have=Math.max(0,Math.floor(bank(u)))}catch(_){}d=-Math.min(-d,have)}   /* never below zero */
+      patch.dup=(+(patch.dup!==undefined?patch.dup:old.dup)||0)+d;continue}   /* v555: a one-time token change (negative takes tokens away), through inv.dup like the admin page does */
     if(f.gp){gp[f.id]={t:f.gp,m:f.m||'A free '+PACKS[f.gp].n+' for you'};ng++;continue}
     if(f.sp){for(const [id,have] of Object.entries(own)){if(!id.startsWith('sc:'))continue;const rs=Object.keys(have).filter(r=>have[r]);if(rs.length)put(id,c=>rs.forEach(r=>c[r]=0))}continue}
     if(f.rar){for(const [id,have] of Object.entries(own)){const rs=f.rar.filter(r=>have[r]);if(rs.length)put(id,c=>rs.forEach(r=>c[r]=0))}continue}
@@ -6628,7 +6651,11 @@ function picksHTML(){
 function anticipated(){
   const gs=((GAMES&&GAMES.games)||[]),r=ratings(),R=n=>r[n]===undefined?1500:r[n];
   const score=g=>(R(g.h)+R(g.a))/2-Math.abs(R(g.h)-R(g.a))*.4;
-  const up=gs.filter(g=>!gDone(g)).sort((a,b)=>score(b)-score(a));
+  /* v555 (owner: "fix the game of the week"): it picked Escondido Charter at Vincent Memorial (Division V-AA) over the Open Division game, because small-division teams pile up rating points against each other.
+     Now: only the next week with games, and in the playoffs the highest division comes first (Open, then I, II, ...); the rating score only breaks ties. */
+  const DV=['Open Division','Division I','Division II','Division III','Division IV','Division V','Division V-AA','Division VI'],dvr=g=>{const i=DV.indexOf(g.dv||'');return i<0?(g.dv?DV.length:DV.length+1):i};
+  const all=gs.filter(g=>!gDone(g)),w0=all.length?Math.min(...all.map(g=>g.w)):0;
+  const up=all.filter(g=>g.w===w0).sort((a,b)=>dvr(a)-dvr(b)||score(b)-score(a)).concat(all.filter(g=>g.w!==w0).sort((a,b)=>a.w-b.w||dvr(a)-dvr(b)||score(b)-score(a)));
   return up;
 }
 function anticipatedHTML(){
@@ -6640,7 +6667,7 @@ function anticipatedHTML(){
     <section class="card gotw"><div class="gm-h"><span>${esc(fmtDate(g.d)+(g.time?' · '+g.time:''))}</span>${g.dv?`<span class="gm-k p">${esc(g.dv)}</span>`:g.k==='P'?'<span class="gm-k p">Playoffs</span>':''}</div>
       <div class="gotw-row">${side(g.a,pa,pa>ph)}<span class="gotw-at">at</span>${side(g.h,ph,ph>=pa)}</div>
       <div class="gotw-bar" aria-label="Win chances"><i style="width:${pa}%"></i></div>
-      <p class="muted">The closest, highest-rated matchup on the schedule, by Varsity’s team ratings.</p></section>`;
+      <p class="muted">${g.dv?'The top playoff game this week: the highest division on the schedule.':'The closest, highest-rated matchup this week, by Varsity’s team ratings.'}</p></section>`;
 }
 /* ---------- Simulate: build the best team you can ---------- */
 const SIM_RESPINS=5;
@@ -6951,7 +6978,7 @@ function slipHTML(bal){
   return `<section class="card bt-all sl-bar"><div class="qh"><h3>${one?'Your pick':'Your parlay'}</h3><span class="muted">${one?'single pick':legs.length+' picks · all must hit'}</span></div>${legs.map(row).join('')}
     ${c.duos&&c.duos.length?`<p class="sl-duo">${c.duos.map(id=>duoArt(id,cardR(ME.uid,id),44)).join('')}<span><b>Duo boost +${c.dp}%</b><small class="muted">${c.duos.map(id=>esc(duoInfo(id).name)).join(', ')} · both players are in this parlay</small></span></p>`:''}
     ${one?`<p class="muted">Add another player to make it a parlay: ${Math.round(SL_BONUS*100)}% better odds for each extra pick.</p>`:legs.length>=SL_MAX?`<p class="muted">That is the most picks in one parlay (${SL_MAX}).</p>`:''}
-    <div class="bt-stk"><span class="muted">One wager</span>${chips.map(v=>`<button class="chip" data-act="slStake" data-v="${v}" aria-pressed="${stake===v}">${v}</button>`).join('')}${max>=1?`<button class="chip allin" data-act="slStake" data-v="${max}" aria-pressed="${stake===max}">All in</button>`:''}<input class="bt-amt sl-amt" type="number" min="1" max="${max}" step="1" inputmode="numeric" value="${stake||''}" data-room="${max}" aria-label="Parlay wager in tokens"></div>
+    <div class="bt-stk"><span class="muted">One wager</span>${chips.map(v=>`<button class="chip" data-act="slStake" data-v="${v}" aria-pressed="${stake===v}">${v}</button>`).join('')}${max>=1?`<button class="chip allin" data-act="slStake" data-v="${max}" aria-pressed="${stake===max}">All in</button>`:''}<label class="sl-type"><span>Type any amount</span><input class="bt-amt sl-amt" type="number" min="1" max="${max}" step="1" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" placeholder="0" value="${stake||''}" data-room="${max}" aria-label="Parlay wager in tokens"><i>of ${max.toLocaleString()} tokens</i></label></div>
     <div class="bt-go"><span>${c.odds.toFixed(2)}x${c.bonus?` (incl. +${c.bonus}% parlay bonus)`:''} · win <b id="sl-win">${tk(c.win(stake))}</b>${c.pct?` with +${c.pct}% card boost`:''}</span><button class="btn" data-act="slGo" ${ok?'':'disabled'}>${one?'Lock in pick':'Lock in parlay'}</button><button class="btn ghost" data-act="slClear">Clear</button></div></section>`;
 }
 async function slipGo(){
@@ -8365,10 +8392,11 @@ function rcoHTML(){
 }
 
 /* v463 (owner): Hoops Battle (tools/battle/hoops-battle.html) in basketball's Minigames. Find an opponent opens it full screen in an iframe (?find=1 joins the public lobby and pairs two searchers); Play the AI opens its menu */
-function hbHTML(){const can=!!ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly'&&ME.mode!=='offline',bal=can?bank(ME.uid):0,w=can&&bal>=(+UI.hbW||0)?(+UI.hbW||0):0,my=hbRec(ME.uid||'');
+function hbHTML(){const can=!!ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly'&&ME.mode!=='offline',bal=can?bank(ME.uid):0,my=hbRec(ME.uid||'');
+  /* v555 (owner): no wager chips here any more. You are matched first, then one of you offers a wager and the other accepts, raises or declines (inside the game, hoops-battle v50). */
   return `<section class="card rc-card"><div class="qh"><h3>Hoops Battle</h3>${can&&(my.w||my.l)?`<span class="muted">${my.w||0}-${my.l||0}${my.wn?` · ${my.wn>0?'+':''}${my.wn} tokens`:''}</span>`:''}</div><p class="muted" style="text-align:center">One-on-one. Hold JUMP to shoot, time it at the top for a perfect release. Dunk on a jumper to knock him down.</p>
-  ${can?`<div class="rco-wg pick"><p>Wager tokens (winner takes them):</p><div class="chips"><button class="chip" data-act="hbWg" data-v="0" aria-pressed="${w===0}">Free</button>${RCO_WG.map(v=>`<button class="chip" data-act="hbWg" data-v="${v}" aria-pressed="${w===v}" ${bal<v?'disabled':''}>${v}</button>`).join('')}</div><small class="muted">You have ${Math.round(bal)} tokens. Both players must pick the same wager to be matched.</small></div>`:'<p class="hint" style="text-align:center">Sign in to wager tokens.</p>'}
-  <div class="rco-modes" style="margin-top:10px"><button class="btn" data-act="hbOpen" data-m="find">Find an opponent${w?` · ${w} tokens`:''}</button><button class="btn ghost" data-act="hbOpen" data-m="ai">Play the AI</button></div></section>`}
+  ${can?`<div class="rco-wg pick"><p><b>Wagers happen after you are matched.</b></p><small class="muted">One of you offers tokens (or a free game). The other can accept, raise it, or decline. Winner takes the tokens. You have ${Math.round(bal)}.</small></div>`:'<p class="hint" style="text-align:center">Sign in to wager tokens.</p>'}
+  <div class="rco-modes" style="margin-top:10px"><button class="btn" data-act="hbOpen" data-m="find">Find an opponent</button><button class="btn ghost" data-act="hbOpen" data-m="ai">Play the AI</button></div></section>`}
 const HB={live:null};
 async function hbRecord(mid,w,win){
   if(!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!(w>0))return;
@@ -8377,10 +8405,9 @@ async function hbRecord(mid,w,win){
   await act(()=>upsert('picks/'+ME.uid,{hb:o}),win?`Hoops Battle win · +${w} tokens`:`Hoops Battle loss · -${w} tokens`);render(true)}
 async function hbOpen(m){
   if(document.querySelector('.hbx'))return;
-  let w=0;if(m==='find'&&ME.uid&&ME.mode!=='guest'){w=+UI.hbW||0;if(w&&bank(ME.uid)<w){say(`You need ${w} tokens for that wager.`);return}if(w&&!await stakeOk(w))return}
-  const bal=ME.uid?Math.round(bank(ME.uid)):0;
+  const bal=ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly'&&ME.mode!=='offline'?Math.max(0,Math.floor(bank(ME.uid))):0;
   const el=document.createElement('div');el.className='fgx hbx';el.setAttribute('role','dialog');el.setAttribute('aria-label','Hoops Battle');
-  el.innerHTML=`<iframe title="Hoops Battle" allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b1626" src="tools/battle/hoops-battle.html?embed=1${m==='find'?'&find=1&w='+w+'&bal='+bal:''}&b=${encodeURIComponent(APP_BUILD)}"></iframe><button class="fgx-x" aria-label="Close game" style="left:12px;right:auto;top:calc(8px + env(safe-area-inset-top,0px));width:36px;height:36px;font-size:16px">✕</button>`;
+  el.innerHTML=`<iframe title="Hoops Battle" allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b1626" src="tools/battle/hoops-battle.html?embed=1${m==='find'?'&find=1&bal='+bal:''}&b=${encodeURIComponent(APP_BUILD)}"></iframe><button class="fgx-x" aria-label="Close game" style="left:12px;right:auto;top:calc(8px + env(safe-area-inset-top,0px));width:36px;height:36px;font-size:16px">✕</button>`;
   document.body.appendChild(el);document.body.classList.add('fg-on');HB.live=null;
   const fr=el.querySelector('iframe');
   const done=()=>{removeEventListener('message',on);removeEventListener('keydown',fwd);removeEventListener('keyup',fwd);el.remove();document.body.classList.remove('fg-on');if(dirty&&!typing()){dirty=false;try{render(true)}catch(_){}}},
@@ -10946,7 +10973,7 @@ document.addEventListener('click',async e=>{
       <div class="tok-bal"><small>You have</small><b>${Math.round(bank(ME.uid))}</b><small>tokens</small></div>
       <div class="tok-opt" style="cursor:default"><span class="tok-ic" aria-hidden="true">☀</span><span><b>Daily bonus: +${DLY_PAY} tokens</b><small>${dlyOf(ME.uid).d===TODAY()?'Collected today ✓':'Added the first time you play a game each day'}</small></span></div>
       <div class="tok-opt" style="cursor:default"><span class="tok-ic" aria-hidden="true">↻</span><span><b>Daily streak: ${fgStreak(ME.uid)} ${fgStreak(ME.uid)===1?'day':'days'}</b><small>Any game counts · ${strFreeLeft(ME.uid)} free ${strFreeLeft(ME.uid)===1?'freeze':'freezes'} left this month</small></span></div>
-      <button type="button" class="tok-opt" data-act="adWatch" ${l?'':'disabled'}><span class="tok-ic" aria-hidden="true">▶</span><span><b>Watch a short sponsor spot</b><small>+${ADS.reward} tokens · ${l?l+' left today':'back tomorrow'}</small></span></button>
+      <button type="button" class="tok-opt tok-ad" data-act="adWatch" ${l?'':'disabled'}><span class="tok-ic" aria-hidden="true">▶</span><span><b>Watch a sponsor video</b><small>${l?l+' left today':'Back tomorrow'}</small></span><em>+${ADS.reward}</em></button>
       <button type="button" class="tok-opt" data-act="goLocker"><span class="tok-ic" aria-hidden="true">▣</span><span><b>Open packs in the Shop</b><small>${freePacks(ME.uid)?freePacks(ME.uid)+' free '+(freePacks(ME.uid)===1?'pack':'packs')+' waiting · ':''}Ball skins, frames, perks, boosts</small></span></button>
       ${rwHTML()}
       ${(()=>{const r=tokRows(),i=r.findIndex(x=>x.u===ME.uid);return r.length?`<div class="rw"><div class="rw-h"><b>Token leaderboard</b><small class="muted">${i>=0?'You are #'+(i+1)+' of '+r.length:''}</small></div><ul>${r.slice(0,5).map((x,k)=>`<li class="${x.u===ME.uid?'me':''}"><span class="rw-c">${k+1}</span><span>${esc(x.u===ME.uid?'You':nm(x.u))}</span><span class="tk-v"><b>${x.t.toLocaleString()}</b><small>${x.b.toLocaleString()} now</small></span></li>`).join('')}</ul></div>`:''})()}

@@ -1,11 +1,4 @@
-Bishop's
-0|6uv0tm946nki2|a02
-0|q4kce30jjk6o8|a10b01
-0|7fk8tstsmuncc|a4.i0b0.i0
-0|v6d222lppj3bb|a20b20
-0|midqbln9s1c77|a0.i0
-0|jjg97thjjlv33|a02
-0|2t841ep1m9drb|a10b10
-0|n12rlej1stak4|b1.i0
-0|3ctcj5i27l455|b12
-0|nnpmk97beg2ee|b01
+Mira Mesa|Carlsbad
+0|i2tkm2n07df77|d50
+0|j5q0pi4d4mq99|d20
+0|098k4ughojjvf|d20

@@ -1030,3 +1030,6 @@ The player profile log (`logBB` in the player page, only when `GAME_L==='Game'` 
 
 ## v566 — Basketball "Per game leaders" (owner)
 New Stats-tab card `sxPG(D)` (basketball only, between Position leaders and On the rise): top 10 of the whole league by per-game fantasy points, points, rebounds, assists, steals or blocks (chips, `UI.sx.pg`, action `sxPG`). Minimum games = the most any player has played, capped at 3 (so it works from game 1). The older Position leaders Total / Per game switch (3+ games) is unchanged.
+
+## v567 — Basketball: Last game, Per game, fewer "week"s (owner)
+Rank by chips on the Players list (`rankSw`) in basketball: Total, **Per game** (new, `UI.rank==='pg'`, `pgAgg`: average over the games he played, shown as "pts per game"), **Last game** (was Last week; ranks by his most recent game, labels "last game pts"), Overall. Football keeps Total / Last week / Overall. Player profile: "Projected next game" and "the latest count most" instead of week wording (all keyed on `GAME_L==='Game'`). Still saying week in basketball: Players of the Week card, School Cup · Week N, header chip, Games tab week chips, Scoring period list, Pick 'em / leagues (they are weekly by design).

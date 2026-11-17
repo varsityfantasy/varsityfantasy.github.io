@@ -1042,3 +1042,6 @@ Basketball only (`GAME_L==='Game'`): "All games by day" (`viewSchedDays`, chips 
 
 ## v570 — Basketball: Game of the Day (owner)
 Basketball's "Game of the Week" is now **Game of the Day** (`anticipated()` keys on the date when `GAME_L==='Game'`): the best unfinished game on the next day that has games, today or later (old unscored days are skipped); a new one every day there are games. Ranked by the ridge ratings (last season's scoring until 20 games are final) instead of the few results so far. Football keeps Game of the Week.
+
+## v571 — Packs opened in the admin dashboard; Send a gift first in the Shop (owner)
+`pkTrack(v,type,how)` runs on every pack open (`packOpen`, `pkpBuy`) and adds to the opener's `inv.pk` (by pack), `inv.ph` (source: tok/free/ad/gift/lb/fclb/bk/cup/duog) and `inv.pd` (by day). Opens before v571 exist only in `inv.n`. `dashData2` builds `pkA`; the "Packs opened" card is on the Sponsors and tokens admin page (total, people, per person, last 14 days, by pack, by source, per day). The Shop's first card (`giftTop`) is now Send a gift; League trophy stays at the bottom.

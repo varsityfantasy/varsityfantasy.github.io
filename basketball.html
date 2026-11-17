@@ -3940,7 +3940,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v570 · Nov 16';
+const APP_BUILD='v571 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -5772,6 +5772,8 @@ const cardTag=(u,id)=>{const p=cardPct(u,id);return p?`<span class="cb-tag" titl
 function rollGear(r){let i=RAR_ORD.indexOf(r);for(;i>=0;i--){const pool=ITEMS.filter(x=>x.r===RAR_ORD[i]&&BH_K.includes(x.k));if(pool.length)return pool[fcRnd(pool.length)].id}return 'bhs_black'}
 function rollItem(r,cosOnly){const pool=ITEMS.filter(x=>x.r===r&&!x.ex&&itemSp(x)&&!BH_K.includes(x.k)),use=pool.filter(x=>x.k==='perk'||x.k==='tboost'),cos=pool.filter(x=>!(x.k==='perk'||x.k==='tboost'));
   const P=use.length&&!(cosOnly&&cos.length)&&(!cos.length||fcRnd(100)<18)?use:cos;return P[fcRnd(P.length)].id}
+/* v571 (owner): the admin dashboard counts opened packs. Each open adds to inv.pk (by pack), inv.ph (by where it came from: tokens, free, ad, gift, prize...) and inv.pd (by day). Opens before v571 are only in inv.n. */
+function pkTrack(v,type,how){const b=o=>Object.assign({},o),pk=b(v.pk),ph=b(v.ph),pd=b(v.pd),d=TODAY();pk[type]=(+pk[type]||0)+1;ph[how]=(+ph[how]||0)+1;pd[d]=(+pd[d]||0)+1;return {pk,ph,pd}}
 async function packOpen(type,how,day,team){
   const P=PACKS[type];if(!P)return;
   if(!ME.uid||ME.mode==='guest'){try{openAuth()}catch(_){}return}
@@ -5797,7 +5799,7 @@ async function packOpen(type,how,day,team){
     if(!P.cos&&!P.gear&&(P.cards||fcRnd(100)<CARD_CHANCE)){let cid=rollCard(r);if(P.cards)for(let k=0;!cid&&k<5;k++)cid=rollCard(r);if(cid){const cur=typeof cards[cid]==='string'?{[cards[cid]]:1}:Object.assign({},cards[cid]),isDup=!!cur[r];if(isDup)dup+=RAR[r].dup;else{cur[r]=1;cards[cid]=cur;gotCard=true}got.push({card:cid,r,dup:isDup});continue}}
     const id=P.gear?rollGear(r):rollItem(r,!!P.cos);
     const was=Math.max(+it[id]||0,invHas(ME.uid,id)),isDup=isCos(id)&&was>0;if(isDup)dup+=RAR[r].dup;else it[id]=(+it[id]||0)+1;got.push({id,r,dup:isDup})}
-  const patch={it,n:(+v.n||0)+1};if(gotCard)patch.cards=cards;
+  const patch=Object.assign({it,n:(+v.n||0)+1},pkTrack(v,type,how));if(gotCard)patch.cards=cards;
   if(how==='tok')patch.sp=(+v.sp||0)+P.tok;
   if(dup)patch.dup=(+v.dup||0)+dup;
   if(how==='free'){const fr=Object.assign({},v.fr);if(!fr.st)fr.st=NOW();else fr.d7=(+fr.d7||0)+1;patch.fr=fr}
@@ -5867,7 +5869,7 @@ async function pkpBuy(gid,key){
   if(!gid&&bank(ME.uid)<P.tok){say(`You need ${P.tok} tokens for the ${P.n}.`);return}
   _pkBusy=true;
   try{const R=pkpRoll(ME.uid,P.all);if(!R){say('The Top 10 is not set yet. Try again soon.');return}
-    const v=invOf(ME.uid),patch={n:(+v.n||0)+1,pkp:{o:R.o,g:R.g,t:NOW(),d:0}};if(gid)patch.fr=Object.assign({},v.fr,{gpo:Object.assign({},(v.fr||{}).gpo,{[gid]:1})});else patch.sp=(+v.sp||0)+P.tok;
+    const v=invOf(ME.uid),patch=Object.assign({n:(+v.n||0)+1,pkp:{o:R.o,g:R.g,t:NOW(),d:0}},pkTrack(v,key,gid?'gift':'tok'));if(gid)patch.fr=Object.assign({},v.fr,{gpo:Object.assign({},(v.fr||{}).gpo,{[gid]:1})});else patch.sp=(+v.sp||0)+P.tok;
     S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:Object.assign({},v,patch)});
     try{await upsert('picks/'+ME.uid,{inv:patch})}catch(_){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:v});say('That did not save. Try again.');return}
     pkWalkout(R,pkpShow)}finally{_pkBusy=false}}
@@ -6498,9 +6500,10 @@ function viewShop(){
       +bkPrizes(ME.uid).map(x=>`<section class="card lk-free lk-prize"><div><b>🏆 ${ord[x.place]} place · ${esc(PACKS[x.type].n)}</b><small class="muted">Playoff Bracket Challenge.</small></div><button class="btn" data-act="pkOpen" data-v="${x.type}" data-h="bk" data-d="bk">Open prize</button></section>`).join('')
       +cupPrizes(ME.uid).map(x=>`<section class="card lk-free lk-prize"><div><b>🏆 Top scorer · ${esc(PACKS[x.type].n)}</b><small class="muted">School Cup, week ${x.w}.</small></div><button class="btn" data-act="pkOpen" data-v="${x.type}" data-h="cup" data-d="${x.w}">Open prize</button></section>`).join('');
     const myLg=myGroups().filter(g=>g.ownerId===ME.uid);
-    const extras=`<div class="sh-two"><section class="card sh-gift"><div><b>Send a gift</b><small class="muted">Any amount of tokens, or a cosmetic, to a friend.</small></div><button class="btn" data-act="gfOpen">Send a gift</button></section>
+    const giftTop=`<section class="card sh-gift"><div><b>Send a gift</b><small class="muted">Any amount of tokens, or a cosmetic, to a friend.</small></div><button class="btn" data-act="gfOpen">Send a gift</button></section>`;   /* v571 (owner): Send a gift is the first card in the Shop */
+    const extras=`<div>
       <section class="card sh-tro"><div><b>League trophy</b><small class="muted">${myLg.length?`Design the trophy for a league you run · ${TRO_TOK.toLocaleString()} tokens`:'Start a league to design its trophy.'}</small></div>${myLg.map(g=>`<button class="btn ghost sm" data-act="troOpen" data-gid="${esc(g.id)}">${esc(g.name)}${g.trophy?' · edit':''}</button>`).join('')}</section></div>`;
-    body=dgShopCard()+spShopCard()+wpShopCard()+pkpBanner()+prizes+free+`<section class="card lk-adp"><div class="lk-adp-ic" aria-hidden="true">▶</div><div><b>Free pack</b><small class="muted">${adDone?'Back tomorrow for another.':'Watch a short video. Once a day.'}</small></div><button class="btn" data-act="pkAd" ${adDone?'disabled':''}>${adDone?'Back tomorrow':'Watch ad'}</button></section>
+    body=giftTop+dgShopCard()+spShopCard()+wpShopCard()+pkpBanner()+prizes+free+`<section class="card lk-adp"><div class="lk-adp-ic" aria-hidden="true">▶</div><div><b>Free pack</b><small class="muted">${adDone?'Back tomorrow for another.':'Watch a short video. Once a day.'}</small></div><button class="btn" data-act="pkAd" ${adDone?'disabled':''}>${adDone?'Back tomorrow':'Watch ad'}</button></section>
       ${shopHTML()}<h3 class="sh-h">Packs</h3><div class="lk-packs">${Object.entries(PACKS).filter(([k,P])=>!P.off&&!(P.gear&&FG_SPORT==='bb')).sort((a,b)=>a[1].tok-b[1].tok)/* owner: cheapest pack first, most expensive last */.map(([k,P])=>P.pick?pkpShopCard(k,P,bal):`<article class="card lk-pack lk-${k}"><div class="lk-art"><span>${P.c}</span><small>${P.cards?(P.c===1?'card':'cards'):'items'}</small></div><h3>${esc(P.n)}</h3>
       <p class="muted">${P.spc?'Special player cards only · Prizm, Ticket, Hot Streak, Playbook and more · Epic or better':P.duo?'Duo cards only · two teammates on one double-sided card · Epic or better · unlocks parlays':P.team?'You pick the team · its player and team cards only':P.gear?'Bobblehead gear only · arm sleeves and back plates':P.cards?'Player and team cards only':P.cos?(ACH_CHANCE[k]?`Cosmetics, plus a ${ACH_CHANCE[k]}% Immortal card chance per item`:'Cosmetics only'):'Cosmetics and cards'} · ${P.c} ${P.cards?(P.c===1?'card':'cards'):(P.c===1?'item':'items')}${P.g?` · the last one is ${RAR[P.g].n} or better, the rest are random`:P.c===1?', random rarity':', all random'}</p>
       <details class="lk-odds"><summary>Odds</summary><ul>${Object.entries(P.odds).map(([r,p])=>`<li><span style="color:${RAR[r].c}">${RAR[r].n}</span><b>${p}%</b></li>`).join('')}${ACH_CHANCE[k]?`<li><span style="color:${RAR.x.c}">${RAR.x.n} card (per slot)</span><b>${ACH_CHANCE[k]}%</b></li>`:''}</ul><small class="muted">Each ${P.cards?'card':'item'} rolls these odds${P.g?`, except the last one, which is at least ${RAR[P.g].n}`:''}. Duplicate ${P.cards?'cards':P.cos&&!ACH_CHANCE[k]?'cosmetics':'cosmetics and cards'} turn into tokens.</small></details>
@@ -10554,6 +10557,10 @@ function dashData2(D){
   const bals=P.map(r=>{try{return demo?Math.round(40+rng(r.uid.length*7+(+r.uid.slice(4)||0))()*400):bank(r.uid)}catch(_){return TOK0}}),sb=bals.slice().sort((a,b)=>a-b);
   const tok={sum:bals.reduce((a,b)=>a+b,0),avg:bals.length?bals.reduce((a,b)=>a+b,0)/bals.length:0,med:sb.length?sb[Math.floor(sb.length/2)]:0,broke:bals.filter(b=>b<5).length,fromAds:D.users.reduce((a,u)=>a+u.adsAll,0)*ADS.reward};
   if(demo)tok.fromAds=D.k.adsAll*ADS.reward;
+  /* packs opened (v571): by pack, by source, by day, from each person's inv */
+  const pkA={tracked:0,all:0,by:{},src:{},day:{},people:0};
+  P.forEach(r=>{try{const v=invOf(r.uid);pkA.all+=+v.n||0;let t=0;for(const [k,n] of Object.entries(v.pk||{})){pkA.by[k]=(pkA.by[k]||0)+(+n||0);t+=+n||0}for(const [k,n] of Object.entries(v.ph||{}))pkA.src[k]=(pkA.src[k]||0)+(+n||0);for(const [k,n] of Object.entries(v.pd||{}))pkA.day[k]=(pkA.day[k]||0)+(+n||0);pkA.tracked+=t;if((+v.n||0)>0)pkA.people++}catch(_){}});
+  if(demo){const g=rng(21);Object.keys(PACKS).filter(k=>!PACKS[k].off).forEach(k=>{pkA.by[k]=Math.round(g()*60)});pkA.tracked=Object.values(pkA.by).reduce((a,b)=>a+b,0);pkA.all=pkA.tracked+40;pkA.people=Math.round(P.length*.7);pkA.src={tok:Math.round(pkA.tracked*.5),free:Math.round(pkA.tracked*.2),ad:Math.round(pkA.tracked*.2),gift:Math.round(pkA.tracked*.1)};D.days.slice(-14).forEach((d,i)=>{pkA.day[d]=Math.round(g()*30)})}
   /* leagues */
   const L=(DASH.ex&&DASH.ex.leagues)||[...Object.entries(S.groups||{}),...Object.entries(S.fgroups||{})].filter(([,g])=>g).map(([id,g])=>({id,...g,lineups:Object.keys(g.members||{}).filter(u=>((S.lineups[u]||{}).g||{})[id]).length}));
   const lg=L.map(g=>{const m=Object.keys(g.members||{}).length,st=g.draft?(g.draft.status==='done'||(g.draft.picks&&g.draft.order&&Object.keys(g.draft.picks).length>=g.draft.order.length*slotsOf(g).length)?'Draft done':g.draft.status==='live'?'Drafting':'Waiting to draft'):'No draft';
@@ -10573,7 +10580,7 @@ function dashData2(D){
   const gaps=[];Object.keys(teamWk).forEach(sc=>{const key=AL[nz(sc)]||nz(sc),list=playedBy[key]||[];const miss=list.filter(g=>!teamWk[sc].has(g.w)).map(g=>g.w).sort((a,b)=>a-b);if(miss.length)gaps.push({sc,miss,of:list.length})});
   gaps.sort((a,b)=>b.miss.length-a.miss.length);
   const pend=Object.values(S.games||{}).reduce((a,g)=>a+Object.values((g&&g.weeks)||{}).filter(x=>x&&x.ver==='self').length,0);
-  return {ret:{d1:ret(1),d7:ret(7),d30:ret(30)},weeks,wkNew,wkRet,cohorts,funnel,hr,as,tok,lg,errs,byMsg:Object.values(byMsg).sort((a,b)=>b.n-a.n),health:{noScore,noStats,gaps,pend,updated:MP?MP.updated:'',through:MP?MP.through:'',players:mp.length}};
+  return {ret:{d1:ret(1),d7:ret(7),d30:ret(30)},weeks,wkNew,wkRet,cohorts,funnel,hr,as,tok,pkA,lg,errs,byMsg:Object.values(byMsg).sort((a,b)=>b.n-a.n),health:{noScore,noStats,gaps,pend,updated:MP?MP.updated:'',through:MP?MP.through:'',players:mp.length}};
 }
 function admStack(labels,series){const W=640,H=220,P={l:36,r:8,t:12,b:26},w=W-P.l-P.r,h=H-P.t-P.b,n=labels.length,tot=labels.map((_,i)=>series.reduce((a,s)=>a+s.v[i],0)),mx=Math.max(2,...tot),Y=x=>h*x/mx,bw=w/n;
   return `<svg viewBox="0 0 ${W} ${H}" class="adm-chart">${[0,.5,1].map(f=>`<line x1="${P.l}" x2="${W-P.r}" y1="${P.t+h-h*f}" y2="${P.t+h-h*f}" stroke="#16241D"/><text x="${P.l-8}" y="${P.t+h-h*f+4}" text-anchor="end" class="adm-ax">${Math.round(mx*f)}</text>`).join('')}
@@ -10715,6 +10722,13 @@ function admPages(P,D,K,X,kpi,title,sel,hbars,dl){
       ${kpi('M16 11a4 4 0 1 0-8 0','#5B9BD5','Out of tokens',X.tok.broke,`<span class="adm-dl">people under 5 tokens</span>`,D.dau)}</div>
     <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Videos started vs finished</h3>${sel}</div><div class="adm-leg"><span><i style="background:#5A1B28"></i>Started</span><span><i style="background:#E5404F"></i>Finished</span></div>${admBars(D.days,X.as,{c:'#5A1B28',line:D.ads,lc:'#E5404F',label:'Sponsor videos started and finished'})}</div>
       <div class="adm-card"><div class="adm-ch"><h3>Token balances</h3></div><div class="adm-glance"><div><small>Average</small><b>${Math.round(X.tok.avg)}</b></div><div><small>Middle person</small><b>${Math.round(X.tok.med)}</b></div><div><small>All tokens out there</small><b>${Math.round(X.tok.sum).toLocaleString()}</b></div><div><small>Start with</small><b>${TOK0}</b></div></div><p class="adm-mut" style="font-size:12px;margin:10px 0 0">Tokens are free and can't be bought. People run low after losing picks, then watch videos to top up.</p></div>
+      ${(()=>{const A=X.pkA,SN={tok:'Bought with tokens',free:'Free (7-day streak)',ad:'Daily sponsor pack',gift:'Gifts',lb:'Daily challenge prizes',fclb:'5 Card Draw prizes',bk:'Bracket prizes',cup:'School Cup prizes',duog:'Duo gift'},ent=Object.entries(A.by).sort((a,b)=>b[1]-a[1]),days=D.days.slice(-14),dv=days.map(d=>A.day[d]||0),old=Math.max(0,A.all-A.tracked);
+        return `<div class="adm-card adm-span3"><div class="adm-ch"><h3>Packs opened</h3><span class="adm-chip">all time</span></div>
+        <div class="adm-glance"><div><small>Packs opened</small><b>${A.all.toLocaleString()}</b></div><div><small>People who opened one</small><b>${A.people}</b></div><div><small>Per person</small><b>${A.people?(A.all/A.people).toFixed(1):'0'}</b></div><div><small>Last 14 days</small><b>${dv.reduce((a,b)=>a+b,0).toLocaleString()}</b></div></div>
+        ${ent.length?`<h4 style="margin:14px 0 6px">Which packs</h4>${hbars(ent.map(([k,n])=>[(PACKS[k]&&PACKS[k].n)||k,n]),'#D9A441')}`:'<p class="adm-mut" style="margin:12px 0 0">No packs have been opened since tracking started.</p>'}
+        ${Object.keys(A.src).length?`<h4 style="margin:14px 0 6px">Where they came from</h4>${hbars(Object.entries(A.src).sort((a,b)=>b[1]-a[1]).map(([k,n])=>[SN[k]||k,n]),'#5B9BD5')}`:''}
+        <h4 style="margin:14px 0 6px">Packs opened per day</h4>${admBars(days,dv,{c:'#D9A441',label:'Packs opened per day'})}
+        <p class="adm-mut" style="font-size:12px;margin:10px 0 0">The per-pack, source and daily counts start with v571${old?` (${old.toLocaleString()} earlier ${old===1?'open is':'opens are'} counted in the total only)`:''}. A Pick 1 of 5 pack counts once.</p></div>`})()}
       <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top watchers</h3>${sel}</div>${hbars(D.users.filter(u=>u.a).sort((a,b)=>b.a-a.a).slice(0,10).map(u=>[u.name,u.a]),'#E5404F')}</div></div>`}
   if(P==='leagues'){const L=X.lg,cnt=h=>L.filter(x=>x.health===h).length,col={Active:'g',Quiet:'b',Drafting:'o',Waiting:'r',Empty:'x'};
     return title('League health','Every fantasy league: is it drafting, playing or waiting?')+`<div class="adm-kpis">

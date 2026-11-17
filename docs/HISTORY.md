@@ -984,3 +984,6 @@ Player props (and the `plSide` over/under row) buttons get class `ou ou-o|ou-u`:
 
 ## v553 — Welcome pack can no longer be skipped; big gold Open button (owner)
 The Welcome pack invite (`spMaybe`, class `wp-ask`) has one button, `Open my free pack` (`.btn.wp-go`: gold, pulsing ring, shine sweep, bobbing pack art; still under reduced motion). No Later, and tapping outside or Escape does not close it (`#cfm .wp-ask, #cfm .sp-must` checks in the cfm click and keydown handlers). The team chooser for it (`spSheet`, `sp-must`) has no close button either; its Open button is the same gold style once a team is picked. Shop Welcome pack card uses `wp-go sm`. The old `wpMaybe` invite (off since `wpCan` is false) got the same markup.
+
+## v554 — One Rookie pack for Zed Hornby to test (owner)
+`CARD_FIX` entry `zh-rk-1` (`gp:rookie`): added as a gift pack the next time the account whose profile name is Zed Hornby opens the app; shows in the Shop under gifts. Once only.

@@ -981,3 +981,6 @@ Player props (and the `plSide` over/under row) buttons get class `ou ou-o|ou-u`:
 
 ## v552 — Transfer Portal bonus once per account (owner)
 `tpBonusCheck` now records the claim on the shared profile (`profiles.tpbc`, written BEFORE the payout), so football and basketball pay it once between them. Accounts paid before v552 (inv.tpb in this sport, or in the other sport's picks doc read straight from `docs` coll `picks`/`bb_picks`) get tpbc backfilled with no second payout. If the other sport's doc can't be read, nothing is paid that time.
+
+## v553 — Welcome pack can no longer be skipped; big gold Open button (owner)
+The Welcome pack invite (`spMaybe`, class `wp-ask`) has one button, `Open my free pack` (`.btn.wp-go`: gold, pulsing ring, shine sweep, bobbing pack art; still under reduced motion). No Later, and tapping outside or Escape does not close it (`#cfm .wp-ask, #cfm .sp-must` checks in the cfm click and keydown handlers). The team chooser for it (`spSheet`, `sp-must`) has no close button either; its Open button is the same gold style once a team is picked. Shop Welcome pack card uses `wp-go sm`. The old `wpMaybe` invite (off since `wpCan` is false) got the same markup.

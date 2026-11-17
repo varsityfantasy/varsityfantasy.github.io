@@ -1973,6 +1973,22 @@ html,body{overflow-x:clip;max-width:100%}
 .gf-mini{display:inline-flex;vertical-align:middle;margin-right:5px}
 /* v345 welcome pack */
 .wp-ask{text-align:center}.wp-ask h2{margin:10px 0 6px}.wp-ask p{margin:6px 0}
+/* v553 (owner): the Open pack button is the one thing on the invite: big, gold, pulsing, with a shine sweeping across; no Later */
+.wp-ask .gbtns{display:block;position:static;background:none;padding-top:10px}
+.btn.wp-go{position:relative;overflow:hidden;display:block;width:100%;padding:17px 18px;border:0;border-radius:16px;background:linear-gradient(180deg,#FFE27A,#FFB81F 55%,#F08A12);color:#231400;font:900 1.3rem/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 0 0 rgba(255,194,61,.75),0 12px 26px -8px rgba(255,170,30,.8),inset 0 1px 0 rgba(255,255,255,.65);animation:wpPulse 1.5s ease-out infinite}
+.btn.wp-go span{position:relative;z-index:1}
+.btn.wp-go::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-18deg);animation:wpShine 2.2s ease-in-out infinite}
+.btn.wp-go:active{transform:scale(.97)}
+.btn.wp-go:disabled{animation:none;filter:grayscale(.85);opacity:.55;box-shadow:none}.btn.wp-go:disabled::after{display:none}
+.sp-must .gbtns{display:block}
+.btn.wp-go.sm{width:auto;padding:12px 20px;font-size:1rem;border-radius:12px}
+.wp-ask-art{animation:wpBob 2.4s ease-in-out infinite}
+.wp-tap{margin:10px 0 0!important;font-size:.8rem}
+@keyframes wpPulse{0%{box-shadow:0 0 0 0 rgba(255,194,61,.75),0 12px 26px -8px rgba(255,170,30,.8),inset 0 1px 0 rgba(255,255,255,.65)}70%,100%{box-shadow:0 0 0 16px rgba(255,194,61,0),0 12px 26px -8px rgba(255,170,30,.8),inset 0 1px 0 rgba(255,255,255,.65)}}
+@keyframes wpShine{0%,35%{left:-60%}75%,100%{left:125%}}
+@keyframes wpBob{50%{transform:translateY(-6px) rotate(-2deg)}}
+@media (prefers-reduced-motion:reduce){.btn.wp-go,.btn.wp-go::after,.wp-ask-art{animation:none}}
+
 .wp-ask-art{width:96px;height:128px;margin:4px auto 6px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(150deg,#FFE08A,#F29A1D 45%,#7A4DFF);box-shadow:0 14px 34px -10px rgba(255,194,61,.7),inset 0 1px 0 rgba(255,255,255,.5);color:#1b1200;font:900 2.6rem/1 var(--f-display,inherit);animation:wpBob 1.6s ease-in-out infinite}
 .wp-ask-art small{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}
 @keyframes wpBob{50%{transform:translateY(-6px) rotate(-2deg)}}
@@ -3894,7 +3910,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v552 · Nov 16';
+const APP_BUILD='v553 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6119,12 +6135,12 @@ function wpRoll(){const by=wpTeams(),ts=Object.keys(by).filter(t=>by[t].length);
   if(fcRnd(10000)<WP_ACH*100){const aid=rollAch(),a=aid&&achInfo(aid),q=a&&pByKey(a.key);
     if(q&&by[q.school]){const pool=wpTop(by[q.school]);if(!pool.some(x=>x.key===q.key))pool[pool.length-1]=q;return {team:q.school,r:'x',key:q.key,ach:aid,teams:ts,pool}}}
   const team=ts[fcRnd(ts.length)],r=rollRarity(WP_ODDS),pool=wpTop(by[team]),p=pool[fcRnd(pool.length)];return {team,r,key:p.key,teams:ts,pool}}
-/* the invite: shown once per app session after you have a profile (Later keeps it in the Shop) */
+/* the invite: shown once per app session after you have a profile. v553: no Later; the only way on is Open */
 function wpMaybe(){if(_wpAsked||!wpCan())return;const c=$('#cfm');if(!c||!c.hidden||document.querySelector('.pko,.wpk'))return;_wpAsked=true;
   c.innerHTML=`<div class="gcard tok-sheet wp-ask" role="dialog" aria-modal="true" aria-labelledby="wp-t"><div class="wp-ask-art" aria-hidden="true"><span>1</span><small>player</small></div><h2 id="wp-t">Welcome to Varsity!</h2>
     <p>Here’s a free <b>player pack</b> to start you off: one card of a random team’s best player at one position, Epic or better.</p>
     <p class="wp-odds">${Object.entries(WPO).map(([r,n])=>`<span style="color:${RAR[r].c}">${RAR[r].n} ${n}%</span>`).join('')}</p>
-    <div class="gbtns"><button class="btn" data-act="wpOpen">Open it</button><button class="btn ghost" data-c="no">Later</button></div></div>`;c.hidden=false}
+    <div class="gbtns"><button class="btn wp-go" data-act="wpOpen"><span>Open my free pack</span></button></div><p class="wp-tap muted">Tap to reveal your card</p></div>`;c.hidden=false}
 /* ---------- Welcome pack (v382, owner) ----------
    Replaces the old random-team welcome pack (wpCan() is now false). Every account gets it once (inv.sp2 = when opened, inv.spc = walkout
    card:rarity): YOU choose the team, it rolls a random player from that team's whole roster at Epic or better (SPO) and plays the walkout
@@ -6135,17 +6151,17 @@ const spCan=()=>wpCan0()&&!invOf(ME.uid).sp2;
 let _spAsked=false,_spBusy=false;
 function spSheet(){if(!spCan())return;PT.k='sp';PT.t='';const c=$('#cfm');if(!c)return;
   const ts=Object.keys(wpTeams()).sort((a,b)=>a.localeCompare(b));
-  c.innerHTML=`<div class="gcard tok-sheet pt-sheet" role="dialog" aria-modal="true" aria-labelledby="pt-t"><button type="button" class="tok-x" data-c="no" aria-label="Close">✕</button>
+  c.innerHTML=`<div class="gcard tok-sheet pt-sheet sp-must" role="dialog" aria-modal="true" aria-labelledby="pt-t">
     <h2 id="pt-t">Choose your team</h2><p class="muted">Your Welcome pack has one random player from this team (Epic or better) plus 10 more cards.</p>
     <input id="pt-q" class="pt-q" type="search" placeholder="Search schools" autocomplete="off" aria-label="Search schools">
     <div class="pt-list" role="listbox" aria-label="Teams">${ts.map(t=>`<button type="button" class="pt-t" data-act="ptPick" data-v="${esc(t)}" aria-pressed="false">${slogo(t,26)}<span>${esc(t)}</span></button>`).join('')}</div>
-    <div class="gbtns"><button class="btn" data-act="spGo" disabled>${ptLabel()}</button></div></div>`;c.hidden=false}
+    <div class="gbtns"><button class="btn wp-go" data-act="spGo" disabled><span>${ptLabel()}</span></button></div></div>`;c.hidden=false}
 function spMaybe(){if(_spAsked||!spCan())return;const c=$('#cfm');if(!c||!c.hidden||document.querySelector('.pko,.wpk,.wko'))return;_spAsked=true;
   c.innerHTML=`<div class="gcard tok-sheet wp-ask" role="dialog" aria-modal="true" aria-labelledby="sp-t"><div class="wp-ask-art" aria-hidden="true"><span>11</span><small>cards</small></div><h2 id="sp-t">Welcome to Varsity!</h2>
     <p>Your free <b>Welcome pack</b>: pick <b>any team</b> and walk out a random player from it, <b>Epic or better</b>, plus <b>10 more cards</b>.</p>
     <p class="wp-odds">${Object.entries(SPO).map(([r,n])=>`<span style="color:${RAR[r].c}">${RAR[r].n} ${n}%</span>`).join('')}</p>
-    <div class="gbtns"><button class="btn" data-act="spOpen">Choose my team</button><button class="btn ghost" data-c="no">Later</button></div></div>`;c.hidden=false}
-function spShopCard(){return spCan()?`<section class="card lk-free wp-shop"><div><b>Welcome pack · free</b><small class="muted">Choose a team: one random player from it (${Object.entries(SPO).map(([r,n])=>RAR[r].n+' '+n+'%').join(' · ')}) plus 10 more cards.</small></div><button class="btn" data-act="spOpen">Open</button></section>`:''}
+    <div class="gbtns"><button class="btn wp-go" data-act="spOpen"><span>Open my free pack</span></button></div><p class="wp-tap muted">Pick your team, then meet your player</p></div>`;c.hidden=false}
+function spShopCard(){return spCan()?`<section class="card lk-free wp-shop"><div><b>Welcome pack · free</b><small class="muted">Choose a team: one random player from it (${Object.entries(SPO).map(([r,n])=>RAR[r].n+' '+n+'%').join(' · ')}) plus 10 more cards.</small></div><button class="btn wp-go sm" data-act="spOpen"><span>Open</span></button></section>`:''}
 async function spGo(){if(_spBusy||!spCan()||!PT.t)return;_spBusy=true;const team=PT.t;
   try{const pool=players().filter(p=>!p.sample&&!/x$/.test(p.key)&&p.school===team);if(!pool.length){say('No players on that team yet. Pick another.');return}
     try{closeConfirm()}catch(_){}
@@ -6157,7 +6173,7 @@ async function spGo(){if(_spBusy||!spCan()||!PT.t)return;_spBusy=true;const team
     S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:Object.assign({},v,patch)});
     try{await upsert('picks/'+ME.uid,{inv:patch})}catch(_){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:v});say('That did not save. Try again.');return}
     packShow(P,got,{p,r,dup:wdup,k:'Welcome pack',btn:'Open 10 more cards'})}finally{_spBusy=false}}
-function wpShopCard(){return wpCan()?`<section class="card lk-free wp-shop"><div><b>Welcome pack · free</b><small class="muted">One card of a team’s best player at one position, Epic or better (${Object.entries(WPO).map(([r,n])=>RAR[r].n+' '+n+'%').join(' · ')}).</small></div><button class="btn" data-act="wpOpen">Open</button></section>`:''}
+function wpShopCard(){return wpCan()?`<section class="card lk-free wp-shop"><div><b>Welcome pack · free</b><small class="muted">One card of a team’s best player at one position, Epic or better (${Object.entries(WPO).map(([r,n])=>RAR[r].n+' '+n+'%').join(' · ')}).</small></div><button class="btn wp-go sm" data-act="wpOpen"><span>Open</span></button></section>`:''}
 async function wpOpen(){if(_wpBusy||!wpCan())return;_wpBusy=true;try{closeConfirm()}catch(_){}
   try{const R=wpRoll();if(!R){say('No players to pull yet. Try again soon.');return}
     const v=invOf(ME.uid),cards=Object.assign({},v.cards),cid=R.ach||'pc:'+R.key,cur=typeof cards[cid]==='string'?{[cards[cid]]:1}:Object.assign({},cards[cid]),dup=!!cur[R.r];
@@ -11402,12 +11418,12 @@ async function deleteProfile(){
   await delDoc('profiles/'+ME.uid);
 }
 $('#cfm').addEventListener('click',async e=>{
-  if(e.target.id==='cfm'){closeConfirm();return}
+  if(e.target.id==='cfm'){if(document.querySelector('#cfm .wp-ask,#cfm .sp-must'))return;closeConfirm();return}   /* v553 (owner): the welcome pack invite can't be skipped */
   const b=e.target.closest('[data-c]');if(!b)return;
   if(b.dataset.c==='no'){closeConfirm();return}
   const fn=cfmFn;b.disabled=true;await fn();closeConfirm();
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#cfm').hidden)closeConfirm()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#cfm').hidden&&!document.querySelector('#cfm .wp-ask,#cfm .sp-must'))closeConfirm()});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('fc-tap')){e.preventDefault();fcViewSheet(e.target.dataset.u,+e.target.dataset.w)}});
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act]');if(!t)return;

@@ -999,3 +999,6 @@ The Welcome pack invite (`spMaybe`, class `wp-ask`) has one button, `Open my fre
 
 ## v556 — Admin account card: where they spend their time (owner)
 `admWhere(uid)` adds a bar list to the account card you get by clicking a user: all-time seconds per screen from `usage.tv` (already collected: tab plus sub-tab, football and basketball separately), with exact time and share, top 12. Screen names from `TAB_NAMES` plus `TAB_MORE`. Empty until the person uses the app after the v541 tracking fix.
+
+## v557 — Bishop's box scores re-pulled (owner)
+Re-pulled Bishop's three latest games (Classical 10-23, Santa Fe Christian 10-30, Mission Bay 11-13) from MaxPreps through Chrome and merged weeks 10 and 11 into `stats.js` (week 13 unchanged). Zed Hornby now 4 rec/43 yds/1 TD (wk10) and 4/79/1 (wk11); 12 added player-weeks (Maye, Pfister, Ogdahl, Esajian, Watson, Larson, Ashrafi, Dielman) and Jonah Garcia got receiving lines. TFL/PBU applied via `apply_tfl.py`.

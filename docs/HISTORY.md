@@ -1008,3 +1008,6 @@ Everyone has `<site>/?ref=<8 hex of their uid>` (`refCode`, `refLink`). The earl
 
 ## v559 — Daily tasks: +10 tokens each (owner)
 `DT_TASKS` (sponsor video, pick, player prop, Pick 'em league, 5 Card Draw, Field Goal/Hoops, Ring Chaser, simulate a season) each pay `DT_PAY`=10 the first time each Pacific day. Stored in `picks/<uid>.dt={d,k:{task:1},t:lifetime}`; `dtMark(keys)` is called from `playHook` (for the picks keys a game writes) and `adGrant`; `dtBonus(u)` is in `bank()`/`earned()`; `dt` is kept in `fcKeep` and the reset-account copy. List with checkmarks (`dtHTML`) sits in the Get tokens popup, above Starter rewards. Daily bonus (25) is separate.
+
+## v560 — Defensive interception = 5.5 points (owner)
+`PTS.dInt` 5 → 5.5 (also `FB_PTS` in `tools/sections/players.py`). Points and rankings follow it. Overalls are NOT changed on purpose: `ovr.js` is a static file and was not rebuilt; a future `make_ovr.py` run reads stats, not points, so it would not move either.

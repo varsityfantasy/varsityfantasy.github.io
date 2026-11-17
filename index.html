@@ -3315,7 +3315,7 @@ const NOW=()=>Date.now();
 
 /* scoring */
 const WEEKS=12;
-const PTS={passYd:.04,passTD:4,int:-2,rushYd:.1,rushTD:6,rec:1,recYd:.1,recTD:6,fumLost:-2,tkl:1.25,sack:3,dInt:5,ff:4,fr:3,dTD:6,retTD:6,xpm:1,xpMiss:-1,fgm:3,fgMiss:-1,puntYd:0,in20:1,punts:0,tfl:2,pbu:2};
+const PTS={passYd:.04,passTD:4,int:-2,rushYd:.1,rushTD:6,rec:1,recYd:.1,recTD:6,fumLost:-2,tkl:1.25,sack:3,dInt:5.5,ff:4,fr:3,dTD:6,retTD:6,xpm:1,xpMiss:-1,fgm:3,fgMiss:-1,puntYd:0,in20:1,punts:0,tfl:2,pbu:2};
 const KEYS=Object.keys(PTS);
 const BEST_L='Best week',GAME_L='Wk',GAME_H='Week';
 const KM=Object.fromEntries(KEYS.map(k=>[k.toLowerCase(),k]));
@@ -3927,7 +3927,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v559 · Nov 16';
+const APP_BUILD='v560 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

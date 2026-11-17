@@ -1024,3 +1024,6 @@ Scores added (`add_scores.py`, from MaxPreps team schedule pages in Chrome): Nov
 
 ## v564 — Basketball profile game log says Game N (owner)
 The player profile log (`logBB` in the player page, only when `GAME_L==='Game'` and not another section's player) lists the school's games in date order as Game 1, Game 2 ... (the school's own game number, from the schedule; a stat line is matched to its game by date and opponent). Finished games the player missed show "Did not play" (or "Not reported yet" when nobody on the team has a box score), and only the next game is listed after them: the old "Week 14 / Not reported yet" rows are gone. Football still shows Wk N.
+
+## v565 — Basketball scoring: steal and block 2 points (owner)
+`PTS` for basketball is now point 1, rebound 1.2, assist 1.5, steal 2, block 2, turnover -2, 3-pointers 0 (no bonus, as before): `make_basketball.py` (PTS line, hidden preseason rank, Scoring page example = 39.1) and `BB_PTS` in `tools/sections/players.py`. Football is unchanged.

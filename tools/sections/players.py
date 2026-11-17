@@ -24,7 +24,7 @@ BB_KEYS = ['pts', 'reb', 'ast', 'stl', 'blk', 'tov', 'tpm']
 KEYS = {'fb': FB_KEYS, 'bb': BB_KEYS}
 FB_PTS = {'passYd': .04, 'passTD': 4, 'int': -2, 'rushYd': .1, 'rushTD': 6, 'rec': 1, 'recYd': .1, 'recTD': 6, 'fumLost': -2, 'tkl': 1.25, 'sack': 3, 'dInt': 5.5,
           'ff': 4, 'fr': 3, 'dTD': 6, 'retTD': 6, 'xpm': 1, 'xpMiss': -1, 'fgm': 3, 'fgMiss': -1, 'puntYd': 0, 'in20': 1, 'punts': 0, 'tfl': 2, 'pbu': 2}
-BB_PTS = {'pts': 1, 'reb': 1.2, 'ast': 1.5, 'stl': 3, 'blk': 3, 'tov': -2, 'tpm': 0}
+BB_PTS = {'pts': 1, 'reb': 1.2, 'ast': 1.5, 'stl': 2, 'blk': 2, 'tov': -2, 'tpm': 0}
 # basketball: normalised column name (lower case letters and digits) -> app key. The first matching column of a player wins.
 BB_COLS = {'points': 'pts', 'pts': 'pts', 'totalpoints': 'pts', 'rebounds': 'reb', 'totalrebounds': 'reb', 'reb': 'reb', 'totreb': 'reb',
            'assists': 'ast', 'ast': 'ast', 'steals': 'stl', 'stl': 'stl', 'blocks': 'blk', 'blockedshots': 'blk', 'blk': 'blk', 'blocksnum': 'blk',

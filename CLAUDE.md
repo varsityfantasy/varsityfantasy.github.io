@@ -29,7 +29,7 @@ Varsity is a fantasy-sports PWA for San Diego high school sports. Repo: `aribork
 - Test changes in a browser (Playwright with `/usr/bin/google-chrome --no-sandbox`, open a preview file) before shipping.
 
 ## Basketball decisions already made (do not undo without asking)
-- Scoring: point +1, rebound +1.2, assist +1.5, steal +3, block +3, turnover -2, no 3-pointer bonus.
+- Scoring: point +1, rebound +1.2, assist +1.5, steal +2, block +2, turnover -2, no 3-pointer bonus.
 - Basketball says "Week N" again (v311, owner): `gameify()` was removed, so basketball uses the same word as football. The data is bucketed by calendar week; a team that plays twice in a week counts as one "game" in the per-week stats. (Per-game stats were added in v312.)
 - 2025-26 seniors (grade 4) are removed (graduated). Everyone else moved up one grade for 2026-27 (Nov 6, v219, in `make_basketball.py` where players are built): 446 Sr, 243 Jr, 116 So, no Fr (new freshmen are not in last year's rosters), 31 unknown.
 - Last year's stats are hidden: `SHOW_LAST_YEAR = False`. Everyone shows 0.0. While nobody has a real stat line, `PRE()` makes every player count as one 0.0 game, and the leaderboard order and TOP 10 tags follow a hidden ranking from last season (`window.BB_RANK`, `window.BB_TOP10`). Last season's team scoring still drives preseason odds (`window.BB_PRIOR`) and the projected playoff bracket.

@@ -297,7 +297,7 @@ def build_data():
     for pl, x in [(pl, x) for pl, x in zip(players, [x for t in real for x in t['rows']])]:
         if x['st'] and x['gp'] > 0:
             ppg_, reb, ast, stl, blk, tov, tpm = x['st']
-            per = ppg_ + 1.2 * reb + 1.5 * ast + 3 * stl + 3 * blk - 2 * tov
+            per = ppg_ + 1.2 * reb + 1.5 * ast + 2 * stl + 2 * blk - 2 * tov
             rank['mp' + pl['id']] = round(per * min(4, max(1, round(x['gp'] / 7))), 1)
     mp = {'through': '2025-26 season', 'games': 0, 'updated': 'MaxPreps 2025-26 season averages', 'players': players}
     seeds = sorted([n for n in TEAMS if ppg[n] > 0], key=lambda t: -rating[t])[:8]
@@ -406,7 +406,7 @@ def transform(s, mp, games, seeds, teams, prior):
     # --- positions, stats and scoring -------------------------------------------------------------------------------
     s = line_replace(s, 'const FILTERS=', "const FILTERS=['ALL','PG','SG','SF','PF','C'];")
     s = line_replace(s, 'const posMatch=', "const posMatch=(p,f)=>f==='ALL'||p.pos===f;")
-    s = line_replace(s, 'const PTS=', "const PTS={pts:1,reb:1.2,ast:1.5,stl:3,blk:3,tov:-2,tpm:0};")
+    s = line_replace(s, 'const PTS=', "const PTS={pts:1,reb:1.2,ast:1.5,stl:2,blk:2,tov:-2,tpm:0};")
     s = line_replace(s, 'const LABEL=', "const LABEL={pts:'Points',reb:'Rebounds',ast:'Assists',stl:'Steals',blk:'Blocks',tov:'Turnovers',tpm:'3-pointers made'};")
     s = line_replace(s, 'const FIELDS=', "const FIELDS=Object.fromEntries(['PG','SG','SF','PF','C'].map(p=>[p,['pts','reb','ast','stl','blk','tov','tpm']]));")
     s = line_replace(s, 'const POSITIONS=', "const POSITIONS=['PG','SG','SF','PF','C'];")
@@ -478,7 +478,7 @@ def transform(s, mp, games, seeds, teams, prior):
     <section class="card"><h3>Lineups and matchups</h3>
       <p><b>Snake draft leagues:</b> by default 1 PG, 1 SG, 1 SF, 1 PF, 1 C and 1 FLEX (any position), plus 3 bench spots. Bench players do not count toward your lineup total, but you can swap one into a matching starting spot at any time after the draft. The league owner can change the roster before the draft.</p>
       <p>In a league, you face one other member each week and the higher lineup total wins.</p>
-      <p class="muted">Example: 22 points, 8 rebounds, 5 assists, 2 steals, 1 block, 3 turnovers and 2 threes scores 22 + 9.6 + 7.5 + 6 + 3 − 6 = 42.1 points. The threes are already in the 22 points.</p></section>
+      <p class="muted">Example: 22 points, 8 rebounds, 5 assists, 2 steals, 1 block, 3 turnovers and 2 threes scores 22 + 9.6 + 7.5 + 4 + 2 − 6 = 39.1 points. The threes are already in the 22 points.</p></section>
   </div>`;
 }
 """)

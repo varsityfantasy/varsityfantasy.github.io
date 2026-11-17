@@ -3927,7 +3927,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v558 · Nov 16';
+const APP_BUILD='v559 · Nov 16';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -3940,7 +3940,7 @@ const wq={};
 const wr=(path,fn)=>{wq[path]=(wq[path]||Promise.resolve()).catch(()=>{}).then(fn);return wq[path]};
 /* v311: saving any of these keys in your picks doc counts as playing a game today (daily bonus + account streak, see playMark) */
 const PLAY_K=['fc','sim','cup','fg','rc','bk','pkl','bets','props','ats'];
-const playHook=(path,data,r)=>{if(ME.uid&&path==='picks/'+ME.uid&&data&&typeof data==='object'&&PLAY_K.some(k=>k in data))setTimeout(()=>{try{playMark()}catch(_){}},0);return r};
+const playHook=(path,data,r)=>{if(ME.uid&&path==='picks/'+ME.uid&&data&&typeof data==='object'&&PLAY_K.some(k=>k in data))setTimeout(()=>{try{playMark()}catch(_){}try{dtMark(PLAY_K.filter(k=>k in data))}catch(_){}},0);return r};
 /* v522: while an admin is viewing as someone, nothing may be written to that person's docs */
 const vaBlock=path=>{if(VA&&ME.uid&&String(path).endsWith('/'+ME.uid)){try{say('View only. Nothing was changed.')}catch(_){}return true}return false};
 function upsert(path,data){
@@ -4564,7 +4564,7 @@ const betsOf=u=>((S.picks[u]||{}).bets)||{};
 const gameMap=()=>{const m={};((GAMES&&GAMES.games)||[]).forEach(g=>{m[gid(g)]=g});return m};
 function betResult(b,g){if(!g||!gDone(g))return'open';if(g.hs===g.as)return'push';return((b.s==='h')===(g.hs>g.as))?'won':'lost'}
 function bank(u){
-  const gm=gameMap();let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+invBonus(u)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u)+refBonus(u);
+  const gm=gameMap();let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+invBonus(u)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u)+refBonus(u)+dtBonus(u);
   Object.entries(betsOf(u)).forEach(([id,b])=>{const st=+b.stake||0,res=betResult(b,gm[id]);t-=st;if(res==='won')t+=st+(st*b.odds-st)*(1+(b.bx==='b'?.25:0)+Math.min(500,+b.cb||0)/100);else if(res==='push'||(res==='lost'&&b.bx==='i'))t+=st});
   Object.entries(atsOf(u)).forEach(([id,b])=>{const st=+b.stake||0,res=atsResult(b,gm[id]);t-=st;if(res==='won')t+=st*b.odds;else if(res==='push')t+=st});
   Object.values(parlOf(u)).forEach(b=>{const st=+b.stake||0,res=parlResult(b,gm);t-=st;if(res==='won')t+=st+parlWin(b,gm);else if(res==='push')t+=st});
@@ -4594,7 +4594,7 @@ const rwOf=u=>((S.picks[u]||{}).rw)||{};
    challenge, minigame pay, duplicate refunds, gifts received, and winnings on picks and props). Spending tokens or
    losing a wager never lowers it. The current balance (bank) shows next to it and does not affect rank. */
 function earned(u){
-  const gm=gameMap(),v=invOf(u);let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+(+v.dup||0)+(+v.tpb||0)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u)+refBonus(u);
+  const gm=gameMap(),v=invOf(u);let t=TOK0+adBonus(u)+rwBonus(u)+lbtBonus(u)+dlyBonus(u)+bndBonus(u)+FG_DAY_PAY*(+fgRec(u).days||0)+(+v.dup||0)+(+v.tpb||0)+arcBonus(u)+(+rcRec(u).wn||0)+(+hbRec(u).wn||0)+shBonus(u)+refBonus(u)+dtBonus(u);
   for(const x of giftsIn(u))t+=+x.a||0;
   const win=b=>{const st=+b.stake||0;return (st*b.odds-st)*(1+(b.bx==='b'?.25:0)+Math.min(500,+b.cb||0)/100)};
   Object.entries(betsOf(u)).forEach(([id,b])=>{if(betResult(b,gm[id])==='won')t+=win(b)});
@@ -4784,7 +4784,7 @@ const fcLeft=(u,w)=>{const h=fcHand(u,w);return Math.max(0,fcAllow(u,w)-(h?h.r||
 const fcDoc=u=>(S.picks[u]||{}).fc||{};
 const fcHand=(u,w)=>fcDoc(u)[w]||null;
 function fcSet(w,v){const d=S.picks[ME.uid]=S.picks[ME.uid]||{};d.fc=Object.assign({},d.fc||{},{[w]:v})}
-const fcKeep=()=>{const f=fcDoc(ME.uid),o={},a=atsOf(ME.uid),sm=(S.picks[ME.uid]||{}).sim,ad=(S.picks[ME.uid]||{}).ad,fgx=(S.picks[ME.uid]||{}).fg,rcx=(S.picks[ME.uid]||{}).rc;if(rcx)o.rc=rcx;{const rwx=(S.picks[ME.uid]||{}).rw;if(rwx)o.rw=rwx;const lbx=(S.picks[ME.uid]||{}).lbt;if(lbx)o.lbt=lbx;const dlx=(S.picks[ME.uid]||{}).dly;if(dlx)o.dly=dlx;for(const k of ['gft','gsn','bnd','cup','bk','str','parl']){const kv=(S.picks[ME.uid]||{})[k];if(kv)o[k]=kv}const pk=(S.picks[ME.uid]||{}).pkl;if(pk)o.pkl=pk;const iv=(S.picks[ME.uid]||{}).inv;if(iv)o.inv=iv}if(sm)o.sim=sm;if(ad)o.ad=ad;if(fgx)o.fg=fgx;if(Object.keys(f).length)o.fc=f;if(Object.keys(a).length)o.ats=a;const pr=propsOf(ME.uid);if(Object.keys(pr).length)o.props=pr;return o};   /* keeps a hand when a Pick 'em save rewrites the document */
+const fcKeep=()=>{const f=fcDoc(ME.uid),o={},a=atsOf(ME.uid),sm=(S.picks[ME.uid]||{}).sim,ad=(S.picks[ME.uid]||{}).ad,fgx=(S.picks[ME.uid]||{}).fg,rcx=(S.picks[ME.uid]||{}).rc;if(rcx)o.rc=rcx;{const rwx=(S.picks[ME.uid]||{}).rw;if(rwx)o.rw=rwx;const lbx=(S.picks[ME.uid]||{}).lbt;if(lbx)o.lbt=lbx;const dlx=(S.picks[ME.uid]||{}).dly;if(dlx)o.dly=dlx;for(const k of ['gft','gsn','bnd','cup','bk','str','parl','dt']){const kv=(S.picks[ME.uid]||{})[k];if(kv)o[k]=kv}const pk=(S.picks[ME.uid]||{}).pkl;if(pk)o.pkl=pk;const iv=(S.picks[ME.uid]||{}).inv;if(iv)o.inv=iv}if(sm)o.sim=sm;if(ad)o.ad=ad;if(fgx)o.fg=fgx;if(Object.keys(f).length)o.fc=f;if(Object.keys(a).length)o.ats=a;const pr=propsOf(ME.uid);if(Object.keys(pr).length)o.props=pr;return o};   /* keeps a hand when a Pick 'em save rewrites the document */
 function fcScore(u,w){const hd=fcHand(u,w);if(!hd)return 0;let t=0;for(const k of hd.h||[]){const x=fcPts(pByKey(k),w);if(x)t+=pts(x.stat)}return Math.round(t*10)/10}
 const fcSeason=u=>Math.round(Object.keys(fcDoc(u)).reduce((a,w)=>a+fcScore(u,+w),0)*10)/10;
 const fcRnd=n=>{try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}catch(_){return Math.floor(Math.random()*n)}};
@@ -7433,6 +7433,21 @@ function fcPrizes(u){if(!u)return[];const cl=((invOf(u).fr||{}).fc)||{},out=[];
 /* v293/v311: daily bonus. +25 tokens the first time you play any game each day (Pacific time), claimed automatically by playMark().
    picks/<uid>.dly = {d: last day claimed, n: days claimed}; bank() adds DLY_PAY*n. Two phones on the same day write the same value. */
 const DLY_PAY=25;   /* v311: 25, paid the first time you play any game each day. Days claimed at the old 50 keep their 50 (dly.t is the running total). */
+/* v559 (owner): daily tasks. +DT_PAY tokens the first time each day you do each thing in DT_TASKS. picks/<uid>.dt={d:day,k:{task:1},t:lifetime tokens}; k starts over every Pacific day. dtMark(keys) is called from playHook (the picks keys a game writes) and from adGrant. */
+const DT_PAY=10;
+const DT_TASKS=[['ad','Watch a sponsor video'],['bets','Make a pick'],['props','Make a player prop pick'],['pkl','Pick the winners in a Pick ’em league'],['fc','Play 5 Card Draw'],['fg','Play '+(FG_SPORT==='bb'?'Hoops':'Field Goal')],['rc','Play Ring Chaser'],['sim','Simulate a season']];
+const dtOf=u=>((S.picks[u]||{}).dt)||{};
+const dtDone=u=>{const o=dtOf(u);return o.d===TODAY()?(o.k||{}):{}};
+const dtBonus=u=>+dtOf(u).t||0;
+function dtMark(keys){
+  if(!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!S.loaded.picks)return;
+  const o=dtOf(ME.uid),t=TODAY(),k=Object.assign({},dtDone(ME.uid)),add=keys.filter(x=>DT_TASKS.some(y=>y[0]===x)&&!k[x]);if(!add.length)return;
+  add.forEach(x=>{k[x]=1});const nx={d:t,k,t:(+o.t||0)+DT_PAY*add.length};
+  S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{dt:nx});
+  upsert('picks/'+ME.uid,{dt:nx}).then(()=>{say(`+${DT_PAY*add.length} tokens · daily task${add.length>1?'s':''}: ${add.map(x=>DT_TASKS.find(y=>y[0]===x)[1]).join(', ')}`);render(true)},()=>{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{dt:o})})}
+function dtHTML(){const d=dtDone(ME.uid),n=DT_TASKS.filter(x=>d[x[0]]).length;
+  return `<div class="rw"><div class="rw-h"><b>Daily tasks</b><small class="muted">${n} of ${DT_TASKS.length} today · +${DT_PAY} each · resets daily</small></div>
+    <ul>${DT_TASKS.map(([k,l])=>`<li class="${d[k]?'ok':''}"><span class="rw-c" aria-hidden="true">${d[k]?'✓':''}</span><span>${esc(l)}</span><b>+${DT_PAY}</b></li>`).join('')}</ul></div>`}
 function dlyOf(u){return ((S.picks[u]||{}).dly)||{}}
 function dlyBonus(u){const d=dlyOf(u);return d.t!=null?+d.t||0:50*(+d.n||0)}
 let dlyPend='';
@@ -10846,7 +10861,7 @@ document.addEventListener('click',async e=>{
   else if(a==='rstFc'||a==='rstBets'||a==='rstAts'||a==='rstAll'){
     if(VA||!ME.uid)return;const all=a==='rstAll',what=all?'all three games':a==='rstFc'?'5 Card Draw':a==='rstBets'?'Pick ’em':'Player props';
     if(!confirm('Reset your own '+what+'? Your hand, picks and tokens for it are cleared so you can replay. Other people are not affected.'))return;
-    const nx={bets:(all||a==='rstBets')?{}:betsOf(ME.uid),fc:(all||a==='rstFc')?{}:fcDoc(ME.uid),ats:(all||a==='rstAts')?{}:atsOf(ME.uid),props:(all||a==='rstAts')?{}:propsOf(ME.uid),...(adOf(ME.uid).d?{ad:adOf(ME.uid)}:{}),...(Object.keys(rwOf(ME.uid)).length?{rw:rwOf(ME.uid)}:{}),...(Object.keys(lbtOf(ME.uid)).length?{lbt:lbtOf(ME.uid)}:{}),...(dlyOf(ME.uid).n?{dly:dlyOf(ME.uid)}:{}),...Object.fromEntries(['gft','gsn','bnd','cup','bk'].filter(k=>(S.picks[ME.uid]||{})[k]).map(k=>[k,S.picks[ME.uid][k]])),...((S.picks[ME.uid]||{}).inv?{inv:(S.picks[ME.uid]||{}).inv}:{})};
+    const nx={bets:(all||a==='rstBets')?{}:betsOf(ME.uid),fc:(all||a==='rstFc')?{}:fcDoc(ME.uid),ats:(all||a==='rstAts')?{}:atsOf(ME.uid),props:(all||a==='rstAts')?{}:propsOf(ME.uid),...(adOf(ME.uid).d?{ad:adOf(ME.uid)}:{}),...(Object.keys(rwOf(ME.uid)).length?{rw:rwOf(ME.uid)}:{}),...(Object.keys(lbtOf(ME.uid)).length?{lbt:lbtOf(ME.uid)}:{}),...(dlyOf(ME.uid).n?{dly:dlyOf(ME.uid)}:{}),...Object.fromEntries(['gft','gsn','bnd','cup','bk','dt'].filter(k=>(S.picks[ME.uid]||{})[k]).map(k=>[k,S.picks[ME.uid][k]])),...((S.picks[ME.uid]||{}).inv?{inv:(S.picks[ME.uid]||{}).inv}:{})};
     if(await act(()=>setDoc('picks/'+ME.uid,nx),what+' reset. Play it again from the Games tab.')){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],nx);UI.pk={};UI.at={};UI.fcDeal=null;UI.fcAnim=null;render()}}
   else if(a==='lock'){try{await SB.rpc('admin_lock')}catch(_){}ME.admin=false;AD.rows=null;AD.sel=null;render()}
   else if(a==='saveSchool'){const v=$('#ad-school').value.trim();await act(()=>upsert('profiles/'+id,{school:v}),'School saved')}
@@ -11069,6 +11084,7 @@ document.addEventListener('click',async e=>{
       <div class="tok-opt" style="cursor:default"><span class="tok-ic" aria-hidden="true">↻</span><span><b>Daily streak: ${fgStreak(ME.uid)} ${fgStreak(ME.uid)===1?'day':'days'}</b><small>Any game counts · ${strFreeLeft(ME.uid)} free ${strFreeLeft(ME.uid)===1?'freeze':'freezes'} left this month</small></span></div>
       <button type="button" class="tok-opt tok-ad" data-act="adWatch" ${l?'':'disabled'}><span class="tok-ic" aria-hidden="true">▶</span><span><b>Watch a sponsor video</b><small>${l?l+' left today':'Back tomorrow'}</small></span><em>+${ADS.reward}</em></button>
       <button type="button" class="tok-opt" data-act="goLocker"><span class="tok-ic" aria-hidden="true">▣</span><span><b>Open packs in the Shop</b><small>${freePacks(ME.uid)?freePacks(ME.uid)+' free '+(freePacks(ME.uid)===1?'pack':'packs')+' waiting · ':''}Ball skins, frames, perks, boosts</small></span></button>
+      ${dtHTML()}
       ${rwHTML()}
       ${(()=>{const r=tokRows(),i=r.findIndex(x=>x.u===ME.uid);return r.length?`<div class="rw"><div class="rw-h"><b>Token leaderboard</b><small class="muted">${i>=0?'You are #'+(i+1)+' of '+r.length:''}</small></div><ul>${r.slice(0,5).map((x,k)=>`<li class="${x.u===ME.uid?'me':''}"><span class="rw-c">${k+1}</span><span>${esc(x.u===ME.uid?'You':nm(x.u))}</span><span class="tk-v"><b>${x.t.toLocaleString()}</b><small>${x.b.toLocaleString()} now</small></span></li>`).join('')}</ul></div>`:''})()}
       <p class="muted">Tokens are free, are shared by every game in Minigames, and have no cash value.</p>
@@ -11625,7 +11641,7 @@ async function adGrant(){
   if(!adLeft(ME.uid))return false;
   const a=adOf(ME.uid),day=adDay(),nx={d:day,n:(a.d===day?+a.n||0:0)+1,t:(+a.t||0)+ADS.reward};
   const ok=await act(()=>upsert('picks/'+ME.uid,{ad:nx}),'+'+ADS.reward+' tokens');
-  if(ok){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{ad:nx});useAd()}
+  if(ok){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{ad:nx});useAd();try{dtMark(['ad'])}catch(_){}}
   return !!ok}
 /* Native app only (Capacitor + AdMob): real rewarded video. Test unit ids ship by default; put your own in ADMOB below.
    Teen-safe: ads are tagged under-age-of-consent and capped at Teen content. Returns true if it handled the tap. */

@@ -1188,3 +1188,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v614 (Nov 18)
 - 82-0 / 10-0 season record (`simSeasonHTML`): a "Build another team" button (`simStart`) sits at the top of the season card, above the record. The one under the result card stays.
+
+## v615 (Nov 18)
+- Admin controls: the "Ban account" button is smaller and solid red (`btn sm danger solid`).

@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v614 · Nov 18';
+const APP_BUILD='v615 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10773,7 +10773,7 @@ function ctlHTML(){
       <h4 style="margin:6px 0">Ban</h4>
       ${isB?`<p><span class="ad-tag">Banned</span> <span class="muted">${esc(b.m||'No message')}</span></p><button class="btn sm" data-ctl="unban" data-id="${esc(u)}">Lift ban</button>`
         :sel.is_admin||u===ME.uid?'<p class="muted">Admin accounts can’t be banned here.</p>'
-        :`<button class="btn sm" data-ctl="ban" data-id="${esc(u)}">Ban account</button><p class="muted" style="font-size:12px;margin:6px 0 0">They get a full-screen ban notice with your message above and can send one appeal.</p>`}
+        :`<button class="btn sm danger solid" style="min-height:26px;padding:3px 10px;font-size:.74rem" data-ctl="ban" data-id="${esc(u)}">Ban account</button><p class="muted" style="font-size:12px;margin:6px 0 0">They get a full-screen ban notice with your message above and can send one appeal.</p>`}
       <h4 style="margin:16px 0 6px">Tokens</h4>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="ctl-tk" type="number" min="1" class="ctl-i" placeholder="Amount" value="${esc(CTL.tk)}"><button class="btn sm" data-ctl="tok" data-d="1" data-id="${esc(u)}">Give tokens</button><button class="btn sm" data-ctl="tok" data-d="-1" data-id="${esc(u)}">Take tokens</button></div>
       <h4 style="margin:16px 0 6px">Cards in their locker (${cardRows.length}${cardRows.length!==cardAll.length?' of '+cardAll.length:''})</h4>

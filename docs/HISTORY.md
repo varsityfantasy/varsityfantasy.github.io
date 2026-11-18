@@ -1182,3 +1182,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v612 (Nov 18)
 - 82-0 (`simOk`): basketball only deals players with at least 1 real 2026-27 game (before: 2 games, or 8+ games last season). Pool is thin until more box scores come in (34 players with stats, 4 to 18 per spot).
+
+## v613 (Nov 18)
+- Slow open (owner: ~10 s of All sections / not yet "my account"): `secLand` and `landCheck` no longer wait for the whole profiles collection, only for your own profile (meFirst, ~1 s). The section you land on is saved (localStorage vs-sec) and the next open starts on it (`UI.psec`/`UI.sb` at init) when a saved sign-in exists, so All sections is never loaded first. mustSetup, gift/admin pop-ups and cardFix still wait for the full data on purpose.

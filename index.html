@@ -3819,7 +3819,7 @@ document.addEventListener('submit',async e=>{
 /* v359 (owner): a player's main sport is where the app opens. Once per visit (tab session): if you open the other sport's page,
    it switches to yours. Tapping the sport switch after that is never undone. */
 /* v497 (owner): after sign-in the Players, Stats and Games pages open on the section of the team you picked */
-function secLand(){if(ME.mode!=='live'||!ME.uid||!S.loaded.profiles||!myProfile()||!myProfile().school)return;secSchools();const m=mySec();if(window.__secLand===m)return;window.__secLand=m;
+function secLand(){if(ME.mode!=='live'||!ME.uid||!(S.loaded.profiles||S.profiles[ME.uid])||!myProfile()||!myProfile().school)return;secSchools();const m=mySec();try{localStorage.setItem('vs-sec',m)}catch(_){}if(window.__secLand===m)return;window.__secLand=m;
   if(SECTIONS[m]){UI.psec=m;UI.sb=m;UI.sbtm=null;UI.sbw=null;UI.sbl='ALL';UI.school='ALL';UI.grade=0;if(m!==HOME_SEC)secPl(m);setTimeout(render,0)}}
 function landGo(){const a=document.querySelector('a.sport-opt:not(.on)');if(!a)return;window.__landGo=1;sportCut(a.getAttribute('href'),(a.getAttribute('title')||'').toUpperCase(),{})}
 /* v374 (owner): named accounts that must sign in again and redo the profile step, once (marker saved on the profile as redo[id]) */
@@ -3838,7 +3838,7 @@ function redoCheck(){if(ME.mode!=='live'||!ME.uid||VA||!S.loaded.profiles||windo
     upsert('profiles/'+ME.uid,{ob:0,redo:Object.assign({},p.redo,{[r.id]:1})}).then(()=>{try{sessionStorage.setItem('vs-reauth','1')}catch(_){}return SB.auth.signOut({scope:'local'})}).catch(()=>{}).finally(()=>location.reload());return}}
 function setupCheck(){if(location.hash!=='#privacy'&&mustSetup()&&($('#gate').hidden||!$('#nm-form')))openName()}
 function landCheck(){
-  if(window.__land||!ME.uid||ME.mode!=='live'||!S.loaded.profiles)return;window.__land=1;
+  if(window.__land||!ME.uid||ME.mode!=='live'||!(S.loaded.profiles||S.profiles[ME.uid]))return;window.__land=1;
   let first=true;try{first=!sessionStorage.getItem('vs-landed');sessionStorage.setItem('vs-landed','1')}catch(_){first=!/vs-landed/.test(window.name);try{window.name+=' vs-landed'}catch(_){}}
   const pr=myProfile();if(first&&pr&&pr.role==='player'&&pr.sport&&pr.sport!==FG_SPORT)landGo();
 }
@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v612 · Nov 18';
+const APP_BUILD='v613 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8634,7 +8634,10 @@ const MGI=(()=>{const w=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</sv
    Data is the JSON the collector commits to data/sections/ (index.json + one file per section). It is loaded only when you open a section, never at start-up, and it never touches GAMES, picks, wagers or leagues. San Diego keeps its full app. */
 const SEC_URL='data/sections/';
 const SBR={idx:null,data:{},busy:{},err:{}};
-UI.sb=HOME_SEC;UI.psec='ALL';UI.sbt='sched';UI.sbw=null;UI.sbl='ALL';UI.sbtm=null;
+UI.sb=HOME_SEC;UI.psec='ALL';
+/* v613 (owner: the app showed every section for ~10 s after opening): a signed-in device starts on the section it landed on last time, so nothing heavy loads for All sections first */
+try{const c=localStorage.getItem('vs-sec');if(c&&SECTIONS[c]&&localStorage.getItem('varsity-auth')){UI.psec=c;UI.sb=c}}catch(_){}
+UI.sbt='sched';UI.sbw=null;UI.sbl='ALL';UI.sbtm=null;
 function sbFetch(key,url,done,id){if(SBR.busy[key]||SBR.err[key])return;SBR.busy[key]=1;
   fetch(url,{cache:'no-cache'}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(done).catch(()=>{SBR.err[key]=1}).finally(()=>{delete SBR.busy[key];if(!id||UI.sb===id)render()})}
 function sbIdx(){if(!SBR.idx)sbFetch('idx',SEC_URL+'index.json',j=>{SBR.idx=j&&j.sections?j:{sections:{}}});return SBR.idx}

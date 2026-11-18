@@ -1173,3 +1173,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v609 (Nov 18)
 - Basketball 5 Card Draw: the 65 OVR minimum is gone (`hi=base` in make_basketball.py); football keeps FC_MIN_OVR. Eligibility is the fcEl rule (v608).
+
+## v610 (Nov 18)
+- One-off CARD_FIX entry `zh-fc-bb-1` (`fcNew:"bb"`): on Zed Hornby's next open of the basketball app, while today's hand is open and not locked, his 5 Card Draw hand is replaced with a freshly dealt one (same pool rules). Skipped (and retried next open) if the hand is locked, closed, or the pool is not ready; football ignores it.

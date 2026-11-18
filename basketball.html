@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v609 · Nov 18';
+const APP_BUILD='v610 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6379,6 +6379,7 @@ const CARD_FIX=[{id:'zh-ig',who:ZH,name:'Isaiah Garcia',school:'Bishop\'s',r:'l'
   {id:'ab-dg',who:AB,name:'Daine Gonzalez',school:'Classical Academy',r:'*'},
   {id:'zh-rd-back',who:ZH,card:'pc:mp955',restore:1},   /* v350: owner gave Rory Dunn back (the v349 removal is gone) */
   {id:'ai-x',who:ABZH,name:'Adrian Ismaili',school:'Poway',r:'*'},   /* v350: every version, from Ari or Zed */
+  {id:'zh-fc-bb-1',who:ZH,fcNew:'bb'},   /* v610 (owner, Nov 18): a fresh 5 Card Draw hand for Zed Hornby in basketball, dealt on his next open there (only while today's hand is open) */
   {id:'wp-2',who:ABZH,wp:1},
   {id:'zh-ch',who:ZH,name:'Carson Hasting',school:'Granite Hills',r:'*'},   /* v352 */
   {id:'wp-3',who:ZH,wp:1},
@@ -6393,7 +6394,11 @@ function cardFix(){const u=ME.uid;if(!u||ME.mode==='guest'||ME.mode==='readonly'
   const put=(id,f)=>{const cur=typeof cards[id]==='string'?{[cards[id]]:1}:Object.assign({},cards[id]);f(cur);cards[id]=cur;patch.cards=cards};
   /* v355 (owner, "refresh all packs"): every welcome pack opened before the v355 rules (Epic+, top 10 player, 1% Immortal; wpv 3) is refreshed once */
   if(+old.wp>0&&(+old.wpv||1)<3&&!rv['wp-v3']){rv['wp-v3']=1;patch.wp=0;n++}
-  for(const f of CARD_FIX){if(rv[f.id]||!f.who.test(nmU))continue;rv[f.id]=1;n++;
+  let fcn=null;
+  for(const f of CARD_FIX){if(rv[f.id]||!f.who.test(nmU))continue;
+    if(f.fcNew){if(f.fcNew!==FG_SPORT)continue;try{const w=fcCur(),hd=fcHand(u,w),hand=fcOpen(w)&&hd&&!hd.lk?fcDraw(fcPool(new Set(hd.h||[])),FC_SIZE):[];if(hand.length<FC_SIZE)continue;fcn={w,nx:{h:hand,r:0,d:[],rd:[],at:NOW()}}}catch(_){continue}}
+    rv[f.id]=1;n++;
+    if(f.fcNew)continue;
     if(f.wp){patch.wp=0;continue}
     if(f.tok){let d=f.tok;if(d<0){let have=0;try{have=Math.max(0,Math.floor(bank(u)))}catch(_){}d=-Math.min(-d,have)}   /* never below zero */
       patch.dup=(+(patch.dup!==undefined?patch.dup:old.dup)||0)+d;continue}   /* v555: a one-time token change (negative takes tokens away), through inv.dup like the admin page does */
@@ -6405,7 +6410,8 @@ function cardFix(){const u=ME.uid;if(!u||ME.mode==='guest'||ME.mode==='readonly'
       const rs=f.r==='*'?Object.keys(have).filter(r=>have[r]):have[f.r]?[f.r]:[];if(rs.length)put(id,c=>rs.forEach(r=>c[r]=0))}}
   if(!n)return;patch.fr=Object.assign({},old.fr,{rv},ng?{gp}:{});
   S.picks[u]=Object.assign({},S.picks[u],{inv:Object.assign({},old,patch)});
-  upsert('picks/'+u,{inv:patch}).catch(()=>{S.picks[u]=Object.assign({},S.picks[u],{inv:old})})}
+  upsert('picks/'+u,{inv:patch}).catch(()=>{S.picks[u]=Object.assign({},S.picks[u],{inv:old})});
+  if(fcn){fcSet(fcn.w,fcn.nx);upsert('picks/'+u,{fc:{[fcn.w]:fcn.nx}}).catch(()=>{});try{render()}catch(_){}}}
 /* account notice (v374): picks/<uid>.ban={m:reason} shows a full-screen "Account banned" screen to that user only. Remove the field to lift it. */
 function banCheck(){const pk=ME.uid&&(S.picks[ME.uid]||{}),b=pk&&pk.ban,ap=pk&&pk.appeal;let el=document.getElementById('ban-scr');
   if(!b){if(el)el.remove();return}

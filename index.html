@@ -3929,7 +3929,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v573 · Nov 17';
+const APP_BUILD='v574 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -11661,7 +11661,17 @@ document.addEventListener('click',e=>{
 /* ---------- start ---------- */
 /* position overrides for signed-up players too, so a profile created as WR reads as QB everywhere */
 function fixProfilePos(p){if(p&&p.role==='player'&&String(p.name||'').trim().toLowerCase()==='amaree maye'&&p.school==='Bishop\'s'){p.pos='QB';p.posLabel='QB'}}
+/* v574 (owner: "it takes ~10 s before it knows it is my account"): signed-in accounts start loading right after the saved sign-in is read (before the admin checks),
+   and your OWN profile and picks documents are fetched on their own first (two tiny queries), so your name, tokens and Locker show at once instead of waiting
+   for the whole league's profiles and picks (everybody's data, the slow part). The full collections still replace them when they arrive. */
+async function meFirst(){const u=ME.uid;if(!u||ME.mode!=='live'||!DB)return;
+  const [p,k]=await Promise.all([DB.doc('profiles/'+u).get().catch(()=>null),DB.doc('picks/'+u).get().catch(()=>null)]);
+  if(ME.uid!==u)return;let ch=false;
+  if(!S.loaded.profiles&&p&&p.exists&&!S.profiles[u]){S.profiles[u]=Object.assign({},p.data(),{id:u});ch=true}
+  if(!S.loaded.picks&&k&&k.exists&&!S.picks[u]){S.picks[u]=Object.assign({},k.data(),{id:u});ch=true}
+  if(ch)touch()}
 function subscribe(){
+  if(window.__subOn)return;window.__subOn=1;
   const cols={profiles:'profiles',games:'games',verified:'verified',queue:'queue',groups:'groups',fgroups:'fgroups',lineups:'lineups',picks:'picks',mocks:'mocks'};
   Object.entries(cols).forEach(([k,path])=>DB.collection(path).onSnapshot(snap=>{
     const o={};snap.docs.forEach(d=>{o[d.id]=Object.assign({},d.data(),{id:d.id})});
@@ -11685,7 +11695,8 @@ async function boot(){
     let session=null;try{session=(await SB.auth.getSession()).data.session}catch(_){}
     /* v371: a session from a sign-in before REAUTH_AT is signed out once on this device, so everyone signs in again with email + password */
     if(session&&session.user&&session.user.last_sign_in_at&&Date.parse(session.user.last_sign_in_at)<REAUTH_AT){try{await SB.auth.signOut({scope:'local'})}catch(_){}session=null;try{sessionStorage.setItem('vs-reauth','1')}catch(_){}}
-    if(session){ME.uid=session.user.id;ME.email=session.user.email;ME.created=Date.parse(session.user.created_at)||0;ME.mode='live';/* v544 (owner: refresh was slow for admins): the two admin checks run together, and the admin lists start loading right away instead of after the whole app has loaded */
+    let earlyOn=false;try{earlyOn=!!session&&!sessionStorage.getItem('varsity-viewas')}catch(_){}
+    if(session){ME.uid=session.user.id;ME.email=session.user.email;ME.created=Date.parse(session.user.created_at)||0;ME.mode='live';if(earlyOn){meFirst();subscribe()}/* v574: data starts loading now, not after the admin checks */ /* v544 (owner: refresh was slow for admins): the two admin checks run together, and the admin lists start loading right away instead of after the whole app has loaded */
       try{const [a,b]=await Promise.all([SB.rpc('is_admin_account'),SB.rpc('is_admin')]);ME.adminAcct=!!a.data;ME.admin=!!(a.data&&b.data)}catch(_){}
       if(ME.admin)setTimeout(()=>{try{if(AD.rows===null&&!AD.loading)adLoad();if(DASH.use===null&&!DASH.loading)dashLoad()}catch(_){}},0)}
     else{ME.uid=null;ME.mode='guest';ME.admin=false}

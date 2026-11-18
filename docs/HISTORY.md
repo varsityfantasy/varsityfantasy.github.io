@@ -1069,3 +1069,6 @@ On the Props tab the Duo card parlay now sits right under the game heading, abov
 
 ## v578 · Nov 17: compact filters
 Props/Pick em filter bar is a compact 2x2 grid (division, day/week, school, stat type); the basketball explanation note above it was removed.
+
+## v579 · Nov 17: basketball profile chart by game
+`weekChart(p)` in basketball draws one bar per game (G1, G2 ...) from `gl`, no W1-W14 / BYE / TBD columns.

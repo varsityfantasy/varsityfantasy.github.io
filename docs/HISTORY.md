@@ -1122,3 +1122,6 @@ New profiles save `joined` (the app they signed up in, `FG_SPORT`). Admin Users 
 
 ## v593 Nov 17: removed Morse vs Hoover (Nov 14) from basketball
 The game was never played (MaxPreps marks it deleted). Removed its line from `bb_2627_games.txt`; the Nov 27 and Dec 22 Hoover-Morse games stay.
+
+## v594 Nov 17: admin Users list shows Claimed / Not claimed
+For player profiles of the app's own sport (`(sport||'fb')===FG_SPORT`), `mpFind(profile)` decides: a match (box-score player or roster entry, same school, near-miss name) = Claimed (green pill), else Not claimed (red). Other-sport profiles and fans show nothing because this app only holds its own sport's players.

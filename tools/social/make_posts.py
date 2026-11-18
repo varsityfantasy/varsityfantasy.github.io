@@ -24,7 +24,23 @@ for p in D['players']:
     pts={w:sum(d[k]*PTS.get(k,0) for k in F) for w,d in wk.items()}
     P.append(dict(n=p['n'],s=p['s'],pos=p['p'],sub=p.get('u') or p['p'],wk=wk,tot=tot,pts=pts,fp=sum(pts.values()),g=len(wk)))
 LAST=max(w for p in P for w in p['wk'])
-def logo(sch):return LOGOS.get(ALIAS.get(sch,sch)) or LOGOS.get(sch)
+import io
+from PIL import Image,ImageChops
+_LC={}
+def tidy(u):
+    """Trim the logo's empty border (white or transparent), then centre it on a white square with an even margin so every logo fills its circle the same way."""
+    if u in _LC:return _LC[u]
+    try:
+        im=Image.open(io.BytesIO(base64.b64decode(u.split(',',1)[1]))).convert('RGBA')
+        bg=Image.new('RGBA',im.size,(255,255,255,255));bg.alpha_composite(im);rgb=bg.convert('RGB')
+        box=ImageChops.difference(rgb,Image.new('RGB',rgb.size,(255,255,255))).convert('L').point(lambda v:255 if v>24 else 0).getbbox()
+        if box:rgb=rgb.crop(box)
+        w,h=rgb.size;side=int(max(w,h)*1.18);sq=Image.new('RGB',(side,side),(255,255,255));sq.paste(rgb,((side-w)//2,(side-h)//2))
+        sq=sq.resize((256,256),Image.LANCZOS);b=io.BytesIO();sq.save(b,'PNG');out='data:image/png;base64,'+base64.b64encode(b.getvalue()).decode()
+    except Exception:out=u
+    _LC[u]=out;return out
+def logo(sch):
+    u=LOGOS.get(ALIAS.get(sch,sch)) or LOGOS.get(sch);return tidy(u) if u else None
 def line(t,pos):
     b=[]
     if pos=='DEF':
@@ -35,45 +51,35 @@ def line(t,pos):
     return b
 def esc(x):return x.replace('&','&amp;').replace('<','&lt;')
 CSS=f"""@font-face{{font-family:A;src:url({ANTON})}}@font-face{{font-family:B;font-weight:600;src:url({B6})}}@font-face{{font-family:B;font-weight:800;src:url({B8})}}
-*{{margin:0;box-sizing:border-box}}body{{width:1080px;height:1350px;overflow:hidden;font-family:B;color:var(--ink);background:var(--bg0)}}
-.s{{position:relative;width:1080px;height:1350px;padding:64px 60px 0;background:var(--bgimg);overflow:hidden}}
-.s:before{{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,var(--stripe) 0 1px,transparent 1px 26px);pointer-events:none}}
-.big{{position:absolute;right:-30px;top:-70px;font-family:A;font-size:420px;line-height:1;color:transparent;-webkit-text-stroke:2px var(--ghost)}}
-.tag{{display:inline-block;font-weight:800;font-size:24px;letter-spacing:5px;color:var(--a);border:2px solid var(--a);padding:5px 16px}}
+*{{margin:0;box-sizing:border-box}}body{{width:1080px;height:1350px;overflow:hidden;font-family:B;color:#fff;background:#070B16}}
+.s{{position:relative;width:1080px;height:1350px;padding:64px 60px 0;background:radial-gradient(1200px 700px at 110% -10%,var(--a2) 0%,transparent 60%),radial-gradient(900px 600px at -20% 110%,#13204a 0%,transparent 60%),#070B16;overflow:hidden}}
+.s:before{{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.025) 0 2px,transparent 2px 22px);pointer-events:none}}
+.big{{position:absolute;right:-30px;top:-70px;font-family:A;font-size:420px;line-height:1;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.06)}}
+.tag{{display:inline-block;font-weight:800;font-size:26px;letter-spacing:4px;color:#070B16;background:var(--a);padding:6px 16px;transform:skew(-10deg)}}
 h1{{font-family:A;font-weight:400;font-size:104px;line-height:.95;letter-spacing:1px;margin-top:18px;text-transform:uppercase}}h1 em{{font-style:normal;color:var(--a)}}
-.sub{{font-weight:600;font-size:28px;color:var(--mut);letter-spacing:2px;margin-top:10px;text-transform:uppercase}}
-.brand{{position:absolute;top:66px;right:60px;font-family:A;font-size:44px;letter-spacing:3px;color:var(--ink)}}.brand i{{font-style:normal;color:var(--a)}}.brand{{font-size:38px!important}}
-.hero{{position:relative;margin-top:30px;height:250px;border-radius:26px;background:var(--card);color:var(--ink);border:1px solid var(--cardb);border-left:10px solid var(--a);display:flex;align-items:center;padding:0 40px;overflow:hidden;box-shadow:var(--shadow)}}
-.hero .rk{{font-family:A;font-size:150px;line-height:1;opacity:.14;color:var(--a);position:absolute;left:18px;top:30px}}
-.hero .lg{{width:150px;height:150px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin-left:60px;box-shadow:0 8px 24px rgba(0,0,0,.25)}}.hero .lg img{{width:118px;height:118px;object-fit:contain}}
+.sub{{font-weight:600;font-size:28px;color:#9AA6C8;letter-spacing:2px;margin-top:10px;text-transform:uppercase}}
+.brand{{position:absolute;top:66px;right:60px;font-family:A;font-size:44px;letter-spacing:3px;color:#fff}}.brand i{{font-style:normal;color:var(--a)}}
+.hero{{position:relative;margin-top:30px;height:250px;border-radius:26px;background:linear-gradient(120deg,var(--a) 0%,var(--a3) 100%);color:#070B16;display:flex;align-items:center;padding:0 40px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}}
+.hero .rk{{font-family:A;font-size:150px;line-height:1;opacity:.22;position:absolute;left:18px;top:30px}}
+.hero .lg{{width:150px;height:150px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin-left:60px;box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}}.hero .lg img{{width:100%;height:100%;object-fit:contain}}
 .hero .nm{{margin-left:30px;flex:1;min-width:0}}.hero .n{{font-family:A;font-size:62px;line-height:1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
-.hero .sc{{font-weight:800;font-size:26px;letter-spacing:2px;text-transform:uppercase;color:var(--a);margin-top:4px}}
-.hero .st{{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}}.hero .st b{{font-weight:800;font-size:22px;background:var(--chip);border:1px solid var(--line);color:var(--ink2);padding:4px 12px;border-radius:8px}}
-.hero .pt{{text-align:right;flex:none;margin-left:18px}}.hero .pt div{{font-family:A;font-size:110px;line-height:.9;color:var(--a)}}.hero .pt span{{font-weight:800;font-size:24px;letter-spacing:4px}}
+.hero .sc{{font-weight:800;font-size:26px;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-top:4px}}
+.hero .st{{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}}.hero .st b{{font-weight:800;font-size:22px;background:rgba(7,11,22,.14);padding:4px 12px;border-radius:8px}}
+.hero .pt{{text-align:right;flex:none;margin-left:18px}}.hero .pt div{{font-family:A;font-size:110px;line-height:.9}}.hero .pt span{{font-weight:800;font-size:24px;letter-spacing:4px}}
 .rows{{margin-top:20px;display:flex;flex-direction:column;gap:8px}}
-.r{{display:flex;align-items:center;height:76px;padding:0 26px 0 18px;border-radius:16px;background:var(--row);border:1px solid var(--line)}}
-.r .k{{font-family:A;font-size:40px;width:58px;text-align:center;color:var(--mut2)}}.r .k{{color:var(--mut)}}
-.r .lg{{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin:0 18px 0 6px}}.r .lg img{{width:44px;height:44px;object-fit:contain}}
-.mono{{font-family:A;color:var(--onA);font-size:26px}}
-.r .nm{{flex:1;min-width:0}}.r .n{{font-weight:800;font-size:31px;line-height:1.05;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}.r .n small{{font-weight:600;font-size:20px;color:var(--mut);letter-spacing:1px;margin-left:10px}}
-.r .st{{font-weight:600;font-size:20px;color:var(--ink2);letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}}
-.r .pt{{text-align:right;flex:none;margin-left:16px}}.r .pt div{{font-family:A;font-size:44px;line-height:1;color:var(--ink)}}.r .pt span{{font-weight:800;font-size:15px;letter-spacing:3px;color:var(--mut)}}
-.hero .pg{{font-weight:800;font-size:22px;letter-spacing:1px;margin-top:6px;color:var(--ink2)}}
-.c .r{{height:61px;border-radius:12px}}.c .rows{{gap:6px;margin-top:20px}}.c .r .k{{font-size:30px;width:64px}}.c .r .lg{{width:42px;height:42px;margin:0 14px 0 4px}}.c .r .lg img{{width:33px;height:33px}}.c .r .n{{font-size:25px}}.c .r .n small{{font-size:17px}}.c .r .st{{font-size:16px;margin-top:0}}.c .r .pt div{{font-size:32px}}.c .r .pt span{{font-size:16px;letter-spacing:1px;color:var(--ink2)}}.r .pt span{{color:var(--ink2)}}
+.r{{display:flex;align-items:center;height:76px;padding:0 26px 0 18px;border-radius:16px;background:linear-gradient(90deg,rgba(255,255,255,.075),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.06)}}
+.r .k{{font-family:A;font-size:40px;width:58px;text-align:center;color:#56628A}}.r:nth-child(-n+2) .k{{color:var(--a)}}
+.r .lg{{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin:0 18px 0 6px;overflow:hidden}}.r .lg img{{width:100%;height:100%;object-fit:contain}}
+.mono{{font-family:A;color:#070B16;font-size:26px}}
+.r .nm{{flex:1;min-width:0}}.r .n{{font-weight:800;font-size:31px;line-height:1.05;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}.r .n small{{font-weight:600;font-size:20px;color:#7F8BB0;letter-spacing:1px;margin-left:10px}}
+.r .st{{font-weight:600;font-size:20px;color:#AEB8D6;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}}
+.r .pt{{text-align:right;flex:none;margin-left:16px}}.r .pt div{{font-family:A;font-size:44px;line-height:1;color:var(--a)}}.r .pt span{{font-weight:800;font-size:15px;letter-spacing:3px;color:#7F8BB0}}
+.hero .pg{{font-weight:800;font-size:22px;letter-spacing:1px;margin-top:6px;opacity:.8}}
+.c .r{{height:61px;border-radius:12px}}.c .rows{{gap:6px;margin-top:20px}}.c .r .k{{font-size:30px;width:64px}}.c .r .lg{{width:42px;height:42px;margin:0 14px 0 4px}}.c .r .n{{font-size:25px}}.c .r .n small{{font-size:17px}}.c .r .st{{font-size:16px;margin-top:0}}.c .r .pt div{{font-size:32px}}.c .r .pt span{{font-size:16px;letter-spacing:1px;color:#C8D0EA}}.r .pt span{{color:#C8D0EA}}
 .t .r{{height:63px}}.t .rows{{gap:6px}}.t .r .n{{font-size:28px}}.t .r .st{{font-size:18px}}.t .r .pt div{{font-size:38px}}.t .r .lg{{width:48px;height:48px}}.t .r .lg img{{width:38px;height:38px}}.c h1{{font-size:88px}}
-.ft{{position:absolute;left:60px;right:60px;bottom:34px;display:flex;justify-content:space-between;font-weight:800;font-size:21px;letter-spacing:2px;color:var(--mut2);text-transform:uppercase}}.ft b{{color:var(--a)}}
+.ft{{position:absolute;left:60px;right:60px;bottom:34px;display:flex;justify-content:space-between;font-weight:800;font-size:21px;letter-spacing:2px;color:#56628A;text-transform:uppercase}}.ft b{{color:var(--a)}}
 """
-
-PALS={
- 'navy':dict(bg0='#070C18',bgimg='radial-gradient(1100px 650px at 105% -5%,color-mix(in srgb,var(--a) 10%,transparent) 0%,transparent 60%),radial-gradient(900px 700px at -20% 115%,#13213F 0%,transparent 62%),linear-gradient(180deg,#0B1426,#070C18)',a='#E7B54A',onA='#070C18',ink='#FFFFFF',ink2='#C8D0EA',mut='#8792B5',mut2='#56628A',card='linear-gradient(120deg,#16223F,#101A31)',cardb='color-mix(in srgb,var(--a) 40%,transparent)',chip='rgba(255,255,255,.07)',row='rgba(255,255,255,.045)',line='rgba(255,255,255,.07)',stripe='rgba(255,255,255,.012)',ghost='color-mix(in srgb,var(--a) 9%,transparent)',shadow='0 20px 60px rgba(0,0,0,.45)'),
- 'white':dict(bg0='#F4F2EC',bgimg='linear-gradient(180deg,#F7F5EF,#ECE9E0)',a='#D62839',onA='#FFFFFF',ink='#0D1117',ink2='#3A4150',mut='#7A7F8C',mut2='#9A9EA8',card='#FFFFFF',cardb='#E2DED3',chip='#F3F1EB',row='#FFFFFF',line='#E4E0D6',stripe='rgba(0,0,0,.0)',ghost='rgba(0,0,0,.05)',shadow='0 14px 40px rgba(20,20,30,.10)'),
- 'volt':dict(bg0='#0B0B0C',bgimg='radial-gradient(900px 600px at 100% 0%,rgba(212,255,58,.08),transparent 60%),#0B0B0C',a='#D4FF3A',onA='#0B0B0C',ink='#FFFFFF',ink2='#C9CCD1',mut='#80858F',mut2='#5A5E66',card='#17181A',cardb='rgba(212,255,58,.5)',chip='#232427',row='#141517',line='#26282C',stripe='rgba(255,255,255,.0)',ghost='rgba(255,255,255,.04)',shadow='0 20px 60px rgba(0,0,0,.5)'),
- 'royal':dict(bg0='#081A4A',bgimg='radial-gradient(1000px 700px at 100% 0%,#1C3FA0 0%,transparent 60%),linear-gradient(180deg,#0A1E55,#061238)',a='#FFFFFF',onA='#0A1E55',ink='#FFFFFF',ink2='#C9D6FF',mut='#8EA3D9',mut2='#6C83C2',card='linear-gradient(120deg,#163A9C,#0F2A78)',cardb='rgba(255,255,255,.35)',chip='rgba(255,255,255,.10)',row='rgba(255,255,255,.07)',line='rgba(255,255,255,.12)',stripe='rgba(255,255,255,.0)',ghost='rgba(255,255,255,.06)',shadow='0 20px 60px rgba(0,0,20,.45)'),
-}
-PAL=PALS[os.environ.get('PALETTE','navy')]
-CSS+='body{'+';'.join(f'--{k}:{v}' for k,v in PAL.items())+'}'
-MILD={'g':'#8FC1A3','o':'#D6B46E','b':'#86AED6','p':'#D49A96','v':'#A9A0D8'}   # sage, muted gold, steel blue, dusty rose, lavender
-TH={k:((MILD[k] if os.environ.get('PALETTE','navy')=='navy' else PAL['a']),'','') for k in 'gobpv'}
+TH={'g':('#2EE67F','rgba(46,230,127,.22)','#B8FF5C'),'o':('#FFB627','rgba(255,182,39,.22)','#FF7A2F'),'b':('#4FC3FF','rgba(79,195,255,.22)','#7C8CFF'),'p':('#FF4F9A','rgba(255,79,154,.22)','#FF8A5C'),'v':('#B78CFF','rgba(183,140,255,.22)','#4FC3FF')}
 def lgimg(sch,cls=''):
     u=logo(sch);return f'<img src="{u}">' if u else f'<span class="mono">{esc(sch[:1])}</span>'
 def slide(th,tag,title,sub,big,items,unit='PTS',foot='SWIPE',start=1,hero=True):

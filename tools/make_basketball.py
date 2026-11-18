@@ -300,7 +300,7 @@ def build_data():
             ppg_, reb, ast, stl, blk, tov, tpm = x['st']
             per = ppg_ + 1.2 * reb + 1.5 * ast + 2 * stl + 2 * blk - 2 * tov
             rank['mp' + pl['id']] = round(per * min(4, max(1, round(x['gp'] / 7))), 1)
-            pst['mp' + pl['id']] = [round(ppg_, 1), round(reb, 1), round(ast, 1), round(tpm, 1), x['gp'], round(per, 1)]
+            pst['mp' + pl['id']] = [round(ppg_, 1), round(reb, 1), round(ast, 1), round(tpm, 1), x['gp'], round(per, 1), round(stl, 1), round(blk, 1)]
     mp = {'through': '2025-26 season', 'games': 0, 'updated': 'MaxPreps 2025-26 season averages', 'players': players}
     seeds = sorted([n for n in TEAMS if ppg[n] > 0], key=lambda t: -rating[t])[:8]
     prior = {n: round(rating[n], 1) for n in TEAMS if rating[n]}

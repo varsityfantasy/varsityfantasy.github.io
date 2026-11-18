@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v615 · Nov 18';
+const APP_BUILD='v616 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7017,7 +7017,10 @@ const PP_MK=BBPP?{
   pts:{l:'Points',g:'Scoring',min:5,y:1,pi:0,f:s=>s.pts},
   reb:{l:'Rebounds',g:'Rebounds',min:3,pi:1,f:s=>s.reb},
   ast:{l:'Assists',g:'Assists',min:2,pi:2,f:s=>s.ast},
-  tpm:{l:'3-pointers made',g:'3-pointers',min:1,pi:3,f:s=>s.tpm}
+  tpm:{l:'3-pointers made',g:'3-pointers',min:1,pi:3,f:s=>s.tpm},
+  stl:{l:'Steals',g:'Steals',min:1,pi:6,f:s=>s.stl||0},   /* v616 (owner: more basketball prop lines): steals, blocks and points + rebounds + assists; last-season averages come from BB_PST (stl at 6, blk at 7, PRA = pts + reb + ast) */
+  blk:{l:'Blocks',g:'Blocks',min:.8,pi:7,f:s=>s.blk||0},
+  pra:{l:'Points + rebounds + assists',g:'Pts + reb + ast',min:12,y:1,pf:q=>q[0]+q[1]+q[2],f:s=>(s.pts||0)+(s.reb||0)+(s.ast||0)}
 }:{
   passYd:{l:'Passing yards',g:'Passing',pos:['QB'],min:50,y:1,f:s=>s.passYd},
   passTD:{l:'Passing TDs',g:'Touchdowns',pos:['QB'],min:.7,f:s=>s.passTD},
@@ -7034,8 +7037,8 @@ const PP_MK=BBPP?{
 };
 const PP_ALWAYS=["JoJo Bryant|Bishop's"];   /* players who always get their lines, even outside their team's top players (owner) */
 /* v394 (owner): more players get lines: up to 4 per stat per team (was 2); the per-stat minimums in PP_MK still keep out weak stat lines */
-const PP_TOP=BBPP?{pts:3,reb:2,ast:2,tpm:1}:{passYd:1,passTD:1,int:1,rushYd:4,rec:4,recYd:4,td:4,tkl:4,sack:3,dInt:3,xpm:1,fgm:1};
-const PP_GROUPS=BBPP?['Scoring','Rebounds','Assists','3-pointers']:['Passing','Rushing','Receiving','Touchdowns','Interceptions','Defense','Kicking'];
+const PP_TOP=BBPP?{pts:5,reb:3,ast:3,tpm:2,stl:2,blk:2,pra:4}:{passYd:1,passTD:1,int:1,rushYd:4,rec:4,recYd:4,td:4,tkl:4,sack:3,dInt:3,xpm:1,fgm:1};
+const PP_GROUPS=BBPP?['Scoring','Rebounds','Assists','3-pointers','Steals','Blocks','Pts + reb + ast']:['Passing','Rushing','Receiving','Touchdowns','Interceptions','Defense','Kicking'];
 const _erf=x=>{const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+.3275911*x);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x))};
 const _phi=z=>.5*(1+_erf(z/Math.SQRT2));
 function _pOver(vals,mu,line,yards){
@@ -7053,7 +7056,7 @@ const dayLab=d=>fmtDate(d)+(d===TODAY()?' · Today':d===addDay(TODAY(),1)?' · T
 const bbWin=g=>!BBPP||(g.d>=TODAY()&&g.d<=addDay(TODAY(),2));
 const bbHist=(p,g)=>{const o=[];p.games.forEach((x,i)=>{if(!x)return;(x.gl&&x.gl.length?x.gl:[x]).forEach(y=>{const d=y.d||x.d;if(d?d<g.d:i+1<g.w)o.push(y.stat)})});return o};
 function bbStat(p,M,played){   /* this season's games blended with last season's per-game average (BB_PST) while the sample is small */
-  const pr=(window.BB_PST||{})[p.key],pm=pr&&pr[4]>=5?pr[M.pi]:null,vals=played.map(s=>+M.f(s)||0),n=vals.length,sum=vals.reduce((a,b)=>a+b,0),K=pm==null?0:6;
+  const pr=(window.BB_PST||{})[p.key],pm=pr&&pr[4]>=5?(M.pf?M.pf(pr):pr[M.pi]):null,vals=played.map(s=>+M.f(s)||0),n=vals.length,sum=vals.reduce((a,b)=>a+b,0),K=pm==null?0:6;
   if(!n&&pm==null)return null;
   const mean=(sum+(pm||0)*K)/(n+K),last=vals.slice(-3),rc=n?last.reduce((a,b)=>a+b,0)/last.length:pm,mu=Math.max(.05,.6*mean+.4*rc),pad=n<4&&pm!=null?Array(4-n).fill(Math.round(pm)):[];
   return {vals:vals.concat(pad),n,real:vals,mean,rc,mu,pr:n<3};

@@ -1191,3 +1191,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v615 (Nov 18)
 - Admin controls: the "Ban account" button is smaller and solid red (`btn sm danger solid`).
+
+## v616 (Nov 18)
+- More basketball player props (`PP_MK`, `PP_TOP`, `PP_GROUPS`, basketball only): new Steals, Blocks and Points + rebounds + assists lines; more players per team get lines (pts 5, reb 3, ast 3, 3pm 2, stl 2, blk 2, PRA 4; was 3/2/2/1). BB_PST rows now end with stl and blk averages (indices 6, 7) so the new lines have a last-season prior (`pf` for PRA). Settlement is generic (`propActual`). In the preview 602 lines across 52 games (was about 350).

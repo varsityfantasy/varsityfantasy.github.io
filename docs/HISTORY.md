@@ -1078,3 +1078,6 @@ Top Cards (Predict tabs) is a closed dropdown (`UI.tcOpen`, `tcOpen`). `tokRows(
 
 ## v581 · Nov 17: Games tab opens on today, 5 Card Draw closes 6:30 PM
 `viewSchedDays`: selected day resets to today each new day (UI.gdayAt); with no games today it shows Upcoming. Basketball `fcClose(s)` = game day 18:30 PT (was first tip-off).
+
+## v582 · Nov 17: basketball picks and props close at 7 PM
+`started(g)` in basketball is true from 7:00 PM Pacific on the game day for every game that day (Pick em, Player props, slip, Duo parlays). `tipped(g)` keeps the game's own tip-off for 5 Card Draw (`fcStarted`, `fcPlays`).

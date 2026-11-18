@@ -3599,7 +3599,9 @@ const TODAY=()=>{try{return new Date().toLocaleDateString('en-CA',{timeZone:'Ame
 /* games close at kickoff/tip-off, San Diego time. Games without a listed time are treated as 7:00 pm starts. */
 const NOWPT=()=>{try{const o={};new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(x=>o[x.type]=x.value);return o.year+'-'+o.month+'-'+o.day+'T'+o.hour+':'+o.minute}catch(_){return new Date(Date.now()-8*36e5).toISOString().slice(0,16)}};
 const KICK='19:00';
-const started=g=>!!g&&NOWPT()>=g.d+'T'+(g.t||KICK);
+const tipped=g=>!!g&&NOWPT()>=g.d+'T'+(g.t||KICK);   /* the game's own tip-off */
+/* v582 (owner): basketball Pick ’em and Player props for a day close at 7:00 PM Pacific for ALL of that day's games */
+const started=g=>GAME_L==='Game'?(!!g&&NOWPT()>=g.d+'T19:00'):tipped(g);
 /* a player's game this week has started (5 Card Draw locks that card) */
 const NEEDS_SERVER=true;
 const SB_URL='https://urdkamhsdjhzhrjwzyoq.supabase.co',SB_KEY='sb_publishable_Kwc2VdtM1AbcKB7xgsOhlw_KOw02EOb';
@@ -3944,7 +3946,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v581 · Nov 17';
+const APP_BUILD='v582 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4785,7 +4787,7 @@ function fcPts(p,s){if(!p)return null;if(!FC_DAILY)return (p.games&&p.games[s-1]
 const fcClose=s=>{const g=fcGamesOf(s);return g.length?g[0].d+'T18:30':''};   /* v581 (owner): basketball's 5 Card Draw closes at 6:30 PM Pacific on the game day, never earlier */
 const fcOpen=s=>!FC_DAILY||(dayOf(s)===TODAY()&&!!fcClose(s)&&NOWPT()<fcClose(s));
 const fcNextDay=()=>{const t=TODAY(),ds=Object.keys(fcIdx().d).sort().filter(d=>d>t);return ds.length?dayNo(ds[0]):null};
-const fcStarted=(p,s)=>fcGamesOf(s).some(g=>(g.h===p.school||g.a===p.school)&&started(g));
+const fcStarted=(p,s)=>fcGamesOf(s).some(g=>(g.h===p.school||g.a===p.school)&&tipped(g));
 /* v339 (owner): unused redraws do NOT carry over. Every hand starts with FC_REDRAWS (plus any Locker extras for that hand). fcBank stays so old callers keep working. */
 function fcBank(u,w){return 0}
 const fcX=(u,w)=>+(((invOf(u).fcx)||{})[w])||0;   /* extra redraws from the Locker for that week */
@@ -4800,7 +4802,7 @@ const fcSeason=u=>Math.round(Object.keys(fcDoc(u)).reduce((a,w)=>a+fcScore(u,+w)
 const fcRnd=n=>{try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}catch(_){return Math.floor(Math.random()*n)}};
 /* anyone with a game on record and no stats in yet this week, and a team that is not on a bye */
 /* only players whose team still has a game this week that has not started (when this week's schedule is listed) */
-const fcPlays=p=>{const gs=fcGamesOf(fcCur());return !gs.length||gs.some(g=>(g.h===p.school||g.a===p.school)&&!started(g))};
+const fcPlays=p=>{const gs=fcGamesOf(fcCur());return !gs.length||gs.some(g=>(g.h===p.school||g.a===p.school)&&!tipped(g))};
 const FC_MIN_OVR=65;   /* v548 (owner): 5 Card Draw never deals a player under 65 OVR */
 const fcPool=ex=>{const s=fcCur(),base=players().filter(p=>p.mp&&mgOk(p)&&!ex.has(p.key)&&!fcPts(p,s)&&!fcStarted(p,s)&&fcPlays(p)&&agg(p,'season').n>0&&(FC_DAILY||!(oppInfo(p.school)||{}).bye)),hi=base.filter(p=>ovrOf(p.key)>=FC_MIN_OVR);
   return hi.length>=FC_SIZE||!base.some(p=>ovrOf(p.key)>0)?(hi.length>=FC_SIZE?hi:base):hi};   /* if nobody has an overall yet (basketball before stats), deal from everyone */

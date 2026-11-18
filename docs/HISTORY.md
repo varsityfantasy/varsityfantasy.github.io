@@ -1107,3 +1107,6 @@ slipGo no longer stops and asks to lock in again when a line moved; the slip row
 
 ## Nov 17 7:20 pm: roster recheck, teams with no game yet (no app change)
 Re-read the MaxPreps basketball roster pages of the 112 San Diego teams that had not played: 81 by team URL, 29 more by guessed city (Rock Academy, San Diego Academy and a few others could not be reached or still show nothing). Player counts match `bb_2627_rosters.txt` for every team that has a roster, and no new team posted one (52 still empty). Nothing to rebuild.
+
+## v589 Nov 17: all-sections basketball data
+Collect section data (sport=bb, dry=false) crawled 1,530 California teams / 14,151 games and committed section data and API files. Note: a hand-dispatched run defaults to dry=true and commits nothing; pass inputs[dry]=false. Rebuilt basketball.html.

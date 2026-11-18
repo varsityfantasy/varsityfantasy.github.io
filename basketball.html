@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v603 · Nov 18';
+const APP_BUILD='v604 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -11416,7 +11416,7 @@ document.addEventListener('click',async e=>{
   else if(a==='lkBets'){const b=lkUnseen(ME.uid);UI.mtab=b.pp.length?'props':'picks';location.hash='#minigames';render()}
   else if(a==='goLocker'){const c=$('#cfm');if(c&&!c.hidden&&typeof closeConfirm==='function')closeConfirm();location.hash='#shop'}
   else if(a==='lkTab'){UI.lk=t.dataset.v;render()}
-  else if(a==='pkAd'){if(((invOf(ME.uid).fr||{}).ad)===TODAY()){say('Come back tomorrow for another free pack.');return}adPlay(()=>packOpen('rookie','ad'))}
+  else if(a==='pkAd'){if(((invOf(ME.uid).fr||{}).ad)===TODAY()){say('Come back tomorrow for another free pack.');return}adPlay(()=>packOpen('rookie','ad'),1)}
   else if(a==='bndOpen'){UI.bndO=UI.bndO===t.dataset.v?'':t.dataset.v;render()}
   else if(a==='bndMore'){UI.bndN=(UI.bndN||12)+12;render()}
   else if(a==='lkC'){UI.lkC=t.dataset.v;UI.lkN=30;render()}
@@ -11438,7 +11438,7 @@ document.addEventListener('click',async e=>{
     const nx=b.bx===f?null:f;if(nx&&invLeft(ME.uid,nx==='b'?'t_boost':'t_insure')<1){say('You don’t have one of those. Open packs in the Locker.');return}
     const d=S.picks[ME.uid]=Object.assign({},S.picks[ME.uid]);d[coll]=Object.assign({},d[coll],{[id]:Object.assign({},b,{bx:nx||undefined})});render();
     await act(()=>upsert('picks/'+ME.uid,{[coll]:{[id]:{bx:nx}}}),nx?(nx==='b'?'+25% boost on':'Insurance on'):'Boost removed')}
-  else if(a==='fgAdTry'){if(fgAdUsed())return;adPlay(()=>{fgAdTry();render()})}
+  else if(a==='fgAdTry'){if(fgAdUsed())return;adPlay(()=>{fgAdTry();render()},1)}
   else if(a==='perkTry'){const d=fgDay(ME.uid)||{d:TODAY(),tries:0,best:0,t:0},dd=Object.assign({},d,{d:TODAY(),x:(+d.x||0)+1}),my=fgRec(ME.uid);
     S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{fg:Object.assign({},my,{dd})});upsert('picks/'+ME.uid,{fg:{dd}}).catch(()=>{});await invUse('p_try');say('Extra try added');render()}
   else if(a==='perkRedraw'){const w=fcCur(),inv=invOf(ME.uid),fcx=Object.assign({},inv.fcx,{[w]:fcX(ME.uid,w)+1});await invUse('p_redraw',{fcx});say('+1 redraw '+(FC_DAILY?'today':'this week'));render()}
@@ -11796,12 +11796,12 @@ async function adNative(rv){
     try{await am.prepareRewardVideoAd({adId:C.getPlatform()==='ios'?ADMOB.ios:ADMOB.android,isTesting:ADMOB.test});
         await am.showRewardVideoAd()}finally{try{h.remove()}catch(_){}}
     if(rewarded){if(rv)rv();else if(await adGrant())render()}
-    else say(rv?'Watch the full video to keep playing.':'Watch the full video to earn tokens.');
+    else say(rv?(claim?'Watch the full video to claim your reward.':'Watch the full video to keep playing.'):'Watch the full video to earn tokens.');
     return true}
   catch(e){return false}   /* no fill or plugin error: fall back to the sponsor card */
 }
-async function adPlay(rv){   /* rv: a function to run when the video is finished instead of paying tokens (Field Goal / Hoops revive) */
-  if(typeof rv!=='function')rv=null;
+async function adPlay(rv,claim){   /* rv: a function to run when the video is finished instead of paying tokens (Field Goal / Hoops revive) */
+  if(typeof rv!=='function')rv=null;const KP=claim?'Claim reward':'Keep playing';
   if(!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||document.getElementById('adov'))return;
   if(!rv&&!adLeft(ME.uid)){say('You have used today’s sponsor spots. Back tomorrow.');return}
   useAdStart();
@@ -11820,14 +11820,14 @@ async function adPlay(rv){   /* rv: a function to run when the video is finished
   const V=o.querySelector('video');
   if(V){   /* real video: the clock is the video itself; it only counts while it is playing and the page is visible */
     const box=o.querySelector('.adv'),snd=o.querySelector('.adsnd');let nat=false;
-    go.textContent=rv?'Watch to the end to keep playing':'Watch to the end to collect';
+    go.textContent=rv?(claim?'Watch to the end to claim your reward':'Watch to the end to keep playing'):'Watch to the end to collect';
     const start=()=>{const r=V.play();if(r&&r.catch)r.catch(()=>{V.muted=true;snd.textContent='🔇';const r2=V.play();if(r2&&r2.catch)r2.catch(()=>box.classList.add('paused'))})};
     V.addEventListener('playing',()=>box.classList.remove('paused'));
     V.addEventListener('pause',()=>{if(!V.ended&&!document.hidden)box.classList.add('paused')});
     V.addEventListener('timeupdate',()=>{if(V.duration)bar.style.width=Math.min(100,100*V.currentTime/V.duration)+'%'});
     V.addEventListener('seeking',()=>{if(!done&&V.currentTime>mx+1)V.currentTime=mx;});   /* no skipping ahead */
     let mx=0;V.addEventListener('timeupdate',()=>{if(V.currentTime>mx&&V.currentTime<mx+1.5)mx=V.currentTime});
-    V.addEventListener('ended',()=>{done=true;bar.style.width='100%';go.disabled=false;go.textContent=rv?'Keep playing':'Collect +'+ADS.reward+' tokens'});
+    V.addEventListener('ended',()=>{done=true;bar.style.width='100%';go.disabled=false;go.textContent=rv?KP:'Collect +'+ADS.reward+' tokens'});
     V.addEventListener('error',()=>{V.remove();box.innerHTML='<p style="margin:0;padding:40px 12px;color:#C9D6F2">Could not load the video. Try again in a moment.</p>'});
     box.querySelector('.adtap').onclick=start;
     snd.onclick=()=>{V.muted=!V.muted;snd.textContent=V.muted?'🔇':'🔊'};
@@ -11835,7 +11835,7 @@ async function adPlay(rv){   /* rv: a function to run when the video is finished
     start();
   }
   const iv=V?0:setInterval(()=>{const now=Date.now();if(!document.hidden)left-=(now-last)/1000;last=now;       /* the clock only runs while the page is visible */
-    if(left<=0&&!done){done=true;left=0;go.disabled=false;go.textContent=rv?'Keep playing':'Collect +'+ADS.reward+' tokens'}else if(!done)n.textContent=Math.ceil(left);
+    if(left<=0&&!done){done=true;left=0;go.disabled=false;go.textContent=rv?KP:'Collect +'+ADS.reward+' tokens'}else if(!done)n.textContent=Math.ceil(left);
     bar.style.width=Math.min(100,100*(1-left/ADS.secs))+'%'},200);
   o.querySelector('.adx').onclick=close;
   go.onclick=async()=>{if(!done||go.dataset.b)return;go.dataset.b='1';

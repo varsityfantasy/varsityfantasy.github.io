@@ -1153,3 +1153,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v603 (Nov 18)
 - West Hills vs Point Loma (Nov 16) box score added to tools/data/bb_2627_box.txt from the players pipeline (10 players). Other played SD games (Westview-La Jolla, Bonita Vista-Mount Miguel, Castle Park, Southwest EC, Horizon Prep) have no player stats on MaxPreps yet.
+
+## v604 (Nov 18)
+- adPlay(rv,claim): the free-pack video (pkAd) and the Field Goal extra-try video (fgAdTry) end on "Claim reward" instead of "Keep playing"; the game revive videos keep "Keep playing".

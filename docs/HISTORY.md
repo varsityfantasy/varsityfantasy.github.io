@@ -1176,3 +1176,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v610 (Nov 18)
 - One-off CARD_FIX entry `zh-fc-bb-1` (`fcNew:"bb"`): on Zed Hornby's next open of the basketball app, while today's hand is open and not locked, his 5 Card Draw hand is replaced with a freshly dealt one (same pool rules). Skipped (and retried next open) if the hand is locked, closed, or the pool is not ready; football ignores it.
+
+## v611 (Nov 18)
+- Basketball 5 Card Draw cards with no 2026-27 game yet show "x.x PROJ PPG" (last season fantasy points a game under the current scoring, `BB_PST[key][5]`) instead of "No games yet".

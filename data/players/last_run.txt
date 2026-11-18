@@ -1,7 +1,10 @@
-2026-11-18T15:31:35Z run 44336503146
+2026-11-18T15:31:48Z run 44336503146
 rosters fb: 1533 schools, 1156 with a team address (1156 from the page cache), 35 to read
 rosters done: STOPPED: the first 30 roster pages had no player rows (page format changed?). read 30, no player rows 30, not found 0; 46870 players on file, 40528 with a position, 46725 with a class
   first empty page https://www.maxpreps.com/ca/san-francisco/sacred-heart-cathedral-preparatory-fighting-irish/football/roster/: 243534 chars, 0 <tr>, 0 careerid, near the first one: '<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="robots" content="max-image-preview:large" data-next-head=""/><meta name="requestContext" content="{&quot;deviceType&quot;:&'
 round 1:
 fb: 6123 played games, 6119 already counted, 4 to fetch (0 have no box-score link)
 done: all requested games read. fetched 4, no stats on page 0, team not matched 0, not found 0
+round 2:
+fb: 6123 played games, 6123 already counted, 0 to fetch (0 have no box-score link)
+done: all requested games read. fetched 0, no stats on page 0, team not matched 0, not found 0

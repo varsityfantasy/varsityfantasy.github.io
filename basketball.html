@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v604 · Nov 18';
+const APP_BUILD='v605 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -11752,11 +11752,17 @@ async function boot(){
     DB=supaDb(SB);
     try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(_){}   /* v397: ask the browser not to clear the saved sign-in */
     let session=null;try{session=(await SB.auth.getSession()).data.session}catch(_){}
+    /* v605 (owner: stay signed in on a device): getSession() comes back empty when the saved sign-in's 1-hour token has run out and the refresh call fails (weak signal on open, app waking up), and the app then showed the sign-in screen although the device still holds a good refresh token. Retry the refresh a few times before treating the person as signed out; only a refresh token the server rejects ends the sign-in. */
+    if(!session){let rt=null;try{const v=JSON.parse(localStorage.getItem('varsity-auth')||'null');rt=v&&(v.refresh_token||(v.currentSession&&v.currentSession.refresh_token))}catch(_){}
+      for(let i=0;rt&&!session&&i<4;i++){if(i)await new Promise(r=>setTimeout(r,[0,1000,2500,5000][i]));
+        try{const {data,error}=await SB.auth.refreshSession({refresh_token:rt});if(data&&data.session){session=data.session;break}
+          if(error&&error.status&&error.status>=400&&error.status<500)break}catch(_){}}}
     /* v371: a session from a sign-in before REAUTH_AT is signed out once on this device, so everyone signs in again with email + password */
     if(session&&session.user&&session.user.last_sign_in_at&&Date.parse(session.user.last_sign_in_at)<REAUTH_AT){try{await SB.auth.signOut({scope:'local'})}catch(_){}session=null;try{sessionStorage.setItem('vs-reauth','1')}catch(_){}}
     let earlyOn=false;try{earlyOn=!!session&&!sessionStorage.getItem('varsity-viewas')}catch(_){}
     if(session){ME.uid=session.user.id;ME.email=session.user.email;ME.created=Date.parse(session.user.created_at)||0;ME.mode='live';if(earlyOn){meFirst();subscribe()}/* v574: data starts loading now, not after the admin checks */ /* v544 (owner: refresh was slow for admins): the two admin checks run together, and the admin lists start loading right away instead of after the whole app has loaded */
       try{const [a,b]=await Promise.all([SB.rpc('is_admin_account'),SB.rpc('is_admin')]);ME.adminAcct=!!a.data;ME.admin=!!(a.data&&b.data)}catch(_){}
+      if(ME.admin){try{SB.rpc('admin_touch').then(()=>{},()=>{})}catch(_){}}   /* v605: an unlocked admin gets another 365 days each time the app opens (admin_touch, tools/sql/admin_stay_unlocked.sql) */
       if(ME.admin)setTimeout(()=>{try{if(AD.rows===null&&!AD.loading)adLoad();if(DASH.use===null&&!DASH.loading)dashLoad()}catch(_){}},0)}
     else{ME.uid=null;ME.mode='guest';ME.admin=false}
     try{const v=JSON.parse(sessionStorage.getItem('varsity-viewas')||'null');if(v&&v.uid&&ME.admin&&ME.mode==='live'&&v.uid!==ME.uid){VA={uid:v.uid,name:v.name||'this member',real:ME.uid};ME.uid=v.uid;ME.mode='readonly'}else sessionStorage.removeItem('varsity-viewas')}catch(_){}

@@ -1156,3 +1156,5 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v604 (Nov 18)
 - adPlay(rv,claim): the free-pack video (pkAd) and the Field Goal extra-try video (fgAdTry) end on "Claim reward" instead of "Keep playing"; the game revive videos keep "Keep playing".
+- Stay signed in (owner). boot(): when getSession() comes back empty but the device still has a refresh token in localStorage `varsity-auth`, retry `refreshSession` up to 4 times (0/1/2.5/5 s) before showing sign-in; a 4xx from the server (token really revoked) stops it. Cause: an expired 1-hour token plus a failed refresh on open (weak signal, app waking) dropped people to the sign-in screen; the Supabase sessions themselves never expire (not_after is null).
+- Admin stays unlocked: the live admin_unlock was still 12 hours (admin_session_30d.sql was never run). Now 365 days, and new RPC `admin_touch()` renews it on every open while unlocked (tools/sql/admin_stay_unlocked.sql, already applied).

@@ -1,0 +1,3 @@
+-- v605 (applied to the live project Nov 18 2026 as migration admin_unlock_stays_on).
+-- Admin PIN unlock lasts 365 days, and admin_touch() (called by the app on every open while unlocked) slides it another 365 days.
+-- See the live definitions with: select pg_get_functiondef('public.admin_unlock'::regproc), pg_get_functiondef('public.admin_touch'::regproc);

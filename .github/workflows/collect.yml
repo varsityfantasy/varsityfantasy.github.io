@@ -3,6 +3,10 @@
 # MaxPreps refuses this network or serves an old copy, so a failed run never writes anything. Add a schedule only after a good run.
 name: Collect section data
 on:
+  # automatic: every day at 07:37 and 19:37 UTC (about midnight and noon Pacific) this reads every California section's scores for football and
+  # basketball (a real run, not dry), with no computer of the owner's involved. The player-stats workflow follows at 10:43 and 14:43 UTC.
+  schedule:
+    - cron: '37 7,19 * * *'
   # a push that changes .github/triggers/collect starts a real (not dry) football run with the defaults (basketball: Run workflow by hand)
   push:
     branches: [main]
@@ -68,13 +72,13 @@ jobs:
           if not gs or newest < '2026-06-01': sys.exit('PROBE FAILED: page looks stale (newest game %s)' % newest)
           PY
       - name: Crawl California football
-        if: ${{ (inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'fb' }}
+        if: ${{ (inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'both' || (inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'fb' }}
         env:
           VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
         run: |
           python3 -I tools/sections/sync.py california --adapter maxpreps --sport fb --max-teams "${{ inputs.max_teams || '4000' }}" --max-age-h "${{ inputs.max_age_h || '12' }}" --cache .mpcache ${{ inputs.dry && '--dry-run' || '' }}
       - name: Commit football data
-        if: ${{ !inputs.dry && ((inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'fb') }}
+        if: ${{ (github.event_name == 'schedule' || !inputs.dry) && ((inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'both' || (inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'fb') }}
         run: |
           git config user.name "varsity-collector"
           git config user.email "actions@users.noreply.github.com"
@@ -84,13 +88,13 @@ jobs:
           git pull --rebase -q
           git push
       - name: Crawl California basketball
-        if: ${{ (inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'bb' }}
+        if: ${{ (inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'both' || (inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'bb' }}
         env:
           VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
         run: |
           python3 -I tools/sections/sync.py california --adapter maxpreps --sport bb --max-teams "${{ inputs.max_teams || '4000' }}" --max-age-h "${{ inputs.max_age_h || '12' }}" --cache .mpcache ${{ inputs.dry && '--dry-run' || '' }}
       - name: Commit basketball data
-        if: ${{ !inputs.dry && ((inputs.sport || 'fb') == 'both' || (inputs.sport || 'fb') == 'bb') }}
+        if: ${{ (github.event_name == 'schedule' || !inputs.dry) && ((inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'both' || (inputs.sport || (github.event_name == 'schedule' && 'both' || 'fb')) == 'bb') }}
         run: |
           git config user.name "varsity-collector"
           git config user.email "actions@users.noreply.github.com"
@@ -100,10 +104,10 @@ jobs:
           git pull --rebase -q
           git push
       - name: Build API files
-        if: ${{ !inputs.dry }}
+        if: ${{ github.event_name == 'schedule' || !inputs.dry }}
         run: python3 -I tools/sections/build_api.py
       - name: Commit API files
-        if: ${{ !inputs.dry }}
+        if: ${{ github.event_name == 'schedule' || !inputs.dry }}
         run: |
           git config user.name "varsity-collector"
           git config user.email "actions@users.noreply.github.com"

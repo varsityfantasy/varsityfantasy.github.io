@@ -3,6 +3,10 @@
 # cut short by max_minutes (or a failure) keeps its progress and the next run carries on. Football first; basketball has ~6x the games.
 name: Collect section players
 on:
+  # automatic: basketball every day at 10:43 UTC and football every day at 14:43 UTC (after the 07:37 / 19:37 UTC score crawl), no computer needed
+  schedule:
+    - cron: '43 10 * * *'
+    - cron: '43 14 * * *'
   # a push that changes .github/triggers/players starts a football run (same as pressing Run workflow with the defaults);
   # a push that changes .github/triggers/players-bb starts a basketball run (rosters for every team, then box scores)
   push:
@@ -55,6 +59,7 @@ jobs:
         env:
           VARSITY_CONTACT: https://github.com/varsityfantasy/varsityfantasy.github.io
           SPORT_IN: ${{ inputs.sport }}
+          SCHED: ${{ github.event.schedule }}
           EVENT: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}
           GH_TOKEN: ${{ github.token }}
@@ -65,6 +70,7 @@ jobs:
           # sport: the Run workflow choice, else basketball when the push changed .github/triggers/players-bb, else football
           SPORT="${SPORT_IN:-fb}"
           if [ "$EVENT" = "push" ] && gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA" --jq '.files[].filename' 2>/dev/null | grep -q 'triggers/players-bb'; then SPORT=bb; fi
+          if [ "$EVENT" = "schedule" ]; then case "$SCHED" in '43 10'*) SPORT=bb;; *) SPORT=fb;; esac; fi
           echo "sport: $SPORT"
           git config user.name "varsity-collector"
           git config user.email "actions@users.noreply.github.com"

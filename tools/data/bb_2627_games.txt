@@ -3,7 +3,6 @@ NAMES:Army-Navy|Bayfront Charter|Bishop's|Bonita Vista|Bonsall|Borrego Springs|B
 1114 1230 123 52 33-54
 1114 1600 58 126 57-55
 1114 1700 75 3 34-68
-1114 1800 74 51
 1116 0000 ~Desert Mirage 9 49-40
 1116 1800 15 107 52-20
 1116 1830 102 64 30-46

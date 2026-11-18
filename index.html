@@ -3935,7 +3935,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v582 · Nov 17';
+const APP_BUILD='v583 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4806,7 +4806,7 @@ function fcPts(p,s){if(!p)return null;if(!FC_DAILY)return (p.games&&p.games[s-1]
   if(x.gl&&x.gl.length){const y=x.gl.find(y=>y.d===d);return y?{stat:y.stat,ver:x.ver}:null}
   const n=(fcIdx().w[g.w]||[]).filter(h=>h.h===p.school||h.a===p.school).length;return n===1?x:null}
 /* v315 (basketball): a hand can only be dealt, redrawn or locked on a game day, and only before that day's first tip-off (7:00 PM when a game has no time listed). No games today = no hand. */
-const fcClose=s=>{const g=fcGamesOf(s);return g.length?g[0].d+'T18:30':''};   /* v581 (owner): basketball's 5 Card Draw closes at 6:30 PM Pacific on the game day, never earlier */
+const fcClose=s=>{const g=fcGamesOf(s);return g.length?g[0].d+'T19:00':''};   /* v583 (owner): basketball's 5 Card Draw closes at 7:00 PM Pacific on the game day (was 6:30 in v581) */
 const fcOpen=s=>!FC_DAILY||(dayOf(s)===TODAY()&&!!fcClose(s)&&NOWPT()<fcClose(s));
 const fcNextDay=()=>{const t=TODAY(),ds=Object.keys(fcIdx().d).sort().filter(d=>d>t);return ds.length?dayNo(ds[0]):null};
 const fcStarted=(p,s)=>fcGamesOf(s).some(g=>(g.h===p.school||g.a===p.school)&&tipped(g));
@@ -4833,7 +4833,7 @@ let _fcBusy=false;
 async function fcDeal(){
   if(_fcBusy||ME.mode==='guest'||ME.mode==='readonly'||!ME.uid)return;
   const w=fcCur();if(fcHand(ME.uid,w))return;
-  if(!fcOpen(w)){say(dayOf(w)!==TODAY()?'No games today. Your next hand opens '+fcLabel(w)+'.':'Today’s hand closed at 6:30 PM. The next game day opens at midnight.');return}
+  if(!fcOpen(w)){say(dayOf(w)!==TODAY()?'No games today. Your next hand opens '+fcLabel(w)+'.':'Today’s hand closed at 7:00 PM. The next game day opens at midnight.');return}
   _fcBusy=true;
   try{
     /* one hand per week, for good: always ask the server first, so a refresh (or a slow load) can never deal a second hand

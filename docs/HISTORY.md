@@ -1081,3 +1081,6 @@ Top Cards (Predict tabs) is a closed dropdown (`UI.tcOpen`, `tcOpen`). `tokRows(
 
 ## v582 · Nov 17: basketball picks and props close at 7 PM
 `started(g)` in basketball is true from 7:00 PM Pacific on the game day for every game that day (Pick em, Player props, slip, Duo parlays). `tipped(g)` keeps the game's own tip-off for 5 Card Draw (`fcStarted`, `fcPlays`).
+
+## v583 · Nov 17: 5 Card Draw closes 7 PM
+Basketball `fcClose` = game day 19:00 PT (v581 had 18:30).

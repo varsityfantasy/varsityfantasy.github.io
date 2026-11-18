@@ -1128,3 +1128,6 @@ For player profiles of the app's own sport (`(sport||'fb')===FG_SPORT`), `mpFind
 
 ## v595 Nov 17: admin tag colours
 Users list pills: Basketball orange (`.o`), Football brown (`.br`), Player blue (`.b`), Fan purple (`.pu`), Admin purple, no role grey. Light and dark admin themes both set.
+
+## v596 Nov 17: Claimed for both sports, Users summary, deeper basketball orange
+`claimidx.js` (written by make_basketball.py: school -> [name,pos] for fb from stats.js and bb from the baked players) is loaded on demand by admins (`claimIdx()`); `claimOf(profile)` uses `mpMatch` on the profile's own sport, so Claimed / Not claimed shows in either app. The Users card has a strip: per sport users, players, claimed and percent of players. Basketball pill `.o` is a deeper orange. Sport of a user: `joinSp`.

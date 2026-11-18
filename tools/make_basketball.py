@@ -642,4 +642,16 @@ if __name__ == '__main__':
     src = open(SRC, encoding='utf-8').read()
     out = transform(src, mp, games, seeds, teams, prior)
     open(OUT, 'w', encoding='utf-8').write(out)
+    # claimidx.js (v596): school -> [[name, pos]] for BOTH sports, so the admin Users page can tell whether a player profile is Claimed (in our data) whichever app it is opened in
+    import json as _j, re as _re
+    _sj = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'stats.js'), encoding='utf-8').read()
+    _fb, _ = _j.JSONDecoder().raw_decode(_sj[_sj.index('window.MAXPREPS=') + 16:])
+    def _idx(pl):
+        d = {}
+        for q in pl:
+            if q.get('s') and q.get('n'):
+                d.setdefault(q['s'], {})[q['n']] = q.get('p') or ''
+        return {k: [[n, ps] for n, ps in v.items()] for k, v in d.items()}
+    open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'claimidx.js'), 'w', encoding='utf-8').write(
+        '/* Varsity: player names per school for football and basketball (admin Claimed / Not claimed). Written by tools/make_basketball.py. */\nwindow.CLAIMIDX=' + _j.dumps({'fb': _idx(_fb['players']), 'bb': _idx(mp['players'])}, separators=(',', ':')) + ';\n')
     print('wrote', OUT, len(out) // 1024, 'KB;', len(mp['players']), 'players,', len(games), 'games')

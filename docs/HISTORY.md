@@ -1063,3 +1063,6 @@ Ran "Collect section players" (bb, then fb) and "Collect section data" (scores, 
 - Basketball Predict now has Player props (points, rebounds, assists, 3-pointers made; top 3/2/2/1 per team) and Pick 'em, but only for games today and the next 2 days (`bbWin`, `addDay`). Both are grouped under date headings (`dayLab`: "Tue, Nov 17 · Today"), earliest first. The filter bar has Day instead of Week.
 - Lines (`propCands`, `bbHist`, `bbStat`): this season's per-game lines before the game date, blended with last season's per-game averages (`window.BB_PST` = [ppg,reb,ast,3pm,gp], written by make_basketball) with weight 6 while the sample is small. Players need 3 games this season or 5 last season. Ids are `date|key|market`; results use the game's date (`propActual`); a pick whose stats never post is a push 2 days after the game.
 - Lines are live: the cache key has the date and `_rev`, so new box scores, injuries and schedule changes recompute them. A line that moved since first shown gets "Line moved from X to Y" (`_ppFirst`, `x.mv`), the slip warns when a selected line moved (`slMoved`, `UI.sl.ln`) and asks to lock in again. Locked picks keep their line. Football is unchanged (`BBPP` guards).
+
+## v577 · Nov 17: Duo parlay first
+On the Props tab the Duo card parlay now sits right under the game heading, above the player cards (was at the bottom).

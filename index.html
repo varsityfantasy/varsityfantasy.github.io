@@ -3932,7 +3932,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v576 · Nov 17';
+const APP_BUILD='v577 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7203,8 +7203,7 @@ function propsHTML(){
     const byP=[],pi={};L.forEach(x=>{if(!pi[x.k]){pi[x.k]=[];byP.push(pi[x.k])}pi[x.k].push(x)});
     UI.ppSel=UI.ppSel||{};
     const cards=byP.map(grp=>{const k=grp[0].k,sel=grp.find(y=>y.id===UI.ppSel[k])||grp.find(y=>UI.sl.legs[y.id])||grp.find(y=>mine[y.id])||grp[0];return card(sel,grp)});
-    body=`<div class="qh pp-gh"><h3>${esc(cur.g.a)} at ${esc(cur.g.h)}</h3><span class="muted">${esc(fmtDate(cur.g.d))}${cur.g.time?' · '+esc(cur.g.time):''} · ${byP.length} players · ${L.length} lines</span></div><div class="gm-grid">${cards.join('')}</div>`;
-    body+=parlHTML(cur,L);
+    body=`<div class="qh pp-gh"><h3>${esc(cur.g.a)} at ${esc(cur.g.h)}</h3><span class="muted">${esc(fmtDate(cur.g.d))}${cur.g.time?' · '+esc(cur.g.time):''} · ${byP.length} players · ${L.length} lines</span></div>${parlHTML(cur,L)}<div class="gm-grid">${cards.join('')}</div>`;
   }
   return boardCard+activeCard()+recordCard(Object.values(mine).map(b=>propResult(b,gm)))+advisorHTML()+(BBPP?`<p class="muted pk-note">Lines for today and the next 2 days. They can change before tip-off if stats, a player’s status or a roster change (a moved line is tagged). A pick you lock in keeps the line it had.${_ppC&&_ppC.t?' Updated '+new Date(_ppC.t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'.':''}</p>`:'')+bfBar(mkChips)+ppPick+body+histCard+allBar+(allBar?'<div class="sl-sp"></div>':'');
 }

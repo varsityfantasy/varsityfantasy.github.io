@@ -65,14 +65,15 @@ h1{{font-family:A;font-weight:400;font-size:104px;line-height:.95;letter-spacing
 """
 
 PALS={
- 'navy':dict(bg0='#070C18',bgimg='radial-gradient(1100px 650px at 105% -5%,rgba(231,181,74,.10) 0%,transparent 60%),linear-gradient(180deg,#0A1222,#070C18)',a='#E7B54A',onA='#070C18',ink='#FFFFFF',ink2='#C8D0EA',mut='#8792B5',mut2='#56628A',card='linear-gradient(120deg,#16223F,#101A31)',cardb='rgba(231,181,74,.45)',chip='rgba(255,255,255,.07)',row='rgba(255,255,255,.045)',line='rgba(255,255,255,.07)',stripe='rgba(255,255,255,.012)',ghost='rgba(231,181,74,.07)',shadow='0 20px 60px rgba(0,0,0,.45)'),
+ 'navy':dict(bg0='#070C18',bgimg='radial-gradient(1100px 650px at 105% -5%,color-mix(in srgb,var(--a) 10%,transparent) 0%,transparent 60%),radial-gradient(900px 700px at -20% 115%,#13213F 0%,transparent 62%),linear-gradient(180deg,#0B1426,#070C18)',a='#E7B54A',onA='#070C18',ink='#FFFFFF',ink2='#C8D0EA',mut='#8792B5',mut2='#56628A',card='linear-gradient(120deg,#16223F,#101A31)',cardb='color-mix(in srgb,var(--a) 40%,transparent)',chip='rgba(255,255,255,.07)',row='rgba(255,255,255,.045)',line='rgba(255,255,255,.07)',stripe='rgba(255,255,255,.012)',ghost='color-mix(in srgb,var(--a) 9%,transparent)',shadow='0 20px 60px rgba(0,0,0,.45)'),
  'white':dict(bg0='#F4F2EC',bgimg='linear-gradient(180deg,#F7F5EF,#ECE9E0)',a='#D62839',onA='#FFFFFF',ink='#0D1117',ink2='#3A4150',mut='#7A7F8C',mut2='#9A9EA8',card='#FFFFFF',cardb='#E2DED3',chip='#F3F1EB',row='#FFFFFF',line='#E4E0D6',stripe='rgba(0,0,0,.0)',ghost='rgba(0,0,0,.05)',shadow='0 14px 40px rgba(20,20,30,.10)'),
  'volt':dict(bg0='#0B0B0C',bgimg='radial-gradient(900px 600px at 100% 0%,rgba(212,255,58,.08),transparent 60%),#0B0B0C',a='#D4FF3A',onA='#0B0B0C',ink='#FFFFFF',ink2='#C9CCD1',mut='#80858F',mut2='#5A5E66',card='#17181A',cardb='rgba(212,255,58,.5)',chip='#232427',row='#141517',line='#26282C',stripe='rgba(255,255,255,.0)',ghost='rgba(255,255,255,.04)',shadow='0 20px 60px rgba(0,0,0,.5)'),
  'royal':dict(bg0='#081A4A',bgimg='radial-gradient(1000px 700px at 100% 0%,#1C3FA0 0%,transparent 60%),linear-gradient(180deg,#0A1E55,#061238)',a='#FFFFFF',onA='#0A1E55',ink='#FFFFFF',ink2='#C9D6FF',mut='#8EA3D9',mut2='#6C83C2',card='linear-gradient(120deg,#163A9C,#0F2A78)',cardb='rgba(255,255,255,.35)',chip='rgba(255,255,255,.10)',row='rgba(255,255,255,.07)',line='rgba(255,255,255,.12)',stripe='rgba(255,255,255,.0)',ghost='rgba(255,255,255,.06)',shadow='0 20px 60px rgba(0,0,20,.45)'),
 }
 PAL=PALS[os.environ.get('PALETTE','navy')]
 CSS+='body{'+';'.join(f'--{k}:{v}' for k,v in PAL.items())+'}'
-TH={k:(PAL['a'],'','') for k in 'gobpv'}
+MILD={'g':'#8FC1A3','o':'#D6B46E','b':'#86AED6','p':'#D49A96','v':'#A9A0D8'}   # sage, muted gold, steel blue, dusty rose, lavender
+TH={k:((MILD[k] if os.environ.get('PALETTE','navy')=='navy' else PAL['a']),'','') for k in 'gobpv'}
 def lgimg(sch,cls=''):
     u=logo(sch);return f'<img src="{u}">' if u else f'<span class="mono">{esc(sch[:1])}</span>'
 def slide(th,tag,title,sub,big,items,unit='PTS',foot='SWIPE',start=1,hero=True):
@@ -102,7 +103,7 @@ TC=['b','p','v','o','b','p']
 for k,st in enumerate(range(10,100,15)):
     S.append((f'{k+4:02d}_top_{st+1}_{st+15}',slide(TC[k],'TOP 100',f'No. {st+1}<em>–{st+15}</em>','Season fantasy points',str(st+1),T[st:st+15],start=st+1,hero=False)))
 # cover: the title is the top 100; No. 1-3 of the season under it
-a,a2,a3=TH['g'];h=T[0]
+a,a2,a3=TH['o'];h=T[0]
 S.insert(0,('01_cover',f"""<div class="s" style="--a:{a};--a2:{a2};--a3:{a3};padding-top:80px"><div class="big" style="font-size:600px;top:-60px">100</div><div class="brand">VARSITY<i>.</i></div>
 <span class="tag">SAN DIEGO FOOTBALL · WEEK {LAST}</span>
 <h1 style="font-size:215px;line-height:.86;margin-top:34px">Top 100<br><em>fantasy</em><br>players</h1>

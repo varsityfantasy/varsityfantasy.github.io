@@ -514,7 +514,7 @@ const SIM_COL={PG:'#E65B28',SG:'#2868E8',SF:'#079B82',PF:'#9655D8',C:'#E0455B',G
 """)
     s = between(s, 'function simBest(){', '\nfunction simStart',
                 """function simBest(){
-  const seen=new Set(),all=players().filter(p=>p.mp&&mgOk(p)&&agg(p,'season').n>=2).sort((a,b)=>simTot(b)-simTot(a)).filter(p=>{const k=simKey(p);if(seen.has(k))return false;seen.add(k);return true});
+  const seen=new Set(),all=players().filter(p=>p.mp&&mgOk(p)&&simOk(p)).sort((a,b)=>simTot(b)-simTot(a)).filter(p=>{const k=simKey(p);if(seen.has(k))return false;seen.add(k);return true});
   const used=new Set(),list=[];
   for(const sl of SIM_SLOTS){const p=all.find(x=>!used.has(simKey(x))&&sl.elig.includes(x.pos));if(p){used.add(simKey(p));list.push({l:sl.label,p})}}
   return {list,total:list.reduce((t,x)=>t+simTot(x.p),0)};

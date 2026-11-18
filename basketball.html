@@ -3946,7 +3946,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v583 · Nov 17';
+const APP_BUILD='v584 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6760,13 +6760,16 @@ const SIM_POS={PF:[18,17],C:[50,17],SF:[82,17],FC:[33,48],G:[67,48],SG:[24,79],P
 const SIM_UNIT=k=>'off';
 const SIM_COL={PG:'#E65B28',SG:'#2868E8',SF:'#079B82',PF:'#9655D8',C:'#E0455B',G:'#22A6D9',F:'#E8A317','PF/C':'#E8A317'};
 const simKey=p=>((p.name||'')+'|'+(p.school||'')).toLowerCase();
-const simTot=p=>agg(p,'season').v;
+/* v584 (owner): basketball's 82-0 must be playable from day one. A player with fewer than 2 games this season is counted as if his missing games (up to 2) were last season's average (BB_PST), so everyone with last-season stats can be drawn. */
+const simPr=p=>{const r=(window.BB_PST||{})[p.key];return r&&r[4]>=8?r:null},simPf=p=>{const r=simPr(p);return r?r[0]+1.2*r[1]+1.5*r[2]:0};
+const simOk=p=>agg(p,'season').n>=2||(GAME_L==='Game'&&!!simPr(p));
+const simTot=p=>{const a=agg(p,'season');return GAME_L==='Game'&&a.n<2&&simPr(p)?a.v+(2-a.n)*simPf(p):a.v};
 /* points per game: the 82-0 leaderboard ranks teams by the players' combined PPG (owner, Nov 6), so games played don't decide it */
-const simPPG=p=>{const a=agg(p,'season');return a.n?a.v/a.n:0},teamPPG=c=>c.reduce((t,k)=>t+(pByKey(k)?simPPG(pByKey(k)):0),0);
-const simPool=(slot,ex)=>players().filter(p=>p.mp&&mgOk(p)&&!ex.has(simKey(p))&&slotOk(slot,p)&&agg(p,'season').n>=2);
+const simPPG=p=>{const a=agg(p,'season');if(GAME_L==='Game'&&a.n<2&&simPr(p))return simTot(p)/2;return a.n?a.v/a.n:0},teamPPG=c=>c.reduce((t,k)=>t+(pByKey(k)?simPPG(pByKey(k)):0),0);
+const simPool=(slot,ex)=>players().filter(p=>p.mp&&mgOk(p)&&!ex.has(simKey(p))&&slotOk(slot,p)&&simOk(p));
 /* the best team that could have been drawn: top player at each spot, FLEX goes to the best one left over */
 function simBest(){
-  const seen=new Set(),all=players().filter(p=>p.mp&&mgOk(p)&&agg(p,'season').n>=2).sort((a,b)=>simTot(b)-simTot(a)).filter(p=>{const k=simKey(p);if(seen.has(k))return false;seen.add(k);return true});
+  const seen=new Set(),all=players().filter(p=>p.mp&&mgOk(p)&&simOk(p)).sort((a,b)=>simTot(b)-simTot(a)).filter(p=>{const k=simKey(p);if(seen.has(k))return false;seen.add(k);return true});
   const used=new Set(),list=[];
   for(const sl of SIM_SLOTS){const p=all.find(x=>!used.has(simKey(x))&&sl.elig.includes(x.pos));if(p){used.add(simKey(p));list.push({l:sl.label,p})}}
   return {list,total:list.reduce((t,x)=>t+simTot(x.p),0)};

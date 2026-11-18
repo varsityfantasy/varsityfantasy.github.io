@@ -1147,3 +1147,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 ## v601 (Nov 17): automatic background updates + box-score gap check
 - `collect.yml` now has a `schedule` (07:37 and 19:37 UTC daily): scores for every California section, football and basketball, real run (not dry). `players.yml` has `schedule` 10:43 UTC (basketball) and 14:43 UTC (football). Both run on GitHub, no computer of the owner's needed. Scheduled runs treat sport as both / dry=false (expressions use `github.event_name == 'schedule'`); the players run picks the sport from `github.event.schedule`.
 - Gap check (San Diego): football 550/550 played games counted; ~30 school-games have no player lines because MaxPreps has no stats for them (Monte Vista, Calexico, Vincent Memorial, Orange Glen, forfeit-style 2-0 La Jolla CD/Santa Fe Christian etc.). Basketball: 9 played games had a box-score link but were not counted yet; triggered a players-bb run.
+
+## v602 (Nov 18)
+- Removed the Oct 8 La Jolla Country Day vs Santa Fe Christian football game from games.js: LJCD forfeited, it was never played (owner).

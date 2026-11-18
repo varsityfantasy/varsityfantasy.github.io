@@ -1167,3 +1167,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v607 (Nov 18)
 - Announcements also open as a big pop-up (`annPopup`, once per announcement id per device via localStorage vs-ann-x; the top banner stays until closed). Shown in the same open-time chain as gift/admin-message pop-ups.
+
+## v608 (Nov 18)
+- Basketball 5 Card Draw pool (`fcEl` in make_basketball.py, replaces "has a game this season"): a player is drawable with a season average over 1 ppg, a last-season average over 1 ppg (`BB_PST`), or a projection over 1 fantasy point, so players with no 2026-27 game yet can be dealt. Football unchanged.

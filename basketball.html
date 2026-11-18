@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v613 · Nov 18';
+const APP_BUILD='v614 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6926,6 +6926,7 @@ function simSeasonHTML(m){
   const verdict=s.title?'League champions':s.qual?'Lost in the '+s.out.toLowerCase():'Missed the playoffs';
   const row=(lab,opp,a,b,win)=>`<div class="bt-r ${win?'won':'lost'}"><b>${lab}${esc(opp)}</b><small class="muted">${win?'W':'L'} ${a}-${b}</small></div>`;
   return `<section class="card sim-season"><div class="qh"><h3>${slogo(s.school,26)} ${esc(s.school)} season</h3></div>
+    <div class="btns" style="margin:4px 0 10px"><button class="btn" data-act="simStart">Build another team</button></div>   <!-- v614 (owner): at the top of the season record -->
     <div class="fc-bar"><div><small>Record</small><b>${s.W}-${s.L}</b></div><div><small>Points</small><b>${s.PF}-${s.PA}</b></div><div><small>Result</small><b style="font-size:1rem;line-height:1.2">${verdict}</b></div></div>
     <p class="muted">Your drafted team gives ${esc(s.school)} ${sp>=0?'+':''}${f1(sp)} points per game on top of their real rating. Games follow their real regular-season schedule, simulated from team ratings.</p>
     ${s.games.map(g=>row(WKL(g.w,1)+' · '+(g.home?'vs ':'at '),g.opp,g.a,g.b,g.win)).join('')}

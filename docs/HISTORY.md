@@ -1185,3 +1185,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v613 (Nov 18)
 - Slow open (owner: ~10 s of All sections / not yet "my account"): `secLand` and `landCheck` no longer wait for the whole profiles collection, only for your own profile (meFirst, ~1 s). The section you land on is saved (localStorage vs-sec) and the next open starts on it (`UI.psec`/`UI.sb` at init) when a saved sign-in exists, so All sections is never loaded first. mustSetup, gift/admin pop-ups and cardFix still wait for the full data on purpose.
+
+## v614 (Nov 18)
+- 82-0 / 10-0 season record (`simSeasonHTML`): a "Build another team" button (`simStart`) sits at the top of the season card, above the record. The one under the result card stays.

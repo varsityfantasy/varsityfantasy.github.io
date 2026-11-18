@@ -1072,3 +1072,6 @@ Props/Pick em filter bar is a compact 2x2 grid (division, day/week, school, stat
 
 ## v579 · Nov 17: basketball profile chart by game
 `weekChart(p)` in basketball draws one bar per game (G1, G2 ...) from `gl`, no W1-W14 / BYE / TBD columns.
+
+## v580 · Nov 17: Top Cards dropdown, hide Ari Borkar from token board
+Top Cards (Predict tabs) is a closed dropdown (`UI.tcOpen`, `tcOpen`). `tokRows()` skips profiles named Ari Borkar.

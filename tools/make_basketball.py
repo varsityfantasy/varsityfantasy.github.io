@@ -400,7 +400,7 @@ def transform(s, mp, games, seeds, teams, prior):
     s = rep(s, '<span class="lbl">Games</span><b>${info.a.n}</b>', '<span class="lbl">Games</span><b>${PRE()?0:info.a.n}</b>')
     s = rep(s, 'Average over your ${info.a.n} approved ${info.a.n===1?', 'Average over your ${PRE()?0:info.a.n} approved ${!PRE()&&info.a.n===1?')
     s = rep(s, "const isT10=p=>{if(!p||!p.key)return false;", "const isT10=p=>{if(!p||!p.key)return false;if(!p.ext&&PRE())return (window.BB_TOP10||[]).includes(p.key);")
-    s = rep(s, ".filter(x=>x.a.n>0).sort((x,y)=>metric(y.a)-metric(x.a));", ".filter(x=>x.a.n>0).sort((x,y)=>metric(y.a)-metric(x.a)||((window.BB_RANK||{})[y.p.key]||0)-((window.BB_RANK||{})[x.p.key]||0)||x.p.name.localeCompare(y.p.name));")
+    s = rep(s, ".filter(x=>x.a.n>0).sort((x,y)=>metric(y.a)-metric(x.a));", ".sort((x,y)=>metric(y.a)-metric(x.a)||((window.BB_RANK||{})[y.p.key]||0)-((window.BB_RANK||{})[x.p.key]||0)||x.p.name.localeCompare(y.p.name));   /* v587 (owner): every rostered player is listed, even before his team has played */")
     s = rep(s, "if(fin.length<20){_rg={r:{},H:0,s:12};return _rg}",
             "if(fin.length<20){_rg=window.BB_PRIOR?{r:window.BB_PRIOR,H:3,s:12}:{r:{},H:0,s:12};return _rg}")
     s = rep(s, "const PO_DATES={r1:'2026-11-06',r2:'2026-11-13',r3:'2026-11-20',r4:'2026-11-27'};",

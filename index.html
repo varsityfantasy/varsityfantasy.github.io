@@ -3935,7 +3935,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v586 · Nov 17';
+const APP_BUILD='v587 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -9182,7 +9182,7 @@ function viewLeague(){
   if(xs&&!xr&&xst==='loading')return `<div class="head"><h2>Players</h2><p>${esc(SECTIONS[xs].full)}, ranked by fantasy points.</p></div>${seg}${secRow}${secLoad('Rounding up players',xs)}`;
   if(xs&&!xr)return `<div class="head"><h2>Players</h2><p>${esc(SECTIONS[UI.psec].full)}, ranked by fantasy points.</p></div>${seg}${secRow}${sbPlayersHTML(UI.psec)}`;
   return `<div class="head"><h2>Players</h2><p>${UI.psec==="ALL"?"Every player from every section, ranked by fantasy points."+(allLoading()?" Loading "+allLoading()+" more "+(allLoading()===1?"section":"sections")+"…":""):esc(SECTIONS[UI.psec].full)+", ranked by fantasy points."}</p></div>
-  ${xr?'':cupBanner()}${seg}
+  ${seg}
   <div class="tools lite">
     <div class="sb"><span class="sw"><input id="q" type="search" placeholder="Search players" aria-label="Search players" value="${esc(UI.q)}"></span>
       <button type="button" class="fbtn" data-act="ftoggle" aria-expanded="${!!UI.fOpen}">Filters${fN?`<b>${fN}</b>`:''}</button></div>
@@ -9608,7 +9608,8 @@ function viewGroups(){
   if(L==='cup')return `<div class="head"><h2>School Cup</h2><p>Your school against every other school. Free games only.</p></div>`+seg+cupHTML();
   if(L==='mock')return `<div class="head"><h2>Mock Draft</h2><p>Practice drafting. It never touches your leagues or tokens.</p></div>`+seg+mockHTML();
   const h=viewGroups0(),i=h.indexOf('</div>',h.indexOf('<div class="head"'));
-  return h.indexOf('<div class="head"')===0&&i>0?h.slice(0,i+6)+seg+h.slice(i+6):seg+h;
+  const bn=cupBanner();   /* v587 (owner): the School Cup banner shows only here, in the Leagues tab */
+  return h.indexOf('<div class="head"')===0&&i>0?h.slice(0,i+6)+seg+bn+h.slice(i+6):seg+bn+h;
 }
 function viewGroups0(){
   const gs=myGroups(),g=curGroup();

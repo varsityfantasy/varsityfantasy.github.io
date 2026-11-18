@@ -1097,3 +1097,7 @@ slipGo no longer stops and asks to lock in again when a line moved; the slip row
 - Standing still 3 s (was 1.5 s) earns one energy bar (`EN.still`).
 - `COURTS`: Street, Gym, Beach, Rooftop (night), Snow. `newGame` picks one at random (`g.court`, in SNAPK so the online guest sees the host's court); `drawCourt` cache key includes it.
 - No goaltending: `inHoopZone(b)` (over the hoop, above RIMY+46): a shot there cannot be grabbed (`pickups`) or blocked while falling (`blocks`) until it scores or bounces out past the rim.
+
+## v587 · Nov 17: School Cup banner only in Leagues; rostered players listed before they play
+- `cupBanner()` is shown at the top of the Leagues tab only (was the Players tab). 
+- Basketball Players list (`leagueRows`, via make_basketball replacement) no longer drops players with 0 games, so every rostered player (e.g. all of Madison) is listed; last season ranking breaks ties. The players were already in the app data (1,284), they were just hidden by the n>0 filter.

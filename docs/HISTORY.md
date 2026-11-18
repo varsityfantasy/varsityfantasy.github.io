@@ -1137,3 +1137,6 @@ Users list pills: Basketball orange (`.o`), Football brown (`.br`), Player blue 
 
 ## v598 Nov 17: Hoops Battle, slide from RUN to JUMP (hoops-battle v53)
 In `buildCtl()`: a finger holding RUN that slides onto JUMP keeps RUN down and presses JUMP too (running block / running shot); sliding back off releases JUMP only. Buttons now track a Set of pointer ids so two fingers and cancel/lift all release correctly. Game rules unchanged. Tested with synthetic pointer events (down, slide, back, two fingers, cancel).
+
+## v599 Nov 17: Hoops Battle vs the AI: always the computer, First to 11 / 21 / 31 (hoops-battle v54)
+"Play the AI" (embed without find) hides the Play against choice and forces `OPT.mode='ai'`. The hidden Game length block is gone; a visible "First to" 11 / 21 (default) / 31 sets `WINPTS` (now `let`, set in `newGame`: online always 21). Still win by 2. `OPT.to` is saved in localStorage `hb-opt`. Standalone page keeps its mode choice; "First to" also shows for Friend same device. Tested: end at T with a 2-point lead, not at T-1 or T vs T-1, for 11/21/31.

@@ -2095,7 +2095,7 @@ html,body{overflow-x:clip;max-width:100%}
 .wpk.rdy .wpk-btns{opacity:1;transform:none;pointer-events:auto}
 .wpk-skip{position:absolute;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:3;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:999px;padding:8px 16px;font:800 .8rem/1 var(--f-display,inherit);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 .gp-l{list-style:none;margin:12px 0 16px;padding:0;display:flex;flex-direction:column;gap:12px}.gp-l li{display:flex;align-items:center;gap:10px}.gp-l li>.av{flex:none}.gp-l li>.gp-tx{flex:1;min-width:0;line-height:1.3}.gp-l li small{display:block;margin-top:2px}
-.gp-art{flex:none;margin-left:auto;display:grid;place-items:center;padding:6px;border-radius:12px;border:1.5px solid var(--rc);background:color-mix(in srgb,var(--rc) 14%,transparent)}
+.gp-msg .gp-ic,.gf-pop .gp-an{text-align:center}.gp-msg .gp-ic{font-size:44px}.gp-msg .gbtns{justify-content:center}.gf-pop .gp-big{color:#fff!important}.gp-big{display:block;font-size:26px;line-height:1.25;font-weight:800;margin:14px 0 10px;text-align:center;word-break:break-word}.gp-msg h2{text-align:center}.gp-by{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;color:var(--mut,#8a93a6)}.gp-an{display:block!important}.gp-an .gp-tx{display:block;text-align:center}.gp-an .gp-tx>b{display:block;font-size:15px;font-weight:600;opacity:.8}.gp-art{flex:none;margin-left:auto;display:grid;place-items:center;padding:6px;border-radius:12px;border:1.5px solid var(--rc);background:color-mix(in srgb,var(--rc) 14%,transparent)}
 .tro-card{display:flex;align-items:center;gap:16px}.tro-card h3{margin:2px 0 4px}.tro-card p{margin:0 0 8px}.tro-none{justify-content:space-between;flex-wrap:wrap}.tro-none small{display:block}
 .tro-art{flex:none;filter:drop-shadow(0 6px 14px rgba(255,201,58,.25))}.tro-prev{display:grid;place-items:center;padding:8px 0;filter:drop-shadow(0 8px 18px rgba(255,201,58,.3))}
 .tro-sw i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:6px;vertical-align:-2px}
@@ -6360,7 +6360,7 @@ function wpShow(R,dup){
 }
 
 /* Gift pop-up: gifts you haven't seen yet open on top of everything when you open the app. Seen time saved in picks/<uid>.gsn. */
-var _gPop=false;
+var _gPop=false,_gRev=false;
 /* Starter pick (v343, other contributor) was removed in v346 at the owner's request: no free Legendary card on joining.
    One-time cleanup: Ari Borkar's Starter pick Legendary (Reid Dielman) is switched off on his next app open (owner, Nov 8).
    Saves merge, so the version is set to 0 (cardsOf/cardVers treat 0 as not owned) and inv.fr.spx marks it done. */
@@ -6422,6 +6422,11 @@ document.addEventListener('click',async e=>{const x=e.target.closest&&e.target.c
 function giftPopup(){if(_gPop||!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!S.loaded.picks||!S.loaded.profiles)return;
   const seen=+((S.picks[ME.uid]||{}).gsn)||0,nw=giftsIn(ME.uid).filter(x=>(+x.at||0)>seen).sort((a,b)=>a.at-b.at);if(!nw.length)return;
   const c=$('#cfm');if(!c||!c.hidden)return;_gPop=true;const last=nw[nw.length-1].at;
+  const wm=nw.filter(x=>x.m);
+  if(wm.length&&!_gRev){   /* v605 (owner): a gift's message opens first, big; the gift itself shows after the tap */
+    c.innerHTML=`<div class="gcard tok-sheet gf-pop gp-msg" role="dialog" aria-modal="true" aria-labelledby="gp-t"><div class="gp-ic">💌</div><h2 id="gp-t">${wm.length>1?'You got messages!':esc(nm(wm[0].from))+' sent you a message'}</h2>
+      ${wm.slice(-3).map(x=>`<p class="gp-big">“${esc(x.m)}”</p>${wm.length>1?`<p class="gp-by">${av(nm(x.from),x.from,24,x.from)} ${esc(nm(x.from))}</p>`:''}`).join('')}
+      <div class="gbtns"><button class="btn" data-act="gpOpen">Open your gift 🎁</button></div></div>`;c.hidden=false;return}
   const ln=x=>x.c?`<b>a ${esc((RAR[x.r]||RAR.l).n)} ${esc(cardInfo(x.c).name)} card</b>`:x.a?`<b>${Math.floor(x.a)} tokens</b>`:`<b>${esc((ITEM[x.i]||{}).n||'an item')}</b>`;
   c.innerHTML=`<div class="gcard tok-sheet gf-pop" role="dialog" aria-modal="true" aria-labelledby="gp-t"><div class="gp-ic">🎁</div><h2 id="gp-t">${nw.length>1?'You got '+nw.length+' gifts!':'You got a gift!'}</h2>
     <ul class="gp-l">${nw.slice(-6).map(x=>`<li>${av(nm(x.from),x.from,28,x.from)}<span class="gp-tx"><b>${esc(nm(x.from))}</b> sent you ${ln(x)}${x.m?`<small class="muted">“${esc(x.m)}”</small>`:''}</span>${x.c?`<span class="gp-art" style="--rc:${(RAR[x.r]||RAR.l).c}">${cardArt(x.c,x.r||'l',50)}</span>`:''}${x.i&&ITEM[x.i]?`<span class="gp-art" style="--rc:${RAR[ITEM[x.i].r].c}" title="${esc(ITEM[x.i].n)}">${itemArt(x.i,50)}</span>`:''}</li>`).join('')}</ul>
@@ -6433,7 +6438,7 @@ function anPopup(){if(_anPop||!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||
   const pk=S.picks[ME.uid]||{},seen=+pk.ansn||0,nw=Object.entries(pk.an||{}).map(([id,x])=>Object.assign({id},x)).filter(x=>x&&(+x.at||0)>seen).sort((a,b)=>a.at-b.at);if(!nw.length)return;
   const c=$('#cfm');if(!c||!c.hidden)return;_anPop=true;const last=nw[nw.length-1].at;
   c.innerHTML=`<div class="gcard tok-sheet gf-pop" role="dialog" aria-modal="true" aria-labelledby="an-t"><div class="gp-ic">📣</div><h2 id="an-t">Message from Varsity</h2>
-    <ul class="gp-l">${nw.slice(-5).map(x=>`<li><span class="gp-tx"><b>${esc(x.t||'')}</b>${x.m?`<small class="muted">“${esc(x.m)}”</small>`:''}</span></li>`).join('')}</ul>
+    <ul class="gp-l">${nw.slice(-5).map(x=>`<li class="gp-an"><span class="gp-tx">${x.m?`<span class="gp-big">“${esc(x.m)}”</span>`:''}<b>${esc(x.t||'')}</b></span></li>`).join('')}</ul>
     <div class="gbtns"><button class="btn" data-act="anOk" data-at="${last}">OK</button></div></div>`;c.hidden=false}
 async function giftSend(){const to=GF.to;if(!to||!S.profiles[to]){say('Pick who it’s for.');return}
   const id='g'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),x={to,at:NOW()};if(GF.m.trim())x.m=GF.m.trim().slice(0,60);
@@ -6498,7 +6503,8 @@ document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest
   else if(a==='gfAmt'){GF.a=+v;giftSheet()}
   else if(a==='gfItem'){GF.i=GF.i===v?'':v;const g=document.querySelector('.gf-items'),y=g?g.scrollTop:0;giftSheet();const g2=document.querySelector('.gf-items');if(g2)g2.scrollTop=y}
   else if(a==='anOk'){const at=+t.dataset.at||NOW();closeConfirm();_anPop=false;S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{ansn:at});upsert('picks/'+ME.uid,{ansn:at}).catch(()=>{})}
-  else if(a==='gpOk'){const at=+t.dataset.at||NOW();closeConfirm();_gPop=false;S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{gsn:at});upsert('picks/'+ME.uid,{gsn:at}).catch(()=>{})}
+  else if(a==='gpOpen'){closeConfirm();_gPop=false;_gRev=true;giftPopup()}
+  else if(a==='gpOk'){const at=+t.dataset.at||NOW();closeConfirm();_gPop=false;_gRev=false;S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{gsn:at});upsert('picks/'+ME.uid,{gsn:at}).catch(()=>{})}
   else if(a==='gfSend')giftSend();
   else if(a==='wpOpen')wpOpen();
   else if(a==='spOpen')spSheet();

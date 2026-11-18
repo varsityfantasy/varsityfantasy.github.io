@@ -1075,3 +1075,6 @@ Props/Pick em filter bar is a compact 2x2 grid (division, day/week, school, stat
 
 ## v580 · Nov 17: Top Cards dropdown, hide Ari Borkar from token board
 Top Cards (Predict tabs) is a closed dropdown (`UI.tcOpen`, `tcOpen`). `tokRows()` skips profiles named Ari Borkar.
+
+## v581 · Nov 17: Games tab opens on today, 5 Card Draw closes 6:30 PM
+`viewSchedDays`: selected day resets to today each new day (UI.gdayAt); with no games today it shows Upcoming. Basketball `fcClose(s)` = game day 18:30 PT (was first tip-off).

@@ -1179,3 +1179,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v611 (Nov 18)
 - Basketball 5 Card Draw cards with no 2026-27 game yet show "x.x PROJ PPG" (last season fantasy points a game under the current scoring, `BB_PST[key][5]`) instead of "No games yet".
+
+## v612 (Nov 18)
+- 82-0 (`simOk`): basketball only deals players with at least 1 real 2026-27 game (before: 2 games, or 8+ games last season). Pool is thin until more box scores come in (34 players with stats, 4 to 18 per spot).

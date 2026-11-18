@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v611 · Nov 18';
+const APP_BUILD='v612 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6827,7 +6827,7 @@ const SIM_COL={QB:'#E65B28',RB:'#079B82',WR:'#2868E8',TE:'#9655D8',FLEX:'#E8A317
 const simKey=p=>((p.name||'')+'|'+(p.school||'')).toLowerCase();
 /* v584 (owner): basketball's 82-0 must be playable from day one. A player with fewer than 2 games this season is counted as if his missing games (up to 2) were last season's average (BB_PST), so everyone with last-season stats can be drawn. */
 const simPr=p=>{const r=(window.BB_PST||{})[p.key];return r&&r[4]>=8?r:null},simPf=p=>{const r=simPr(p);return r?r[0]+1.2*r[1]+1.5*r[2]:0};
-const simOk=p=>agg(p,'season').n>=2||(GAME_L==='Game'&&!!simPr(p));
+const simOk=p=>agg(p,'season').n>=(GAME_L==='Game'?1:2);   /* v612 (owner): 82-0 only deals players with a real 2026-27 stat line (basketball: 1+ game); no more last-season fill-ins */
 const simTot=p=>{const a=agg(p,'season');return GAME_L==='Game'&&a.n<2&&simPr(p)?a.v+(2-a.n)*simPf(p):a.v};
 /* points per game: the 10-0 leaderboard ranks teams by the players' combined PPG (owner, Nov 6), so games played don't decide it */
 const simPPG=p=>{const a=agg(p,'season');if(GAME_L==='Game'&&a.n<2&&simPr(p))return simTot(p)/2;return a.n?a.v/a.n:0},teamPPG=c=>c.reduce((t,k)=>t+(pByKey(k)?simPPG(pByKey(k)):0),0);

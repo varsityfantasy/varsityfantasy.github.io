@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v599 · Nov 17';
+const APP_BUILD='v600 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10664,6 +10664,13 @@ function dashData2(D){
   const pkA={tracked:0,all:0,by:{},src:{},day:{},people:0};
   P.forEach(r=>{try{const v=invOf(r.uid);pkA.all+=+v.n||0;let t=0;for(const [k,n] of Object.entries(v.pk||{})){pkA.by[k]=(pkA.by[k]||0)+(+n||0);t+=+n||0}for(const [k,n] of Object.entries(v.ph||{}))pkA.src[k]=(pkA.src[k]||0)+(+n||0);for(const [k,n] of Object.entries(v.pd||{}))pkA.day[k]=(pkA.day[k]||0)+(+n||0);pkA.tracked+=t;if((+v.n||0)>0)pkA.people++}catch(_){}});
   if(demo){const g=rng(21);Object.keys(PACKS).filter(k=>!PACKS[k].off).forEach(k=>{pkA.by[k]=Math.round(g()*60)});pkA.tracked=Object.values(pkA.by).reduce((a,b)=>a+b,0);pkA.all=pkA.tracked+40;pkA.people=Math.round(P.length*.7);pkA.src={tok:Math.round(pkA.tracked*.5),free:Math.round(pkA.tracked*.2),ad:Math.round(pkA.tracked*.2),gift:Math.round(pkA.tracked*.1)};D.days.slice(-14).forEach((d,i)=>{pkA.day[d]=Math.round(g()*30)})}
+  /* gifts sent (v600): friend gifts from every sender's gft, admin gifts from agl (plus older admin messages) */
+  const gfA={fr:{n:0,tok:0,it:0,day:{},snd:new Set(),rcv:new Set(),top:{}},ad:{n:0,tok:0,by:{},day:{},old:0}};
+  for(const [from,pk] of Object.entries(S.picks||{})){if(!pk)continue;
+    for(const x of Object.values(pk.gft||{})){if(!x||!x.to||x.to===from)continue;const q=gfA.fr;q.n++;if(x.a)q.tok+=+x.a||0;if(x.i)q.it++;q.snd.add(from);q.rcv.add(x.to);q.top[from]=(q.top[from]||0)+1;if(+x.at)q.day[dKey(new Date(+x.at))]=(q.day[dKey(new Date(+x.at))]||0)+1}
+    for(const x of Object.values(pk.agl||{})){if(!x)continue;const q=gfA.ad;q.n++;q.by[x.k]=(q.by[x.k]||0)+1;if(x.a)q.tok+=+x.a||0;if(+x.at)q.day[dKey(new Date(+x.at))]=(q.day[dKey(new Date(+x.at))]||0)+1}
+    for(const x of Object.values(pk.an||{})){if(x&&+x.at<AGL_FROM&&/^You were (given|gifted)/.test(x.t||'')){gfA.ad.n++;gfA.ad.old++;const m=/(\d[\d,]*) tokens/.exec(x.t);if(m){gfA.ad.tok+=+m[1].replace(/,/g,'')||0}if(+x.at)gfA.ad.day[dKey(new Date(+x.at))]=(gfA.ad.day[dKey(new Date(+x.at))]||0)+1}}}
+  if(demo){const g=rng(33);gfA.fr.n=Math.round(P.length*.4);gfA.fr.tok=gfA.fr.n*60;gfA.fr.it=Math.round(gfA.fr.n*.15);gfA.fr.snd=new Set(Array.from({length:Math.round(P.length*.2)},(_,i)=>'s'+i));gfA.fr.rcv=new Set(Array.from({length:Math.round(P.length*.25)},(_,i)=>'r'+i));gfA.ad.n=12;gfA.ad.tok=900;gfA.ad.by={tokens:7,card:3,pack:2};D.days.slice(-14).forEach(d=>{gfA.fr.day[d]=Math.round(g()*8)})}
   /* leagues */
   const L=(DASH.ex&&DASH.ex.leagues)||[...Object.entries(S.groups||{}),...Object.entries(S.fgroups||{})].filter(([,g])=>g).map(([id,g])=>({id,...g,lineups:Object.keys(g.members||{}).filter(u=>((S.lineups[u]||{}).g||{})[id]).length}));
   const lg=L.map(g=>{const m=Object.keys(g.members||{}).length,st=g.draft?(g.draft.status==='done'||(g.draft.picks&&g.draft.order&&Object.keys(g.draft.picks).length>=g.draft.order.length*slotsOf(g).length)?'Draft done':g.draft.status==='live'?'Drafting':'Waiting to draft'):'No draft';
@@ -10683,7 +10690,7 @@ function dashData2(D){
   const gaps=[];Object.keys(teamWk).forEach(sc=>{const key=AL[nz(sc)]||nz(sc),list=playedBy[key]||[];const miss=list.filter(g=>!teamWk[sc].has(g.w)).map(g=>g.w).sort((a,b)=>a-b);if(miss.length)gaps.push({sc,miss,of:list.length})});
   gaps.sort((a,b)=>b.miss.length-a.miss.length);
   const pend=Object.values(S.games||{}).reduce((a,g)=>a+Object.values((g&&g.weeks)||{}).filter(x=>x&&x.ver==='self').length,0);
-  return {ret:{d1:ret(1),d7:ret(7),d30:ret(30)},weeks,wkNew,wkRet,cohorts,funnel,hr,as,tok,pkA,lg,errs,byMsg:Object.values(byMsg).sort((a,b)=>b.n-a.n),health:{noScore,noStats,gaps,pend,updated:MP?MP.updated:'',through:MP?MP.through:'',players:mp.length}};
+  return {ret:{d1:ret(1),d7:ret(7),d30:ret(30)},weeks,wkNew,wkRet,cohorts,funnel,hr,as,tok,pkA,gfA,lg,errs,byMsg:Object.values(byMsg).sort((a,b)=>b.n-a.n),health:{noScore,noStats,gaps,pend,updated:MP?MP.updated:'',through:MP?MP.through:'',players:mp.length}};
 }
 function admStack(labels,series){const W=640,H=220,P={l:36,r:8,t:12,b:26},w=W-P.l-P.r,h=H-P.t-P.b,n=labels.length,tot=labels.map((_,i)=>series.reduce((a,s)=>a+s.v[i],0)),mx=Math.max(2,...tot),Y=x=>h*x/mx,bw=w/n;
   return `<svg viewBox="0 0 ${W} ${H}" class="adm-chart">${[0,.5,1].map(f=>`<line x1="${P.l}" x2="${W-P.r}" y1="${P.t+h-h*f}" y2="${P.t+h-h*f}" stroke="#16241D"/><text x="${P.l-8}" y="${P.t+h-h*f+4}" text-anchor="end" class="adm-ax">${Math.round(mx*f)}</text>`).join('')}
@@ -10762,10 +10769,13 @@ function ctlHTML(){
     <div class="card"><div class="qh"><h3>Banned accounts (${banned.length})</h3>${appeals.length?`<span class="ad-tag">${appeals.length} appeal${appeals.length>1?'s':''}</span>`:''}</div><div class="ctl-tw"><table class="ctl-t"><tbody>${bn}</tbody></table></div></div>
     <div class="card" style="margin-top:14px"><div class="qh"><h3>Pick an account</h3></div><input id="ctl-q" type="search" class="ctl-i" placeholder="Search name, email or school" value="${esc(CTL.q)}">
       <div id="ctl-acc" style="display:flex;flex-direction:column;gap:6px;margin-top:8px">${list.map(r=>`<button class="btn sm ghost" style="justify-content:flex-start;text-align:left;width:100%" data-ctl="sel" data-id="${esc(r.uid)}"><b>${esc((r.p&&r.p.name)||r.email||'Account')}</b>&nbsp;<span class="muted">${esc(r.email||'')}${r.p&&r.p.school?' · '+esc(r.p.school):''}</span></button>`).join('')||'<p class="muted">No matches.</p>'}</div></div>${acct}`}
-async function ctlSave(u,patch,msg,top,note){const v=invOf(u);
+/* v600 (owner): admin gifts are counted. Each give (tokens, card, pack, item) also writes picks/<recipient>.agl[id]={k,a?,at,by}; the admin dashboard (Economy > Gifts sent) adds these to the friend gifts (picks/<sender>.gft). AGL_FROM: gifts before this only exist as admin messages. */
+const AGL_FROM=1794986165444;
+async function ctlSave(u,patch,msg,top,note,log){const v=invOf(u);
   let body=top||{inv:patch};if(note)body=Object.assign({},body,{an:{[note.id]:note.v}});
+  const lid=log?'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,4):'',lv=log?Object.assign({k:log.k,at:NOW(),by:ME.uid},log.a?{a:log.a}:{}):null;if(log)body=Object.assign({},body,{agl:{[lid]:lv}});
   const ok=await act(()=>upsert('picks/'+u,body),msg);
-  if(ok){const cur=S.picks[u]||{};S.picks[u]=top?Object.assign({},cur,top):Object.assign({},cur,{inv:Object.assign({},v,patch)});if(note)S.picks[u].an=Object.assign({},cur.an,{[note.id]:note.v});if(note)CTL.msg='';_gIn&&(_gIn.at=0);try{banCheck()}catch(_){}}render()}
+  if(ok){const cur=S.picks[u]||{};S.picks[u]=top?Object.assign({},cur,top):Object.assign({},cur,{inv:Object.assign({},v,patch)});if(note)S.picks[u].an=Object.assign({},cur.an,{[note.id]:note.v});if(log)S.picks[u].agl=Object.assign({},cur.agl,{[lid]:lv});if(note)CTL.msg='';_gIn&&(_gIn.at=0);try{banCheck()}catch(_){}}render()}
 document.addEventListener('input',e=>{const t=e.target;if(!ME.admin)return;
   if(t.id==='ctl-q'){CTL.q=t.value;const h=document.getElementById('ctl-acc');if(h){const q=nmNorm(CTL.q);h.innerHTML=(AD.rows||[]).filter(r=>!q||nmNorm(((r.p&&r.p.name)||'')+' '+(r.email||'')+' '+((r.p&&r.p.school)||'')).includes(q)).slice(0,8).map(r=>`<button class="adm-btn" style="justify-content:flex-start;text-align:left" data-ctl="sel" data-id="${esc(r.uid)}"><b>${esc((r.p&&r.p.name)||r.email||'Account')}</b>&nbsp;<span class="adm-mut">${esc(r.email||'')}${r.p&&r.p.school?' · '+esc(r.p.school):''}</span></button>`).join('')||'<p class="adm-mut">No matches.</p>'}}
   else if(t.id==='ctl-lq'){CTL.lq=t.value;render();const e=document.getElementById('ctl-lq');if(e){e.focus();try{e.setSelectionRange(e.value.length,e.value.length)}catch(_){}}}else if(t.id==='ctl-cq'){CTL.cq=t.value;const h=document.getElementById('ctl-res');if(h)h.innerHTML=ctlResHTML()}
@@ -10788,16 +10798,16 @@ document.addEventListener('click',async e=>{const t=e.target.closest&&e.target.c
   if(a==='approve'){await ctlSave(u,null,'Appeal approved, ban lifted',{ban:null,appeal:null});return}
   if(a==='deny'){const r=((document.getElementById('ctl-r-'+u)||{}).value||'').trim().slice(0,200),ap=Object.assign({},((S.picks[u]||{}).appeal),{st:'denied',r,rat:NOW()});await ctlSave(u,null,'Appeal denied',{appeal:ap});return}
   if(a==='tok'){const n=Math.floor(+(($('#ctl-tk')||{}).value||0)),d=+t.dataset.d;if(!(n>=1)){say('Enter an amount first.');return}
-    await ctlSave(u,{dup:(+v.dup||0)+d*n},(d>0?'Gave ':'Took ')+n+' tokens',null,ctlNote((d>0?'You were given ':'We took ')+n+' tokens'));CTL.tk='';return}
+    await ctlSave(u,{dup:(+v.dup||0)+d*n},(d>0?'Gave ':'Took ')+n+' tokens',null,ctlNote((d>0?'You were given ':'We took ')+n+' tokens'),d>0?{k:'tokens',a:n}:null);CTL.tk='';return}
   if(a==='cardadd'){if(!CTL.card)return;const cards=Object.assign({},v.cards),id=CTL.card,cur=typeof cards[id]==='string'?{[cards[id]]:1}:Object.assign({},cards[id]);cur[CTL.cr]=1;cards[id]=cur;
-    await ctlSave(u,{cards},'Card given',null,ctlNote('You were given a '+RAR[CTL.cr].n+' '+cardInfo(id).name+' card'));return}
+    await ctlSave(u,{cards},'Card given',null,ctlNote('You were given a '+RAR[CTL.cr].n+' '+cardInfo(id).name+' card'),{k:'card'});return}
   if(a==='cardrm'){const id=t.dataset.c,r=t.dataset.r;if(!confirm('Remove the '+RAR[r].n+' '+cardInfo(id).name+' card from '+ctlName(u)+'?'))return;
     const cards=Object.assign({},v.cards),cur=typeof cards[id]==='string'?{[cards[id]]:1}:Object.assign({},cards[id]);cur[r]=0;cards[id]=cur;await ctlSave(u,{cards},'Card removed',null,ctlNote('We removed your '+RAR[r].n+' '+cardInfo(id).name+' card'));return}
   if(a==='pack'){const k=CTL.pk,id='ad'+Date.now().toString(36);if(!PACKS[k])return;const fr=Object.assign({},v.fr,{gp:Object.assign({},(v.fr||{}).gp,{[id]:{t:k,m:'From the Varsity team'}})});
-    await ctlSave(u,{fr},PACKS[k].n+' gifted',null,ctlNote('You were gifted a '+PACKS[k].n+'. Open it in the Shop.'));return}
+    await ctlSave(u,{fr},PACKS[k].n+' gifted',null,ctlNote('You were gifted a '+PACKS[k].n+'. Open it in the Shop.'),{k:'pack'});return}
   if(a==='packrm'){const g=t.dataset.g,fr=Object.assign({},v.fr,{gpo:Object.assign({},(v.fr||{}).gpo,{[g]:1})});await ctlSave(u,{fr},'Pack taken back',null,ctlNote('We took back an unopened gift pack'));return}
   if(a==='wpreset'){await ctlSave(u,{sp2:0},'They can open the Welcome pack again');return}
-  if(a==='item'){const id=CTL.it||(($('#ctl-it')||{}).value),d=+t.dataset.d;if(!id||!ITEM[id])return;const it=Object.assign({},v.it);it[id]=Math.max(0,(+it[id]||0)+d);await ctlSave(u,{it},d>0?'Item given':'Item taken',null,ctlNote((d>0?'You were given ':'We took ')+ITEM[id].n))}});
+  if(a==='item'){const id=CTL.it||(($('#ctl-it')||{}).value),d=+t.dataset.d;if(!id||!ITEM[id])return;const it=Object.assign({},v.it);it[id]=Math.max(0,(+it[id]||0)+d);await ctlSave(u,{it},d>0?'Item given':'Item taken',null,ctlNote((d>0?'You were given ':'We took ')+ITEM[id].n),d>0?{k:'item'}:null)}});
 function admPages(P,D,K,X,kpi,title,sel,hbars,dl){
   const pc=x=>x==null?'—':Math.round(x*100)+'%';
   if(P==='growth'){const f0=X.funnel[0][1]||1;
@@ -10832,6 +10842,13 @@ function admPages(P,D,K,X,kpi,title,sel,hbars,dl){
         ${Object.keys(A.src).length?`<h4 style="margin:14px 0 6px">Where they came from</h4>${hbars(Object.entries(A.src).sort((a,b)=>b[1]-a[1]).map(([k,n])=>[SN[k]||k,n]),'#5B9BD5')}`:''}
         <h4 style="margin:14px 0 6px">Packs opened per day</h4>${admBars(days,dv,{c:'#D9A441',label:'Packs opened per day'})}
         <p class="adm-mut" style="font-size:12px;margin:10px 0 0">The per-pack, source and daily counts start with v571${old?` (${old.toLocaleString()} earlier ${old===1?'open is':'opens are'} counted in the total only)`:''}. A Pick 1 of 5 pack counts once.</p></div>`})()}
+      ${(()=>{const G=X.gfA,F=G.fr,A=G.ad,days=D.days.slice(-14),dv=days.map(d=>(F.day[d]||0)+(A.day[d]||0)),tdy=dKey(new Date()),today=(F.day[tdy]||0)+(A.day[tdy]||0),tot=F.n+A.n,SN={tokens:'Tokens',card:'Cards',pack:'Packs',item:'Items'};
+        return `<div class="adm-card adm-span3"><div class="adm-ch"><h3>Gifts sent</h3><span class="adm-chip">all time</span></div>
+        <div class="adm-glance"><div><small>Gifts sent</small><b>${tot.toLocaleString()}</b></div><div><small>Friend gifts</small><b>${F.n.toLocaleString()}</b></div><div><small>Admin gifts</small><b>${A.n.toLocaleString()}</b></div><div><small>Today</small><b>${today}</b></div><div><small>Last 14 days</small><b>${dv.reduce((a,b)=>a+b,0).toLocaleString()}</b></div></div>
+        <div class="adm-glance" style="margin-top:10px"><div><small>Tokens sent by friends</small><b>${Math.round(F.tok).toLocaleString()}</b></div><div><small>Items sent by friends</small><b>${F.it}</b></div><div><small>People who sent a gift</small><b>${F.snd.size}</b></div><div><small>People who got one</small><b>${F.rcv.size}</b></div><div><small>Tokens given by admins</small><b>${Math.round(A.tok).toLocaleString()}</b></div></div>
+        ${Object.keys(A.by).length?`<h4 style="margin:14px 0 6px">What admins gave</h4>${hbars(Object.entries(A.by).sort((a,b)=>b[1]-a[1]).map(([k,n])=>[SN[k]||k,n]),'#B78CFF')}`:''}
+        <h4 style="margin:14px 0 6px">Gifts per day</h4>${admBars(days,dv,{c:'#B78CFF',label:'Gifts sent per day'})}
+        <p class="adm-mut" style="font-size:12px;margin:10px 0 0">Friend gifts are counted from everything ever sent. Admin gifts are counted exactly from v600 on${A.old?`; ${A.old} earlier ${A.old===1?'one is':'ones are'} counted from the message the person got (amounts for tokens only)`:''}. This app only: football and basketball are counted separately.</p></div>`})()}
       <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top watchers</h3>${sel}</div>${hbars(D.users.filter(u=>u.a).sort((a,b)=>b.a-a.a).slice(0,10).map(u=>[u.name,u.a]),'#E5404F')}</div></div>`}
   if(P==='leagues'){const L=X.lg,cnt=h=>L.filter(x=>x.health===h).length,col={Active:'g',Quiet:'b',Drafting:'o',Waiting:'r',Empty:'x'};
     return title('League health','Every fantasy league: is it drafting, playing or waiting?')+`<div class="adm-kpis">

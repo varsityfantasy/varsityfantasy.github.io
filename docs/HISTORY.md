@@ -1140,3 +1140,6 @@ In `buildCtl()`: a finger holding RUN that slides onto JUMP keeps RUN down and p
 
 ## v599 Nov 17: Hoops Battle vs the AI: always the computer, First to 11 / 21 / 31 (hoops-battle v54)
 "Play the AI" (embed without find) hides the Play against choice and forces `OPT.mode='ai'`. The hidden Game length block is gone; a visible "First to" 11 / 21 (default) / 31 sets `WINPTS` (now `let`, set in `newGame`: online always 21). Still win by 2. `OPT.to` is saved in localStorage `hb-opt`. Standalone page keeps its mode choice; "First to" also shows for Friend same device. Tested: end at T with a 2-point lead, not at T-1 or T vs T-1, for 11/21/31.
+
+## v600 Nov 17: gifts sent are tracked
+Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come from every sender's `picks.gft` (already stored, so full history). Admin gifts: `ctlSave(...,log)` now also writes `picks/<recipient>.agl[id]={k:'tokens'|'card'|'pack'|'item',a?,at,by}` on each give; gifts before `AGL_FROM` are counted from their admin message (`an`, text starting 'You were given/gifted'; token amount parsed). Shows total, friend vs admin, today, last 14 days, tokens and items, senders / receivers, what admins gave, per-day bars. Per app (football and basketball data are separate).

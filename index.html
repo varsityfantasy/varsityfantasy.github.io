@@ -1771,9 +1771,9 @@ select option{background:#0B1730;color:#EAF0F8}
 #adov .adgo:disabled{background:rgba(255,255,255,.1);color:#9FB3D9;cursor:wait}
 #adov .adx{background:none;border:0;color:#9FB3D9;font:inherit;cursor:pointer;padding:6px}
 
-.bf-bar{display:flex;flex-direction:row;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;margin:12px 0}
-.bf-bar .fld{flex:1 1 150px;min-width:130px;margin:0}
-.bf-bar .bf-mk{flex:1 1 100%;margin:0}
+.bf-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;align-items:end;margin:10px 0;padding:10px 12px}.bf-bar .btn{grid-column:1/-1}
+.bf-bar .fld{min-width:0;margin:0}.bf-bar select{width:100%}
+.bf-bar .bf-mk{margin:0}
 .pp-who{display:flex;align-items:center;gap:10px;margin:6px 0 2px;width:100%;min-height:44px;padding:4px 0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}.pp-who b{text-decoration:underline;text-decoration-color:rgba(255,255,255,.3);text-underline-offset:3px}.pp-go{margin-left:auto;font-size:1.4rem;line-height:1;color:var(--muted)}.pp-who b{display:block;font-size:1rem}.pp-who small{font-size:.76rem}
 .pp-m{font:700 .78rem/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:#FFC23D;margin:4px 0 8px}
 .pp-stat{font-size:.74rem;margin:8px 0 2px}.pp-stat b{color:var(--ink,#fff)}
@@ -3932,7 +3932,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v577 · Nov 17';
+const APP_BUILD='v578 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7205,7 +7205,7 @@ function propsHTML(){
     const cards=byP.map(grp=>{const k=grp[0].k,sel=grp.find(y=>y.id===UI.ppSel[k])||grp.find(y=>UI.sl.legs[y.id])||grp.find(y=>mine[y.id])||grp[0];return card(sel,grp)});
     body=`<div class="qh pp-gh"><h3>${esc(cur.g.a)} at ${esc(cur.g.h)}</h3><span class="muted">${esc(fmtDate(cur.g.d))}${cur.g.time?' · '+esc(cur.g.time):''} · ${byP.length} players · ${L.length} lines</span></div>${parlHTML(cur,L)}<div class="gm-grid">${cards.join('')}</div>`;
   }
-  return boardCard+activeCard()+recordCard(Object.values(mine).map(b=>propResult(b,gm)))+advisorHTML()+(BBPP?`<p class="muted pk-note">Lines for today and the next 2 days. They can change before tip-off if stats, a player’s status or a roster change (a moved line is tagged). A pick you lock in keeps the line it had.${_ppC&&_ppC.t?' Updated '+new Date(_ppC.t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'.':''}</p>`:'')+bfBar(mkChips)+ppPick+body+histCard+allBar+(allBar?'<div class="sl-sp"></div>':'');
+  return boardCard+activeCard()+recordCard(Object.values(mine).map(b=>propResult(b,gm)))+advisorHTML()+bfBar(mkChips)+ppPick+body+histCard+allBar+(allBar?'<div class="sl-sp"></div>':'');
 }
 
 /* ---- Mock drafts: practice against AI teams, or join other people's mock draft ---- */

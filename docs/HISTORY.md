@@ -1066,3 +1066,6 @@ Ran "Collect section players" (bb, then fb) and "Collect section data" (scores, 
 
 ## v577 · Nov 17: Duo parlay first
 On the Props tab the Duo card parlay now sits right under the game heading, above the player cards (was at the bottom).
+
+## v578 · Nov 17: compact filters
+Props/Pick em filter bar is a compact 2x2 grid (division, day/week, school, stat type); the basketball explanation note above it was removed.

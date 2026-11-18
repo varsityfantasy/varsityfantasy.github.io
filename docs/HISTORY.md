@@ -1110,3 +1110,6 @@ Re-read the MaxPreps basketball roster pages of the 112 San Diego teams that had
 
 ## v589 Nov 17: all-sections basketball data
 Collect section data (sport=bb, dry=false) crawled 1,530 California teams / 14,151 games and committed section data and API files. Note: a hand-dispatched run defaults to dry=true and commits nothing; pass inputs[dry]=false. Rebuilt basketball.html.
+
+## v590 Nov 17: admin Users list shows Football/Basketball
+New profiles save `joined` (the app they signed up in, `FG_SPORT`). Admin Users rows show a pill from `joined`, else the player's main sport, else the only app they have used (`joinSp`).

@@ -1134,3 +1134,6 @@ Users list pills: Basketball orange (`.o`), Football brown (`.br`), Player blue 
 
 ## v597 Nov 17: 5 Card Draw closed state is big and says when to come back
 `fcClosedHTML(cw,hasHand,lkd)`: big 'Today’s hand is closed' (or 'No games today'), then 'Come back tomorrow (Wed, Nov 18) before 7:00 PM for your hand' (or the next game day's date). With a hand it adds that the hand counts as it stands. Used with and without a dealt hand (basketball, `FC_DAILY`).
+
+## v598 Nov 17: Hoops Battle, slide from RUN to JUMP (hoops-battle v53)
+In `buildCtl()`: a finger holding RUN that slides onto JUMP keeps RUN down and presses JUMP too (running block / running shot); sliding back off releases JUMP only. Buttons now track a Set of pointer ids so two fingers and cancel/lift all release correctly. Game rules unchanged. Tested with synthetic pointer events (down, slide, back, two fingers, cancel).

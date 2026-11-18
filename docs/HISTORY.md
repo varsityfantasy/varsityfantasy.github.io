@@ -1113,3 +1113,6 @@ Collect section data (sport=bb, dry=false) crawled 1,530 California teams / 14,1
 
 ## v590 Nov 17: admin Users list shows Football/Basketball
 New profiles save `joined` (the app they signed up in, `FG_SPORT`). Admin Users rows show a pill from `joined`, else the player's main sport, else the only app they have used (`joinSp`).
+
+## v591 Nov 17: basketball scores for Nov 17
+9 finals from MaxPreps team schedule pages (Claude in Chrome) via add_scores.py; 8 games still had no final score at 9:30 pm, Fallbrook-RBV and Morse-Hoover (Nov 14) are deleted on MaxPreps.

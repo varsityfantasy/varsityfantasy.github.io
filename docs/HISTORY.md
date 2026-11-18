@@ -1150,3 +1150,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v602 (Nov 18)
 - Removed the Oct 8 La Jolla Country Day vs Santa Fe Christian football game from games.js: LJCD forfeited, it was never played (owner).
+
+## v603 (Nov 18)
+- West Hills vs Point Loma (Nov 16) box score added to tools/data/bb_2627_box.txt from the players pipeline (10 players). Other played SD games (Westview-La Jolla, Bonita Vista-Mount Miguel, Castle Park, Southwest EC, Horizon Prep) have no player stats on MaxPreps yet.

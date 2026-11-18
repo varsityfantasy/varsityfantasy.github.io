@@ -47,3 +47,14 @@ ian-rubio|Sr|gjgpalvhni9ee|18|3|2|6|0|6|1
 eric-paredes|Sr|mndfc6f2sd7rb|7|7|3|1|0|0|1
 joel-gamboa|Fr|4v9dl6lubngbb|3|0|0|1|0|0|1
 ismael-barriga|So|a80vf0jrvopee|0|1|0|0|0|0|0
+#2026-11-16|West Hills|Point Loma
+jose-belnavis|Jr|-|1|3|0|0|0|1|0
+miles-masek|Sr|-|0|1|0|0|0|1|0
+andrew-palin|So|-|7|5|0|3|0|0|0
+malekai-dillon|Jr|-|24|7|3|5|0|2|0
+noah-spencer|Sr|-|6|3|0|1|0|2|0
+jackson-davis|Jr|-|10|6|4|2|4|3|0
+henry-ward|Jr|-|1|1|0|0|0|1|0
+cruz-castaneda|Sr|-|7|2|2|0|0|3|0
+jaymz-shaw|Jr|-|4|2|3|0|0|1|0
+zach-spicer|Jr|-|0|1|0|1|0|0|0

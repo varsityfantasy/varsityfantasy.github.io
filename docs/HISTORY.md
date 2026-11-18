@@ -1125,3 +1125,6 @@ The game was never played (MaxPreps marks it deleted). Removed its line from `bb
 
 ## v594 Nov 17: admin Users list shows Claimed / Not claimed
 For player profiles of the app's own sport (`(sport||'fb')===FG_SPORT`), `mpFind(profile)` decides: a match (box-score player or roster entry, same school, near-miss name) = Claimed (green pill), else Not claimed (red). Other-sport profiles and fans show nothing because this app only holds its own sport's players.
+
+## v595 Nov 17: admin tag colours
+Users list pills: Basketball orange (`.o`), Football brown (`.br`), Player blue (`.b`), Fan purple (`.pu`), Admin purple, no role grey. Light and dark admin themes both set.

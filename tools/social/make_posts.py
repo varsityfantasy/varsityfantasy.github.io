@@ -36,34 +36,34 @@ def line(t,pos):
 def esc(x):return x.replace('&','&amp;').replace('<','&lt;')
 CSS=f"""@font-face{{font-family:A;src:url({ANTON})}}@font-face{{font-family:B;font-weight:600;src:url({B6})}}@font-face{{font-family:B;font-weight:800;src:url({B8})}}
 *{{margin:0;box-sizing:border-box}}body{{width:1080px;height:1350px;overflow:hidden;font-family:B;color:#fff;background:#070B16}}
-.s{{position:relative;width:1080px;height:1350px;padding:64px 60px 0;background:radial-gradient(1200px 700px at 110% -10%,var(--a2) 0%,transparent 60%),radial-gradient(900px 600px at -20% 110%,#13204a 0%,transparent 60%),#070B16;overflow:hidden}}
-.s:before{{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.025) 0 2px,transparent 2px 22px);pointer-events:none}}
-.big{{position:absolute;right:-30px;top:-70px;font-family:A;font-size:420px;line-height:1;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.06)}}
-.tag{{display:inline-block;font-weight:800;font-size:26px;letter-spacing:4px;color:#070B16;background:var(--a);padding:6px 16px;transform:skew(-10deg)}}
+.s{{position:relative;width:1080px;height:1350px;padding:64px 60px 0;background:radial-gradient(1100px 650px at 105% -5%,var(--a2) 0%,transparent 60%),radial-gradient(900px 700px at -20% 115%,#14234A 0%,transparent 62%),linear-gradient(180deg,#0A1222,#070C18);overflow:hidden}}
+.s:before{{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.012) 0 1px,transparent 1px 26px);pointer-events:none}}
+.big{{position:absolute;right:-30px;top:-70px;font-family:A;font-size:420px;line-height:1;color:transparent;-webkit-text-stroke:2px rgba(231,181,74,.07)}}
+.tag{{display:inline-block;font-weight:800;font-size:24px;letter-spacing:5px;color:var(--a);border:2px solid var(--a);padding:5px 16px}}
 h1{{font-family:A;font-weight:400;font-size:104px;line-height:.95;letter-spacing:1px;margin-top:18px;text-transform:uppercase}}h1 em{{font-style:normal;color:var(--a)}}
 .sub{{font-weight:600;font-size:28px;color:#9AA6C8;letter-spacing:2px;margin-top:10px;text-transform:uppercase}}
-.brand{{position:absolute;top:66px;right:60px;font-family:A;font-size:44px;letter-spacing:3px;color:#fff}}.brand i{{font-style:normal;color:var(--a)}}
-.hero{{position:relative;margin-top:30px;height:250px;border-radius:26px;background:linear-gradient(120deg,var(--a) 0%,var(--a3) 100%);color:#070B16;display:flex;align-items:center;padding:0 40px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}}
-.hero .rk{{font-family:A;font-size:150px;line-height:1;opacity:.22;position:absolute;left:18px;top:30px}}
+.brand{{position:absolute;top:66px;right:60px;font-family:A;font-size:44px;letter-spacing:3px;color:#fff}}.brand i{{font-style:normal;color:var(--a)}}.brand{{font-size:38px!important}}
+.hero{{position:relative;margin-top:30px;height:250px;border-radius:26px;background:linear-gradient(120deg,#16223F 0%,#101A31 100%);color:#fff;border:1px solid rgba(231,181,74,.45);border-left:10px solid var(--a);display:flex;align-items:center;padding:0 40px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}}
+.hero .rk{{font-family:A;font-size:150px;line-height:1;opacity:.14;color:var(--a);position:absolute;left:18px;top:30px}}
 .hero .lg{{width:150px;height:150px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin-left:60px;box-shadow:0 8px 24px rgba(0,0,0,.25)}}.hero .lg img{{width:118px;height:118px;object-fit:contain}}
 .hero .nm{{margin-left:30px;flex:1;min-width:0}}.hero .n{{font-family:A;font-size:62px;line-height:1;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
-.hero .sc{{font-weight:800;font-size:26px;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-top:4px}}
-.hero .st{{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}}.hero .st b{{font-weight:800;font-size:22px;background:rgba(7,11,22,.14);padding:4px 12px;border-radius:8px}}
-.hero .pt{{text-align:right;flex:none;margin-left:18px}}.hero .pt div{{font-family:A;font-size:110px;line-height:.9}}.hero .pt span{{font-weight:800;font-size:24px;letter-spacing:4px}}
+.hero .sc{{font-weight:800;font-size:26px;letter-spacing:2px;text-transform:uppercase;color:var(--a);margin-top:4px}}
+.hero .st{{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}}.hero .st b{{font-weight:800;font-size:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);color:#D9DFEE;padding:4px 12px;border-radius:8px}}
+.hero .pt{{text-align:right;flex:none;margin-left:18px}}.hero .pt div{{font-family:A;font-size:110px;line-height:.9;color:var(--a)}}.hero .pt span{{font-weight:800;font-size:24px;letter-spacing:4px}}
 .rows{{margin-top:20px;display:flex;flex-direction:column;gap:8px}}
-.r{{display:flex;align-items:center;height:76px;padding:0 26px 0 18px;border-radius:16px;background:linear-gradient(90deg,rgba(255,255,255,.075),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.06)}}
-.r .k{{font-family:A;font-size:40px;width:58px;text-align:center;color:#56628A}}.r:nth-child(-n+2) .k{{color:var(--a)}}
+.r{{display:flex;align-items:center;height:76px;padding:0 26px 0 18px;border-radius:16px;background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.06)}}
+.r .k{{font-family:A;font-size:40px;width:58px;text-align:center;color:#56628A}}.r .k{{color:#8792B5}}
 .r .lg{{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin:0 18px 0 6px}}.r .lg img{{width:44px;height:44px;object-fit:contain}}
 .mono{{font-family:A;color:#070B16;font-size:26px}}
 .r .nm{{flex:1;min-width:0}}.r .n{{font-weight:800;font-size:31px;line-height:1.05;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}.r .n small{{font-weight:600;font-size:20px;color:#7F8BB0;letter-spacing:1px;margin-left:10px}}
 .r .st{{font-weight:600;font-size:20px;color:#AEB8D6;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}}
-.r .pt{{text-align:right;flex:none;margin-left:16px}}.r .pt div{{font-family:A;font-size:44px;line-height:1;color:var(--a)}}.r .pt span{{font-weight:800;font-size:15px;letter-spacing:3px;color:#7F8BB0}}
-.hero .pg{{font-weight:800;font-size:22px;letter-spacing:1px;margin-top:6px;opacity:.8}}
+.r .pt{{text-align:right;flex:none;margin-left:16px}}.r .pt div{{font-family:A;font-size:44px;line-height:1;color:#fff}}.r .pt span{{font-weight:800;font-size:15px;letter-spacing:3px;color:#7F8BB0}}
+.hero .pg{{font-weight:800;font-size:22px;letter-spacing:1px;margin-top:6px;color:#C8D0EA}}
 .c .r{{height:61px;border-radius:12px}}.c .rows{{gap:6px;margin-top:20px}}.c .r .k{{font-size:30px;width:64px}}.c .r .lg{{width:42px;height:42px;margin:0 14px 0 4px}}.c .r .lg img{{width:33px;height:33px}}.c .r .n{{font-size:25px}}.c .r .n small{{font-size:17px}}.c .r .st{{font-size:16px;margin-top:0}}.c .r .pt div{{font-size:32px}}.c .r .pt span{{font-size:16px;letter-spacing:1px;color:#C8D0EA}}.r .pt span{{color:#C8D0EA}}
 .t .r{{height:63px}}.t .rows{{gap:6px}}.t .r .n{{font-size:28px}}.t .r .st{{font-size:18px}}.t .r .pt div{{font-size:38px}}.t .r .lg{{width:48px;height:48px}}.t .r .lg img{{width:38px;height:38px}}.c h1{{font-size:88px}}
 .ft{{position:absolute;left:60px;right:60px;bottom:34px;display:flex;justify-content:space-between;font-weight:800;font-size:21px;letter-spacing:2px;color:#56628A;text-transform:uppercase}}.ft b{{color:var(--a)}}
 """
-TH={'g':('#2EE67F','rgba(46,230,127,.22)','#B8FF5C'),'o':('#FFB627','rgba(255,182,39,.22)','#FF7A2F'),'b':('#4FC3FF','rgba(79,195,255,.22)','#7C8CFF'),'p':('#FF4F9A','rgba(255,79,154,.22)','#FF8A5C'),'v':('#B78CFF','rgba(183,140,255,.22)','#4FC3FF')}
+TH={k:('#E7B54A','rgba(231,181,74,.10)','#C8932C') for k in 'gobpv'}
 def lgimg(sch,cls=''):
     u=logo(sch);return f'<img src="{u}">' if u else f'<span class="mono">{esc(sch[:1])}</span>'
 def slide(th,tag,title,sub,big,items,unit='PTS',foot='SWIPE',start=1,hero=True):
@@ -92,18 +92,18 @@ S.append(('03_top_1_10',slide('g','TOP 100','Fantasy<br><em>top 100</em>','Seaso
 TC=['b','p','v','o','b','p']
 for k,st in enumerate(range(10,100,15)):
     S.append((f'{k+4:02d}_top_{st+1}_{st+15}',slide(TC[k],'TOP 100',f'No. {st+1}<em>–{st+15}</em>','Season fantasy points',str(st+1),T[st:st+15],start=st+1,hero=False)))
-# cover: last week's No. 1
-h=wk[0];a,a2,a3=TH['o']
-S.insert(0,('01_cover',f"""<div class="s" style="--a:{a};--a2:{a2};--a3:{a3};padding-top:90px"><div class="big" style="font-size:560px;top:-40px">{LAST}</div><div class="brand">VARSITY<i>.</i></div>
-<span class="tag">SAN DIEGO FOOTBALL</span><h1 style="font-size:150px;margin-top:26px">Week {LAST}<br><em>fantasy</em><br>report</h1>
-<div style="margin-top:46px;font-weight:800;font-size:30px;letter-spacing:4px;color:#9AA6C8">PLAYER OF THE WEEK</div>
-<div class="hero" style="margin-top:16px"><div class="lg" style="margin-left:0">{lgimg(h['s'])}</div><div class="nm"><div class="n">{esc(h['n'])}</div><div class="sc">{esc(h['s'])} · {h['tagp']}</div><div class="st">{"".join(f"<b>{z}</b>" for z in h['line'][:5])}</div></div><div class="pt"><div>{h['v']:.1f}</div><span>FANTASY PTS</span></div></div>
-<div class="rows" style="margin-top:14px">{''.join(f'<div class="r"><div class="k">{i+2}</div><div class="lg">{lgimg(x["s"])}</div><div class="nm"><div class="n">{esc(x["n"])}<small>{esc(x["s"])} · {x["tagp"]}</small></div><div class="st">{" · ".join(x["line"])}</div></div><div class="pt"><div>{x["v"]:.1f}</div><span>PTS</span></div></div>' for i,x in enumerate(wk[1:3]))}</div>
-<div style="margin-top:34px;font-weight:600;font-size:30px;color:#9AA6C8">Inside: last week's best players and the top 100 fantasy players of the season</div>
-<div class="ft"><span>{len(P):,} players · {D['games']} games</span><b>SWIPE →</b></div></div>"""))
+# cover: the title is the top 100; No. 1-3 of the season under it
+a,a2,a3=TH['g'];h=T[0]
+S.insert(0,('01_cover',f"""<div class="s" style="--a:{a};--a2:{a2};--a3:{a3};padding-top:80px"><div class="big" style="font-size:600px;top:-60px">100</div><div class="brand">VARSITY<i>.</i></div>
+<span class="tag">SAN DIEGO FOOTBALL · WEEK {LAST}</span>
+<h1 style="font-size:215px;line-height:.86;margin-top:34px">Top 100<br><em>fantasy</em><br>players</h1>
+<div class="sub" style="margin-top:22px;font-size:30px">Ranked by season fantasy points</div>
+<div class="hero" style="margin-top:44px"><div class="rk">1</div><div class="lg">{lgimg(h['s'])}</div><div class="nm"><div class="n">{esc(h['n'])}</div><div class="sc">{esc(h['s'])} · {h['tagp']}</div><div class="st">{"".join(f"<b>{z}</b>" for z in h['line'][:5])}</div></div><div class="pt"><div>{h['v']:.1f}</div><span>FANTASY PTS</span><p class="pg">{h['ppg']:.1f} PPG · {h['g']} GP</p></div></div>
+<div class="rows">{''.join(f'<div class="r"><div class="k">{i+2}</div><div class="lg">{lgimg(x["s"])}</div><div class="nm"><div class="n">{esc(x["n"])}<small>{esc(x["s"])} · {x["tagp"]}</small></div><div class="st">{" · ".join(x["line"])}</div></div><div class="pt"><div>{x["v"]:.1f}</div><span>{x["ppg"]:.1f} PPG</span></div></div>' for i,x in enumerate(T[1:3]))}</div>
+<div class="ft"><span>varsityfantasy.github.io · thru Week {LAST}</span><b>SWIPE →</b></div></div>"""))
 a,a2,a3=TH['g']
 S.append(('99_end',f"""<div class="s" style="--a:{a};--a2:{a2};--a3:{a3};display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 80px"><div class="big" style="font-size:600px;top:120px;right:auto;left:-40px">V</div>
-<span class="tag">FREE · NO PURCHASES</span><h1 style="font-size:150px;margin-top:30px">Draft<br><em>these guys</em></h1>
+<span class="tag">FREE TO PLAY</span><h1 style="font-size:150px;margin-top:30px">Draft<br><em>these guys</em></h1>
 <div class="sub" style="font-size:34px;margin-top:30px;letter-spacing:1px;text-transform:none;color:#C8D0EA">Build a team of real San Diego players, make your picks and beat your friends every week.</div>
 <div style="margin-top:80px;font-family:A;font-size:120px;letter-spacing:6px">VARSITY<span style="color:{a}">.</span></div><div style="font-weight:800;font-size:36px;color:{a};letter-spacing:2px">varsityfantasy.github.io</div></div>"""))
 from playwright.sync_api import sync_playwright

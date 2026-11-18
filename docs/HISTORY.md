@@ -1161,3 +1161,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v605 (Nov 18)
 - Gift pop-ups: a friend gift with a message first shows the message big (`giftPopup`, `_gRev`, button `gpOpen`), then the gift on the next tap. Admin messages (`anPopup`) show the message big with what was received underneath. CSS `.gp-big`, `.gp-msg`.
+
+## v606 (Nov 18)
+- Nov 17 basketball scores added from MaxPreps game pages (7 games). West Shores vs Hamilton: MaxPreps says no result reported yet.

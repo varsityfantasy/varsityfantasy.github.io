@@ -1164,3 +1164,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v606 (Nov 18)
 - Nov 17 basketball scores added from MaxPreps game pages (7 games). West Shores vs Hamilton: MaxPreps says no result reported yet.
+
+## v607 (Nov 18)
+- Announcements also open as a big pop-up (`annPopup`, once per announcement id per device via localStorage vs-ann-x; the top banner stays until closed). Shown in the same open-time chain as gift/admin-message pop-ups.

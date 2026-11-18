@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v606 · Nov 18';
+const APP_BUILD='v607 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6440,6 +6440,14 @@ function anPopup(){if(_anPop||!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||
   c.innerHTML=`<div class="gcard tok-sheet gf-pop" role="dialog" aria-modal="true" aria-labelledby="an-t"><div class="gp-ic">📣</div><h2 id="an-t">Message from Varsity</h2>
     <ul class="gp-l">${nw.slice(-5).map(x=>`<li class="gp-an"><span class="gp-tx">${x.m?`<span class="gp-big">“${esc(x.m)}”</span>`:''}<b>${esc(x.t||'')}</b></span></li>`).join('')}</ul>
     <div class="gbtns"><button class="btn" data-act="anOk" data-at="${last}">OK</button></div></div>`;c.hidden=false}
+/* v607 (owner): a posted announcement also opens as a big pop-up (once per announcement per device); closing it also hides the top banner. */
+var _ancPop=false;
+function annPopup(){if(_ancPop||!ME.uid||ME.mode==='offline'||UI.view==='admin')return;
+  const a=S.settings&&S.settings.ann;if(!(a&&a.id&&a.text&&(!a.until||+new Date(a.until)>Date.now())))return;
+  let x='';try{x=localStorage.getItem('vs-ann-x')||''}catch(_){}if(x===a.id)return;
+  const c=$('#cfm');if(!c||!c.hidden)return;_ancPop=true;const warn=a.kind==='warn';
+  c.innerHTML=`<div class="gcard tok-sheet gf-pop gp-msg" role="dialog" aria-modal="true" aria-labelledby="anc-t"><div class="gp-ic">${warn?'⚠️':'📣'}</div><h2 id="anc-t">${warn?'Heads up':'Announcement'}</h2>
+    <p class="gp-big">${esc(a.text)}</p><div class="gbtns"><button class="btn" data-act="ancOk" data-id="${esc(a.id)}">Got it</button></div></div>`;c.hidden=false}
 async function giftSend(){const to=GF.to;if(!to||!S.profiles[to]){say('Pick who it’s for.');return}
   const id='g'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),x={to,at:NOW()};if(GF.m.trim())x.m=GF.m.trim().slice(0,60);
   if(GF.kind==='t'){const left=Math.floor(bank(ME.uid));if(!(GF.a>=1)||GF.a>left){say('You can’t send that many tokens right now.');return}x.a=Math.floor(GF.a)}
@@ -6503,6 +6511,7 @@ document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest
   else if(a==='gfAmt'){GF.a=+v;giftSheet()}
   else if(a==='gfItem'){GF.i=GF.i===v?'':v;const g=document.querySelector('.gf-items'),y=g?g.scrollTop:0;giftSheet();const g2=document.querySelector('.gf-items');if(g2)g2.scrollTop=y}
   else if(a==='anOk'){const at=+t.dataset.at||NOW();closeConfirm();_anPop=false;S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{ansn:at});upsert('picks/'+ME.uid,{ansn:at}).catch(()=>{})}
+  else if(a==='ancOk'){try{localStorage.setItem('vs-ann-x',t.dataset.id||'')}catch(_){}closeConfirm();_ancPop=false;render()}
   else if(a==='gpOpen'){closeConfirm();_gPop=false;_gRev=true;giftPopup()}
   else if(a==='gpOk'){const at=+t.dataset.at||NOW();closeConfirm();_gPop=false;_gRev=false;S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{gsn:at});upsert('picks/'+ME.uid,{gsn:at}).catch(()=>{})}
   else if(a==='gfSend')giftSend();
@@ -11094,7 +11103,7 @@ const browsing=()=>{try{return localStorage.getItem('gf-browse')==='1'}catch(_){
 function needJoin(what){if(myProfile())return false;openGate();return true}
 function touch(){
   _rev++;
-  maybeInitSeen();stWatchNew();rwClaim();try{refClaim()}catch(_){}try{pushSync()}catch(_){}try{lbTokClaim()}catch(_){}try{banCheck()}catch(_){}try{if(ME.admin&&AD.rows===null&&!AD.loading)adLoad();if(ME.admin&&DASH.use===null&&!DASH.loading)dashLoad()}catch(_){}try{secLand()}catch(_){}try{profileFix()}catch(_){}if(window.__pfx===1&&!(myProfile()||{}).fx)return;try{redoCheck()}catch(_){}if(window.__redo)return;try{landCheck()}catch(_){}try{setupCheck()}catch(_){}if(!window.__landGo&&!mustSetup()){try{tutMaybe()}catch(_){}if(!window.__tutOpen){try{giftPopup()}catch(_){}try{anPopup()}catch(_){}try{tpPromoMaybe()}catch(_){}try{spRevoke()}catch(_){}try{cardFix()}catch(_){}try{wpMaybe()}catch(_){}try{spMaybe()}catch(_){}}}if(!window.__tutOpen){try{pushAskMaybe()}catch(_){}}try{bndClaim()}catch(_){}
+  maybeInitSeen();stWatchNew();rwClaim();try{refClaim()}catch(_){}try{pushSync()}catch(_){}try{lbTokClaim()}catch(_){}try{banCheck()}catch(_){}try{if(ME.admin&&AD.rows===null&&!AD.loading)adLoad();if(ME.admin&&DASH.use===null&&!DASH.loading)dashLoad()}catch(_){}try{secLand()}catch(_){}try{profileFix()}catch(_){}if(window.__pfx===1&&!(myProfile()||{}).fx)return;try{redoCheck()}catch(_){}if(window.__redo)return;try{landCheck()}catch(_){}try{setupCheck()}catch(_){}if(!window.__landGo&&!mustSetup()){try{tutMaybe()}catch(_){}if(!window.__tutOpen){try{giftPopup()}catch(_){}try{anPopup()}catch(_){}try{annPopup()}catch(_){}try{tpPromoMaybe()}catch(_){}try{spRevoke()}catch(_){}try{cardFix()}catch(_){}try{wpMaybe()}catch(_){}try{spMaybe()}catch(_){}}}if(!window.__tutOpen){try{pushAskMaybe()}catch(_){}}try{bndClaim()}catch(_){}
   if(ME.mode==='guest'){if(AUTH.mode==='admin'&&!AUTH.step)AUTH.mode='in';guestGate()}
   if(!gateChecked&&S.loaded.profiles){gateChecked=true;if((ME.mode==='demo'&&!browsing()||ME.mode==='live')&&!myProfile())openGate()}
   if(rq)return;rq=true;

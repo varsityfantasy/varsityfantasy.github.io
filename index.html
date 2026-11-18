@@ -2621,6 +2621,9 @@ details.lk-col>summary{display:flex;justify-content:space-between;align-items:ce
 .mt-i{text-shadow:none!important}
 #create-form:has(input[value=pk]:checked) .ro-wrap{display:none}
 /* v270 player props: game picker */
+.pp-day{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:12px 2px 6px}.pp-day b{font:700 1rem/1.1 var(--f-display)}
+.pp-mv{color:var(--warn,#b45309);font-weight:600;font-size:.82rem;margin:4px 0 0}
+.pk-note{margin:12px 2px}
 .pp-games{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x proximity;scrollbar-width:thin}
 .pp-gm{flex:0 0 auto;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:132px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;text-align:center}
 .pp-gm:hover{border-color:#5B8CFF}.pp-gm.on{border-color:#FFC23D;box-shadow:0 0 0 2px rgba(255,194,61,.35);background:linear-gradient(180deg,rgba(255,194,61,.12),transparent),var(--surface)}
@@ -3929,7 +3932,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v575 · Nov 17';
+const APP_BUILD='v576 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -6695,6 +6698,7 @@ function recordCard(results){
 /* only the next week of games is drawn at first (a basketball season is ~1,400 games, far too many for a phone),
    and Show more adds the following week each time */
 function pkWeeksHTML(list,card,nextW){
+  if(BBPP){const ds=[...new Set(list.filter(g=>!gDone(g)).map(g=>g.d))].sort();return ds.map(d=>{const L=list.filter(g=>g.d===d&&!gDone(g));return `<div class="qh"><h3>${esc(dayLab(d))}</h3><span class="muted">${L.length} ${L.length===1?'game':'games'}${d===ds[0]?', odds set by Varsity':''}</span></div><div class="gm-grid">${L.map(card).join('')}</div>`}).join('')+'<p class="muted pk-note">Pick ’em covers today and the next 2 days. Odds can shift if team news or scores change before tip-off; a pick you lock in keeps its odds.</p>'}
   const ws=wkOrder(list),shown=UI.bf.w?ws:ws.slice(0,UI.pkWeeks||1),rest=ws.slice(shown.length).reduce((t,w)=>t+list.filter(g=>g.w===w).length,0);
   return shown.map(w=>{const L=list.filter(g=>g.w===w);return `<div class="qh"><h3>Week ${w} pick ’em</h3><span class="muted">${L.length} games${w===nextW?', odds set by Varsity':''}</span></div><div class="gm-grid">${L.map(card).join('')}</div>`}).join('')
     +(rest?`<button class="btn ghost bt-more pk-more" data-act="pkMoreW">Show more games (${rest} left)</button>`:'');
@@ -6703,7 +6707,7 @@ function picksHTML(){
   const gs=(GAMES&&GAMES.games)||[],today=TODAY();
   const open=gs.filter(g=>!gDone(g)),nextW=open.length?Math.min(...open.map(g=>g.w)):null;
   const mine0=ME.uid?betsOf(ME.uid):{};
-  const list=gs.filter(g=>(!gDone(g)||mine0[gid(g)])&&(gDone(g)||bfOK(g))).sort((a,b)=>(a.w-b.w)||(a.d<b.d?-1:a.d>b.d?1:0)||(a.dv||'').localeCompare(b.dv||'')||a.h.localeCompare(b.h));
+  const list=gs.filter(g=>bbWin(g)&&(!gDone(g)||mine0[gid(g)])&&(gDone(g)||bfOK(g))).sort((a,b)=>(a.w-b.w)||(a.d<b.d?-1:a.d>b.d?1:0)||(a.dv||'').localeCompare(b.dv||'')||a.h.localeCompare(b.h));
   const can=ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly',mine=betsOf(ME.uid),gm=gameMap();
   const bal=ME.uid?bank(ME.uid):TOK0;
   const staked=Object.entries(mine).reduce((a,[id,b])=>a+(betResult(b,gm[id])==='open'?+b.stake||0:0),0);
@@ -6960,7 +6964,13 @@ function atsResult(b,g){
 }
 /* ---- Over / Under player props: lines come from each player's own weekly stats ---- */
 const propsOf=u=>((S.picks[u]||{}).props)||{};
-const PP_MK={
+const BBPP=GAME_L==='Game';
+const PP_MK=BBPP?{
+  pts:{l:'Points',g:'Scoring',min:5,y:1,pi:0,f:s=>s.pts},
+  reb:{l:'Rebounds',g:'Rebounds',min:3,pi:1,f:s=>s.reb},
+  ast:{l:'Assists',g:'Assists',min:2,pi:2,f:s=>s.ast},
+  tpm:{l:'3-pointers made',g:'3-pointers',min:1,pi:3,f:s=>s.tpm}
+}:{
   passYd:{l:'Passing yards',g:'Passing',pos:['QB'],min:50,y:1,f:s=>s.passYd},
   passTD:{l:'Passing TDs',g:'Touchdowns',pos:['QB'],min:.7,f:s=>s.passTD},
   int:{l:'Interceptions thrown',g:'Interceptions',pos:['QB'],min:.4,f:s=>s.int},
@@ -6976,8 +6986,8 @@ const PP_MK={
 };
 const PP_ALWAYS=["JoJo Bryant|Bishop's"];   /* players who always get their lines, even outside their team's top players (owner) */
 /* v394 (owner): more players get lines: up to 4 per stat per team (was 2); the per-stat minimums in PP_MK still keep out weak stat lines */
-const PP_TOP={passYd:1,passTD:1,int:1,rushYd:4,rec:4,recYd:4,td:4,tkl:4,sack:3,dInt:3,xpm:1,fgm:1};
-const PP_GROUPS=['Passing','Rushing','Receiving','Touchdowns','Interceptions','Defense','Kicking'];
+const PP_TOP=BBPP?{pts:3,reb:2,ast:2,tpm:1}:{passYd:1,passTD:1,int:1,rushYd:4,rec:4,recYd:4,td:4,tkl:4,sack:3,dInt:3,xpm:1,fgm:1};
+const PP_GROUPS=BBPP?['Scoring','Rebounds','Assists','3-pointers']:['Passing','Rushing','Receiving','Touchdowns','Interceptions','Defense','Kicking'];
 const _erf=x=>{const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+.3275911*x);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x))};
 const _phi=z=>.5*(1+_erf(z/Math.SQRT2));
 function _pOver(vals,mu,line,yards){
@@ -6989,10 +6999,22 @@ function _pOver(vals,mu,line,yards){
 }
 const _dec=p=>Math.round(Math.min(8,Math.max(1.05,.93/p))*100)/100;
 let _ppC=null;
+/* v576 (owner): basketball props and pick 'em only cover today and the next 2 days; lines are recomputed whenever stats, injuries or the schedule change */
+const addDay=(d,n)=>{const t=new Date(d+'T12:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)};
+const dayLab=d=>fmtDate(d)+(d===TODAY()?' · Today':d===addDay(TODAY(),1)?' · Tomorrow':'');
+const bbWin=g=>!BBPP||(g.d>=TODAY()&&g.d<=addDay(TODAY(),2));
+const bbHist=(p,g)=>{const o=[];p.games.forEach((x,i)=>{if(!x)return;(x.gl&&x.gl.length?x.gl:[x]).forEach(y=>{const d=y.d||x.d;if(d?d<g.d:i+1<g.w)o.push(y.stat)})});return o};
+function bbStat(p,M,played){   /* this season's games blended with last season's per-game average (BB_PST) while the sample is small */
+  const pr=(window.BB_PST||{})[p.key],pm=pr&&pr[4]>=5?pr[M.pi]:null,vals=played.map(s=>+M.f(s)||0),n=vals.length,sum=vals.reduce((a,b)=>a+b,0),K=pm==null?0:6;
+  if(!n&&pm==null)return null;
+  const mean=(sum+(pm||0)*K)/(n+K),last=vals.slice(-3),rc=n?last.reduce((a,b)=>a+b,0)/last.length:pm,mu=Math.max(.05,.6*mean+.4*rc),pad=n<4&&pm!=null?Array(4-n).fill(Math.round(pm)):[];
+  return {vals:vals.concat(pad),n,real:vals,mean,rc,mu,pr:n<3};
+}
+const _ppFirst={};
 function propCands(){
-  const gs=((GAMES&&GAMES.games)||[]).filter(g=>!gDone(g)),
+  const gs=((GAMES&&GAMES.games)||[]).filter(g=>!gDone(g)&&bbWin(g)),
     own=new Set(ME.uid?Object.keys(cardsOf(ME.uid)).map(id=>id.startsWith('pc:')?id.slice(3):id.startsWith('ac:')||id.startsWith('sc:')?id.split(':')[2]:'').filter(Boolean):[]),
-    key=gs.length+'|'+_rev+'|'+((window.MAXPREPS&&MAXPREPS.updated)||'')+'|'+[...own].sort().join(',');
+    key=gs.length+'|'+(BBPP?TODAY():'')+'|'+_rev+'|'+((window.MAXPREPS&&MAXPREPS.updated)||'')+'|'+[...own].sort().join(',');
   if(_ppC&&_ppC.k===key)return _ppC.list;
   const by={};players().forEach(p=>{if(p.mp&&p.school&&mgOk(p)){(by[p.school]=by[p.school]||[]).push(p)}});
   /* v535: the schedule says 'Mount Carmel' / 'San Diego High', the box scores say 'Mt. Carmel' / 'San Diego' (7 schools in LOGO_ALIAS), so those teams never got prop lines */
@@ -7002,10 +7024,13 @@ function propCands(){
     const rows={};
     (by[sc]||[]).forEach(p=>{
       if(injOf(p,g.w))return;
-      const played=p.games.map((x,i)=>x&&i+1<g.w?x.stat:null).filter(Boolean);
-      if(played.length<3)return;
+      const played=BBPP?bbHist(p,g):p.games.map((x,i)=>x&&i+1<g.w?x.stat:null).filter(Boolean);
+      if(!BBPP&&played.length<3)return;
+      if(BBPP&&played.length<3&&!(((window.BB_PST||{})[p.key]||[])[4]>=5))return;
       Object.entries(PP_MK).forEach(([m,M])=>{
-        if(!M.pos.includes(p.pos))return;
+        if(M.pos&&!M.pos.includes(p.pos))return;
+        if(BBPP){const b=bbStat(p,M,played);if(!b||b.mean<M.min)return;const line=Math.max(.5,Math.floor(b.mu)+.5),po=_pOver(b.vals,b.mu,line,!!M.y);
+          (rows[m]=rows[m]||[]).push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
         const vals=played.map(s=>+M.f(s)||0),n=vals.length,mean=vals.reduce((a,b)=>a+b,0)/n,last=vals.slice(-3),rc=last.reduce((a,b)=>a+b,0)/last.length;
         if(mean<M.min)return;
         const mu=.6*mean+.4*rc,line=Math.max(.5,Math.floor(mu)+.5),po=_pOver(vals,mu,line,!!M.y);
@@ -7019,8 +7044,12 @@ function propCands(){
       if(list.some(x=>x.w===g.w&&x.k===p.key&&x.school===sc&&gid(x.game)===gid(g)))return;
       const old=Object.values(rows).flat().filter(x=>x.k===p.key).sort((x,y)=>y.mean-x.mean)[0];
       if(old){list.push(old);return}
-      const ms=Object.entries(PP_MK).filter(([m,M])=>M.pos.includes(p.pos));if(!ms.length)return;
-      let played=p.games.map((x,i)=>x&&i+1<g.w?x.stat:null).filter(Boolean);if(!played.length)played=[{}];
+      const ms=Object.entries(PP_MK).filter(([m,M])=>!M.pos||M.pos.includes(p.pos));if(!ms.length)return;
+      let played=BBPP?bbHist(p,g):p.games.map((x,i)=>x&&i+1<g.w?x.stat:null).filter(Boolean);
+      if(BBPP){let bb=null;ms.forEach(([m,M])=>{const b=bbStat(p,M,played)||bbStat(Object.assign({},p,{key:'-'}),M,[{}]);if(!bb||b.mean/M.min>bb.b.mean/bb.M.min)bb={m,M,b}});
+        const {m,M,b}=bb,line=Math.max(.5,Math.floor(b.mu)+.5),po=_pOver(b.vals,b.mu,line,!!M.y);
+        list.push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
+      if(!played.length)played=[{}];
       let bm=null;
       ms.forEach(([m,M])=>{const vals=played.map(s=>+M.f(s)||0),mean=vals.reduce((a,b)=>a+b,0)/vals.length;if(!bm||mean/M.min>bm.r)bm={m,M,vals,mean,r:mean/M.min}});
       const {m,M,vals,mean}=bm,n=vals.length,last=vals.slice(-3),rc=last.reduce((a,b)=>a+b,0)/last.length,mu=Math.max(.05,.6*mean+.4*rc),line=Math.max(.5,Math.floor(mu)+.5),po=_pOver(vals,mu,line,!!M.y);
@@ -7028,29 +7057,32 @@ function propCands(){
     });
   })});
   const mo=Object.keys(PP_MK);
+  if(BBPP)list.forEach(x=>{if(_ppFirst[x.id]==null)_ppFirst[x.id]=x.line;if(_ppFirst[x.id]!==x.line)x.mv=_ppFirst[x.id]});
   list.sort((a,b)=>a.w-b.w||(a.game.d<b.game.d?-1:a.game.d>b.game.d?1:0)||a.game.h.localeCompare(b.game.h)||a.school.localeCompare(b.school)||mo.indexOf(a.m)-mo.indexOf(b.m)||b.mean-a.mean);
-  _ppC={k:key,list,map:Object.fromEntries(list.map(x=>[x.id,x]))};
+  _ppC={k:key,t:Date.now(),list,map:Object.fromEntries(list.map(x=>[x.id,x]))};
   return list;
 }
 const propMap=()=>{propCands();return _ppC.map};
 const _mpThrough=()=>{const m=/Week\s+(\d+)/.exec((window.MAXPREPS&&MAXPREPS.through)||'');return m?+m[1]:0};
-function propActual(b){const p=pByKey(b.k),x=p&&p.games[b.w-1],M=PP_MK[b.m];return x&&M?+M.f(x.stat)||0:null}
+function propActual(b){const p=pByKey(b.k),x=p&&p.games[b.w-1],M=PP_MK[b.m];
+  if(BBPP&&x&&M){const g=gameMap()[b.g],d=g&&g.d,L=x.gl&&x.gl.length?x.gl:[x],y=d?L.find(y=>(y.d||x.d)===d)||(L.length===1&&!(L[0].d||x.d)?L[0]:null):(L.length===1?L[0]:null);return y?+M.f(y.stat)||0:null}
+  return x&&M?+M.f(x.stat)||0:null}
 function propResult(b,gm){
   const a=propActual(b);
   if(a!==null)return a>+b.line?(b.s==='o'?'won':'lost'):(b.s==='o'?'lost':'won');
   const g=(gm||gameMap())[b.g];
-  return g&&gDone(g)&&_mpThrough()>=b.w?'push':'open';
+  return g&&gDone(g)&&(BBPP?TODAY()>addDay(g.d,2):_mpThrough()>=b.w)?'push':'open';
 }
 const fmtN=v=>Math.abs(v-Math.round(v))<.05?String(Math.round(v)):(Math.round(v*10)/10).toFixed(1);
 /* filters shared by Pick ’em and Over / Under */
-UI.bf={dv:'',w:'',sc:''};UI.pp={};UI.pm='ALL';UI.ppN=24;UI.sl={legs:{},stake:10};   /* v405: the prop slip: legs {lineId:'o'|'u'} and ONE stake for the whole parlay */
-const bfOK=g=>{const f=UI.bf;return(!f.dv||(g.dv||'')===f.dv)&&(!f.w||g.w===+f.w)&&(!f.sc||g.h===f.sc||g.a===f.sc)};
+UI.bf={dv:'',w:'',sc:'',d:''};UI.pp={};UI.pm='ALL';UI.ppN=24;UI.sl={legs:{},stake:10};   /* v405: the prop slip: legs {lineId:'o'|'u'} and ONE stake for the whole parlay */
+const bfOK=g=>{const f=UI.bf;return(!f.dv||(g.dv||'')===f.dv)&&(!f.w||g.w===+f.w)&&(!f.d||g.d===f.d)&&(!f.sc||g.h===f.sc||g.a===f.sc)};
 function bfBar(extra){
-  const gs=((GAMES&&GAMES.games)||[]).filter(g=>!gDone(g)),f=UI.bf;
+  const gs=((GAMES&&GAMES.games)||[]).filter(g=>!gDone(g)&&bbWin(g)),f=UI.bf;
   const dvs=[...new Set(gs.map(g=>g.dv).filter(Boolean))].sort(),ws=[...new Set(gs.map(g=>g.w))].sort((a,b)=>a-b),scs=[...new Set(gs.flatMap(g=>[g.h,g.a]))].sort();
   const sel=(k,lab,all,opts)=>`<label class="fld"><span>${lab}</span><select data-act="bf" data-f="${k}"><option value="">${all}</option>${opts.map(([v,t])=>`<option value="${esc(String(v))}" ${String(f[k])===String(v)?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`;
-  const any=f.dv||f.w||f.sc;
-  return `<section class="card bf-bar">${sel('dv','Division','All divisions',dvs.map(d=>[d,d]))}${sel('w','Week','All weeks',ws.map(w=>['' +w,WKL(w)]))}${sel('sc','School','All schools',scs.map(s=>[s,s]))}${any?'<button class="btn sm ghost" data-act="bfClear">Clear filters</button>':''}${extra||''}</section>`;
+  const any=f.dv||f.w||f.sc||f.d;
+  return `<section class="card bf-bar">${sel('dv','Division','All divisions',dvs.map(d=>[d,d]))}${BBPP?sel('d','Day','All days',[...new Set(gs.map(g=>g.d))].sort().map(d=>[d,fmtDate(d)])):sel('w','Week','All weeks',ws.map(w=>['' +w,WKL(w)]))}${sel('sc','School','All schools',scs.map(s=>[s,s]))}${any?'<button class="btn sm ghost" data-act="bfClear">Clear filters</button>':''}${extra||''}</section>`;
 }
 const abbr=n=>!n?'TBD':n.length<=11?n:n.split(/\s+/).map(w=>w[0]).join('').slice(0,4).toUpperCase();
 /* v405 (owner): player props are parlays only. Tap Over/Under on 2-6 different players (any games), then ONE wager on the whole parlay. Saved in picks/<uid>.parl under key 'p|<time>|<rand>' (same record as duo parlays, but each leg carries its own w and g); bank(), earned(), parlResult() and fcKeep() already handle it. Boost = sum of the legs' card percents (cap 500). Older single prop picks still settle. */
@@ -7069,10 +7101,11 @@ function slipCalc(legs){
   const pct=Math.min(500,legs.reduce((t,l)=>t+(ME.uid?cardPct(ME.uid,'pc:'+l.x.k,{s:l.s,game:l.x.game,parl:1}):0),0)+dp);
   return {odds,pct,pb,duos,dp,bonus:Math.round(SL_BONUS*(legs.length-1)*100),win:st=>st+(st*odds-st)*(1+pct/100)};
 }
+const slMoved=l=>BBPP&&UI.sl.ln&&UI.sl.ln[l.x.id]!=null&&UI.sl.ln[l.x.id]!==l.x.line;
 function slipHTML(bal){
   const legs=slipLegs();if(!legs.length)return '';
   const c=slipCalc(legs),max=Math.floor(bal),stake=Math.max(0,Math.min(Math.floor(UI.sl.stake||0),max)),ok=legs.length>=1&&stake>=1,one=legs.length===1;
-  const row=l=>`<div class="sl-leg"><span><b>${esc(lastN(l.x.name))} ${l.s==='o'?'Over':'Under'} ${fmtN(l.x.line)}</b><small class="muted">${esc(PP_MK[l.x.m].l)} · ${esc(abbr(l.x.game.a))} at ${esc(abbr(l.x.game.h))}</small></span><span class="sl-o">${(l.s==='o'?l.x.over:l.x.under).toFixed(2)}x</span><button class="btn sm ghost" data-act="slLeg" data-id="${esc(l.x.id)}" data-s="${l.s}" aria-label="Remove this pick">×</button></div>`;
+  const row=l=>`<div class="sl-leg"><span><b>${esc(lastN(l.x.name))} ${l.s==='o'?'Over':'Under'} ${fmtN(l.x.line)}</b><small class="muted">${esc(PP_MK[l.x.m].l)} · ${esc(abbr(l.x.game.a))} at ${esc(abbr(l.x.game.h))}</small>${slMoved(l)?`<small class="pp-mv">Line moved from ${fmtN(UI.sl.ln[l.x.id])} to ${fmtN(l.x.line)}. Check it, then lock in.</small>`:''}</span><span class="sl-o">${(l.s==='o'?l.x.over:l.x.under).toFixed(2)}x</span><button class="btn sm ghost" data-act="slLeg" data-id="${esc(l.x.id)}" data-s="${l.s}" aria-label="Remove this pick">×</button></div>`;
   const chips=[5,10,25,50,100].filter(v=>v<=max);
   return `<section class="card bt-all sl-bar"><div class="qh"><h3>${one?'Your pick':'Your parlay'}</h3><span class="muted">${one?'single pick':legs.length+' picks · all must hit'}</span></div>${legs.map(row).join('')}
     ${c.duos&&c.duos.length?`<p class="sl-duo">${c.duos.map(id=>duoArt(id,cardR(ME.uid,id),44)).join('')}<span><b>Duo boost +${c.dp}%</b><small class="muted">${c.duos.map(id=>esc(duoInfo(id).name)).join(', ')} · both players are in this parlay</small></span></p>`:''}
@@ -7085,6 +7118,7 @@ async function slipGo(){
   if(!legs.length){say('Pick Over or Under first.');return}
   if(legs.length>SL_MAX){say('A parlay can have up to '+SL_MAX+' picks.');return}
   if(new Set(legs.map(l=>l.x.k)).size!==legs.length){say('Pick each player only once.');return}
+  const mv=legs.filter(slMoved);if(mv.length){say('A line moved: '+mv.map(l=>lastN(l.x.name)+' is now '+fmtN(l.x.line)).join(', ')+'. Check your slip, then lock in again.');mv.forEach(l=>{UI.sl.ln[l.x.id]=l.x.line});render(true);return}
   const bal=bank(ME.uid),stake=Math.floor(Math.min(UI.sl.stake||0,bal));
   if(stake<1){say('Pick a wager first.');return}
   if(!await stakeOk(stake,bal))return;
@@ -7119,7 +7153,7 @@ function propsHTML(){
   const gm=gameMap(),today=TODAY(),mine=propsOf(ME.uid||''),can=ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly';
   const bal=ME.uid?bank(ME.uid):TOK0,pm=propMap();
   const staked=Object.values(mine).reduce((a,b)=>a+(propResult(b,gm)==='open'?+b.stake||0:0),0)+Object.values(parlOf(ME.uid||'')).reduce((a,b)=>a+(parlResult(b,gm)==='open'?+b.stake||0:0),0);
-  const bankCard=`<section class="card bt-bank"><div><span class="lbl">Your tokens</span><div class="bt-n">${coinIc(ME.uid)}${Math.round(bal)}</div></div><div class="muted">Same tokens as Pick ’em. Each line is set from a player’s own game-by-game stats: a blend of his season average and his last three games. Pick Over or Under on one player, or on 2 or more to build a parlay: every pick has to hit, the odds multiply (plus a parlay bonus), and you wager once on the total. ${staked?`${tk(staked)} riding on open picks. `:''}If a player’s stats never post, that pick is dropped from the parlay.</div></section>`;
+  const bankCard=`<section class="card bt-bank"><div><span class="lbl">Your tokens</span><div class="bt-n">${coinIc(ME.uid)}${Math.round(bal)}</div></div><div class="muted">Same tokens as Pick ’em. Each line is set from a player’s own game-by-game stats: a blend of his season average and his last three games.${BBPP?' Early in the season it leans on last season’s averages.':''} Pick Over or Under on one player, or on 2 or more to build a parlay: every pick has to hit, the odds multiply (plus a parlay bonus), and you wager once on the total. ${staked?`${tk(staked)} riding on open picks. `:''}If a player’s stats never post, that pick is dropped from the parlay.${BBPP?' Only games today and in the next 2 days have lines. Lines can change before tip-off if a player’s status, a roster or the stats change: a picked line stays as it was when you locked it in.':''}</div></section>`;
   const mkChips=`<label class="fld bf-mk"><span>Stat type</span><select data-act="ppM" aria-label="Stat type">${['ALL',...PP_GROUPS].map(v=>`<option value="${v}" ${UI.pm===v?'selected':''}>${v==='ALL'?'All stats':v}</option>`).join('')}</select></label>`;
   const all=propCands().filter(x=>bfOK(x.game)&&(UI.pm==='ALL'||PP_MK[x.m].g===UI.pm));
   const shown=all.slice(0,UI.ppN);
@@ -7134,11 +7168,11 @@ function propsHTML(){
     else foot=b?`<p class="muted">Your pick: ${b.s==='o'?'Over':'Under'} ${fmtN(b.line)} for ${tk(b.stake)}.</p>`:'<p class="muted">Tap Over or Under to pick it.</p>';
     if(b&&!locked)foot+=bxChips('pp',id,b);else if(b&&b.bx)foot+=`<p class="bx-tag">${b.bx==='b'?'+25% boost':'Insured'}</p>`;
     if(b&&b.cb)foot+=`<p class="bx-tag cbx">Card boost +${b.cb}% on winnings</p>`;else if(side&&!b&&!locked&&ME.uid&&cardPct(ME.uid,'pc:'+x.k,{s:side,game:x.game}))foot+=`<p class="bx-tag cbx">Your ${esc(x.name)} card adds +${cardPct(ME.uid,'pc:'+x.k,{s:side,game:x.game})}% to the parlay winnings</p>`;
-    return `<article class="gm bt-g pp"><div class="gm-h"><span>${esc(fmtDate(x.game.d))} · vs ${esc(x.opp)}</span>${x.game.dv?`<span class="gm-k p">${esc(x.game.dv)}</span>`:''}</div>
+    return `<article class="gm bt-g pp"><div class="gm-h"><span>${esc(BBPP?dayLab(x.game.d):fmtDate(x.game.d))} · vs ${esc(x.opp)}</span>${x.game.dv?`<span class="gm-k p">${esc(x.game.dv)}</span>`:''}</div>
       <button class="pp-who" type="button" data-act="player" data-id="${esc(x.k)}" aria-label="${esc(x.name)}, open player profile">${slogo(x.school,30)}<div><b>${esc(x.name)}</b>${ME.uid?cardTag(ME.uid,'pc:'+x.k):''}<small class="muted">${esc(x.school)} · ${esc(x.pos)}</small></div><span class="pp-go" aria-hidden="true">›</span></button>
       ${grp&&grp.length>1?`<div class="pp-mk" role="group" aria-label="${esc(x.name)} lines">${grp.map(y=>`<button class="pp-mc${y===x?' on':''}" data-act="ppSel" data-k="${esc(x.k)}" data-id="${esc(y.id)}" aria-pressed="${y===x}"><span>${esc(PP_MK[y.m].l)}</span><b>${fmtN(y.line)}</b>${mine[y.id]||UI.sl.legs[y.id]?'<i aria-label="picked"></i>':''}</button>`).join('')}</div>`:`<div class="pp-m">${esc(M.l)}</div>`}
       <div class="bt-row">${btn('o','Over',x.over)}${btn('u','Under',x.under)}</div>
-      <div class="pp-stat muted">Avg <b>${fmtN(x.mean)}</b> · last 3 <b>${fmtN(x.rc)}</b> · over ${fmtN(x.line)} in <b>${x.hits}</b> of ${x.n} games</div>${foot}</article>`};
+      <div class="pp-stat muted">${x.pr?`Avg <b>${fmtN(x.mean)}</b> (${x.n?x.n+' '+(x.n===1?'game':'games')+' this season plus ':'from '}last season)`:`Avg <b>${fmtN(x.mean)}</b> · last 3 <b>${fmtN(x.rc)}</b> · over ${fmtN(x.line)} in <b>${x.hits}</b> of ${x.n} games`}</div>${x.mv!=null?`<p class="bx-tag pp-mv">Line moved from ${fmtN(x.mv)} to ${fmtN(x.line)}</p>`:''}${foot}</article>`};
   const allBar=can?slipHTML(bal):'';
   const hist=Object.entries(mine).map(([id,b])=>({id,b,res:propResult(b,gm)})).filter(x=>x.res!=='open').sort((a,b)=>b.b.w-a.b.w);
   const more=!!UI.mgRes,HL=more?hist:hist.slice(0,5);
@@ -7159,9 +7193,10 @@ function propsHTML(){
     gl.sort((a,b)=>(a.g.d+(a.g.t||KICK))<(b.g.d+(b.g.t||KICK))?-1:1);
     const glOpen=gl.filter(x=>!started(x.g)||x.mine);gl.length=0;gl.push(...(glOpen.length?glOpen:gl.slice()));
     const myS=(myProfile()||{}).school,mine1=myS&&gl.find(x=>!started(x.g)&&(x.g.h===myS||x.g.a===myS));
-    if(mine1){const i=gl.indexOf(mine1);gl.splice(i,1);gl.unshift(mine1)}   /* v287: your own school's game comes first */
-    const cur=gl.find(x=>x.id===UI.ppG)||mine1||gl.find(x=>!started(x.g))||gl[0];
-    const pick=`<div class="pp-games" role="group" aria-label="Choose a game">${gl.map(x=>`<button class="pp-gm${x===cur?' on':''}" data-act="ppG" data-v="${esc(x.id)}" aria-pressed="${x===cur}"><span class="pp-gl">${slogo(x.g.a,26)}<i>at</i>${slogo(x.g.h,26)}</span><b>${esc(abbr(x.g.a))} at ${esc(abbr(x.g.h))}</b><small>${esc(fmtDate(x.g.d))} · ${x.n} ${x.n===1?'line':'lines'}${x.mine?` · <em>${x.mine} picked</em>`:''}</small></button>`).join('')}</div>`;
+    if(mine1&&!BBPP){const i=gl.indexOf(mine1);gl.splice(i,1);gl.unshift(mine1)}   /* v287: your own school's game comes first */
+    const cur=gl.find(x=>x.id===UI.ppG)||(BBPP?null:mine1)||gl.find(x=>!started(x.g))||gl[0];
+    const gbtn=x=>`<button class="pp-gm${x===cur?' on':''}" data-act="ppG" data-v="${esc(x.id)}" aria-pressed="${x===cur}"><span class="pp-gl">${slogo(x.g.a,26)}<i>at</i>${slogo(x.g.h,26)}</span><b>${esc(abbr(x.g.a))} at ${esc(abbr(x.g.h))}</b><small>${esc(fmtDate(x.g.d))} · ${x.n} ${x.n===1?'line':'lines'}${x.mine?` · <em>${x.mine} picked</em>`:''}</small></button>`;
+    const pick=BBPP?[...new Set(gl.map(x=>x.g.d))].map(d=>`<div class="pp-day"><b>${esc(dayLab(d))}</b><span class="muted">${gl.filter(x=>x.g.d===d).length} ${gl.filter(x=>x.g.d===d).length===1?'game':'games'}</span></div><div class="pp-games" role="group" aria-label="Games on ${esc(fmtDate(d))}">${gl.filter(x=>x.g.d===d).map(gbtn).join('')}</div>`).join(''):`<div class="pp-games" role="group" aria-label="Choose a game">${gl.map(gbtn).join('')}</div>`;
     const L=all.filter(x=>gid(x.game)===cur.id).sort((a,b)=>a.school===b.school?0:a.school===cur.g.a?-1:1);
     ppPick=`<div class="qh"><h3>Pick a game</h3><span class="muted">${gl.length} ${gl.length===1?'game':'games'} with lines</span></div>${pick}`;
     /* v273: one card per player (like Sleeper): the main line shows, the player's other lines are chips to switch to */
@@ -7171,7 +7206,7 @@ function propsHTML(){
     body=`<div class="qh pp-gh"><h3>${esc(cur.g.a)} at ${esc(cur.g.h)}</h3><span class="muted">${esc(fmtDate(cur.g.d))}${cur.g.time?' · '+esc(cur.g.time):''} · ${byP.length} players · ${L.length} lines</span></div><div class="gm-grid">${cards.join('')}</div>`;
     body+=parlHTML(cur,L);
   }
-  return boardCard+activeCard()+recordCard(Object.values(mine).map(b=>propResult(b,gm)))+advisorHTML()+bfBar(mkChips)+ppPick+body+histCard+allBar+(allBar?'<div class="sl-sp"></div>':'');
+  return boardCard+activeCard()+recordCard(Object.values(mine).map(b=>propResult(b,gm)))+advisorHTML()+(BBPP?`<p class="muted pk-note">Lines for today and the next 2 days. They can change before tip-off if stats, a player’s status or a roster change (a moved line is tagged). A pick you lock in keeps the line it had.${_ppC&&_ppC.t?' Updated '+new Date(_ppC.t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'.':''}</p>`:'')+bfBar(mkChips)+ppPick+body+histCard+allBar+(allBar?'<div class="sl-sp"></div>':'');
 }
 
 /* ---- Mock drafts: practice against AI teams, or join other people's mock draft ---- */
@@ -11257,7 +11292,7 @@ document.addEventListener('click',async e=>{
   else if(a==='mgMore'){UI.mgN=t.dataset.reset?0:(+UI.mgN||0)+1;render()}
   else if(a==='pkMoreW'){UI.pkWeeks=(UI.pkWeeks||1)+1;render()}
   else if(a==='atClear'){UI.at={};render()}
-  else if(a==='bfClear'){UI.bf={dv:'',w:'',sc:''};UI.ppN=24;render()}
+  else if(a==='bfClear'){UI.bf={dv:'',w:'',sc:'',d:''};UI.ppN=24;render()}
   else if(a==='ppSel'){UI.ppSel=Object.assign({},UI.ppSel,{[t.dataset.k]:t.dataset.id});render(true)}
   else if(a==='ppG'){UI.ppG=t.dataset.v;render();const h=document.querySelector('.pp-gh');if(h&&h.getBoundingClientRect().top>innerHeight*.6)h.scrollIntoView({behavior:'smooth',block:'start'})}
   else if(a==='ppMore'){UI.ppN+=24;render()}
@@ -11269,7 +11304,7 @@ document.addEventListener('click',async e=>{
   else if(a==='slLeg'){const id=t.dataset.id,L=UI.sl.legs,pm=propMap(),x=pm[id];
     if(L[id]===t.dataset.s)delete L[id];
     else{if(!x)return;if(!L[id]&&Object.keys(L).length>=SL_MAX){say('A parlay can have up to '+SL_MAX+' picks.');return}
-      Object.keys(L).forEach(o=>{if(o!==id&&pm[o]&&pm[o].k===x.k)delete L[o]});L[id]=t.dataset.s}
+      Object.keys(L).forEach(o=>{if(o!==id&&pm[o]&&pm[o].k===x.k)delete L[o]});L[id]=t.dataset.s;(UI.sl.ln=UI.sl.ln||{})[id]=x.line}
     render(true)}
   else if(a==='apMore'){UI.apOpen=!UI.apOpen;render(true)}
   else if(a==='tcMore'){const n=UI.tcN||3,t=topCardsList().length;UI.tcN=n>=t?3:Math.min(t,n+5);render(true)}

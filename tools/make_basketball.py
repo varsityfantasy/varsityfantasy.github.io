@@ -294,15 +294,18 @@ def build_data():
     # hidden preseason order: last season's fantasy points under the current scoring, weighted by games played.
     # It never shows as a stat; it only decides who sits at the top while everyone is at 0.0.
     rank = {}
+    pst = {}
     for pl, x in [(pl, x) for pl, x in zip(players, [x for t in real for x in t['rows']])]:
         if x['st'] and x['gp'] > 0:
             ppg_, reb, ast, stl, blk, tov, tpm = x['st']
             per = ppg_ + 1.2 * reb + 1.5 * ast + 2 * stl + 2 * blk - 2 * tov
             rank['mp' + pl['id']] = round(per * min(4, max(1, round(x['gp'] / 7))), 1)
+            pst['mp' + pl['id']] = [round(ppg_, 1), round(reb, 1), round(ast, 1), round(tpm, 1), x['gp']]
     mp = {'through': '2025-26 season', 'games': 0, 'updated': 'MaxPreps 2025-26 season averages', 'players': players}
     seeds = sorted([n for n in TEAMS if ppg[n] > 0], key=lambda t: -rating[t])[:8]
     prior = {n: round(rating[n], 1) for n in TEAMS if rating[n]}
     mp['rank'] = rank
+    mp['pst'] = pst
     mp['nostat'] = nostat
     return mp, games, seeds, TEAMS, prior
 
@@ -315,7 +318,7 @@ GAMES_JS = """<script>
   var wk=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-st)/604800000);
   window.BB_CUR=Math.max(P+1,Math.min(W,P+1+wk));
   window.BB_PRIOR=%(prior_ratings)s;
-  window.BB_RANK=%(rank)s; window.BB_TOP10=%(top10)s; window.BB_NOSTAT=%(nostat)s;
+  window.BB_RANK=%(rank)s; window.BB_TOP10=%(top10)s; window.BB_NOSTAT=%(nostat)s; window.BB_PST=%(pst)s;
   window.VARSITY_GAMES={games:G,brackets:[],bracketName:'CIF San Diego Section playoffs'};
 })();
 </script>"""
@@ -359,6 +362,7 @@ def transform(s, mp, games, seeds, teams, prior):
     # --- data: baked-in placeholder players and games ------------------------------------------------------------
     mp = dict(mp)
     rank = mp.pop('rank', {})
+    pst = mp.pop('pst', {})
     nostat = mp.pop('nostat', [])
     top10 = [k for k, _ in sorted(rank.items(), key=lambda kv: -kv[1])[:10]]
     # v364: football's stats live in stats.js; basketball bakes its own stats in place of that script tag
@@ -368,7 +372,7 @@ def transform(s, mp, games, seeds, teams, prior):
     s = rep(s, '<script src="games.js" onerror="void 0"></script>',
             GAMES_JS % dict(games=json.dumps(g2, separators=(',', ':')), prior=PRIOR, first=PRIOR + 1, weeks=weeks,
                             start=START.isoformat(), sy=START.year, sm=START.month - 1, sd=START.day,
-                            prior_ratings=json.dumps(prior, separators=(',', ':')), rank=json.dumps(rank, separators=(',', ':')), top10=json.dumps(top10), nostat=json.dumps(nostat)))
+                            prior_ratings=json.dumps(prior, separators=(',', ':')), rank=json.dumps(rank, separators=(',', ':')), top10=json.dumps(top10), nostat=json.dumps(nostat), pst=json.dumps(pst, separators=(',', ':'))))
     s = rep(s, '<span class="muted">CIF San Diego Section playoffs</span></div>${bracketHTML(d)}', '<span class="muted">Projected from last season</span></div>${bracketHTML(d)}')
     s = rep(s, 'const WEEKS=12;', 'const WEEKS=%d;' % weeks)
     s = rep(s, 'const PO_FROM=12;', 'const PO_FROM=99;')

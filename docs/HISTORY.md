@@ -1101,3 +1101,6 @@ slipGo no longer stops and asks to lock in again when a line moved; the slip row
 ## v587 · Nov 17: School Cup banner only in Leagues; rostered players listed before they play
 - `cupBanner()` is shown at the top of the Leagues tab only (was the Players tab). 
 - Basketball Players list (`leagueRows`, via make_basketball replacement) no longer drops players with 0 games, so every rostered player (e.g. all of Madison) is listed; last season ranking breaks ties. The players were already in the app data (1,284), they were just hidden by the n>0 filter.
+
+## v588 · Nov 17: player search also matches the school name
+`leagueRows` search matches name OR school, so typing "Madison" lists Madison players (0-game players sit last).

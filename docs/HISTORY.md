@@ -1090,3 +1090,10 @@ Basketball Build your team needed 2 games of stats per player (only 34 players h
 
 ## v585 · Nov 17: props lock-in no longer blocked by a moved line
 slipGo no longer stops and asks to lock in again when a line moved; the slip row shows "Line moved from X to Y" and locks the line shown.
+
+## v586 · Nov 17: Hoops Battle (1v1) timeouts, tip-off, courts, no goaltending (tools/battle/hoops-battle.html, v52)
+- Scoreboard shows each side's remaining timeouts (TIMEOUTS + 2 dots; HUD box is 92 tall, scoreboard tap area to y 104).
+- Calling a timeout gives the caller full energy (`p.en=1`). When it ends (time up or ended early) `endTO()` restarts with a tip-off that favours the caller (`setup(by,true)`).
+- Standing still 3 s (was 1.5 s) earns one energy bar (`EN.still`).
+- `COURTS`: Street, Gym, Beach, Rooftop (night), Snow. `newGame` picks one at random (`g.court`, in SNAPK so the online guest sees the host's court); `drawCourt` cache key includes it.
+- No goaltending: `inHoopZone(b)` (over the hoop, above RIMY+46): a shot there cannot be grabbed (`pickups`) or blocked while falling (`blocks`) until it scores or bounces out past the rim.

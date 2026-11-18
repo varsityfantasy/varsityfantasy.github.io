@@ -1131,3 +1131,6 @@ Users list pills: Basketball orange (`.o`), Football brown (`.br`), Player blue 
 
 ## v596 Nov 17: Claimed for both sports, Users summary, deeper basketball orange
 `claimidx.js` (written by make_basketball.py: school -> [name,pos] for fb from stats.js and bb from the baked players) is loaded on demand by admins (`claimIdx()`); `claimOf(profile)` uses `mpMatch` on the profile's own sport, so Claimed / Not claimed shows in either app. The Users card has a strip: per sport users, players, claimed and percent of players. Basketball pill `.o` is a deeper orange. Sport of a user: `joinSp`.
+
+## v597 Nov 17: 5 Card Draw closed state is big and says when to come back
+`fcClosedHTML(cw,hasHand,lkd)`: big 'Today’s hand is closed' (or 'No games today'), then 'Come back tomorrow (Wed, Nov 18) before 7:00 PM for your hand' (or the next game day's date). With a hand it adds that the hand counts as it stands. Used with and without a dealt hand (basketball, `FC_DAILY`).

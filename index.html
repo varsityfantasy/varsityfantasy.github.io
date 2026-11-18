@@ -2139,7 +2139,8 @@ html,body{overflow-x:clip;max-width:100%}
 .adm-tw{overflow-x:auto}.adm-t{width:100%;border-collapse:collapse;font-size:13px}.adm-t th{text-align:left;padding:0 10px 8px;color:#8A90A6;font-weight:600;font-size:12px;white-space:nowrap;text-transform:none;letter-spacing:0}.adm-t th button{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}
 .adm-t td{padding:11px 10px;border-top:1px solid #F0F2F7;vertical-align:middle}.adm-t tbody tr{cursor:pointer}.adm-t tbody tr:hover{background:#F8F9FC}.adm-t .n{text-align:right;white-space:nowrap}.adm-t th.n{text-align:right}
 .adm-user{display:flex;align-items:center;gap:10px;font-weight:600}.adm-user small{display:block;font-weight:400;color:#8A90A6;font-size:12px;overflow-wrap:anywhere}
-.adm-pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}.adm-pill.g{background:#E3F7EE;color:#14975F}.adm-pill.b{background:#E7EDFF;color:#3B5BDB}.adm-pill.o{background:#FFD8BE;color:#B83A00}.adm-pill.p{background:#EFE8FF;color:#7048E8}.adm-pill.pu{background:#EFE8FF;color:#7048E8}.adm-sums{display:flex;flex-wrap:wrap;gap:8px 28px;padding:10px 16px 12px;font-size:14px}.adm-sum{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.adm-sum b{font-weight:800}.adm-pill.br{background:#F1E6DC;color:#7A4B27}
+.adm-pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}.adm-pill.g{background:#E3F7EE;color:#14975F}.adm-pill.b{background:#E7EDFF;color:#3B5BDB}.adm-pill.o{background:#FFD8BE;color:#B83A00}.adm-pill.p{background:#EFE8FF;color:#7048E8}.adm-pill.pu{background:#EFE8FF;color:#7048E8}.fc-closed{margin-top:14px;text-align:center;padding:18px 14px;border-radius:14px;background:var(--tint);border:1px solid var(--line)}.fc-closed h4{font-size:26px;line-height:1.15;margin:0 0 8px;font-weight:800}.fc-closed .fc-cb{margin:0;font-size:17px;line-height:1.35}.fc-closed .fc-cs{margin:8px 0 0;font-size:14px}
+.adm-sums{display:flex;flex-wrap:wrap;gap:8px 28px;padding:10px 16px 12px;font-size:14px}.adm-sum{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.adm-sum b{font-weight:800}.adm-pill.br{background:#F1E6DC;color:#7A4B27}
 .adm-mut{color:#8A90A6}.adm-link{background:none;border:0;color:#5B5FEF;font:600 13px/1 inherit;cursor:pointer}.adm-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #E4E7EF;background:#fff;color:#1C2033;border-radius:10px;padding:8px 12px;font:600 13px/1 inherit;cursor:pointer}.adm-btn svg{width:16px;height:16px}
 .adm-more{display:flex;justify-content:center;padding-top:12px}.adm-glance{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.adm-glance div{background:#F7F8FC;border-radius:10px;padding:10px 12px}.adm-glance small{display:block;color:#8A90A6;font-size:12px}.adm-glance b{font-size:18px}
 .adm-hb{display:grid;gap:12px}.adm-hb>div{display:grid;grid-template-columns:minmax(90px,30%) 1fr 40px;gap:10px;align-items:center;font-size:13px}.adm-hb span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#4A5068}.adm-hb b{text-align:right}
@@ -3935,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v596 · Nov 17';
+const APP_BUILD='v597 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4898,6 +4899,15 @@ function fcViewSheet(u,w){const hd=fcHand(u,w);if(!hd)return;const c=$('#cfm'),m
 async function fcAutoLock(w){const hd=fcHand(ME.uid,w);if(!hd||hd.lk)return;
   const nx={...hd,lk:1,lat:NOW()};fcSet(w,nx);render();
   if(!await act(()=>upsert('picks/'+ME.uid,{fc:{[w]:nx}}),'Out of redraws: your hand is locked in')){fcSet(w,hd);render()}}
+/* v597 (owner): when the day's hand is closed, say so in big type and when to come back (tomorrow, or the date of the next game day) */
+function fcClosedHTML(cw,hasHand,lkd){
+  const today=dayOf(cw)===TODAY(),nx=today?fcNextDay():cw;
+  const tm=new Date(TODAY()+'T12:00:00Z');tm.setUTCDate(tm.getUTCDate()+1);const tom=tm.toISOString().slice(0,10);
+  const when=nx?(dayOf(nx)===tom?'tomorrow ('+fcLabel(nx)+')':fcLabel(nx)):'';
+  const at=nx&&fcClose(nx)?new Date(fcClose(nx).replace('T',' ')+':00').toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'7:00 PM';
+  return `<div class="fc-closed"><h4>${today?'Today’s hand is closed':'No games today'}</h4>
+    <p class="fc-cb">${nx?'Come back <b>'+esc(when)+'</b> before <b>'+esc(at)+'</b> for your hand.':'No more game days on the schedule.'}</p>
+    ${hasHand?`<p class="muted fc-cs">${lkd?'Your hand is locked in and ':'Your hand '}counts as it stands.</p>`:''}</div>`}
 function fcHTML(){
   const cw=fcCur(),w=UI.fcw&&UI.fcw<=cw?UI.fcw:cw,mine=ME.uid&&ME.mode!=='guest'?fcHand(ME.uid,w):null,can=ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly';
   const left=mine?fcLeft(ME.uid,w):0,bank=mine?fcBank(ME.uid,w):0,lkd=!!(mine&&mine.lk);
@@ -4917,10 +4927,10 @@ function fcHTML(){
   return `<section class="card fc-hero ${eqOf(ME.uid,'cback')?'cb '+eqOf(ME.uid,'cback')+cbCls(eqOf(ME.uid,'cback')):''}" style="${eqOf(ME.uid,'cback')?cosStyle(eqOf(ME.uid,'cback')):''}"><div class="qh"><h3>5 Card Draw</h3><span class="pill live">${FC_DAILY&&dayOf(cw)!==TODAY()?'Next · ':''}${fcLabel(cw)}</span></div>
     <p class="muted">${FC_DAILY?'5 players from today’s games. A new hand every game day.':'5 random players a week.'} ${FC_REDRAWS} redraws.${ii('redraw')}</p>
     ${wk.length>1?`<div class="chips" role="group" aria-label="${FC_DAILY?'Day':'Week'}">${wk.map(n=>`<button class="chip" data-act="fcWeek" data-v="${n}" aria-pressed="${n===w}">${fcLabel(n)}</button>`).join('')}</div>`:''}
-    ${mine?`<div class="fc-bar"><div><small>Hand total</small><b>${f1(fcScore(ME.uid,w))}</b></div><div><small>Redraws left</small><b>${w===cw?left:'-'}</b>${w===cw&&!lkd&&invLeft(ME.uid,'p_redraw')>0?`<button class="btn sm ghost fc-x" data-act="perkRedraw">+1 redraw (${invLeft(ME.uid,'p_redraw')})</button>`:''}</div><div><small>Season</small><b>${f1(fcSeason(ME.uid))}</b></div></div><div class="fc-hand${lkd||w!==cw?' done':''}">${cards}</div>${w===cw&&can?(!lkd&&!fcOpen(w)?`<p class="hint" style="margin-top:12px"><b>Hand closed at tip-off.</b> This hand counts as it stands.</p>`:lkd?`<p class="hint" style="margin-top:12px"><b>Hand locked in.</b> Good luck this ${fcUnit()}.</p>`:`<div class="btns" style="margin-top:12px;justify-content:center"><button class="btn" data-act="fcLock" ${UI.fcAnim?'disabled':''}>Lock in hand</button></div>`):''}`
+    ${mine?`<div class="fc-bar"><div><small>Hand total</small><b>${f1(fcScore(ME.uid,w))}</b></div><div><small>Redraws left</small><b>${w===cw?left:'-'}</b>${w===cw&&!lkd&&invLeft(ME.uid,'p_redraw')>0?`<button class="btn sm ghost fc-x" data-act="perkRedraw">+1 redraw (${invLeft(ME.uid,'p_redraw')})</button>`:''}</div><div><small>Season</small><b>${f1(fcSeason(ME.uid))}</b></div></div><div class="fc-hand${lkd||w!==cw?' done':''}">${cards}</div>${w===cw&&can?(FC_DAILY&&!fcOpen(w)?fcClosedHTML(cw,true,lkd):!lkd&&!fcOpen(w)?`<p class="hint" style="margin-top:12px"><b>Hand closed at tip-off.</b> This hand counts as it stands.</p>`:lkd?`<p class="hint" style="margin-top:12px"><b>Hand locked in.</b> Good luck this ${fcUnit()}.</p>`:`<div class="btns" style="margin-top:12px;justify-content:center"><button class="btn" data-act="fcLock" ${UI.fcAnim?'disabled':''}>Lock in hand</button></div>`):''}`
       :w!==cw?`<p class="hint">You had no hand that ${fcUnit()}.</p><button class="btn sm" data-act="fcWeek" data-v="${cw}">Back to week ${cw}</button>`
       :can&&!S.loaded.picks?`<div class="fc-deal"><p class="muted">Loading your hand…</p></div>`
-      :can&&!fcOpen(cw)?(()=>{const nx=dayOf(cw)===TODAY()?fcNextDay():cw;return `<div class="fc-deal"><p>${dayOf(cw)!==TODAY()?'No games today.':'Today’s hand closed at tip-off.'}</p><p class="muted">${nx?'The next hand opens '+fcLabel(nx)+', before the first game.':'No more game days on the schedule.'}</p></div>`})()
+      :can&&!fcOpen(cw)?fcClosedHTML(cw,false,false)
       :can?`<div class="fc-deal"><p>Your ${FC_DAILY?fcLabel(cw):'week '+cw} hand is waiting.</p>${FC_DAILY?`<p class="muted">Deal by ${esc(new Date(fcClose(cw).replace('T',' ')+':00').toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}))}.</p>`:''}<button class="btn" data-act="fcDeal">Deal me in</button></div>`
       :`<p class="hint">${ME.mode==='guest'?'Sign in to get a hand.':'You have view-only access.'}</p>`}</section>
     ${(()=>{if(FC_DAILY||!ME.uid)return '';const ps=Object.keys(fcDoc(ME.uid)).map(Number).filter(n=>n<cw).sort((a,b)=>b-a);if(!ps.length)return '';

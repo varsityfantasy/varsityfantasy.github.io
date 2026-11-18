@@ -1104,3 +1104,6 @@ slipGo no longer stops and asks to lock in again when a line moved; the slip row
 
 ## v588 · Nov 17: player search also matches the school name
 `leagueRows` search matches name OR school, so typing "Madison" lists Madison players (0-game players sit last).
+
+## Nov 17 7:20 pm: roster recheck, teams with no game yet (no app change)
+Re-read the MaxPreps basketball roster pages of the 112 San Diego teams that had not played: 81 by team URL, 29 more by guessed city (Rock Academy, San Diego Academy and a few others could not be reached or still show nothing). Player counts match `bb_2627_rosters.txt` for every team that has a roster, and no new team posted one (52 still empty). Nothing to rebuild.

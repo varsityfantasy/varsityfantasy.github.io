@@ -3946,7 +3946,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v584 · Nov 17';
+const APP_BUILD='v585 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7083,7 +7083,7 @@ const slMoved=l=>BBPP&&UI.sl.ln&&UI.sl.ln[l.x.id]!=null&&UI.sl.ln[l.x.id]!==l.x.
 function slipHTML(bal){
   const legs=slipLegs();if(!legs.length)return '';
   const c=slipCalc(legs),max=Math.floor(bal),stake=Math.max(0,Math.min(Math.floor(UI.sl.stake||0),max)),ok=legs.length>=1&&stake>=1,one=legs.length===1;
-  const row=l=>`<div class="sl-leg"><span><b>${esc(lastN(l.x.name))} ${l.s==='o'?'Over':'Under'} ${fmtN(l.x.line)}</b><small class="muted">${esc(PP_MK[l.x.m].l)} · ${esc(abbr(l.x.game.a))} at ${esc(abbr(l.x.game.h))}</small>${slMoved(l)?`<small class="pp-mv">Line moved from ${fmtN(UI.sl.ln[l.x.id])} to ${fmtN(l.x.line)}. Check it, then lock in.</small>`:''}</span><span class="sl-o">${(l.s==='o'?l.x.over:l.x.under).toFixed(2)}x</span><button class="btn sm ghost" data-act="slLeg" data-id="${esc(l.x.id)}" data-s="${l.s}" aria-label="Remove this pick">×</button></div>`;
+  const row=l=>`<div class="sl-leg"><span><b>${esc(lastN(l.x.name))} ${l.s==='o'?'Over':'Under'} ${fmtN(l.x.line)}</b><small class="muted">${esc(PP_MK[l.x.m].l)} · ${esc(abbr(l.x.game.a))} at ${esc(abbr(l.x.game.h))}</small>${slMoved(l)?`<small class="pp-mv">Line moved from ${fmtN(UI.sl.ln[l.x.id])} to ${fmtN(l.x.line)}. The slip uses the new line.</small>`:''}</span><span class="sl-o">${(l.s==='o'?l.x.over:l.x.under).toFixed(2)}x</span><button class="btn sm ghost" data-act="slLeg" data-id="${esc(l.x.id)}" data-s="${l.s}" aria-label="Remove this pick">×</button></div>`;
   const chips=[5,10,25,50,100].filter(v=>v<=max);
   return `<section class="card bt-all sl-bar"><div class="qh"><h3>${one?'Your pick':'Your parlay'}</h3><span class="muted">${one?'single pick':legs.length+' picks · all must hit'}</span></div>${legs.map(row).join('')}
     ${c.duos&&c.duos.length?`<p class="sl-duo">${c.duos.map(id=>duoArt(id,cardR(ME.uid,id),44)).join('')}<span><b>Duo boost +${c.dp}%</b><small class="muted">${c.duos.map(id=>esc(duoInfo(id).name)).join(', ')} · both players are in this parlay</small></span></p>`:''}
@@ -7096,7 +7096,6 @@ async function slipGo(){
   if(!legs.length){say('Pick Over or Under first.');return}
   if(legs.length>SL_MAX){say('A parlay can have up to '+SL_MAX+' picks.');return}
   if(new Set(legs.map(l=>l.x.k)).size!==legs.length){say('Pick each player only once.');return}
-  const mv=legs.filter(slMoved);if(mv.length){say('A line moved: '+mv.map(l=>lastN(l.x.name)+' is now '+fmtN(l.x.line)).join(', ')+'. Check your slip, then lock in again.');mv.forEach(l=>{UI.sl.ln[l.x.id]=l.x.line});render(true);return}
   const bal=bank(ME.uid),stake=Math.floor(Math.min(UI.sl.stake||0,bal));
   if(stake<1){say('Pick a wager first.');return}
   if(!await stakeOk(stake,bal))return;

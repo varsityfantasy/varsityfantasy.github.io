@@ -1087,3 +1087,6 @@ Basketball `fcClose` = game day 19:00 PT (v581 had 18:30).
 
 ## v584 · Nov 17: 82-0 playable from the start
 Basketball Build your team needed 2 games of stats per player (only 34 players had any). `simOk(p)`: 2 games OR last-season stats (BB_PST, 8+ gp). `simTot`/`simPPG` pad a player with under 2 games with last-season average (pts+1.2reb+1.5ast) for the missing games; real games replace it. simBest in make_basketball uses simOk.
+
+## v585 · Nov 17: props lock-in no longer blocked by a moved line
+slipGo no longer stops and asks to lock in again when a line moved; the slip row shows "Line moved from X to Y" and locks the line shown.

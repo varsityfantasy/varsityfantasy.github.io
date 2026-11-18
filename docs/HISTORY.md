@@ -1170,3 +1170,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v608 (Nov 18)
 - Basketball 5 Card Draw pool (`fcEl` in make_basketball.py, replaces "has a game this season"): a player is drawable with a season average over 1 ppg, a last-season average over 1 ppg (`BB_PST`), or a projection over 1 fantasy point, so players with no 2026-27 game yet can be dealt. Football unchanged.
+
+## v609 (Nov 18)
+- Basketball 5 Card Draw: the 65 OVR minimum is gone (`hi=base` in make_basketball.py); football keeps FC_MIN_OVR. Eligibility is the fcEl rule (v608).

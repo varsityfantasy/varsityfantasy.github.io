@@ -413,6 +413,7 @@ def transform(s, mp, games, seeds, teams, prior):
     # v608 (owner): 5 Card Draw deals anyone averaging more than 1 point a game this season, last season, or projected over 1 fantasy point, so a player with no 2026-27 game yet can still be drawn
     s = rep(s, "const fcPool=ex=>{", "const fcEl=p=>{const a=agg(p,'season'),pst=(window.BB_PST||{})[p.key];return (a.n>0&&(a.s.pts||0)/a.n>1)||(pst&&pst[0]>1)||proj(p).pts>1};\nconst fcPool=ex=>{")
     s = rep(s, "&&agg(p,'season').n>0&&(FC_DAILY", "&&fcEl(p)&&(FC_DAILY")
+    s = rep(s, "hi=base.filter(p=>ovrOf(p.key)>=FC_MIN_OVR);", "hi=base;")   # v609 (owner): no 65 OVR minimum in basketball, only the projection rule above
     s = line_replace(s, 'const PTS=', "const PTS={pts:1,reb:1.2,ast:1.5,stl:2,blk:2,tov:-2,tpm:0};")
     s = line_replace(s, 'const LABEL=', "const LABEL={pts:'Points',reb:'Rebounds',ast:'Assists',stl:'Steals',blk:'Blocks',tov:'Turnovers',tpm:'3-pointers made'};")
     s = line_replace(s, 'const FIELDS=', "const FIELDS=Object.fromEntries(['PG','SG','SF','PF','C'].map(p=>[p,['pts','reb','ast','stl','blk','tov','tpm']]));")

@@ -1116,3 +1116,6 @@ New profiles save `joined` (the app they signed up in, `FG_SPORT`). Admin Users 
 
 ## v591 Nov 17: basketball scores for Nov 17
 9 finals from MaxPreps team schedule pages (Claude in Chrome) via add_scores.py; 8 games still had no final score at 9:30 pm, Fallbrook-RBV and Morse-Hoover (Nov 14) are deleted on MaxPreps.
+
+## v592 Nov 17: daily task, share your rank card to Instagram (+250)
+`DT_TASKS` entry `ig` with its own pay (third item, `dtPay(k)`; others stay `DT_PAY` 10). Marked by `dtMark(['ig'])` when Save / Share finishes on the rank card sheet (`cardPreview`, fn varsity-rank.png); other cards still get the hidden `shPay`. Once per Pacific day like every daily task. The share sheet does not report the target app, so any finished share of the rank card counts.

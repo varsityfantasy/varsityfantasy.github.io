@@ -3935,7 +3935,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v591 · Nov 17';
+const APP_BUILD='v592 · Nov 17';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7507,19 +7507,21 @@ function fcPrizes(u){if(!u)return[];const cl=((invOf(u).fr||{}).fc)||{},out=[];
 const DLY_PAY=25;   /* v311: 25, paid the first time you play any game each day. Days claimed at the old 50 keep their 50 (dly.t is the running total). */
 /* v559 (owner): daily tasks. +DT_PAY tokens the first time each day you do each thing in DT_TASKS. picks/<uid>.dt={d:day,k:{task:1},t:lifetime tokens}; k starts over every Pacific day. dtMark(keys) is called from playHook (the picks keys a game writes) and from adGrant. */
 const DT_PAY=10;
-const DT_TASKS=[['ad','Watch a sponsor video'],['bets','Make a pick'],['props','Make a player prop pick'],['pkl','Pick the winners in a Pick ’em league'],['fc','Play 5 Card Draw'],['fg','Play '+(FG_SPORT==='bb'?'Hoops':'Field Goal')],['rc','Play Ring Chaser'],['sim','Simulate a season']];
+const DT_TASKS=[['ad','Watch a sponsor video'],['bets','Make a pick'],['props','Make a player prop pick'],['pkl','Pick the winners in a Pick ’em league'],['fc','Play 5 Card Draw'],['fg','Play '+(FG_SPORT==='bb'?'Hoops':'Field Goal')],['rc','Play Ring Chaser'],['sim','Simulate a season'],['ig','Share your rank card to Instagram',250]];
+/* v592 (owner): the Instagram task pays 250. A web page cannot see which app the share sheet sent to, so it counts when you finish sharing your rank card from Save / Share (cardPreview, fn varsity-rank.png). */
+const dtPay=k=>{const x=DT_TASKS.find(y=>y[0]===k);return (x&&x[2])||DT_PAY};
 const dtOf=u=>((S.picks[u]||{}).dt)||{};
 const dtDone=u=>{const o=dtOf(u);return o.d===TODAY()?(o.k||{}):{}};
 const dtBonus=u=>+dtOf(u).t||0;
 function dtMark(keys){
   if(!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!S.loaded.picks)return;
   const o=dtOf(ME.uid),t=TODAY(),k=Object.assign({},dtDone(ME.uid)),add=keys.filter(x=>DT_TASKS.some(y=>y[0]===x)&&!k[x]);if(!add.length)return;
-  add.forEach(x=>{k[x]=1});const nx={d:t,k,t:(+o.t||0)+DT_PAY*add.length};
+  add.forEach(x=>{k[x]=1});const pay=add.reduce((a,x)=>a+dtPay(x),0);const nx={d:t,k,t:(+o.t||0)+pay};
   S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{dt:nx});
-  upsert('picks/'+ME.uid,{dt:nx}).then(()=>{say(`+${DT_PAY*add.length} tokens · daily task${add.length>1?'s':''}: ${add.map(x=>DT_TASKS.find(y=>y[0]===x)[1]).join(', ')}`);render(true)},()=>{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{dt:o})})}
+  upsert('picks/'+ME.uid,{dt:nx}).then(()=>{say(`+${pay} tokens · daily task${add.length>1?'s':''}: ${add.map(x=>DT_TASKS.find(y=>y[0]===x)[1]).join(', ')}`);render(true)},()=>{S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{dt:o})})}
 function dtHTML(){const d=dtDone(ME.uid),dl=dlyOf(ME.uid).d===TODAY(),n=DT_TASKS.filter(x=>d[x[0]]).length+(dl?1:0);
   return `<div class="rw"><div class="rw-h"><b>Daily tasks</b><small class="muted">${n} of ${DT_TASKS.length+1} today · resets daily</small></div>
-    <ul><li class="${dl?'ok':''}"><span class="rw-c" aria-hidden="true">${dl?'✓':''}</span><span>Daily bonus: play any game</span><b>+${DLY_PAY}</b></li>${DT_TASKS.map(([k,l])=>`<li class="${d[k]?'ok':''}"><span class="rw-c" aria-hidden="true">${d[k]?'✓':''}</span><span>${esc(l)}</span><b>+${DT_PAY}</b></li>`).join('')}</ul></div>`}
+    <ul><li class="${dl?'ok':''}"><span class="rw-c" aria-hidden="true">${dl?'✓':''}</span><span>Daily bonus: play any game</span><b>+${DLY_PAY}</b></li>${DT_TASKS.map(([k,l])=>`<li class="${d[k]?'ok':''}"><span class="rw-c" aria-hidden="true">${d[k]?'✓':''}</span><span>${esc(l)}</span><b>+${dtPay(k)}</b></li>`).join('')}</ul></div>`}
 function dlyOf(u){return ((S.picks[u]||{}).dly)||{}}
 function dlyBonus(u){const d=dlyOf(u);return d.t!=null?+d.t||0:50*(+d.n||0)}
 let dlyPend='';
@@ -10203,7 +10205,7 @@ function cardPreview(blob,fn,title){
   document.body.appendChild(o);
   const close=()=>{o.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
   o.querySelector('.shp-x').onclick=close;o.addEventListener('click',e=>{if(e.target===o)close()});
-  const sh=o.querySelector('.shp-sh');if(sh)sh.onclick=async()=>{let ok=false;try{await navigator.share({files:[file],title:title||'Varsity'});ok=true}catch(_){}if(ok)shPay()};
+  const sh=o.querySelector('.shp-sh');if(sh)sh.onclick=async()=>{let ok=false;try{await navigator.share({files:[file],title:title||'Varsity'});ok=true}catch(_){}if(ok){if(fn==='varsity-rank.png')dtMark(['ig']);else shPay()}};
   o.querySelector('.shp-dl').onclick=async()=>{if(DL){try{await DL.save({filename:fn,data:blob});say('Saved to your device')}catch(_){}}else{const l=document.createElement('a');l.href=url;l.download=fn;document.body.appendChild(l);l.click();l.remove();say('Saved')}};
 }
 function cardBlob(info,me){

@@ -1222,3 +1222,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v624 (Nov 18)
 Varsity Bowl: all players, ball, dive and juke ~45% slower (`SPD`). Pre-snap screen has no hint text: green routes, dark initial boxes, dark Change Play box. Throw is a slingshot pull-back (`aimInfo`, `PULLK`, `MAXTHROW`): pull away from the target, farther pull = farther throw, hold still for a lob; dotted arc and star preview, stars under receivers.
+
+## v625 (Nov 18)
+Varsity Bowl: owner said still too fast, asked for 3x less. `SPD`=.18 (was .55), ball 115+70a, dive/juke/QB drop slower, DL pocket time x2.6, routes 85% length, ball carriers after catch/handoff 1.9x SPD. Bot passing yards dropped (bot leads receivers poorly at this speed); revisit if the owner finds passing too hard.

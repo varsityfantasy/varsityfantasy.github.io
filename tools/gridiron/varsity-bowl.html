@@ -15,7 +15,7 @@ const W=480,H=216,cv=document.getElementById('c'),g=cv.getContext('2d');cv.width
 const YD=12,EZ=10*YD,GOAL=EZ+100*YD,FL=GOAL+EZ,FT=40,FH=154,CY=FH/2;
 const rnd=(a,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,dst=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const A=o=>clamp((o-45)/50,0,1);
-const SPD=.51;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
+const SPD=.56;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 
 /* ---------- bitmap font (5x7) ---------- */
@@ -251,7 +251,7 @@ function stepPlay(dt){
  if(S.pl.k==='run'&&!S.handed&&t>=S.snapT+S.hoT&&!S.thrown){S.handed=true;ptr.sx=ptr.x;ptr.sy=ptr.y;const rb=P.rb;S.carrier=rb;rb.ball=true;rb.manual=false;rb.spd=(64+32*rb.a)*SPD*1.4;G.pl.runF=true;P.def.forEach(d=>{if(d.role!=='dl')d.fr=Math.min(d.fr,t+rnd(.1,.5))});fx.push({t:'HANDOFF',x:rb.x,y:rb.y-24,l:.5,c:'#fff'})}
  if(S.pl.sc&&sn&&!S.thrown&&t>S.snapT+.9&&false){}
  /* QB: he only drops back (Retro Bowl style); you cannot move him */
- if(!S.carrier&&!S.thrown&&sn){const dropX=G.los-26;if(t<S.snapT+.7&&Q.x>dropX){Q.x-=20*dt;Q.vx=-20;Q.ph+=.07}else{Q.vx*=.8;Q.vy*=.8}}
+ if(!S.carrier&&!S.thrown&&sn){const dropX=G.los-60;if(t<S.snapT+1.4&&Q.x>dropX){Q.x-=44*dt;Q.vx=-44;Q.ph+=.12}else{Q.vx*=.8;Q.vy*=.8}}
  if(Q.throwA>0)Q.throwA-=dt;
  /* the carrier */
  if(S.carrier&&!S.done)carrierMove(S.carrier,dt);

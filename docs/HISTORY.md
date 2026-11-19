@@ -1231,3 +1231,6 @@ Varsity Bowl: speed halfway between v624 and v625 (`SPD`=.34, receivers ~27 px/s
 
 ## v627 (Nov 18)
 Varsity Bowl: players 1.5x faster (`SPD`=.51, receivers ~40 px/s), ball 10% slower (117+72a), pass snap starts the play at once (snapT .04), pass rush a bit quicker.
+
+## v628 (Nov 18)
+Varsity Bowl: players 10% faster (`SPD`=.56); QB drops back to 5 yards (dropX=los-60, 44 px/s).

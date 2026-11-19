@@ -3343,12 +3343,12 @@ const NOW=()=>Date.now();
 
 /* scoring */
 const WEEKS=14;
-const PTS={pts:1,reb:1.2,ast:1.5,stl:2,blk:2,tov:-2,tpm:0};
+const PTS={pts:1,reb:1.2,ast:1.5,stl:2,blk:2,tov:-2};
 const KEYS=Object.keys(PTS);
 const BEST_L='Best game',GAME_L='Game',GAME_H='Game';
 const KM=Object.fromEntries(KEYS.map(k=>[k.toLowerCase(),k]));
-const LABEL={pts:'Points',reb:'Rebounds',ast:'Assists',stl:'Steals',blk:'Blocks',tov:'Turnovers',tpm:'3-pointers made'};
-const FIELDS=Object.fromEntries(['PG','SG','SF','PF','C'].map(p=>[p,['pts','reb','ast','stl','blk','tov','tpm']]));
+const LABEL={pts:'Points',reb:'Rebounds',ast:'Assists',stl:'Steals',blk:'Blocks',tov:'Turnovers'};
+const FIELDS=Object.fromEntries(['PG','SG','SF','PF','C'].map(p=>[p,['pts','reb','ast','stl','blk','tov']]));
 const POSITIONS=['PG','SG','SF','PF','C'];
 /* every position a player can pick, and which fantasy slot it scores as */
 const POS_ALL=[['PG','Point guard'],['SG','Shooting guard'],['SF','Small forward'],['PF','Power forward'],['C','Center']];
@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v635 · Nov 18';
+const APP_BUILD='v637 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4427,7 +4427,7 @@ function proj(p){
   const k=nextWeek()+'|'+UI.scope;if(_pjK!==k){_pj={};_pjK=k}
   if(_pj[p.key])return _pj[p.key];
   const cw=nextWeek(),gs=p.games.map((g,i)=>g&&i+1<cw?{w:i+1,s:g.stat}:null).filter(Boolean);
-  const q=p.ext?null:(window.BB_PST||{})[p.key],pr=q&&q[4]>0?{pts:q[0],reb:q[1],ast:q[2],tpm:q[3],stl:q[6]||0,blk:q[7]||0,tov:q[8]||0}:null;
+  const q=p.ext?null:(window.BB_PST||{})[p.key],pr=q&&q[4]>0?{pts:q[0],reb:q[1],ast:q[2],stl:q[6]||0,blk:q[7]||0,tov:q[8]||0}:null;
   const info=p.ext?null:oppInfo(p.school);
   if(!gs.length&&!pr)return _pj[p.key]={pts:0,n:0,stat:null,f:1,info};
   const PW=pr?2*Math.min(1,q[4]/12):0;let wsum=0;const st=blank();
@@ -5624,7 +5624,7 @@ const _ninv=p=>{p=Math.min(1-1e-9,Math.max(1e-9,p));const a=[-39.69683028665376,
   if(p>1-.02425){const q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}
   const q=p-.5,r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)};
 const _pctl=v=>{const n=v.length,ix=v.map((x,i)=>i).sort((a,b)=>v[a]-v[b]),out=new Array(n);let i=0;while(i<n){let j=i;while(j+1<n&&v[ix[j+1]]===v[ix[i]])j++;for(let k=i;k<=j;k++)out[ix[k]]=((i+j)/2+.5)/n;i=j+1}return out};
-const OVR_KEYS={PG:['ast','pts','stl'],SG:['pts','tpm','stl'],SF:['pts','reb','stl'],PF:['reb','pts','blk'],C:['reb','blk','pts'],QB:['passYd','passTD','rushYd'],RB:['rushYd','rushTD','recYd'],WR:['recYd','rec','recTD'],TE:['recYd','rec','recTD'],DL:['sack','tfl','tkl'],LB:['tkl','tfl','sack'],DB:['tkl','dInt','pbu'],DEF:['tkl','tfl','sack','dInt'],K:['fgm','xpm']};
+const OVR_KEYS={PG:['ast','pts','stl'],SG:['pts','ast','stl'],SF:['pts','reb','stl'],PF:['reb','pts','blk'],C:['reb','blk','pts'],QB:['passYd','passTD','rushYd'],RB:['rushYd','rushTD','recYd'],WR:['recYd','rec','recTD'],TE:['recYd','rec','recTD'],DL:['sack','tfl','tkl'],LB:['tkl','tfl','sack'],DB:['tkl','dInt','pbu'],DEF:['tkl','tfl','sack','dInt'],K:['fgm','xpm']};
 function secOvr(sc){const S_=SECP[sc];if(!S_)return{};if(S_.ovr)return S_.ovr;const o=S_.ovr={};try{
   const R=S_.list.map(p=>{const a=agg(p,'season');return{p,g:p.pos==='DEF'?(p.sub||'DEF'):p.pos,gp:a.n,tot:a.v,s:a.s}}).filter(r=>r.gp>0);if(!R.length||!R.some(r=>r.tot))return o;   /* v494: no overall until someone has a stat line (a basketball roster before its first game) */
   const G={};R.forEach(r=>(G[r.g]=G[r.g]||[]).push(r));
@@ -6985,7 +6985,7 @@ const PP_MK=BBPP?{
   pts:{l:'Points',g:'Scoring',min:5,y:1,pi:0,f:s=>s.pts},
   reb:{l:'Rebounds',g:'Rebounds',min:3,pi:1,f:s=>s.reb},
   ast:{l:'Assists',g:'Assists',min:2,pi:2,f:s=>s.ast},
-  tpm:{l:'3-pointers made',g:'3-pointers',min:1,pi:3,f:s=>s.tpm},
+  tpm:{l:'3-pointers made',g:'3-pointers',min:1,pi:3,f:s=>s.tpm,off:1},   /* removed from the app (owner, Nov 19): kept only so an old saved pick still shows a name */
   stl:{l:'Steals',g:'Steals',min:1,pi:6,f:s=>s.stl||0},   /* v616 (owner: more basketball prop lines): steals, blocks and points + rebounds + assists; last-season averages come from BB_PST (stl at 6, blk at 7, PRA = pts + reb + ast) */
   blk:{l:'Blocks',g:'Blocks',min:.8,pi:7,f:s=>s.blk||0},
   pra:{l:'Points + rebounds + assists',g:'Pts + reb + ast',min:12,y:1,pf:q=>q[0]+q[1]+q[2],f:s=>(s.pts||0)+(s.reb||0)+(s.ast||0)}
@@ -7005,8 +7005,8 @@ const PP_MK=BBPP?{
 };
 const PP_ALWAYS=["JoJo Bryant|Bishop's"];   /* players who always get their lines, even outside their team's top players (owner) */
 /* v394 (owner): more players get lines: up to 4 per stat per team (was 2); the per-stat minimums in PP_MK still keep out weak stat lines */
-const PP_TOP=BBPP?{pts:5,reb:3,ast:3,tpm:2,stl:2,blk:2,pra:4}:{passYd:1,passTD:1,int:1,rushYd:4,rec:4,recYd:4,td:4,tkl:4,sack:3,dInt:3,xpm:1,fgm:1};
-const PP_GROUPS=BBPP?['Scoring','Rebounds','Assists','3-pointers','Steals','Blocks','Pts + reb + ast']:['Passing','Rushing','Receiving','Touchdowns','Interceptions','Defense','Kicking'];
+const PP_TOP=BBPP?{pts:5,reb:3,ast:3,stl:2,blk:2,pra:4}:{passYd:1,passTD:1,int:1,rushYd:4,rec:4,recYd:4,td:4,tkl:4,sack:3,dInt:3,xpm:1,fgm:1};
+const PP_GROUPS=BBPP?['Scoring','Rebounds','Assists','Steals','Blocks','Pts + reb + ast']:['Passing','Rushing','Receiving','Touchdowns','Interceptions','Defense','Kicking'];
 const _erf=x=>{const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+.3275911*x);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x))};
 const _phi=z=>.5*(1+_erf(z/Math.SQRT2));
 function _pOver(vals,mu,line,yards){
@@ -7046,7 +7046,7 @@ function propCands(){
       const played=BBPP?bbHist(p,g):p.games.map((x,i)=>x&&i+1<g.w?x.stat:null).filter(Boolean);
       if(!BBPP&&played.length<3)return;
       if(BBPP&&played.length<3&&!(((window.BB_PST||{})[p.key]||[])[4]>=5))return;
-      Object.entries(PP_MK).forEach(([m,M])=>{
+      Object.entries(PP_MK).forEach(([m,M])=>{if(M.off)return;
         if(M.pos&&!M.pos.includes(p.pos))return;
         if(BBPP){const b=bbStat(p,M,played);if(!b||b.mean<M.min)return;const line=Math.max(.5,Math.floor(b.mu)+.5),po=_pOver(b.vals,b.mu,line,!!M.y);
           (rows[m]=rows[m]||[]).push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
@@ -9855,13 +9855,13 @@ function viewScoring(){
   return `<div class="head"><h2>Scoring</h2><p>Every stat line becomes fantasy points the same way, for every player in the league.</p></div>
   <div class="two">
     <section class="card"><h3>Box score</h3><ul class="rules">
-      ${item('pts','Point','3-pointers count as 3 points, with no extra bonus')}${item('reb','Rebound')}${item('ast','Assist')}
+      ${item('pts','Point')}${item('reb','Rebound')}${item('ast','Assist')}
       ${item('stl','Steal')}${item('blk','Block')}${item('tov','Turnover')}
     </ul></section>
     <section class="card"><h3>Lineups and matchups</h3>
       <p><b>Snake draft leagues:</b> by default 1 PG, 1 SG, 1 SF, 1 PF, 1 C and 1 FLEX (any position), plus 3 bench spots. Bench players do not count toward your lineup total, but you can swap one into a matching starting spot at any time after the draft. The league owner can change the roster before the draft.</p>
       <p>In a league, you face one other member each week and the higher lineup total wins.</p>
-      <p class="muted">Example: 22 points, 8 rebounds, 5 assists, 2 steals, 1 block, 3 turnovers and 2 threes scores 22 + 9.6 + 7.5 + 4 + 2 − 6 = 39.1 points. The threes are already in the 22 points.</p></section>
+      <p class="muted">Example: 22 points, 8 rebounds, 5 assists, 2 steals, 1 block, and 3 turnovers scores 22 + 9.6 + 7.5 + 4 + 2 − 6 = 39.1 points.</p></section>
   </div>`;
 }
 
@@ -9929,7 +9929,7 @@ function viewMe(){
     const unit=UI.rank==='prev'?'points in their last game':'points';
     const sgap=sl.length<2?`You are the only ${PW} at ${esc(me.school)} with approved games.`:si===0?`You lead the ${PW}s at ${esc(me.school)} by ${f1(info.val-metric(sl[1].a))} ${unit}.`:`${f1(metric(sl[si-1].a)-info.val)} ${unit} behind ${esc(sl[si-1].p.name)}, the next ${me.pos} up.`;
     schoolBoard=`<section class="card me-sec"><h3>${PW}s at ${esc(me.school)}</h3><p class="muted">${sgap}</p><div class="board">${sl.map(brow).join('')}</div></section>`;
-    const SHORT={pts:'Pts',reb:'Reb',ast:'Ast',stl:'Stl',blk:'Blk',tov:'TO',tpm:'3PM',rec:'Rec',recYd:'Rec yd',recTD:'Rec TD',rushYd:'Rush yd',rushTD:'Rush TD',passYd:'Pass yd',passTD:'Pass TD',int:'INT',fumLost:'Fum',retTD:'Ret TD',tkl:'Tkl',sack:'Sack',dInt:'INT',ff:'FF',fr:'FR',dTD:'D TD',tfl:'TFL',pbu:'PBU'};
+    const SHORT={pts:'Pts',reb:'Reb',ast:'Ast',stl:'Stl',blk:'Blk',tov:'TO',rec:'Rec',recYd:'Rec yd',recTD:'Rec TD',rushYd:'Rush yd',rushTD:'Rush TD',passYd:'Pass yd',passTD:'Pass TD',int:'INT',fumLost:'Fum',retTD:'Ret TD',tkl:'Tkl',sack:'Sack',dInt:'INT',ff:'FF',fr:'FR',dTD:'D TD',tfl:'TFL',pbu:'PBU'};
     const cols=FIELDS[me.pos].filter((k,i)=>i<3||me.games.some(g=>g&&g.stat&&g.stat[k]));
     const gl=me.games.map((g,i)=>({w:i+1,g})).filter(x=>UI.scope==='season'||x.w===UI.scope);
     const bestV=Math.max(...gl.filter(x=>x.g).map(x=>pts(x.g.stat)),-1),bestW=(gl.find(x=>x.g&&pts(x.g.stat)===bestV)||{}).w;

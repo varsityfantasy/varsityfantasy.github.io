@@ -1258,3 +1258,6 @@ Basketball scores for Nov 17-18 filled from data/sections/san-diego.json (the co
 
 ## v636 (Nov 19)
 Basketball box scores: 10 more games (82 player lines) added to tools/data/bb_2627_box.txt from data/players/san-diego.bb.json (the players collector): Nov 14-18, e.g. Francis Parker/Helix, Patrick Henry/Grossmont, La Jolla/O'Farrell, Sage Creek/Rancho Christian. 3pm is 0 (the collector has no 3PM). Class is blank (rows already exist, matched by name).
+
+## v637 (Nov 19)
+Basketball: 3-pointers made is gone as a stat (removed from FIELDS, LABEL, SHORT, PTS, the projection line `BB_PST`, the 3-pointers prop group and its prop top-N; SG OVR_KEYS now pts/ast/stl; scoring-rules text no longer mentions threes). `PP_MK.tpm` stays with `off:1` only so an old saved pick still has a label. Not touched: tpm inside the raw data arrays, the SG position guess in make_basketball (`tpm>=.8`) and tools/ovr/make_ovr.py BBKEY, so ovr.js is unchanged. Varsity Bowl: after a catch everyone moves faster (carrier x1.15, defenders x1.15 more), and each play one or two man defenders are weak (slow, deep cushion, late reaction) so some receivers are open.

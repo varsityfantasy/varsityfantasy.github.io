@@ -177,6 +177,7 @@ function setupPlay(pl){
  const cb0=mkP('cb',1,los+11,14,dm(),'CB'),cb1=mkP('cb',1,los+11,FH-14,dm(),'CB'),s0=mkP('s',1,los+40,46,dm(),'S'),s1=mkP('s',1,los+48,FH-46,dm(),'S');
  [cb0,cb1,s0,s1].forEach(p=>p.spd=(58+28*p.a)*SPD*.82);P.cb=[cb0,cb1];P.s=[s0,s1];
  cb0.man=P.wr0;cb1.man=P.wr1;s0.man=P.wr2;P.lb[0].man=P.te;P.lb[2].man=P.rb;s1.zone={x:los+110,y:CY};P.lb[1].zone={x:los+46,y:CY};
+ const mans=[cb0,cb1,s0,P.lb[0],P.lb[2]].filter(d=>d.man);mans.forEach(d=>{d.cush=rnd(12,19)});mans.sort(()=>Math.random()-.5);mans.slice(0,1+(Math.random()<.5?1:0)).forEach(d=>{d.cush=rnd(24,38);d.spd*=.72;d.late=1});
  if(Math.random()<.35){s0.man=null;s0.zone={x:los+80,y:40}}
  P.def=[...P.dl,...P.lb,...P.cb,...P.s];P.off=[P.qb,...P.ol,...P.rc];P.all=[...P.off,...P.def];
  const olA=A(olo);
@@ -192,7 +193,7 @@ function setupPlay(pl){
 function ptrDir(){if(!ptr.down)return null;const dx=ptr.x-ptr.sx,dy=ptr.y-ptr.sy,l=Math.hypot(dx,dy);if(l<9)return{x:0,y:0,z:1};return{x:dx/l,y:dy/l,z:0}}
 function moveTo(p,tx,ty,spd,dt){const dx=tx-p.x,dy=ty-p.y,l=Math.hypot(dx,dy);if(l<.5){p.vx*=.6;p.vy*=.6;return l}const s=Math.min(spd*dt,l),k=s/l;p.x+=dx*k;p.y+=dy*k;p.vx=dx/l*spd;p.vy=dy/l*spd;p.ph+=s/7;if(Math.abs(dx)>1)p.f=dx>0?1:-1;return l}
 function carrierMove(C,dt){
- const S=G.pl,d=ptrDir();let sp=C.spd*(C.slow>0?.75:1);C.slow=Math.max(0,C.slow-dt);C.imm=Math.max(0,C.imm-dt);C.jcd=Math.max(0,(C.jcd||0)-dt);
+ const S=G.pl,d=ptrDir();let sp=C.spd*1.15*(C.slow>0?.75:1);C.slow=Math.max(0,C.slow-dt);C.imm=Math.max(0,C.imm-dt);C.jcd=Math.max(0,(C.jcd||0)-dt);
  if(C.dive>0){C.dive-=dt;C.x+=C.f*95*dt;if(C.dive<=0){S.end=S.end||.01;endPlay('tackle',C.x,'DIVE')}return}
  let hx=1,hy=0;
  if(C.jk>0){C.jk-=dt;C.x+=C.jvx*dt;C.y+=C.jvy*dt;hx=C.jvx;hy=C.jvy}
@@ -294,10 +295,10 @@ function stepDef(dt){
   d.tt-=dt;
   let tx,ty;
   const ballIn=S.ball&&!S.ball.done&&!S.ball.drop;
-  if(C){sp*=1.2;tx=C.x+C.vx*.25;ty=C.y+C.vy*.25;if(d.fr>t){sp*=.2;if(d.role==='dl'||d.role==='lb'){/* still blocked */}}}
+  if(C){sp*=1.38;tx=C.x+C.vx*.25;ty=C.y+C.vy*.25;if(d.fr>t){sp*=.2;if(d.role==='dl'||d.role==='lb'){/* still blocked */}}}
   else if(ballIn&&S.ball.t>.22&&Math.hypot(d.x-S.land.x,d.y-S.land.y)<60){tx=S.land.x;ty=S.land.y;sp*=.8}
   else if(d.role==='dl'||(d.blitz)){tx=Q.x;ty=Q.y;if(d.fr>t){const u=clamp((t-S.snapT)/Math.max(.5,d.fr-S.snapT),0,1);sp*=.28+.6*u*u;tx=Math.max(Q.x+15,Q.x+(d.fr-t)*10)}}
-  else if(d.man){if(d.tt<=0){d.tx=d.man.x+13;d.ty=d.man.y;d.tt=.5+rnd(0,.3)}tx=d.tx;ty=d.ty;if(S.pl.k==='run'&&!S.handed){tx=d.x;ty=d.y}if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:(P.rb.x+20);ty=S.carrier?S.carrier.y:P.rb.y}}
+  else if(d.man){if(d.tt<=0){d.tx=d.man.x+(d.cush||13);d.ty=d.man.y+(d.late?rnd(-9,9):0);d.tt=(d.late?.9:.5)+rnd(0,.3)}tx=d.tx;ty=d.ty;if(S.pl.k==='run'&&!S.handed){tx=d.x;ty=d.y}if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:(P.rb.x+20);ty=S.carrier?S.carrier.y:P.rb.y}}
   else if(d.zone){let best=null,bd=46;P.rc.forEach(r=>{const dd=Math.hypot(r.x-d.zone.x,r.y-d.zone.y);if(dd<bd){bd=dd;best=r}});if(best){if(d.tt<=0){d.tx=best.x+12;d.ty=best.y;d.tt=.42}tx=d.tx;ty=d.ty}else{tx=d.zone.x;ty=d.zone.y}
    if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:P.rb.x;ty=S.carrier?S.carrier.y:P.rb.y}}
   else{tx=d.x;ty=d.y}

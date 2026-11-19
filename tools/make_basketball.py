@@ -416,9 +416,9 @@ def transform(s, mp, games, seeds, teams, prior):
     # v611 (owner): a card with no 2026-27 game yet shows his projected fantasy points a game (last season's line under the current scoring) instead of "No games yet"
     s = rep(s, "'<small>No games yet</small>'})()}</div>", "(()=>{const j=proj(p);return j.n&&j.pts>0?`<b>${f1(j.pts)}</b> PROJ PPG<small>no games yet</small>`:'<small>No games yet</small>'})()})()}</div>")
     s = rep(s, "hi=base.filter(p=>ovrOf(p.key)>=FC_MIN_OVR);", "hi=base;")   # v609 (owner): no 65 OVR minimum in basketball, only the projection rule above
-    s = line_replace(s, 'const PTS=', "const PTS={pts:1,reb:1.2,ast:1.5,stl:2,blk:2,tov:-2,tpm:0};")
-    s = line_replace(s, 'const LABEL=', "const LABEL={pts:'Points',reb:'Rebounds',ast:'Assists',stl:'Steals',blk:'Blocks',tov:'Turnovers',tpm:'3-pointers made'};")
-    s = line_replace(s, 'const FIELDS=', "const FIELDS=Object.fromEntries(['PG','SG','SF','PF','C'].map(p=>[p,['pts','reb','ast','stl','blk','tov','tpm']]));")
+    s = line_replace(s, 'const PTS=', "const PTS={pts:1,reb:1.2,ast:1.5,stl:2,blk:2,tov:-2};")
+    s = line_replace(s, 'const LABEL=', "const LABEL={pts:'Points',reb:'Rebounds',ast:'Assists',stl:'Steals',blk:'Blocks',tov:'Turnovers'};")
+    s = line_replace(s, 'const FIELDS=', "const FIELDS=Object.fromEntries(['PG','SG','SF','PF','C'].map(p=>[p,['pts','reb','ast','stl','blk','tov']]));")
     s = line_replace(s, 'const POSITIONS=', "const POSITIONS=['PG','SG','SF','PF','C'];")
     s = between(s, 'const POS_ALL=[', 'const posOptions=',
                 "const POS_ALL=[['PG','Point guard'],['SG','Shooting guard'],['SF','Small forward'],['PF','Power forward'],['C','Center']];\n"
@@ -437,7 +437,7 @@ def transform(s, mp, games, seeds, teams, prior):
                 "  const k=nextWeek()+'|'+UI.scope;if(_pjK!==k){_pj={};_pjK=k}\n"
                 "  if(_pj[p.key])return _pj[p.key];\n"
                 "  const cw=nextWeek(),gs=p.games.map((g,i)=>g&&i+1<cw?{w:i+1,s:g.stat}:null).filter(Boolean);\n"
-                "  const q=p.ext?null:(window.BB_PST||{})[p.key],pr=q&&q[4]>0?{pts:q[0],reb:q[1],ast:q[2],tpm:q[3],stl:q[6]||0,blk:q[7]||0,tov:q[8]||0}:null;\n"
+                "  const q=p.ext?null:(window.BB_PST||{})[p.key],pr=q&&q[4]>0?{pts:q[0],reb:q[1],ast:q[2],stl:q[6]||0,blk:q[7]||0,tov:q[8]||0}:null;\n"
                 "  const info=p.ext?null:oppInfo(p.school);\n"
                 "  if(!gs.length&&!pr)return _pj[p.key]={pts:0,n:0,stat:null,f:1,info};\n"
                 "  const PW=pr?2*Math.min(1,q[4]/12):0;let wsum=0;const st=blank();\n"
@@ -459,7 +459,7 @@ def transform(s, mp, games, seeds, teams, prior):
                 "  return `${n(x.pts)} pts · ${n(x.reb)} reb · ${n(x.ast)} ast`}")
     s = rep(s, "const AV_POS=['QB','RB','WR','TE','K','DL','LB','DB'];", "const AV_POS=['PG','SG','SF','PF','C'];")   # v503: All-Varsity teams
     # (v333: the team page roster is one list, best to worst, so it needs no position names)
-    s = rep(s, "const SHORT={", "const SHORT={pts:'Pts',reb:'Reb',ast:'Ast',stl:'Stl',blk:'Blk',tov:'TO',tpm:'3PM',")
+    s = rep(s, "const SHORT={", "const SHORT={pts:'Pts',reb:'Reb',ast:'Ast',stl:'Stl',blk:'Blk',tov:'TO',")
 
     s = rep(s, "const POSF=['ALL','QB','RB','WR','TE','K','DL','LB','DB'];", "const POSF=['ALL','PG','SG','SF','PF','C'];")
     s = rep(s, "POSF=['ALL','QB','RB','WR','TE','K','DL','LB','DB'],pos=UI.mk.pos", "POSF=['ALL','PG','SG','SF','PF','C'],pos=UI.mk.pos")   # v361: the mock draft's position chips too
@@ -503,13 +503,13 @@ def transform(s, mp, games, seeds, teams, prior):
   return `<div class="head"><h2>Scoring</h2><p>Every stat line becomes fantasy points the same way, for every player in the league.</p></div>
   <div class="two">
     <section class="card"><h3>Box score</h3><ul class="rules">
-      ${item('pts','Point','3-pointers count as 3 points, with no extra bonus')}${item('reb','Rebound')}${item('ast','Assist')}
+      ${item('pts','Point')}${item('reb','Rebound')}${item('ast','Assist')}
       ${item('stl','Steal')}${item('blk','Block')}${item('tov','Turnover')}
     </ul></section>
     <section class="card"><h3>Lineups and matchups</h3>
       <p><b>Snake draft leagues:</b> by default 1 PG, 1 SG, 1 SF, 1 PF, 1 C and 1 FLEX (any position), plus 3 bench spots. Bench players do not count toward your lineup total, but you can swap one into a matching starting spot at any time after the draft. The league owner can change the roster before the draft.</p>
       <p>In a league, you face one other member each week and the higher lineup total wins.</p>
-      <p class="muted">Example: 22 points, 8 rebounds, 5 assists, 2 steals, 1 block, 3 turnovers and 2 threes scores 22 + 9.6 + 7.5 + 4 + 2 − 6 = 39.1 points. The threes are already in the 22 points.</p></section>
+      <p class="muted">Example: 22 points, 8 rebounds, 5 assists, 2 steals, 1 block, and 3 turnovers scores 22 + 9.6 + 7.5 + 4 + 2 − 6 = 39.1 points.</p></section>
   </div>`;
 }
 """)

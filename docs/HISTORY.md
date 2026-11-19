@@ -1294,3 +1294,6 @@ Varsity Bowl field (`drawField`): mowing stripes aligned to 5-yard lines, grass 
 
 ## v648 (Nov 19)
 Varsity Bowl: pass concepts rewritten with 3-5 waypoint routes (stop & go, out & up, crossers, rub, yankee, dagger, four levels, wheel & drag, play action post, bootleg, orbit etc.); 20 new concepts plus screen/bubble; 4 run plays only used by the RB tap.
+
+## v649 (Nov 19)
+Varsity Bowl `runRoute`: after the last waypoint a receiver keeps going the way he was headed, but only 46 px if that was back toward the QB and 64 px if sideways (`r.eu`), then settles and sways in the zone; forward routes still run on. `predict()` matches.

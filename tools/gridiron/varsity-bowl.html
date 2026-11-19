@@ -255,7 +255,7 @@ function throwAt(wx,wy,lob){
  const d=Math.hypot(tx-Q.x,ty-Q.y),T=Math.max(.3,d/bs);
  S.ball={x:Q.x,y:Q.y,z:8,fx:Q.x,fy:Q.y,tx,ty,T,t:0,lob:!!lob,h:lob?26+d*.16:8+d*.08};S.land={x:tx,y:ty};Q.throwA=.3;Q.f=tx>=Q.x?1:-1;sfx.throw()}
 function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i++){const d=Math.hypot(pp.x-Q.x,pp.y-Q.y);T=Math.max(.3,d/((142+87*Q.a)*(lob?.8:1)));pp=predict(r,T)}throwAt(pp.x,pp.y,lob)}
-function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.length){const w=r.rt[i],d=Math.hypot(w.x-x,w.y-y);if(d<=left){x=w.x;y=w.y;left-=d;i++}else{x+=(w.x-x)/d*left;y+=(w.y-y)/d*left;left=0}}if(left>0&&r.ext){x=Math.min(FL-8,x+r.dx*left);y=clamp(y+r.dy*left,5,FH-5)}return{x,y}}
+function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.length){const w=r.rt[i],d=Math.hypot(w.x-x,w.y-y);if(d<=left){x=w.x;y=w.y;left-=d;i++}else{x+=(w.x-x)/d*left;y+=(w.y-y)/d*left;left=0}}if(left>0&&r.ext){const lim=r.dx<-.25?46:r.dx<.45?64:1e9,go=Math.min(left,Math.max(0,lim-(r.eu||0)));x=Math.min(FL-8,x+r.dx*go);y=clamp(y+r.dy*go,5,FH-5)}return{x,y}}
 function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;
  let r=null,dT=26;P.rc.forEach(o=>{const d=Math.hypot(o.x-b.tx,o.y-b.ty);if(d<dT){dT=d;r=o}});
@@ -278,7 +278,7 @@ function runRoute(r,dt){
  while(left>0&&r.ri<r.rt.length){const w=r.rt[r.ri],dx=w.x-r.x,dy=w.y-r.y,l=Math.hypot(dx,dy);moved=true;
   if(l<=left){r.x=w.x;r.y=w.y;left-=l;r.ri++}
   else{r.x+=dx/l*left;r.y+=dy/l*left;r.dx=dx/l;r.dy=dy/l;left=0}}
- if(left>0&&r.ext){r.x=Math.min(FL-8,r.x+r.dx*left);r.y=clamp(r.y+r.dy*left,5,FH-5);moved=true}
+ if(left>0&&r.ext){const lim=r.dx<-.25?46:r.dx<.45?64:1e9,used=r.eu||0,go=Math.min(left,Math.max(0,lim-used));if(go>0){r.eu=used+go;r.x=Math.min(FL-8,r.x+r.dx*go);r.y=clamp(r.y+r.dy*go,5,FH-5);moved=true}else{/* settle in the zone */r.sw=(r.sw||0)+dt;const w=Math.sin(r.sw*1.6)*6*dt;r.y=clamp(r.y+w,5,FH-5);r.vx=0;r.vy=w/dt;r.ph+=.02;return}}
  if(moved){r.vx=r.dx*r.spd;r.vy=r.dy*r.spd;r.ph+=r.spd*dt/7;if(Math.abs(r.dx)>.2)r.f=r.dx>0?1:-1}else{r.vx=0;r.vy=0}}
 function stepPlay(dt){
  const S=G.pl;if(!S||S.done&&!S.ball)return;

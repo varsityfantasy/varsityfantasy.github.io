@@ -1327,3 +1327,6 @@ Varsity Bowl (not shipped): line spacing halfway between v656 and v657 (OL 16 px
 
 ## v659 (Nov 19)
 Varsity Bowl (not shipped): new helmet sprite `helmetP()` shared by standing and stance poses: rounded shell with highlight, center stripe, ear hole, brim, dark facemask bars over the face.
+
+## v660 (Nov 19)
+Varsity Bowl (not shipped): helmets drawn as a round shell with canvas ellipses (`helmetR()`): stripe, ear hole, face and facemask bars all inside the outline, no brim or pointed front. Replaces the rect helmet `helmetP` (still defined, unused).

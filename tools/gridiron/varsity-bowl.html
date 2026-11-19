@@ -160,6 +160,16 @@ function helmetP(ox,oy,T,HL,HD,SK){const r=(x,y,w,h,c)=>[ox+x,oy+y,w,h,c];return
 function drawPlayer(p,opt){
  const x=Math.round(p.x-camX),y=Math.round(FT+p.y);if(x<-16||x>W+16)return;
  g.save();g.translate(x,y);g.scale(PS,PS);g.translate(-x,-y);try{drawPlayer0(p,opt,x,y)}finally{g.restore()}}
+/* a round football helmet seen from the side: shell, stripe, ear hole, facemask inside the outline */
+function helmetR(cx,cy,f,T,HL,HD,SK){g.save();g.translate(Math.round(cx)+.5,Math.round(cy)+.5);g.scale(f>0?1:-1,1);
+ const E=(x,y,rx,ry,c)=>{g.fillStyle=c;g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.fill()};
+ E(0,0,6.4,5.8,OUTL);E(0,0,5.4,4.8,T.h);
+ g.save();g.beginPath();g.ellipse(0,0,5.4,4.8,0,0,7);g.clip();g.fillStyle=T.a;g.fillRect(-.8,-5,1.7,10);E(-5,1,2.6,5,HD);g.restore();
+ E(-1.6,-2.6,2.4,1,HL);
+ E(-1.2,.6,1.5,1.4,HD);E(-1.2,.6,.6,.6,'#05070a');
+ E(3.6,1.4,1.9,2.2,SK);
+ g.strokeStyle='#2e343d';g.lineWidth=1.1;g.beginPath();g.moveTo(.9,-.6);g.lineTo(4.9,-.6);g.moveTo(.9,1.6);g.lineTo(5.1,1.6);g.moveTo(1.6,3.6);g.lineTo(4.4,3.6);g.moveTo(5.1,-1.2);g.lineTo(5.1,4);g.stroke();
+ g.restore()}
 function drawPlayer0(p,opt,x,y){
  const T=TEAMS[p.side],mv=Math.hypot(p.vx,p.vy)>10,f=p.f||1,K=sh(T.j,.28),D=sh(T.j,-.28),PD=sh(T.p,-.25),SH='#1c1c24',SK=p.skin,SKD=sh(p.skin,-.25),HL=sh(T.h,.55),HD=sh(T.h,-.3),MK='#e9edf2';
  g.fillStyle='rgba(0,0,0,.34)';g.fillRect(x-6,y-1,12,3);
@@ -172,7 +182,8 @@ function drawPlayer0(p,opt,x,y){
   parts(x,y,f,[[-6,-5,4,5,T.p],[-7,-1,3,2,SH],[-1,-4,4,4,T.p],[1,-1,4,2,SH],[-6,-10,6,5,PD],[-6,-10,6,1,K],
    [-3,-12,10,5,T.j],[-3,-12,10,1,K],[-3,-8,10,1,D],[-1,-10,2,2,T.a],[4,-13,3,3,T.j],
    [6,-8,2,8,SK],[5,-1,4,1,SKD],
-   ...helmetP(9,-9,T,HL,HD,SK)]);return}
+   [7,-12,3,1,SKD]]);
+  helmetR(x+f*10,y-14,f,T,HL,HD,SK);return}
  const sw=mv?Math.sin(p.ph*Math.PI):0,cw=mv?Math.cos(p.ph*Math.PI):0,fast=mv&&Math.hypot(p.vx,p.vy)>50;
  const by=mv?-(Math.abs(cw)>.55?1:0):0,ln=mv?(fast?2:1):0,sA=Math.round(sw*(fast?4:3)),sB=-sA,liA=cw>.3?2:0,liB=cw<-.3?2:0,aA=Math.round(-sw*2.4),aB=-aA;
  const ps=[
@@ -185,9 +196,10 @@ function drawPlayer0(p,opt,x,y){
   [-5+ln+aB,-12+by+(mv?(aB>0?-1:1):0),2,5,SK],[-5+ln+aB,-13+by+(mv?(aB>0?-1:1):0),2,2,T.j],/* far arm */
   [3+ln+aA,-12+by+(mv?(aA>0?-1:1):0),2,5,SK],[3+ln+aA,-13+by+(mv?(aA>0?-1:1):0),2,2,T.j],  /* near arm */
   [-2+ln,-16+by,4,2,SKD],                                                  /* neck */
-  ...helmetP(ln,-17+by,T,HL,HD,SK)                                              /* helmet */
+  [-2+ln,-16+by,4,1,SKD]
  ];
  parts(x,y,f,ps);
+ helmetR(x+f*ln,y-21+by,f,T,HL,HD,SK);
  if(p.ball)fball(x+f*7,y-12,f>0?-.35:.35,1);
  if(opt&&opt.ring){g.strokeStyle='#4aa0ff';g.lineWidth=1;g.beginPath();g.ellipse(x+.5,y+.5,11,5,0,0,7);g.stroke()}}
 

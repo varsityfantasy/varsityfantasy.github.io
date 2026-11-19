@@ -1312,3 +1312,6 @@ Varsity Bowl (not shipped in the app): ball drawn bigger (10x6 in the air, with 
 
 ## v654 (Nov 19)
 Varsity Bowl (not shipped): turf back to the v647 look (owner did not like the v652 patchy turf). Carrier speed +10% and bigger ball stay.
+
+## v655 (Nov 19)
+Varsity Bowl (not shipped): ball is a real football shape (`fball()`: dark outline, brown oval, laces), 9x5 px, between the old 6x3 and the v653 10x6; used in the air, on the ground, held and diving.

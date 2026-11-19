@@ -1252,3 +1252,6 @@ Basketball projected stats (owner). `proj(p)` is overridden in `tools/make_baske
 
 ## v634 (Nov 19)
 Varsity Bowl: field 22% wider sideline to sideline (H 250, FH 188). Receivers get open more: DBs 18% slower, man coverage re-aims every .5-.8 s without leading, zone .42 s, contest radius 11 (was 14). Carriers after a catch/handoff/scramble run at the same SPD (was 1.4x) and defenders pursue 1.2x.
+
+## v635 (Nov 19)
+Basketball scores for Nov 17-18 filled from data/sections/san-diego.json (the collector's MaxPreps scores) through add_scores.py: 10 games scored/added. El Capitan vs San Pasqual (Nov 17) differs by 1 point (app 38, collector 37), left alone. Fresh collect run dispatched (bb, max_age_h 0).

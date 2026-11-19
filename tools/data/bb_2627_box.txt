@@ -58,3 +58,95 @@ henry-ward|Jr|-|1|1|0|0|0|1|0
 cruz-castaneda|Sr|-|7|2|2|0|0|3|0
 jaymz-shaw|Jr|-|4|2|3|0|0|1|0
 zach-spicer|Jr|-|0|1|0|1|0|0|0
+#2026-11-17|Central|La Quinta
+pedro-valenzuela||1eeeab0c-67d|7|7|0|3|0|0|0
+braden-bernal||1eeeab0c-67d|8|10|0|0|0|0|0
+fernando-luna||1eeeab0c-67d|27|7|1|1|0|0|0
+aiden-rocha||1eeeab0c-67d|4|3|2|0|1|0|0
+jacob-gomez||1eeeab0c-67d|4|3|0|0|0|0|0
+anthony-hernandez||1eeeab0c-67d|8|4|0|1|0|0|0
+nicholas-baldez||1eeeab0c-67d|5|3|0|2|0|0|0
+robert-tovar||1eeeab0c-67d|7|1|1|2|0|0|0
+joap-soto-chavez||1eeeab0c-67d|5|3|5|0|1|0|0
+#2026-11-17|El Capitan|San Pasqual
+cameron-noza||15d5e874-4af|0|0|0|0|0|1|0
+chance-smith||15d5e874-4af|6|8|1|1|2|0|0
+luke-gallamore||15d5e874-4af|4|0|0|0|0|3|0
+jacob-sales||15d5e874-4af|8|2|5|1|0|4|0
+zaybrein-durant||15d5e874-4af|4|4|3|0|0|1|0
+darren-andrews||15d5e874-4af|0|2|0|0|0|0|0
+michael-valencia||15d5e874-4af|0|2|1|2|0|1|0
+trevin-curo||15d5e874-4af|9|11|1|1|2|3|0
+creed-curo||15d5e874-4af|6|0|0|1|1|0|0
+#2026-11-17|Escondido|Vista
+anthony-dunning||226ea389-d06|1|0|0|0|0|0|0
+sina-talebloo||226ea389-d06|37|0|0|0|0|0|0
+max-killian||226ea389-d06|5|0|0|0|0|0|0
+nick-evans||226ea389-d06|12|0|0|0|0|0|0
+michael-mj-espudo||226ea389-d06|2|0|0|0|0|0|0
+trevor-visque||226ea389-d06|5|0|0|0|0|0|0
+#2026-11-17|Francis Parker|Helix
+kai-jones||a1400c13-d45|3|1|1|0|0|1|0
+columbus-palmer||a1400c13-d45|14|7|8|3|0|1|0
+niccolo-whitchurch||a1400c13-d45|3|5|0|1|0|1|0
+tyson-tominna||a1400c13-d45|4|1|0|1|0|2|0
+malik-brown||a1400c13-d45|6|1|0|2|1|0|0
+kamran-shirazi||a1400c13-d45|21|3|3|1|0|2|0
+boaz-koffler||a1400c13-d45|2|2|0|0|0|0|0
+tavid-johnson||a1400c13-d45|26|9|4|1|0|3|0
+#2026-11-17|Helix|Francis Parker
+jasiah-simien||186dcece-fef|0|0|1|0|0|0|0
+jahlil-johnson||186dcece-fef|0|6|0|0|0|1|0
+brian-hammerstrand||186dcece-fef|6|5|2|0|0|3|0
+dononvan-bryant||186dcece-fef|8|3|1|1|1|4|0
+jaden-harden||186dcece-fef|14|3|2|0|0|3|0
+gray-crockett||186dcece-fef|0|0|1|0|0|0|0
+ryder-hathaway||186dcece-fef|3|0|0|0|0|0|0
+noah-noriega||186dcece-fef|0|1|2|1|0|1|0
+kie-smith||186dcece-fef|4|2|0|0|0|0|0
+weston-powell||186dcece-fef|0|0|0|1|0|0|0
+trey-cavazos||186dcece-fef|18|5|1|0|0|3|0
+#2026-11-17|Patrick Henry|Grossmont
+roman-campisi||e71f479e-b2c|5|3|1|1|0|1|0
+madin-gardini||e71f479e-b2c|4|4|2|0|0|3|0
+ryan-miller||e71f479e-b2c|0|1|0|1|0|2|0
+jonah-miller||e71f479e-b2c|5|2|0|1|1|2|0
+jack-gendron||e71f479e-b2c|10|11|1|2|0|2|0
+maximo-mineo||e71f479e-b2c|2|6|2|2|0|0|0
+louel-tadesse||e71f479e-b2c|5|4|3|1|0|10|0
+jax-verdin||e71f479e-b2c|3|3|0|0|0|0|0
+anthony-tabar||e71f479e-b2c|11|8|0|2|3|3|0
+#2026-11-17|San Ysidro|Kearny
+miguel-scolari||3a5e1d36-d9f|2|9|0|0|0|0|0
+sebastian-perez||3a5e1d36-d9f|4|3|0|0|0|0|0
+joel-baffoe||3a5e1d36-d9f|10|10|0|0|1|0|0
+reymond-hernandez||3a5e1d36-d9f|4|7|0|0|0|0|0
+#2026-11-17|The Cambridge School|San Diego Jewish Academy
+arthur-potwardowski||e1699eaa-1a9|2|1|0|0|0|0|0
+soren-glomsrud||e1699eaa-1a9|0|2|1|1|0|0|0
+warren-seville||e1699eaa-1a9|0|0|1|1|0|0|0
+maddox-foust||e1699eaa-1a9|12|11|1|3|0|0|0
+jacob-golden||e1699eaa-1a9|21|9|1|3|0|0|0
+mateo-bonilla||e1699eaa-1a9|9|3|3|3|0|0|0
+nathan-lee||e1699eaa-1a9|2|2|3|2|0|0|0
+levi-werner||e1699eaa-1a9|0|5|0|2|0|0|0
+jeffrey-kim||e1699eaa-1a9|5|5|1|2|0|0|0
+#2026-11-18|La Jolla|O'Farrell Charter
+clint-keckeisen||582fa2b1-19e|6|0|0|0|0|0|0
+matthew-smith||582fa2b1-19e|7|0|0|0|0|0|0
+jake-hunter||582fa2b1-19e|20|0|0|0|0|0|0
+nick-muus||582fa2b1-19e|10|0|0|0|0|0|0
+kellen-mcgrath||582fa2b1-19e|3|0|0|0|0|0|0
+jake-fazio||582fa2b1-19e|2|0|0|0|0|0|0
+wyatt-belt||582fa2b1-19e|20|0|0|0|0|0|0
+lawrence-duffin-iv||582fa2b1-19e|8|0|0|0|0|0|0
+#2026-11-18|Sage Creek|Rancho Christian
+robert-ghazaryan||475c3bcb-9d2|0|4|1|0|0|0|0
+lincoln-swisher||475c3bcb-9d2|3|2|0|0|0|0|0
+cole-creighton||475c3bcb-9d2|5|2|0|0|0|0|0
+jaylon-davis||475c3bcb-9d2|7|4|1|2|0|0|0
+jayden-bringas||475c3bcb-9d2|0|3|0|0|0|0|0
+josh-liguori||475c3bcb-9d2|9|5|1|1|0|0|0
+ezekiel-gachalian||475c3bcb-9d2|2|2|0|0|0|0|0
+jacob-nguyen||475c3bcb-9d2|4|2|0|1|0|0|0
+samuel-jahries||475c3bcb-9d2|26|5|2|1|2|0|0

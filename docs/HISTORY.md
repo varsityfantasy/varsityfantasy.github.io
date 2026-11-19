@@ -1255,3 +1255,6 @@ Varsity Bowl: field 22% wider sideline to sideline (H 250, FH 188). Receivers ge
 
 ## v635 (Nov 19)
 Basketball scores for Nov 17-18 filled from data/sections/san-diego.json (the collector's MaxPreps scores) through add_scores.py: 10 games scored/added. El Capitan vs San Pasqual (Nov 17) differs by 1 point (app 38, collector 37), left alone. Fresh collect run dispatched (bb, max_age_h 0).
+
+## v636 (Nov 19)
+Basketball box scores: 10 more games (82 player lines) added to tools/data/bb_2627_box.txt from data/players/san-diego.bb.json (the players collector): Nov 14-18, e.g. Francis Parker/Helix, Patrick Henry/Grossmont, La Jolla/O'Farrell, Sage Creek/Rancho Christian. 3pm is 0 (the collector has no 3PM). Class is blank (rows already exist, matched by name).

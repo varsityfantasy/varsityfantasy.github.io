@@ -79,10 +79,10 @@ function mkP(role,side,x,y,o,name){return{role,side,x,y,x0:x,y0:y,vx:0,vy:0,o,a:
 
 function resetGame(o){o=o||{};
  const op=o.opp||(CFG.opps.length?pick(CFG.opps):{n:'RIVALS',c1:'#c8102e',c2:'#ffffff'});
- G={q:1,clock:CFG.ql,score:[0,0],los:EZ+25*YD,fd:0,down:1,phase:'select',opp:op,oppO:Math.min(99,LVL[CFG.lvl].o+(o.bump||0)),ssn:!!o.ssn,ot:0,over:false,msg:null,rt:0,next:null,st:{py:0,ry:0,td:0,pl:0,cmp:0,att:0,it:0,sk:0},hint:true,hintN:0,sel:-1};
+ G={q:1,clock:CFG.ql,score:[0,0],los:EZ+25*YD,fd:0,down:1,phase:'select',opp:op,oppO:Math.min(99,LVL[CFG.lvl].o+(o.bump||0)),ssn:!!o.ssn,prac:!!o.prac,ot:0,over:false,msg:null,rt:0,next:null,st:{py:0,ry:0,td:0,pl:0,cmp:0,att:0,it:0,sk:0},hint:true,hintN:0,sel:-1};
  teamCols();setFD();toSelect()}
 function setFD(){G.fd=Math.min(GOAL,G.los+10*YD);G.down=1}
-function toSelect(){G.phase=G.down===4&&!G.nofourth?'fourth':'select';G.nofourth=false;camT=G.los-110;P=null;fx=[]}
+function toSelect(){G.phase=G.down===4&&!G.nofourth&&!G.prac?'fourth':'select';G.nofourth=false;camT=G.los-110;P=null;fx=[]}
 
 /* ---------- field ---------- */
 function drawField(){
@@ -301,7 +301,7 @@ function stepAnim(dt){fx.forEach(f=>f.l-=dt);fx=fx.filter(f=>f.l>0);
  if(G.pl&&G.pl.done){}}
 
 /* ---------- ending a play ---------- */
-function burn(s){if(G.ot)return;let left=s;while(left>0&&!G.over){if(left<G.clock){G.clock-=left;left=0}else{left-=G.clock;G.clock=0;qtrEnd();if(G.q===3&&G.half){break}}}}
+function burn(s){if(G.ot||G.prac)return;let left=s;while(left>0&&!G.over){if(left<G.clock){G.clock-=left;left=0}else{left-=G.clock;G.clock=0;qtrEnd();if(G.q===3&&G.half){break}}}}
 function qtrEnd(){if(G.q>=4){G.over=true;G.clock=0;return}G.q++;G.clock=CFG.ql;if(G.q===3){G.half=true}}
 const ordn=n=>['','1ST','2ND','3RD','4TH'][n]||'';
 function endPlay(kind,x,label){
@@ -326,6 +326,7 @@ function endPlay(kind,x,label){
  G.msg={t:txt,c:col,s:sub};G.rt=0;
  burn(cl+(kind==='inc'||kind==='oob'?0:4));
  G.phase='result';
+ if(G.prac){G.next=()=>{if(kind==='td'||G.turnover!=null||G.down>4||G.los>=GOAL-5*YD||G.los<EZ+8*YD){G.los=EZ+30*YD;setFD()}G.turnover=null;G.downs=false;G.afterTd=false;G.twoPt=false;toSelect()};return}
  G.next=()=>{
   if(G.over)return toFinal();
   if(kind==='td')return afterTd();
@@ -456,7 +457,7 @@ function drawHUD(){
  txt(TEAMS[0].n.slice(0,3)+' '+sc[0],36,4,'#fff',1);txt(TEAMS[1].n.slice(0,3)+' '+sc[1],100,4,'#fff',1);
  rect(36,12,tw(TEAMS[0].n.slice(0,3)+' '+sc[0],1),1,'#fff');
  const q=G.q===5?'OVERTIME':['','1ST','2ND','3RD','4TH'][G.q]+' QTR',m=Math.floor(G.clock/60),s=Math.floor(G.clock%60);
- txt(G.q===5?q:q+' '+m+':'+('0'+s).slice(-2),W/2-20,4,'#fff',1,'c');
+ txt(G.prac?'PRACTICE':G.q===5?q:q+' '+m+':'+('0'+s).slice(-2),W/2-20,4,'#fff',1,'c');
  btn(W/2+44,2,12,10,'',()=>{paused=true},{c:'#000'});rect(W/2+47,3,2,8,'#fff');rect(W/2+51,3,2,8,'#fff');
  const dn=G.fd>=GOAL?(ordn(G.down)+' & GOAL'):(ordn(G.down)+' & '+Math.max(1,Math.round((G.fd-G.los)/YD)));
  if(G.phase!=='opp'&&G.phase!=='final')txt(dn,W-8,4,'#fff',1,'r');
@@ -481,7 +482,7 @@ function drawTitle(){
  [[120,'2:00'],[240,'4:00']].forEach((q,i)=>btn(W-196+i*58,124,54,14,q[1],()=>{CFG.ql=q[0]},{c:CFG.ql===q[0]?'#f2c230':'#4a5a4c',tc:CFG.ql===q[0]?'#14110a':'#cfe8cf'}));
  txt('OPPONENT LEVEL',W-140,144,'#f2c230',1,'c');
  LVL.forEach((q,i)=>btn(W-212+i*58,156,54,14,q.n,()=>{CFG.lvl=i},{c:CFG.lvl===i?'#f2c230':'#4a5a4c',tc:CFG.lvl===i?'#14110a':'#cfe8cf'}));
- btn(W-212,178,84,20,'QUICK GAME',()=>{SCR='game';resetGame()},{c:'#9fd8ff'});btn(W-122,178,84,20,SS&&!SS.done?'SEASON '+(ssIdx()+1)+'/'+(ssIdx()<8?8:11):'SEASON',()=>{if(!SS)ssNew();SCR='season'},{c:'#f2c230'});
+ btn(W-212,178,54,20,'QUICK',()=>{SCR='game';resetGame()},{c:'#9fd8ff'});btn(W-152,178,54,20,'SEASON',()=>{if(!SS)ssNew();SCR='season'},{c:'#f2c230'});btn(W-92,178,54,20,'PRACTICE',()=>{SCR='game';resetGame({prac:1})},{c:'#7dff7d'});
  txt(CFG.real?'LINEUP FROM YOUR CARDS':'DEMO LINEUP · OPEN PACKS TO BUILD YOUR OWN TEAM',W/2,H-9,'#7f9a80',1,'c',true)}
 function drawSeason(){
  g.fillStyle='#000';g.fillRect(0,0,W,H);rect(0,0,W,H,'#173a1c');for(let i=0;i<8;i++)rect(i*60,0,30,H,'#1a421f');rect(0,0,W,14,'#000');

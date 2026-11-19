@@ -1210,3 +1210,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v620 (Nov 18)
 - Varsity Bowl players redrawn (`drawPlayer`, `parts`): 22 px tall with a dark outline, helmet with shine, stripe and facemask, neck, wide shoulder pads, jersey number block, arms with sleeves that swing when running, belt, legs and shoes with a stride, held ball, longer dive/tackled pose. Line spacing widened (OL 13 px, DL 20 px, LB 40 px) so the figures do not merge. Name labels sit higher.
+
+## v621 (Nov 18)
+- Varsity Bowl: PRACTICE mode on the title screen (`resetGame({prac:1})`): no clock, no opponent drives, no 4th-down menu; after a touchdown, turnover or lost downs the ball goes back to your 30. Also published once as a private artifact so the owner can test the controls in the side panel.

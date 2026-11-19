@@ -1207,3 +1207,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 ## v619 (Nov 18)
 - Varsity Bowl, closer to Retro Bowl's mechanics (mechanics only, own art, names and code): season mode (8 games, then QUARTER/SEMI/FINAL playoffs if you win 5 of 8, saved in localStorage `vs-vb-ssn`; each game's opponent is 1.8 OVR harder than the last; `ssNew/ssPlay/ssAfter`, `drawSeason`), extra point choice (kick +1 or go for 2 from the 2: `xpKick`, `xpTwo`, `G.twoPt`), fumbles (tackles 2%, +3% when two defenders are on him; sacks 7%), overtime (each team one possession from its 25, up to 3 rounds, `startOT`), hold-to-lob throws (press 240 ms or more on a receiver: higher, slower, harder for defenders to break up, less accurate). Quick game stays on the title screen.
 - Still different from Retro Bowl: no team management, contracts or draft, no kick returns, no defence snaps, field goal is a timing bar (not a swipe).
+
+## v620 (Nov 18)
+- Varsity Bowl players redrawn (`drawPlayer`, `parts`): 22 px tall with a dark outline, helmet with shine, stripe and facemask, neck, wide shoulder pads, jersey number block, arms with sleeves that swing when running, belt, legs and shoes with a stride, held ball, longer dive/tackled pose. Line spacing widened (OL 13 px, DL 20 px, LB 40 px) so the figures do not merge. Name labels sit higher.

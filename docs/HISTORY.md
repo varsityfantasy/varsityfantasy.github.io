@@ -1276,3 +1276,6 @@ Basketball props: no limit per team for any stat (steals, blocks and points+rebo
 
 ## v642 (Nov 19)
 Player card (`drawerHTML`): the Season totals table moved from the bottom to the top, right under the Season pts / Per game bar and above Teams played, projection, chart and game log.
+
+## v643 (Nov 19)
+Player card on desktop: `.dp>*{flex-shrink:0}` so the season totals box is no longer squeezed to a tiny scrolling sliver (the card is a flex column with overflow-y:auto).

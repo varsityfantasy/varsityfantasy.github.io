@@ -426,6 +426,7 @@ html,body{overscroll-behavior-y:none}
 .wl{fill:var(--muted);font:500 10px var(--f-body)}
 .nb{fill:none;stroke:var(--muted);stroke-dasharray:3 3}
 .scroll{overflow-x:auto}
+.dp>*{flex-shrink:0}   /* the card is a flex column: without this the season totals (a .scroll box) were squeezed to a sliver on desktop */
 table{border-collapse:collapse;width:100%;font-size:.9rem}
 th{font-size:.8rem;color:var(--muted);font-weight:600;text-align:left;padding:6px 8px 6px 0}
 td{border-top:1px solid var(--line);padding:9px 8px 9px 0;vertical-align:top}
@@ -3936,7 +3937,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v642 · Nov 18';
+const APP_BUILD='v643 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

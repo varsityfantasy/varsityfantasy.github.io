@@ -144,9 +144,13 @@ function drawPlayer(p,opt){
   [-1+ln,-12+by,2,3,T.a],                                                  /* number */
   [-5+ln+aB,-12+by+(mv?(aB>0?-1:1):0),2,5,SK],[-5+ln+aB,-13+by+(mv?(aB>0?-1:1):0),2,2,T.j],/* far arm */
   [3+ln+aA,-12+by+(mv?(aA>0?-1:1):0),2,5,SK],[3+ln+aA,-13+by+(mv?(aA>0?-1:1):0),2,2,T.j],  /* near arm */
-  [-2+ln,-17+by,4,2,SKD],                                                  /* neck */
-  [-3+ln,-22+by,7,7,T.h],[-3+ln,-22+by,5,1,HL],[-3+ln,-21+by,1,5,HD],[0+ln,-22+by,1,3,T.a], /* helmet, shine, stripe */
-  [3+ln,-19+by,3,4,MK],[3+ln,-18+by,3,1,'#6b7480'],[3+ln,-16+by,3,1,'#6b7480']          /* facemask */
+  [-2+ln,-16+by,4,2,SKD],                                                  /* neck */
+  [-4+ln,-23+by,8,6,T.h],[-3+ln,-24+by,6,1,T.h],[-5+ln,-21+by,1,4,HD],[-4+ln,-18+by,8,1,HD], /* shell, dome, back flare, rim */
+  [-3+ln,-24+by,3,1,HL],[-4+ln,-23+by,1,2,HL],[0+ln,-24+by,2,5,T.a],  /* shine, center stripe */
+  [-2+ln,-20+by,3,3,HD],[-1+ln,-19+by,1,1,'#05070a'],                  /* ear hole */
+  [4+ln,-23+by,2,2,T.h],[3+ln,-21+by,3,4,SKD],                         /* front brim, face */
+  [3+ln,-21+by,4,1,'#c4ccd6'],[3+ln,-19+by,4,1,'#c4ccd6'],[3+ln,-17+by,4,1,'#c4ccd6'],[6+ln,-21+by,1,5,'#c4ccd6'],  /* facemask cage */
+  [2+ln,-18+by,1,2,'#1c1c24']                                          /* chin strap */
  ];
  parts(x,y,f,ps);
  if(p.ball)parts(x,y,f,[[3,-12,5,3,'#7a4a21'],[4,-11,3,1,'#f0e6d2']]);
@@ -176,7 +180,7 @@ function setupPlay(pl){
  if(Math.random()<.35){s0.man=null;s0.zone={x:los+80,y:40}}
  P.def=[...P.dl,...P.lb,...P.cb,...P.s];P.off=[P.qb,...P.ol,...P.rc];P.all=[...P.off,...P.def];
  const olA=A(olo);
- P.dl.forEach(d=>{d.fr=Math.max(2.6,(2.7+3.0*olA-.8*d.a+rnd(-.3,.6))*1.3)});
+ P.dl.forEach(d=>{d.fr=Math.max(2.3,(2.7+3.0*olA-.8*d.a)*1.1+rnd(-.9,1.4))});
  P.lb.forEach(d=>{d.fr=pl.k==='run'?rnd(.7,1.4):9});P.s.forEach(d=>d.fr=pl.k==='run'?rnd(1.1,1.8):9);P.cb.forEach(d=>d.fr=pl.k==='run'?rnd(1.4,2.2):9);
  if(S.blitz){const b=P.lb[1];b.man=null;b.zone=null;b.fr=1.5+1.6*olA;b.blitz=true;s1.man=null}
  P.qb.hold=true;if(pl.k==='run'){P.qb.hold=true}
@@ -259,7 +263,9 @@ function stepPlay(dt){
  /* the carrier */
  if(S.carrier&&!S.done)carrierMove(S.carrier,dt);
  /* OL: hold the line, shuffle a little */
- P.ol.forEach((o,i)=>{o.vx=0;o.vy=0;const adv=S.pl.k==='run'&&sn?Math.min(14,(t-S.snapT)*14):Math.min(2,(t-S.snapT)*3);o.x=o.x0+(sn?adv:0)})
+ const OLP=[0,1,-1,2,3];
+ P.ol.forEach((o,i)=>{const d=P.dl[OLP[i]];if(S.pl.k==='pass'&&sn&&d){const px=o.x,py=o.y;if(d.fr>t&&!S.carrier){o.x+=(d.x-9-o.x)*Math.min(1,7*dt);o.y+=(d.y-o.y)*Math.min(1,5*dt)}else{o.x+=(o.x0-3-o.x)*0;}o.vx=(o.x-px)/dt;o.vy=(o.y-py)/dt;o.f=1;return}
+  o.vx=0;o.vy=0;const adv=S.pl.k==='run'&&sn?Math.min(14,(t-S.snapT)*14):Math.min(2,(t-S.snapT)*3);o.x=o.x0+(sn?adv:0)})
  stepDef(dt);
  /* the ball in the air */
  if(S.ball&&!S.ball.done&&!S.ball.drop){const b=S.ball;b.t+=dt;const u=Math.min(1,b.t/b.T);b.x=b.fx+(b.tx-b.fx)*u;b.y=b.fy+(b.ty-b.fy)*u;b.z=8+Math.sin(u*Math.PI)*b.h;if(u>=1)resolveCatch()}
@@ -290,7 +296,7 @@ function stepDef(dt){
   const ballIn=S.ball&&!S.ball.done&&!S.ball.drop;
   if(C){tx=C.x+C.vx*.25;ty=C.y+C.vy*.25;if(d.fr>t){sp*=.2;if(d.role==='dl'||d.role==='lb'){/* still blocked */}}}
   else if(ballIn&&S.ball.t>.22&&Math.hypot(d.x-S.land.x,d.y-S.land.y)<60){tx=S.land.x;ty=S.land.y;sp*=.8}
-  else if(d.role==='dl'||(d.blitz)){tx=Q.x;ty=Q.y;if(d.fr>t)sp*=.22}
+  else if(d.role==='dl'||(d.blitz)){tx=Q.x;ty=Q.y;if(d.fr>t){const u=clamp((t-S.snapT)/Math.max(.5,d.fr-S.snapT),0,1);sp*=.28+.6*u*u;tx=Math.max(Q.x+15,Q.x+(d.fr-t)*10)}}
   else if(d.man){if(d.tt<=0){d.tx=d.man.x+d.man.vx*.1+11;d.ty=d.man.y;d.tt=.26+rnd(0,.12)}tx=d.tx;ty=d.ty;if(S.pl.k==='run'&&!S.handed){tx=d.x;ty=d.y}if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:(P.rb.x+20);ty=S.carrier?S.carrier.y:P.rb.y}}
   else if(d.zone){let best=null,bd=46;P.rc.forEach(r=>{const dd=Math.hypot(r.x-d.zone.x,r.y-d.zone.y);if(dd<bd){bd=dd;best=r}});if(best){if(d.tt<=0){d.tx=best.x+9;d.ty=best.y;d.tt=.22}tx=d.tx;ty=d.ty}else{tx=d.zone.x;ty=d.zone.y}
    if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:P.rb.x;ty=S.carrier?S.carrier.y:P.rb.y}}

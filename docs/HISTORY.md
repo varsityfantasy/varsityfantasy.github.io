@@ -1240,3 +1240,6 @@ Varsity Bowl: ball 10% faster (129+79a). New run cycle in `drawPlayer` (sine str
 
 ## v630 (Nov 18)
 Varsity Bowl: ball another 10% faster (142+87a). Jukes are about half as long (14 px, was 24) and have no cooldown (`jcd` always 0), so rapid flicks chain; immunity cut to .14 s.
+
+## v631 (Nov 18)
+Varsity Bowl: pass rush is gradual and staggered (each DL has its own free time `fr`, speed ramps with u^2 and the DL holds 15 px off the QB until free), OL pair with a DL (`OLP`) and back up with him until he wins. New helmet: shell with dome, shine, stripe, ear hole, grey face-mask cage, chin strap.

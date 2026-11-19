@@ -1285,3 +1285,6 @@ Varsity Bowl: no play menu. `toSelect()` auto-picks `randPass()` (29 pass concep
 
 ## v645 (Nov 19)
 Varsity Bowl: on a throw the nearest receiver (`S.tgt`, within 80 px of the landing spot) leaves his route and runs to the ball; catch reach up to 26 px, chance falls with distance (`.88+.1a-dT*.028`), so bad throws are harder but still attempted.
+
+## v646 (Nov 19)
+Varsity Bowl: players drawn at `PS=.78` scale (drawPlayer wraps drawPlayer0 in a g.scale) so they are small next to the field like Retro Bowl; the throw preview is only the dotted arc (white dots with black outline), no landing star or LOB label. Receiver stars stay.

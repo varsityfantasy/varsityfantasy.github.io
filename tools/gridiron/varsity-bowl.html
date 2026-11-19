@@ -45,6 +45,7 @@ const rosOl=()=>{const r=CFG.ros,v=[r.qb.o,r.rb.o,...r.wr.map(w=>w.o),r.te.o];re
 const ini=n=>{const p=String(n||'').trim().split(/\s+/);if(p.length>1)return p[0][0]+'.'+p[p.length-1][0];return String(n||'??').replace(/^(.)\.?(.).*$/,'$1.$2')};
 
 /* ---------- plays (route points are offsets in px from the start spot, x forward, y down) ---------- */
+const PS=.78;
 const PLAYS=[
  {id:'slant',n:'QUICK SLANTS',k:'pass',r:{wr0:[[22,0],[78,34]],wr1:[[22,0],[78,-34]],wr2:[[36,0],[66,-22]],te:[[42,0],[66,10]],rb:[[10,-14],[46,-34]]}},
  {id:'flood',n:'FLOOD',k:'pass',r:{wr0:[[110,0],[190,0]],wr2:[[60,0],[60,-24]],te:[[70,0],[120,26]],wr1:[[100,0],[160,-34]],rb:[[10,-16],[40,-58]]}},
@@ -149,6 +150,8 @@ const OUTL='rgba(8,14,6,.9)';
 function parts(x,y,f,ps){for(let o=1;o>=0;o--)for(const q of ps){const w=q[2],h=q[3],rx=f>0?q[0]:-q[0]-w;if(o){g.fillStyle=OUTL;g.fillRect(x+rx-1,y+q[1]-1,w+2,h+2)}else{g.fillStyle=q[4];g.fillRect(x+rx,y+q[1],w,h)}}}
 function drawPlayer(p,opt){
  const x=Math.round(p.x-camX),y=Math.round(FT+p.y);if(x<-16||x>W+16)return;
+ g.save();g.translate(x,y);g.scale(PS,PS);g.translate(-x,-y);try{drawPlayer0(p,opt,x,y)}finally{g.restore()}}
+function drawPlayer0(p,opt,x,y){
  const T=TEAMS[p.side],mv=Math.hypot(p.vx,p.vy)>10,f=p.f||1,K=sh(T.j,.28),D=sh(T.j,-.28),PD=sh(T.p,-.25),SH='#1c1c24',SK=p.skin,SKD=sh(p.skin,-.25),HL=sh(T.h,.55),HD=sh(T.h,-.3),MK='#e9edf2';
  g.fillStyle='rgba(0,0,0,.34)';g.fillRect(x-6,y-1,12,3);
  if(p.dive>0||p.down>0){ /* stretched out / on the ground */
@@ -497,9 +500,8 @@ function drawWorld(){
  /* slingshot aim: a dotted arc to where the ball will land, with the catch star there */
  if(G.phase==='play'&&S&&!S.thrown&&!S.carrier&&!S.done&&S.pl.k==='pass'){const a=aimInfo();if(a&&a.x>=P.qb.x-3){const Q=P.qb,qx=Q.x-camX,qy=FT+Q.y-12,tx=a.x-camX,ty=FT+clamp(a.y,2,FH-2),hh=a.lob?36:14;
    g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=1;g.beginPath();g.moveTo(Math.round(ptr.sx)+.5,Math.round(ptr.sy)+.5);g.lineTo(Math.round(ptr.x)+.5,Math.round(ptr.y)+.5);g.stroke();rect(ptr.sx-2,ptr.sy-2,4,4,'#fff');
-   star(tx,ty,13,a.lob?'rgba(255,210,63,.45)':'rgba(170,200,30,.5)',a.lob?'#ffd23f':'#d6e84a');
-   const n=Math.max(4,Math.round(a.dist/28));for(let k=1;k<n;k++){const u=k/n,dx=qx+(tx-qx)*u,dy=qy+(ty-qy)*u-Math.sin(u*Math.PI)*hh;rect(dx-2,dy-2,5,5,'#000');rect(dx-1,dy-1,3,3,'#fff')}
-   if(a.lob)txt('LOB',tx,ty-22,'#ffd23f',1,'c')}}
+   const n=Math.max(4,Math.round(a.dist/28));for(let k=1;k<n;k++){const u=k/n,dx=qx+(tx-qx)*u,dy=qy+(ty-qy)*u-Math.sin(u*Math.PI)*hh;g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=1.5;g.beginPath();g.arc(Math.round(dx)+.5,Math.round(dy)+.5,2.4,0,7);g.fill();g.stroke()}
+  }}
  if(S&&S.thrown&&S.ball&&!S.ball.done){const lx=Math.round(S.land.x-camX),ly=Math.round(FT+S.land.y);g.strokeStyle='rgba(255,255,255,.75)';g.beginPath();g.ellipse(lx+.5,ly+.5,7,3,0,0,7);g.stroke()}
  /* floating text */
  fx.forEach(f=>{const a=Math.min(1,f.l*3);txt(f.t,f.x-camX,FT+f.y-(0.7-f.l)*18,f.c,1,'c')})}

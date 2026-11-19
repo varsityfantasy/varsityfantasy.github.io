@@ -1288,3 +1288,6 @@ Varsity Bowl: on a throw the nearest receiver (`S.tgt`, within 80 px of the land
 
 ## v646 (Nov 19)
 Varsity Bowl: players drawn at `PS=.78` scale (drawPlayer wraps drawPlayer0 in a g.scale) so they are small next to the field like Retro Bowl; the throw preview is only the dotted arc (white dots with black outline), no landing star or LOB label. Receiver stars stay.
+
+## v647 (Nov 19)
+Varsity Bowl field (`drawField`): mowing stripes aligned to 5-yard lines, grass speckle, sideline shading, end zone borders, bigger midfield logo; hash marks moved toward the middle (CY-20 / CY+17).

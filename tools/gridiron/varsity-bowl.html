@@ -117,17 +117,21 @@ function drawField(){
  /* sidelines figures */
  for(let i=0;i<30;i++){const wx=i*52+13;if(wx-camX<-8||wx-camX>W+8)continue;const x=wx-camX,y=33+((i*7)%4);rect(x,y,3,5,i%3?'#e8e8e8':TEAMS[i%2].j);rect(x,y-2,3,2,'#c68642')}
  /* grass */
- const x0=Math.floor(camX/60)*60;
- for(let wx=x0-60;wx<camX+W+60;wx+=60){const s=Math.round((wx/60))%2===0;const sx=wx-camX;rect(sx,FT,60,FH,s?'#2f8f31':'#2a802c')}
+ const x0=Math.floor((camX-EZ)/60)*60+EZ;
+ for(let wx=x0-60;wx<camX+W+60;wx+=60){const s=Math.round((wx-EZ)/60)%2===0;const sx=wx-camX;rect(sx,FT,60,FH,s?'#35983a':'#2c8630')}
+ /* mowing texture, light and dark speckle, fixed to the field */
+ {const a=Math.floor(camX/4)-1;for(let i=a;i<a+W/4+3;i++){for(let j=0;j<FH/4;j++){const h=((i*374761393)^(j*668265263))>>>0,v=h%23;if(v<2)rect(i*4-camX+(h>>8)%3,FT+j*4+(h>>12)%3,1,2,'rgba(255,255,255,.06)');else if(v<4)rect(i*4-camX+(h>>8)%3,FT+j*4+(h>>12)%3,1,1,'rgba(0,0,0,.09)')}}}
+ /* shade toward the sidelines */
+ rect(0,FT,W,8,'rgba(0,0,0,.10)');rect(0,FT+FH-8,W,8,'rgba(0,0,0,.10)');rect(0,FT,W,3,'rgba(0,0,0,.08)');rect(0,FT+FH-3,W,3,'rgba(0,0,0,.08)');
  /* end zones */
- for(const ez of[[0,0],[GOAL,1]]){const sx=ez[0]-camX;if(sx>W||sx+EZ<0)continue;rect(sx,FT,EZ,FH,TEAMS[ez[1]?1:0].e);for(let y=FT;y<FT+FH;y+=6)rect(sx,y,EZ,2,sh(TEAMS[ez[1]?1:0].e,-.12))}
+ for(const ez of[[0,0],[GOAL,1]]){const sx=ez[0]-camX;if(sx>W||sx+EZ<0)continue;rect(sx,FT,EZ,FH,TEAMS[ez[1]?1:0].e);for(let y=FT;y<FT+FH;y+=6)rect(sx,y,EZ,2,sh(TEAMS[ez[1]?1:0].e,-.12));rect(sx,FT,EZ,2,'rgba(255,255,255,.35)');rect(sx,FT+FH-2,EZ,2,'rgba(255,255,255,.35)');rect(ez[1]?sx+EZ-2:sx,FT,2,FH,'rgba(255,255,255,.55)')}
  /* yard lines */
- for(let y=0;y<=100;y+=5){const wx=EZ+y*YD,sx=Math.round(wx-camX);if(sx<-4||sx>W+4)continue;rect(sx,FT,y%10===0||y===50?2:1,FH,'#dde6cf');
+ for(let y=0;y<=100;y+=5){const wx=EZ+y*YD,sx=Math.round(wx-camX);if(sx<-4||sx>W+4)continue;rect(sx,FT,y%10===0||y===50?2:1,FH,'rgba(235,243,225,.92)');
   if(y%5===0){for(let k=0;k<5;k++){const hx=sx+k*YD/5*2;}}}
- for(let y=1;y<100;y++){if(y%5===0)continue;const sx=Math.round(EZ+y*YD-camX);if(sx<0||sx>W)continue;rect(sx,FT+50,1,3,'#b9d4b0');rect(sx,FT+FH-53,1,3,'#b9d4b0');rect(sx,FT+2,1,3,'#b9d4b0');rect(sx,FT+FH-5,1,3,'#b9d4b0')}
+ for(let y=1;y<100;y++){if(y%5===0)continue;const sx=Math.round(EZ+y*YD-camX);if(sx<0||sx>W)continue;rect(sx,FT+CY-20,1,3,'#cfe0c4');rect(sx,FT+CY+17,1,3,'#cfe0c4');rect(sx,FT+2,1,3,'#b9d4b0');rect(sx,FT+FH-5,1,3,'#b9d4b0')}
  for(let y=10;y<=90;y+=10){const sx=EZ+y*YD-camX,n=y<=50?y:100-y;if(sx<-30||sx>W+30)continue;const s=String(n);const w=tw(s,2);for(let i=0;i<s.length;i++){drawFlip(s[s.length-1-i],sx-w/2+i*12,FT+8,'#e6efd6',2,1);drawStr(s[i],Math.round(sx-w/2+i*12),FT+FH-22,'#e6efd6',2)}}
  /* mid logo */
- {const sx=EZ+50*YD-camX;if(sx>-30&&sx<W+30){g.fillStyle='#1b6e22';g.beginPath();g.arc(Math.round(sx),FT+CY,18,0,7);g.fill();txt('V',sx,FT+CY-8,'#f4d35e',2,'c',true)}}
+ {const sx=EZ+50*YD-camX;if(sx>-30&&sx<W+30){g.fillStyle='#1b6e22';g.beginPath();g.arc(Math.round(sx),FT+CY,22,0,7);g.fill();g.strokeStyle='#f4d35e';g.lineWidth=2;g.stroke();txt('V',sx,FT+CY-10,'#f4d35e',3,'c',true)}}
  /* end zone text */
  {const a=0-camX;if(a>-130&&a<W){txtR(TEAMS[0].n.slice(0,9),a+EZ/2-8,FT+FH/2+tw(TEAMS[0].n.slice(0,9),3)/2,ezc(0),3,-1)}
   const b=GOAL-camX;if(b>-130&&b<W){const nn=TEAMS[1].n.slice(0,9);txtR(nn,b+EZ/2-14,FT+FH/2-tw(nn,3)/2,ezc(1),3,1)}}

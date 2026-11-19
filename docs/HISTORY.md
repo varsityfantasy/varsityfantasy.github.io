@@ -1261,3 +1261,6 @@ Basketball box scores: 10 more games (82 player lines) added to tools/data/bb_26
 
 ## v637 (Nov 19)
 Basketball: 3-pointers made is gone as a stat (removed from FIELDS, LABEL, SHORT, PTS, the projection line `BB_PST`, the 3-pointers prop group and its prop top-N; SG OVR_KEYS now pts/ast/stl; scoring-rules text no longer mentions threes). `PP_MK.tpm` stays with `off:1` only so an old saved pick still has a label. Not touched: tpm inside the raw data arrays, the SG position guess in make_basketball (`tpm>=.8`) and tools/ovr/make_ovr.py BBKEY, so ovr.js is unchanged. Varsity Bowl: after a catch everyone moves faster (carrier x1.15, defenders x1.15 more), and each play one or two man defenders are weak (slow, deep cushion, late reaction) so some receivers are open.
+
+## v638 (Nov 19)
+Basketball props: no cap per team per stat (`PP_TOP` only applies to football now); a player gets a line for every stat he averages 2+ per game (min 2 for points, rebounds, assists, steals, blocks; points+rebounds+assists still 12). Still needs 3 games or 5 last-season games.

@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v637 · Nov 18';
+const APP_BUILD='v638 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7014,12 +7014,12 @@ function atsResult(b,g){
 const propsOf=u=>((S.picks[u]||{}).props)||{};
 const BBPP=GAME_L==='Game';
 const PP_MK=BBPP?{
-  pts:{l:'Points',g:'Scoring',min:5,y:1,pi:0,f:s=>s.pts},
-  reb:{l:'Rebounds',g:'Rebounds',min:3,pi:1,f:s=>s.reb},
+  pts:{l:'Points',g:'Scoring',min:2,y:1,pi:0,f:s=>s.pts},
+  reb:{l:'Rebounds',g:'Rebounds',min:2,pi:1,f:s=>s.reb},
   ast:{l:'Assists',g:'Assists',min:2,pi:2,f:s=>s.ast},
   tpm:{l:'3-pointers made',g:'3-pointers',min:1,pi:3,f:s=>s.tpm,off:1},   /* removed from the app (owner, Nov 19): kept only so an old saved pick still shows a name */
-  stl:{l:'Steals',g:'Steals',min:1,pi:6,f:s=>s.stl||0},   /* v616 (owner: more basketball prop lines): steals, blocks and points + rebounds + assists; last-season averages come from BB_PST (stl at 6, blk at 7, PRA = pts + reb + ast) */
-  blk:{l:'Blocks',g:'Blocks',min:.8,pi:7,f:s=>s.blk||0},
+  stl:{l:'Steals',g:'Steals',min:2,pi:6,f:s=>s.stl||0},   /* v616 (owner: more basketball prop lines): steals, blocks and points + rebounds + assists; last-season averages come from BB_PST (stl at 6, blk at 7, PRA = pts + reb + ast) */
+  blk:{l:'Blocks',g:'Blocks',min:2,pi:7,f:s=>s.blk||0},
   pra:{l:'Points + rebounds + assists',g:'Pts + reb + ast',min:12,y:1,pf:q=>q[0]+q[1]+q[2],f:s=>(s.pts||0)+(s.reb||0)+(s.ast||0)}
 }:{
   passYd:{l:'Passing yards',g:'Passing',pos:['QB'],min:50,y:1,f:s=>s.passYd},
@@ -7088,7 +7088,7 @@ function propCands(){
         (rows[m]=rows[m]||[]).push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
       });
     });
-    Object.entries(rows).forEach(([m,a])=>{a.sort((x,y)=>y.mean-x.mean);const top=a.slice(0,PP_TOP[m]||1);list.push(...top,...a.filter(x=>!top.includes(x)&&PP_ALWAYS.includes(x.name+'|'+x.school)))});
+    Object.entries(rows).forEach(([m,a])=>{a.sort((x,y)=>y.mean-x.mean);const top=a.slice(0,BBPP?a.length:(PP_TOP[m]||1));list.push(...top,...a.filter(x=>!top.includes(x)&&PP_ALWAYS.includes(x.name+'|'+x.school)))});
     /* v398 (owner): a player whose card you own always has a prop line in each of his team's games, so the card boost can be used. If the normal rules left him without one (weak stat line, under 3 games, outside the top 4), he gets his best-fitting stat with the minimums waived. */
     (by[sc]||[]).forEach(p=>{
       if(!own.has(p.key)||injOf(p,g.w))return;

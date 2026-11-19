@@ -1339,3 +1339,6 @@ Varsity Bowl (not shipped): carrier stamina (`C.cs`, speed drops up to 27% over 
 
 ## v663 (Nov 19)
 Varsity Bowl (not shipped): throw preview has more dots (one per 19 px, min 6; was 28 px, min 4).
+
+## v664 (Nov 19)
+Varsity Bowl (not shipped): defenders read the ball like receivers do: any DB/LB within 90 px of the landing spot breaks on it at x1.05; in `resolveCatch` defenders up to 24 px away can contest (score drops 1.3 per px beyond 8), so bad throws are still jumped, just less often.

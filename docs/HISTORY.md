@@ -1270,3 +1270,6 @@ Basketball props: owner wants points, rebounds and assists at 2+ per game with n
 
 ## v640 (Nov 19)
 Basketball props: no limit per team for any stat (steals, blocks and points+rebounds+assists too). Minimums: points/rebounds/assists 2, steals 1, blocks .8, pra 12. Football keeps `PP_TOP`.
+
+## v641 (Nov 19)
+`fmtDate(d)` now says Today / Tomorrow / Yesterday for those days and the date otherwise (`fmtDate(d,1)` keeps the plain date, used for 'Next round locks' and 'Stats start after the first games on'). `dayLab` no longer adds ' · Today'.

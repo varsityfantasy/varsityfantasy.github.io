@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v640 · Nov 18';
+const APP_BUILD='v641 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4405,7 +4405,7 @@ const OPP=(()=>{
   if(Object.keys(next).length)Object.keys(teams).forEach(n=>{if(!next[n])next[n]=null});   /* only once upcoming games are listed */
   return{teams,avg,next:new Proxy(next,{get:(o,k)=>k in o?o[k]:undefined})};
 })();
-function fmtDate(d){if(!d)return'';const x=new Date(d+'T12:00:00');return x.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
+function fmtDate(d,raw){if(!d)return'';if(!raw){try{const t=TODAY();if(d===t)return'Today';if(d===addDay(t,1))return'Tomorrow';if(d===addDay(t,-1))return'Yesterday'}catch(e){}}const x=new Date(d+'T12:00:00');return x.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
 const nextWeek=()=>Math.min(WEEKS,CURW());
 let _pj={},_pjK='';
 function oppInfo(school){
@@ -4770,7 +4770,7 @@ function bkHTML(){
   const sum=`<section class="card bk-hd"><div class="qh"><h3>Bracket Challenge</h3><span class="muted">${bkActual().done?'Final':'Live'}</span></div>
     <p class="muted">Pick every playoff winner. Later rounds are worth more. A round locks when it starts.</p>
     <div class="cup-sc2"><div><small>Your points</small><b>${sc.p}</b></div><div><small>Correct</small><b>${sc.c}/${sc.f}</b></div><div><small>Rank</small><b>${mi>=0?(mi+1)+' of '+rows.length:'–'}</b></div></div>
-    ${nextR?`<p class="muted">Next round locks ${esc(fmtDate(nextR))}.</p>`:''}
+    ${nextR?`<p class="muted">Next round locks ${esc(fmtDate(nextR,1))}.</p>`:''}
     <p class="muted">When all championships are final: <b>1st</b> ${esc(PACKS.champs.n)}, <b>2nd–3rd</b> ${esc(PACKS.rookie.n)}, <b>top 50%</b> +${LB_TOK} tokens. Free to play.${can&&bkPrizes(ME.uid).length?` <a href="#shop"><b>Your prize is waiting →</b></a>`:''}</p></section>`;
   const chips=`<div class="chips gm-divs" role="group" aria-label="Division">${T.map(x=>`<button class="chip" data-act="bkDiv" data-v="${esc(x.div)}" aria-pressed="${x===d}">${esc(x.div)}${open(x)?` <small class="bk-n">${open(x)}</small>`:''}</button>`).join('')}</div>`;
   const card=g=>{const lock=g.locked||!!g.win,cur=g.pick;
@@ -7052,7 +7052,7 @@ const _dec=p=>Math.round(Math.min(8,Math.max(1.05,.93/p))*100)/100;
 let _ppC=null;
 /* v576 (owner): basketball props and pick 'em only cover today and the next 2 days; lines are recomputed whenever stats, injuries or the schedule change */
 const addDay=(d,n)=>{const t=new Date(d+'T12:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)};
-const dayLab=d=>fmtDate(d)+(d===TODAY()?' · Today':d===addDay(TODAY(),1)?' · Tomorrow':'');
+const dayLab=d=>fmtDate(d);
 const bbWin=g=>!BBPP||(g.d>=TODAY()&&g.d<=addDay(TODAY(),2));
 const bbHist=(p,g)=>{const o=[];p.games.forEach((x,i)=>{if(!x)return;(x.gl&&x.gl.length?x.gl:[x]).forEach(y=>{const d=y.d||x.d;if(d?d<g.d:i+1<g.w)o.push(y.stat)})});return o};
 function bbStat(p,M,played){   /* this season's games blended with last season's per-game average (BB_PST) while the sample is small */
@@ -9248,7 +9248,7 @@ function statsHTML(){
   const D=sxData();
   if(!D.rows.length){
     const ds=((typeof GAMES!=='undefined'&&GAMES&&GAMES.games)||[]).map(g=>g.d).filter(Boolean).sort(),d0=ds.find(d=>d>=TODAY());
-    return `<section class="card sx-empty"><b>Stats start after the first games${d0?' on '+esc(fmtDate(d0)):''}.</b><span>Leaders, hot streaks and the best single games fill in here as box scores come in.</span></section>`;
+    return `<section class="card sx-empty"><b>Stats start after the first games${d0?' on '+esc(fmtDate(d0,1)):''}.</b><span>Leaders, hot streaks and the best single games fill in here as box scores come in.</span></section>`;
   }
   const best=D.lines.reduce((m,x)=>x.v>m.v?x:m,D.lines[0]),nl=D.tot?D.rows.reduce((a,x)=>a+x.n,0):D.lines.length,avg=D.lines.reduce((a,x)=>a+x.v,0)/nl;
   const tile=(v,l,act)=>`<div class="sx-tile">${act?`<button class="sx-tb" data-act="player" data-id="${esc(act)}">`:'<div class="sx-tb">'}<b>${v}</b><small>${l}</small>${act?'</button>':'</div>'}</div>`;

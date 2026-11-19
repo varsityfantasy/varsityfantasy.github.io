@@ -1264,3 +1264,6 @@ Basketball: 3-pointers made is gone as a stat (removed from FIELDS, LABEL, SHORT
 
 ## v638 (Nov 19)
 Basketball props: no cap per team per stat (`PP_TOP` only applies to football now); a player gets a line for every stat he averages 2+ per game (min 2 for points, rebounds, assists, steals, blocks; points+rebounds+assists still 12). Still needs 3 games or 5 last-season games.
+
+## v639 (Nov 19)
+Basketball props: owner wants points, rebounds and assists at 2+ per game with no cap; steals and blocks back to their old minimums (1 and .8) and caps (2 each); points+rebounds+assists unchanged (12, top 4).

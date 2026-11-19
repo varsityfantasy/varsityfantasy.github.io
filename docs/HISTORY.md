@@ -1321,3 +1321,6 @@ Varsity Bowl (not shipped): removed the dark initials boxes above receivers in p
 
 ## v657 (Nov 19)
 Varsity Bowl (not shipped): OL and DL get down in a three-point stance until the snap (crouched sprite in `drawPlayer0`), spread wider (OL 19 px apart, DL in the gaps, 23 px between the lines); pass rushers keep their lanes until their `fr` time.
+
+## v658 (Nov 19)
+Varsity Bowl (not shipped): line spacing halfway between v656 and v657 (OL 16 px, DL at +-8/+-24); helmets: dark facemask bars over a lighter face instead of light bars over a dark face (read as a skull).

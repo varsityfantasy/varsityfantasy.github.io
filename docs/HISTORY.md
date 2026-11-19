@@ -1300,3 +1300,6 @@ Varsity Bowl `runRoute`: after the last waypoint a receiver keeps going the way 
 
 ## v650 (Nov 19)
 Varsity Bowl: ball carrier speed +20% (`carrierMove` sp=C.spd*1.38, was 1.15). Defenders unchanged.
+
+## v651 (Nov 19)
+Varsity Bowl removed from the app (owner): no Bowl tile or tab in football Minigames. The code (`vbHTML`, `vbRoster`, tools/gridiron/varsity-bowl.html) is still in the repo; to ship it again put `['vb','Bowl',MGI.vb,'#2FA84F']` back in the football tile list, `'vb'` in the allowed-tab list in `T0`, and 6 columns.

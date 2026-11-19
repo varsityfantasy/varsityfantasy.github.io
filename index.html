@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v616 · Nov 18';
+const APP_BUILD='v617 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8614,25 +8614,67 @@ async function hbOpen(m){
   const fwd=e=>{if(!document.querySelector('.hbx')||e.target.closest&&e.target.closest('input,textarea'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','w','a','d','p','Escape'].includes(e.key)){if(e.key!=='Escape')e.preventDefault();try{fr.contentWindow.postMessage({hb:'key',k:e.key,down:e.type==='keydown'},'*')}catch(_){}}};
   addEventListener('keydown',fwd);addEventListener('keyup',fwd);fr.addEventListener('load',()=>{try{fr.contentWindow.focus()}catch(_){}});setTimeout(()=>{try{fr.contentWindow.focus()}catch(_){}},400);
   addEventListener('message',on);el.querySelector('.fgx-x').addEventListener('click',close)}
+/* v617 (owner): Varsity Bowl (tools/gridiron/varsity-bowl.html), a bird's-eye pixel football game in the style of Retro Bowl, in football's Minigames.
+   Your cards set the starters (best OVR per spot, plus a bonus for the card's rarity); the game window is an iframe and gets the roster by postMessage. */
+const VB_BUMP={c:0,u:2,r:4,e:6,l:8,m:10};
+const vbRec=()=>{try{return JSON.parse(localStorage.getItem('vs-vb')||'{}')||{}}catch(_){return {}}};
+function vbRoster(){
+  const u=ME.uid,own=u&&ME.mode!=='guest'?cardsOf(u):{},by={};
+  players().forEach(p=>{if(p&&p.key&&!p.ext)by['pc:'+p.key]=p});
+  const mine=[];
+  for(const id of Object.keys(own)){const p=by[id];if(!p||!['QB','RB','WR','TE','K','DEF'].includes(p.pos))continue;
+    const base=ovrOf(p.key)||58,o=Math.min(99,base+(VB_BUMP[cardR(u,id)]||0));mine.push({pos:p.pos,n:p.name||'Player',o})}
+  mine.sort((a,b)=>b.o-a.o);
+  const take=(pos,k)=>mine.filter(x=>x.pos===pos).slice(0,k);
+  const wo=['J.Walker','M.Reyes','D.Mills','T.Hart','K.Lee','C.Price','A.Cruz'],fill=(arr,k,i0)=>{const o=arr.map(x=>({n:x.n,o:x.o}));while(o.length<k)o.push({n:wo[(i0+o.length)%wo.length],o:55});return o};
+  const qb=fill(take('QB',1),1,0)[0],rb=fill(take('RB',1),1,1)[0],wr=fill(take('WR',3),3,2),te=fill(take('TE',1),1,5)[0],k=fill(take('K',1),1,6)[0],df=mine.filter(x=>x.pos==='DEF').slice(0,6);
+  const dv=df.length?Math.round((df.reduce((a,b)=>a+b.o,0)+(6-df.length)*55)/6):58;
+  return {real:mine.length>0,ros:{qb,rb,wr,te,k,df:dv}}}
+function vbTeams(){
+  const pr=myProfile()||{},sc=pr.school||'',nm=x=>String(x||'').toUpperCase().replace(/[^A-Z0-9' ]/g,'').replace(/\b(HIGH SCHOOL|HIGH|ACADEMY|CHARTER|SCHOOL)\b/g,'').trim().slice(0,9)||'VARSITY';
+  const col=x=>{const c=schCol(x);return c?{c1:c[0],c2:c[1]}:{c1:'#1d4ed8',c2:'#ffffff'}};
+  const team=Object.assign({n:nm(sc)},col(sc)),opps=SD_SCHOOLS.filter(x=>x!==sc&&schCol(x)).map(x=>Object.assign({n:nm(x)},col(x)));
+  return {team,opps}}
+function vbHTML(){const r=vbRec(),can=!!ME.uid&&ME.mode!=='guest';
+  return `<section class="card rc-card"><div class="qh"><h3>Varsity Bowl</h3>${r.w||r.l||r.t?`<span class="muted">${r.w||0}-${r.l||0}${r.t?'-'+r.t:''}</span>`:''}</div>
+  <p class="muted" style="text-align:center">A full football game from above. Pick a play, tap a receiver or flick toward him to throw, drag to run, flick to juke, tap to dive. The better your cards, the faster, surer and tougher your players are.</p>
+  ${can?'':'<p class="hint" style="text-align:center">Sign in to play with your own cards. You will play with a demo team.</p>'}
+  <div class="rco-modes" style="margin-top:10px"><button class="btn" data-act="vbOpen">Play</button></div>
+  <p class="hint" style="text-align:center;margin-top:8px">Best played with your phone turned sideways.</p></section>`}
+function vbOpen(){
+  if(document.querySelector('.vbx'))return;
+  const el=document.createElement('div');el.className='fgx vbx';el.setAttribute('role','dialog');el.setAttribute('aria-label','Varsity Bowl');
+  el.innerHTML=`<iframe title="Varsity Bowl" allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#000" src="tools/gridiron/varsity-bowl.html?embed=1&b=${encodeURIComponent(APP_BUILD)}"></iframe><button class="fgx-x" aria-label="Close game" style="left:12px;right:auto;top:calc(8px + env(safe-area-inset-top,0px));width:36px;height:36px;font-size:16px">✕</button>`;
+  document.body.appendChild(el);document.body.classList.add('fg-on');
+  const fr=el.querySelector('iframe');
+  const send=()=>{try{const r=vbRoster(),t=vbTeams();fr.contentWindow.postMessage({vb:'init',team:t.team,opps:t.opps,ros:r.ros,real:r.real},'*')}catch(_){}};
+  const done=()=>{removeEventListener('message',on);el.remove();document.body.classList.remove('fg-on');if(dirty&&!typing()){dirty=false;try{render(true)}catch(_){}}},
+  on=e=>{const d=e.data;if(!d||!d.vb||e.source!==fr.contentWindow)return;
+    if(d.vb==='ready')send();
+    else if(d.vb==='close')done();
+    else if(d.vb==='result'){try{const r=vbRec();if(d.tie)r.t=(r.t||0)+1;else if(d.win)r.w=(r.w||0)+1;else r.l=(r.l||0)+1;localStorage.setItem('vs-vb',JSON.stringify(r))}catch(_){}}};
+  addEventListener('message',on);fr.addEventListener('load',send);setTimeout(send,600);
+  el.querySelector('.fgx-x').addEventListener('click',done)}
 function viewMini(){
   if(UI.mtab==='pkl'){UI.mtab='picks';UI.ltab='leagues';UI.lgk='pk';setTimeout(()=>{location.hash='#groups'},0)}
   if(!UI.mtab||UI.mtab==='predict')UI.mtab=propCands().length?'props':'picks';   /* v287: Predict opens on Player props (Pick 'em when there are no lines yet) */
-  const T0=UI.mtab==='spread'?'props':['picks','draw','props','sim','rc','fg',...(FG_SPORT==='bb'?['hb']:[])].includes(UI.mtab)?UI.mtab:'picks',T=T0==='props'||T0==='picks'||T0==='pkl'?'predict':T0,PT=T0==='props'?'props':T0==='pkl'?'pkl':'picks';
+  const T0=UI.mtab==='spread'?'props':['picks','draw','props','sim','rc','fg',...(FG_SPORT==='bb'?['hb']:['vb'])].includes(UI.mtab)?UI.mtab:'picks',T=T0==='props'||T0==='picks'||T0==='pkl'?'predict':T0,PT=T0==='props'?'props':T0==='pkl'?'pkl':'picks';
   const tkn=ME.uid&&ME.mode!=='guest'?`<div class="tok-wrap"><a class="tok-box shop-box" href="#shop" aria-label="Shop: open packs"><small>Shop</small><b><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9h16l-1 11H5zM8 9V6a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></b></a><button type="button" class="tok-box" data-act="tokOpen" aria-label="Your tokens. Get more"><small>Your tokens</small><b>${coinIc(ME.uid)}${Math.round(bank(ME.uid))}<span class="tok-plus" aria-hidden="true">+</span></b></button></div>`:'';
-  const head=`<div class="head mg-head"><div><h2>Minigames</h2><p>${T==='hb'?'One-on-one hoops against another player.':T==='rc'?'Spin a school, pick a player. Best lineup wins.':T==='fg'?'Tap to keep the ball up and fly through the goals.':T==='sim'?'Draw a full 12-player team and swap players with respins.':T==='mock'?'Practice drafting. It never touches your leagues or tokens.':PT==='props'&&T==='predict'?'Over or under on a player’s stats.':T==='draw'?'Get dealt 5 random players each week and redraw up to '+FC_REDRAWS+'.':PT==='pkl'?'Pick every winner. Best accuracy wins.':'Pick the winners of upcoming games.'}</p></div>${tkn}</div>`;
+  const head=`<div class="head mg-head"><div><h2>Minigames</h2><p>${T==='hb'?'One-on-one hoops against another player.':T==='vb'?'Pick a play, throw, run. Your cards set how good your players are.':T==='rc'?'Spin a school, pick a player. Best lineup wins.':T==='fg'?'Tap to keep the ball up and fly through the goals.':T==='sim'?'Draw a full 12-player team and swap players with respins.':T==='mock'?'Practice drafting. It never touches your leagues or tokens.':PT==='props'&&T==='predict'?'Over or under on a player’s stats.':T==='draw'?'Get dealt 5 random players each week and redraw up to '+FC_REDRAWS+'.':PT==='pkl'?'Pick every winner. Best accuracy wins.':'Pick the winners of upcoming games.'}</p></div>${tkn}</div>`;
   /* v289: game tiles with an icon and a colour each (gold glow on the one you're in) */
 const MGI=(()=>{const w=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;return {
+  vb:w('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M12 6v12M7 6v12M17 6v12M9 12h.01M15 12h.01"/>'),
   predict:w('<rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M8.5 12.3l2.5 2.5 4.8-5.3"/>'),
   draw:w('<rect x="3.5" y="6.5" width="10" height="14" rx="2" transform="rotate(-12 8.5 13.5)"/><rect x="10.5" y="3.5" width="10" height="14" rx="2" transform="rotate(12 15.5 10.5)"/>'),
   sim:w('<path d="M7.5 4h9v5.2a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5v1.2A3 3 0 0 0 7.8 10M16.5 6h3v1.2a3 3 0 0 1-3.3 2.8M12 13.7V17M8.5 20h7M9.8 17h4.4"/>'),
   rc:w('<circle cx="12" cy="15" r="5.8"/><path d="M9 6.3L10.4 4h3.2L15 6.3 12 9.2z"/>'),
   fg:w('<path d="M12 20.5v-8M6 3.5V9a6 6 0 0 0 12 0V3.5"/>'),
   hoop:w('<circle cx="12" cy="4.6" r="2.6"/><ellipse cx="12" cy="11" rx="7" ry="2"/><path d="M5.4 12l2.6 7M18.6 12l-2.6 7M10 13l.8 6.4M14 13l-.8 6.4"/>')}})();
-  const tabs=`<div class="mg-tiles" role="group" aria-label="Minigames" style="${FG_SPORT==='bb'?'grid-template-columns:repeat(6,1fr)':''}">${[['predict','Predict',MGI.predict,'#2F6BFF'],['draw','5 Card Draw',MGI.draw,'#7A4DFF'],['sim','10-0',MGI.sim,'#FF4F6D'],['rc','Ring Chaser',MGI.rc,'#3DDC84'],['fg',FG_SPORT==='bb'?'Hoops':'Field Goal',FG_SPORT==='bb'?MGI.hoop:MGI.fg,'#FF9A1F'],...(FG_SPORT==='bb'?[['hb','1-on-1',MGI.rc,'#E65B28']]:[])].map(([v,l,ic,c])=>`<button class="mg-tile" style="--tc:${c}" data-act="mtab" data-v="${v}" aria-pressed="${v===T}"><span class="mg-ti" aria-hidden="true">${ic}</span><b>${l}</b></button>`).join('')}</div>`;
+  const tabs=`<div class="mg-tiles" role="group" aria-label="Minigames" style="grid-template-columns:repeat(6,1fr)">${[['predict','Predict',MGI.predict,'#2F6BFF'],['draw','5 Card Draw',MGI.draw,'#7A4DFF'],['sim','10-0',MGI.sim,'#FF4F6D'],['rc','Ring Chaser',MGI.rc,'#3DDC84'],['fg',FG_SPORT==='bb'?'Hoops':'Field Goal',FG_SPORT==='bb'?MGI.hoop:MGI.fg,'#FF9A1F'],...(FG_SPORT==='bb'?[['hb','1-on-1',MGI.rc,'#E65B28']]:[['vb','Bowl',MGI.vb,'#2FA84F']])].map(([v,l,ic,c])=>`<button class="mg-tile" style="--tc:${c}" data-act="mtab" data-v="${v}" aria-pressed="${v===T}"><span class="mg-ti" aria-hidden="true">${ic}</span><b>${l}</b></button>`).join('')}</div>`;
   const sub=T==='predict'?`<div class="pr-big" role="group" aria-label="Predict">${[['props','Player props','Over or under on player stats','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>'],['picks','Pick ’em','Pick the winners of the games','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4M6 4h12l-3 4.5 3 4.5H6"/></svg>']].map(([v,l,d,ic])=>`<button class="pr-bt" data-act="mtab" data-v="${v}" aria-pressed="${PT===v}"><span class="pr-ic" aria-hidden="true">${ic}</span><span class="pr-tx"><b>${l}</b><small>${d}</small></span></button>`).join('')}</div>`:'';
   const help=({predict:`<div class="mg-help"><span>Over / Under ${ii('ou')}</span><span>Pick ’em ${ii('pickem')}</span></div>`,draw:`<div class="mg-help"><span>Redraw ${ii('redraw')}</span></div>`,sim:`<div class="mg-help"><span>${FG_SPORT==='bb'?'82-0':'10-0'} ${ii('sim')}</span></div>`})[T]||'';
   const simBody=()=>viewSim().replace(/^<div class="head"><h2>Simulate<\/h2><p>[\s\S]*?<\/p><\/div>/,'');
-  return head+tabs+sub+help+(T==='hb'?hbHTML():T==='rc'?rcHTML():T==='fg'?fgHTML():T==='draw'?fcHTML():T==='mock'?mockHTML():T==='sim'?simBody():PT==='props'?propsHTML():PT==='pkl'?pklHTML():picksHTML());
+  return head+tabs+sub+help+(T==='vb'?vbHTML():T==='hb'?hbHTML():T==='rc'?rcHTML():T==='fg'?fgHTML():T==='draw'?fcHTML():T==='mock'?mockHTML():T==='sim'?simBody():PT==='props'?propsHTML():PT==='pkl'?pklHTML():picksHTML());
 }
 /* ---------- v481 section browser: every other California section, read-only (schedule, scores, standings, teams) ----------
    Data is the JSON the collector commits to data/sections/ (index.json + one file per section). It is loaded only when you open a section, never at start-up, and it never touches GAMES, picks, wagers or leagues. San Diego keeps its full app. */
@@ -11155,7 +11197,7 @@ function touch(){
   if(rq)return;rq=true;
   /* a refresh that lands mid-swipe waits until the finger is up and the page has stopped scrolling */
   const go=()=>{if(FINGER||Date.now()-LASTSCROLL<350){setTimeout(go,250);return}
-    rq=false;let v=UI.view;chrome(v);if(document.querySelector('.hbx')){dirty=true;return}   /* v468: no page rebuild behind a running Hoops Battle: the game iframe shares this thread, so a rebuild froze the match for a moment (flushed in hbOpen's done) */
+    rq=false;let v=UI.view;chrome(v);if(document.querySelector('.hbx,.vbx')){dirty=true;return}   /* v468: no page rebuild behind a running Hoops Battle: the game iframe shares this thread, so a rebuild froze the match for a moment (flushed in hbOpen's done) */
     if(typing()){if(document.activeElement.id==='chat-in')refreshChat();dirty=true;return}render(true);if(!$('#drawer').hidden)refreshDrawer()};
   requestAnimationFrame(go);
 }
@@ -11345,6 +11387,7 @@ document.addEventListener('click',async e=>{
   else if(a==='fgb'){UI.fgb=t.dataset.v;UI.mgMore=false;UI.mgN=0;render()}
   else if(a==='rcStart'){rcoStop();rcStart()}
   else if(a==='hbOpen')hbOpen(t.dataset.m);
+  else if(a==='vbOpen')vbOpen();
   else if(a==='hbWg'){UI.hbW=+t.dataset.v||0;render(true)}
   else if(a==='rcoFind'){if(UI.rco){rcoStop();rcoForget()}rcoNew(true)}
   else if(a==='rcoParty'){if(UI.rco){rcoStop();rcoForget()}rcoNew(false)}

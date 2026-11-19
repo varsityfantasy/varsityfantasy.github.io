@@ -1306,3 +1306,6 @@ Varsity Bowl removed from the app (owner): no Bowl tile or tab in football Minig
 
 ## v652 (Nov 19)
 Varsity Bowl (not shipped in the app): carrier speed x1.52 (+10%), turf redrawn with patchy color, blade strokes and worn lanes.
+
+## v653 (Nov 19)
+Varsity Bowl (not shipped in the app): ball drawn bigger (10x6 in the air, with dark outline and laces; larger when carried and resting).

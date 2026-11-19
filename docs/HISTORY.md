@@ -1330,3 +1330,6 @@ Varsity Bowl (not shipped): new helmet sprite `helmetP()` shared by standing and
 
 ## v660 (Nov 19)
 Varsity Bowl (not shipped): helmets drawn as a round shell with canvas ellipses (`helmetR()`): stripe, ear hole, face and facemask bars all inside the outline, no brim or pointed front. Replaces the rect helmet `helmetP` (still defined, unused).
+
+## v661 (Nov 19)
+Varsity Bowl (not shipped): each play is 50% shotgun (`S.sg`: QB starts 46 px behind the line, holds the ball, no drop) or under center (QB 15 px behind, drops to 60 px as before).

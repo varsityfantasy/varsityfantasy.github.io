@@ -527,7 +527,7 @@ function drawWorld(){
  /* slingshot aim: a dotted arc to where the ball will land, with the catch star there */
  if(G.phase==='play'&&S&&!S.thrown&&!S.carrier&&!S.done&&S.pl.k==='pass'){const a=aimInfo();if(a&&a.x>=P.qb.x-3){const Q=P.qb,qx=Q.x-camX,qy=FT+Q.y-12,tx=a.x-camX,ty=FT+clamp(a.y,2,FH-2),hh=a.lob?36:14;
    g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=1;g.beginPath();g.moveTo(Math.round(ptr.sx)+.5,Math.round(ptr.sy)+.5);g.lineTo(Math.round(ptr.x)+.5,Math.round(ptr.y)+.5);g.stroke();rect(ptr.sx-2,ptr.sy-2,4,4,'#fff');
-   const n=Math.max(4,Math.round(a.dist/28));for(let k=1;k<n;k++){const u=k/n,dx=qx+(tx-qx)*u,dy=qy+(ty-qy)*u-Math.sin(u*Math.PI)*hh;g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=1.5;g.beginPath();g.arc(Math.round(dx)+.5,Math.round(dy)+.5,2.4,0,7);g.fill();g.stroke()}
+   const n=Math.max(6,Math.round(a.dist/19));for(let k=1;k<n;k++){const u=k/n,dx=qx+(tx-qx)*u,dy=qy+(ty-qy)*u-Math.sin(u*Math.PI)*hh;g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=1.5;g.beginPath();g.arc(Math.round(dx)+.5,Math.round(dy)+.5,2.4,0,7);g.fill();g.stroke()}
   }}
  if(S&&S.thrown&&S.ball&&!S.ball.done){const lx=Math.round(S.land.x-camX),ly=Math.round(FT+S.land.y);g.strokeStyle='rgba(255,255,255,.75)';g.beginPath();g.ellipse(lx+.5,ly+.5,7,3,0,0,7);g.stroke()}
  /* floating text */

@@ -1336,3 +1336,6 @@ Varsity Bowl (not shipped): each play is 50% shotgun (`S.sg`: QB starts 46 px be
 
 ## v662 (Nov 19)
 Varsity Bowl (not shipped): carrier stamina (`C.cs`, speed drops up to 27% over ~6.5 s of carrying, each juke adds `C.tired` up to 20%); defenders chase at x1.5 (was 1.38); a defender within 13 px of the catcher tackles him at the catch 88% of the time (`resolveCatch`).
+
+## v663 (Nov 19)
+Varsity Bowl (not shipped): throw preview has more dots (one per 19 px, min 6; was 28 px, min 4).

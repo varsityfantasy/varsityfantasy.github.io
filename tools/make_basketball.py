@@ -300,7 +300,7 @@ def build_data():
             ppg_, reb, ast, stl, blk, tov, tpm = x['st']
             per = ppg_ + 1.2 * reb + 1.5 * ast + 2 * stl + 2 * blk - 2 * tov
             rank['mp' + pl['id']] = round(per * min(4, max(1, round(x['gp'] / 7))), 1)
-            pst['mp' + pl['id']] = [round(ppg_, 1), round(reb, 1), round(ast, 1), round(tpm, 1), x['gp'], round(per, 1), round(stl, 1), round(blk, 1)]
+            pst['mp' + pl['id']] = [round(ppg_, 1), round(reb, 1), round(ast, 1), round(tpm, 1), x['gp'], round(per, 1), round(stl, 1), round(blk, 1), round(tov, 1)]
     mp = {'through': '2025-26 season', 'games': 0, 'updated': 'MaxPreps 2025-26 season averages', 'players': players}
     seeds = sorted([n for n in TEAMS if ppg[n] > 0], key=lambda t: -rating[t])[:8]
     prior = {n: round(rating[n], 1) for n in TEAMS if rating[n]}
@@ -414,7 +414,7 @@ def transform(s, mp, games, seeds, teams, prior):
     s = rep(s, "const fcPool=ex=>{", "const fcEl=p=>{const a=agg(p,'season'),pst=(window.BB_PST||{})[p.key];return (a.n>0&&(a.s.pts||0)/a.n>1)||(pst&&pst[0]>1)||proj(p).pts>1};\nconst fcPool=ex=>{")
     s = rep(s, "&&agg(p,'season').n>0&&(FC_DAILY", "&&fcEl(p)&&(FC_DAILY")
     # v611 (owner): a card with no 2026-27 game yet shows his projected fantasy points a game (last season's line under the current scoring) instead of "No games yet"
-    s = rep(s, "'<small>No games yet</small>'})()}</div>", "(()=>{const q=(window.BB_PST||{})[p.key];return q&&q[5]?`<b>${f1(q[5])}</b> PROJ PPG<small>no games yet</small>`:'<small>No games yet</small>'})()})()}</div>")
+    s = rep(s, "'<small>No games yet</small>'})()}</div>", "(()=>{const j=proj(p);return j.n&&j.pts>0?`<b>${f1(j.pts)}</b> PROJ PPG<small>no games yet</small>`:'<small>No games yet</small>'})()})()}</div>")
     s = rep(s, "hi=base.filter(p=>ovrOf(p.key)>=FC_MIN_OVR);", "hi=base;")   # v609 (owner): no 65 OVR minimum in basketball, only the projection rule above
     s = line_replace(s, 'const PTS=', "const PTS={pts:1,reb:1.2,ast:1.5,stl:2,blk:2,tov:-2,tpm:0};")
     s = line_replace(s, 'const LABEL=', "const LABEL={pts:'Points',reb:'Rebounds',ast:'Assists',stl:'Steals',blk:'Blocks',tov:'Turnovers',tpm:'3-pointers made'};")
@@ -430,6 +430,27 @@ def transform(s, mp, games, seeds, teams, prior):
     s = rep(s, 'LAM=12,CAP=21', 'LAM=12,CAP=30')
     s = rep(s, ":''):p.sample?'':(a.unv", ":'')+'<span class=\"vt mp\">Season avg</span>':p.sample?'':(a.unv")
     s = line_replace(s, 'const SD_SCHOOLS=', 'const SD_SCHOOLS=' + json.dumps(teams) + '.sort((a,b)=>a.localeCompare(b));')
+    # v633 (owner): basketball projections. Before a player has a 2026-27 game the projection is last season's per-game line (BB_PST: pts, reb, ast, 3pm, gp, fantasy, stl, blk, tov);
+    # once games come in they count for more and last season's line counts as up to 2 games (less if he played under 12). Opponent adjustment stays.
+    s = between(s, 'function proj(p){', '\nfunction projLine',
+                "function proj(p){\n"
+                "  const k=nextWeek()+'|'+UI.scope;if(_pjK!==k){_pj={};_pjK=k}\n"
+                "  if(_pj[p.key])return _pj[p.key];\n"
+                "  const cw=nextWeek(),gs=p.games.map((g,i)=>g&&i+1<cw?{w:i+1,s:g.stat}:null).filter(Boolean);\n"
+                "  const q=p.ext?null:(window.BB_PST||{})[p.key],pr=q&&q[4]>0?{pts:q[0],reb:q[1],ast:q[2],tpm:q[3],stl:q[6]||0,blk:q[7]||0,tov:q[8]||0}:null;\n"
+                "  const info=p.ext?null:oppInfo(p.school);\n"
+                "  if(!gs.length&&!pr)return _pj[p.key]={pts:0,n:0,stat:null,f:1,info};\n"
+                "  const PW=pr?2*Math.min(1,q[4]/12):0;let wsum=0;const st=blank();\n"
+                "  gs.forEach(g=>{const w=Math.pow(.82,cw-1-g.w);wsum+=w;KEYS.forEach(k=>{st[k]+=(g.s[k]||0)*w})});\n"
+                "  if(pr){KEYS.forEach(k=>{st[k]+=(pr[k]||0)*PW});wsum+=PW}\n"
+                "  KEYS.forEach(k=>{st[k]=st[k]/wsum});\n"
+                "  const base=pts(st);let f=1;\n"
+                "  if(info&&info.def&&OPP.avg){f=Math.pow((info.def.pa||OPP.avg)/OPP.avg,.6);f=Math.max(.72,Math.min(1.32,f))}\n"
+                "  const ps={};KEYS.forEach(k=>{ps[k]=st[k]*f});\n"
+                "  const shrink=gs.length?Math.sqrt(Math.min(1,(gs.length+PW)/4)):.95*Math.sqrt(Math.min(1,q[4]/8));\n"
+                "  return _pj[p.key]={pts:info&&info.bye?0:Math.round(base*f*shrink*10)/10,n:gs.length||1,pre:!gs.length,stat:ps,f,info,base:Math.round(base*10)/10};\n"
+                "}")
+    s = rep(s, "(GAME_L==='Game'?'Based on recent games, the latest count most.':", "(GAME_L==='Game'?(j.pre?'Based on last season’s averages.':'Based on recent games, the latest count most; last season’s averages fill in early.'):")
     s = between(s, 'function projLine(p){', '\nfunction projTag',
                 "function projLine(p){\n  const j=proj(p);if(!j.n)return 'No games yet';\n  if(j.info&&j.info.bye)return 'No game this week';\n"
                 "  const s=j.stat;return `${s.pts.toFixed(1)} pts · ${s.reb.toFixed(1)} reb · ${s.ast.toFixed(1)} ast`;\n}")

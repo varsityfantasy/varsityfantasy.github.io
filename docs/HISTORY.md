@@ -1246,3 +1246,6 @@ Varsity Bowl: pass rush is gradual and staggered (each DL has its own free time 
 
 ## v632 (Nov 18)
 Varsity Bowl: no lob pass (aimInfo lob always false, one throw speed). Removed the JUKE! pop-up. Jukes only go sideways (dx forced 0, flick needs vertical movement).
+
+## v633 (Nov 18)
+Basketball projected stats (owner). `proj(p)` is overridden in `tools/make_basketball.py`: with no 2026-27 game yet a player projects to last season's per-game line (`BB_PST`: pts, reb, ast, 3pm, gp, fantasy, stl, blk, and now tov at index 8), x0.95 and scaled down if he played under 8 games. Once games come in they count more and last season's line counts as up to 2 games (less if he played under 12 games), with the usual opponent adjustment. The player sheet's "Projected next game" card, lineup/advisor projections and the card's PROJ PPG all use the same number now. Players with no last-season stats still show "No games yet". Regenerated basketball.html.

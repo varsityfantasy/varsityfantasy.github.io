@@ -3936,7 +3936,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v617 · Nov 18';
+const APP_BUILD='v618 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8593,10 +8593,13 @@ function hbHTML(){const can=!!ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly'&&M
   <div class="rco-modes" style="margin-top:10px"><button class="btn" data-act="hbOpen" data-m="find">Find an opponent</button><button class="btn ghost" data-act="hbOpen" data-m="ai">Play the AI</button></div></section>`}
 const HB={live:null};
 async function hbRecord(mid,w,win){
-  if(!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!(w>0))return;
+  if(!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline')return;
   const my=hbRec(ME.uid);if(my.oid===mid)return;
-  const o={w:(+my.w||0)+(win?1:0),l:(+my.l||0)+(win?0:1),wn:(+my.wn||0)+(win?w:-w),oid:mid,at:NOW()};
-  await act(()=>upsert('picks/'+ME.uid,{hb:o}),win?`Hoops Battle win · +${w} tokens`:`Hoops Battle loss · -${w} tokens`);render(true)}
+  w=+w||0;
+  /* v618 (owner): every finished online match is counted (free ones too): g = matches, gw = won, ml = the last 40 (id, time, wager) so the dashboard can count each match once and leave the owner's out. w / l / wn stay wagers only. */
+  const ml=(Array.isArray(my.ml)?my.ml:[]).concat([{i:mid,t:NOW(),w}]).slice(-40);
+  const o={w:(+my.w||0)+(w>0&&win?1:0),l:(+my.l||0)+(w>0&&!win?1:0),wn:(+my.wn||0)+(w>0?(win?w:-w):0),g:(+my.g||0)+1,gw:(+my.gw||0)+(win?1:0),ml,oid:mid,at:NOW()};
+  await act(()=>upsert('picks/'+ME.uid,{hb:o}),w>0?(win?`Hoops Battle win · +${w} tokens`:`Hoops Battle loss · -${w} tokens`):'');render(true)}
 async function hbOpen(m){
   if(document.querySelector('.hbx'))return;
   const bal=ME.uid&&ME.mode!=='guest'&&ME.mode!=='readonly'&&ME.mode!=='offline'?Math.max(0,Math.floor(bank(ME.uid))):0;
@@ -10667,6 +10670,11 @@ function admHTML(){
     body=title('Games and schools','Every minigame: who plays, how much, and the best scores. Plus leagues and schools.')+`<div class="adm-card" style="margin-bottom:16px"><div class="adm-ch"><h3>Minigames</h3>${sel}</div><div class="adm-tw"><table class="adm-t"><thead><tr><th>Game</th><th class="n">People</th><th class="n">Plays</th><th class="n">Time spent</th><th class="n adm-hs">Per player</th><th class="n adm-hs">Best score</th></tr></thead><tbody>
       ${D.gstat.map(g=>{const t=tt(g.k);return `<tr><td><b>${esc(g.l)}</b></td><td class="n">${g.people}</td><td class="n">${g.plays}</td><td class="n"><b>${fmtDur(t)}</b></td><td class="n adm-hs">${fmtDur(g.people?t/g.people:0)}</td><td class="n adm-hs">${g.best===null?'—':f1(g.best)}</td></tr>`}).join('')}</tbody></table></div>
       <p class="adm-mut" style="font-size:12px;margin:10px 0 0">Plays: Pick ’em and props count picks, 5 Card Draw counts weekly hands, the others count finished runs. Time spent is for the date range.</p></div>
+${(()=>{const H=X.hbA,days=D.days.slice(-14),dv=days.map(d=>H.day[d]||0),tdy=dKey(new Date()),bb=typeof FG_SPORT!=='undefined'&&FG_SPORT==='bb';
+        return `<div class="adm-card" style="margin-bottom:16px"><div class="adm-ch"><h3>1v1 matches (Hoops Battle)</h3><span class="adm-chip">${bb?'not counting your account':'basketball app'}</span></div>
+        ${bb?`<div class="adm-glance"><div><small>Matches played</small><b>${H.n.toLocaleString()}</b></div><div><small>Players</small><b>${H.players.size}</b></div><div><small>Free matches</small><b>${H.free}</b></div><div><small>With a wager</small><b>${H.wag}</b></div><div><small>Today</small><b>${H.day[tdy]||0}</b></div><div><small>Last 14 days</small><b>${dv.reduce((a,b)=>a+b,0)}</b></div></div>
+        <h4 style="margin:14px 0 6px">Matches per day</h4>${admBars(days,dv,{c:'#E65B28',label:'1v1 matches per day'})}
+        <p class="adm-mut" style="font-size:12px;margin:10px 0 0">Every match is counted once, and any match you played is left out. Counting starts with v618${H.old?`; before that only games with a wager were saved: about ${H.old} more`:''}. A match someone left before it finished is not counted.</p>`:'<p class="adm-mut" style="margin:6px 0 0">1v1 is a basketball game. Open the dashboard in the basketball app to see its matches.</p>'}</div>`})()}
     <div class="adm-grid"><div class="adm-card adm-span2"><div class="adm-ch"><h3>Minigames</h3><span class="adm-chip">People who have played</span></div>${hbars(D.games.map(g=>[g.l,g.v]),'#5B9BD5')}</div>
     <div class="adm-card"><div class="adm-ch"><h3>Leagues</h3></div><div class="adm-big">${K.leagues}</div><p class="adm-mut">fantasy leagues created</p></div>
     <div class="adm-card adm-span3"><div class="adm-ch"><h3>Top schools</h3><span class="adm-chip">Users</span></div>${hbars(D.schools,'#25C26E')}</div></div>`}
@@ -10741,6 +10749,16 @@ function dashData2(D){
     for(const x of Object.values(pk.agl||{})){if(!x)continue;const q=gfA.ad;q.n++;q.by[x.k]=(q.by[x.k]||0)+1;if(x.a)q.tok+=+x.a||0;if(+x.at)q.day[dKey(new Date(+x.at))]=(q.day[dKey(new Date(+x.at))]||0)+1}
     for(const x of Object.values(pk.an||{})){if(x&&+x.at<AGL_FROM&&/^You were (given|gifted)/.test(x.t||'')){gfA.ad.n++;gfA.ad.old++;const m=/(\d[\d,]*) tokens/.exec(x.t);if(m){gfA.ad.tok+=+m[1].replace(/,/g,'')||0}if(+x.at)gfA.ad.day[dKey(new Date(+x.at))]=(gfA.ad.day[dKey(new Date(+x.at))]||0)+1}}}
   if(demo){const g=rng(33);gfA.fr.n=Math.round(P.length*.4);gfA.fr.tok=gfA.fr.n*60;gfA.fr.it=Math.round(gfA.fr.n*.15);gfA.fr.snd=new Set(Array.from({length:Math.round(P.length*.2)},(_,i)=>'s'+i));gfA.fr.rcv=new Set(Array.from({length:Math.round(P.length*.25)},(_,i)=>'r'+i));gfA.ad.n=12;gfA.ad.tok=900;gfA.ad.by={tokens:7,card:3,pack:2};D.days.slice(-14).forEach(d=>{gfA.fr.day[d]=Math.round(g()*8)})}
+  /* 1v1 matches (v618): Hoops Battle, basketball only. Each finished match is in both players' hb.ml; count each match id once and leave out every match the owner (Zed Hornby) played. Wagered games from before v618 only have w / l counts. */
+  const hbA={n:0,free:0,wag:0,players:new Set(),day:{},old:0,oldP:0,ownN:0};
+  {const own=new Set(Object.entries(S.profiles||{}).filter(([,p])=>p&&ZH.test(p.name||'')).map(([id])=>id)),ownM=new Set(),seen=new Set();
+   for(const [u,pk] of Object.entries(S.picks||{})){if(pk&&pk.hb&&own.has(u))for(const x of (pk.hb.ml||[]))ownM.add(x.i)}
+   for(const [u,pk] of Object.entries(S.picks||{})){const h=pk&&pk.hb;if(!h)continue;
+     if(own.has(u)){hbA.ownN+=(+h.g||0);continue}
+     if(Array.isArray(h.ml)&&h.ml.length){for(const x of h.ml){if(ownM.has(x.i)){continue}hbA.players.add(u);if(seen.has(x.i))continue;seen.add(x.i);hbA.n++;if(x.w>0)hbA.wag++;else hbA.free++;if(+x.t)hbA.day[dKey(new Date(+x.t))]=(hbA.day[dKey(new Date(+x.t))]||0)+1}}
+     const tracked=(+h.g||0);const olds=Math.max(0,((+h.w||0)+(+h.l||0))-(Array.isArray(h.ml)?h.ml.filter(x=>x.w>0).length:0));if(olds>0){hbA.oldP+=olds;hbA.players.add(u)}}
+   hbA.old=Math.round(hbA.oldP/2)}
+  if(demo){hbA.n=34;hbA.free=20;hbA.wag=14;hbA.players=new Set(Array.from({length:12},(_,i)=>'h'+i));D.days.slice(-14).forEach((d,i)=>{hbA.day[d]=Math.round(rng(44+i)()*5)})}
   /* leagues */
   const L=(DASH.ex&&DASH.ex.leagues)||[...Object.entries(S.groups||{}),...Object.entries(S.fgroups||{})].filter(([,g])=>g).map(([id,g])=>({id,...g,lineups:Object.keys(g.members||{}).filter(u=>((S.lineups[u]||{}).g||{})[id]).length}));
   const lg=L.map(g=>{const m=Object.keys(g.members||{}).length,st=g.draft?(g.draft.status==='done'||(g.draft.picks&&g.draft.order&&Object.keys(g.draft.picks).length>=g.draft.order.length*slotsOf(g).length)?'Draft done':g.draft.status==='live'?'Drafting':'Waiting to draft'):'No draft';
@@ -10760,7 +10778,7 @@ function dashData2(D){
   const gaps=[];Object.keys(teamWk).forEach(sc=>{const key=AL[nz(sc)]||nz(sc),list=playedBy[key]||[];const miss=list.filter(g=>!teamWk[sc].has(g.w)).map(g=>g.w).sort((a,b)=>a-b);if(miss.length)gaps.push({sc,miss,of:list.length})});
   gaps.sort((a,b)=>b.miss.length-a.miss.length);
   const pend=Object.values(S.games||{}).reduce((a,g)=>a+Object.values((g&&g.weeks)||{}).filter(x=>x&&x.ver==='self').length,0);
-  return {ret:{d1:ret(1),d7:ret(7),d30:ret(30)},weeks,wkNew,wkRet,cohorts,funnel,hr,as,tok,pkA,gfA,lg,errs,byMsg:Object.values(byMsg).sort((a,b)=>b.n-a.n),health:{noScore,noStats,gaps,pend,updated:MP?MP.updated:'',through:MP?MP.through:'',players:mp.length}};
+  return {ret:{d1:ret(1),d7:ret(7),d30:ret(30)},weeks,wkNew,wkRet,cohorts,funnel,hr,as,tok,pkA,gfA,hbA,lg,errs,byMsg:Object.values(byMsg).sort((a,b)=>b.n-a.n),health:{noScore,noStats,gaps,pend,updated:MP?MP.updated:'',through:MP?MP.through:'',players:mp.length}};
 }
 function admStack(labels,series){const W=640,H=220,P={l:36,r:8,t:12,b:26},w=W-P.l-P.r,h=H-P.t-P.b,n=labels.length,tot=labels.map((_,i)=>series.reduce((a,s)=>a+s.v[i],0)),mx=Math.max(2,...tot),Y=x=>h*x/mx,bw=w/n;
   return `<svg viewBox="0 0 ${W} ${H}" class="adm-chart">${[0,.5,1].map(f=>`<line x1="${P.l}" x2="${W-P.r}" y1="${P.t+h-h*f}" y2="${P.t+h-h*f}" stroke="#16241D"/><text x="${P.l-8}" y="${P.t+h-h*f+4}" text-anchor="end" class="adm-ax">${Math.round(mx*f)}</text>`).join('')}

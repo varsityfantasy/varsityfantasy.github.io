@@ -1237,3 +1237,6 @@ Varsity Bowl: players 10% faster (`SPD`=.56); QB drops back to 5 yards (dropX=lo
 
 ## v629 (Nov 18)
 Varsity Bowl: ball 10% faster (129+79a). New run cycle in `drawPlayer` (sine stride, foot lift, arm swing, body bob and forward lean; step rate ph/7). Throwing backwards (pull toward the defense, aim.x < QB.x) calls `scramble()`: QB becomes the ball carrier.
+
+## v630 (Nov 18)
+Varsity Bowl: ball another 10% faster (142+87a). Jukes are about half as long (14 px, was 24) and have no cooldown (`jcd` always 0), so rapid flicks chain; immunity cut to .14 s.

@@ -199,7 +199,7 @@ function carrierMove(C,dt){
   C.vx+=(nx*sp-C.vx)*Math.min(1,9*dt);C.vy+=(ny*sp-C.vy)*Math.min(1,9*dt);C.x+=C.vx*dt;C.y+=C.vy*dt;C.ph+=Math.hypot(C.vx,C.vy)*dt/7;if(Math.abs(C.vx)>6)C.f=C.vx>0?1:-1}
  afterMove(C)}
 function afterMove(C){const S=G.pl;if(C.x>=GOAL){endPlay('td',GOAL);return}if(C.y<2||C.y>FH-2){C.y=clamp(C.y,2,FH-2);endPlay('oob',C.x,'OUT OF BOUNDS')}}
-function juke(C,dx,dy){if(C.jcd>0||C.dive>0)return;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;if(dx<-.5)dx=-.5;C.jk=.22;C.jvx=dx*110;C.jvy=dy*110;C.imm=Math.max(C.imm,.28);C.jcd=.65;C.manual=true;
+function juke(C,dx,dy){if(C.dive>0)return;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;if(dx<-.5)dx=-.5;C.jk=.14;C.jvx=dx*72;C.jvy=dy*72;C.imm=Math.max(C.imm,.14);C.jcd=0;C.manual=true;
  let fooled=0;for(const d of P.def){if(dst(d,C)<30&&Math.random()<.5+(C.a-d.a)*.4+.15){d.imm=.8;d.slow=.6;fooled++}}
  fx.push({t:'JUKE!',x:C.x,y:C.y-24,l:.7,c:'#ffe14a'});sfx.tap()}
 function dive(C){if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}
@@ -210,12 +210,12 @@ function scramble(){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<
 function throwAt(wx,wy,lob){
  const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.15)return;
  S.thrown=true;G.st.att++;
- const bs=(129+79*Q.a)*(lob?.8:1),near=P.dl.some(d=>d.fr<S.t&&dst(d,Q)<40);
+ const bs=(142+87*Q.a)*(lob?.8:1),near=P.dl.some(d=>d.fr<S.t&&dst(d,Q)<40);
  const er=1.5+(1-Q.a)*10+(near?4:0)+(lob?2:0),an=rnd(0,6.283),rr=Math.sqrt(Math.random())*er;
  const tx=clamp(wx+Math.cos(an)*rr,2,FL-2),ty=clamp(wy+Math.sin(an)*rr*.8,2,FH-2);
  const d=Math.hypot(tx-Q.x,ty-Q.y),T=Math.max(.3,d/bs);
  S.ball={x:Q.x,y:Q.y,z:8,fx:Q.x,fy:Q.y,tx,ty,T,t:0,lob:!!lob,h:lob?26+d*.16:8+d*.08};S.land={x:tx,y:ty};Q.throwA=.3;Q.f=tx>=Q.x?1:-1;sfx.throw()}
-function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i++){const d=Math.hypot(pp.x-Q.x,pp.y-Q.y);T=Math.max(.3,d/((129+79*Q.a)*(lob?.8:1)));pp=predict(r,T)}throwAt(pp.x,pp.y,lob)}
+function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i++){const d=Math.hypot(pp.x-Q.x,pp.y-Q.y);T=Math.max(.3,d/((142+87*Q.a)*(lob?.8:1)));pp=predict(r,T)}throwAt(pp.x,pp.y,lob)}
 function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.length){const w=r.rt[i],d=Math.hypot(w.x-x,w.y-y);if(d<=left){x=w.x;y=w.y;left-=d;i++}else{x+=(w.x-x)/d*left;y+=(w.y-y)/d*left;left=0}}if(left>0&&r.ext){x=Math.min(FL-8,x+r.dx*left);y=clamp(y+r.dy*left,5,FH-5)}return{x,y}}
 function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;

@@ -1291,3 +1291,6 @@ Varsity Bowl: players drawn at `PS=.78` scale (drawPlayer wraps drawPlayer0 in a
 
 ## v647 (Nov 19)
 Varsity Bowl field (`drawField`): mowing stripes aligned to 5-yard lines, grass speckle, sideline shading, end zone borders, bigger midfield logo; hash marks moved toward the middle (CY-20 / CY+17).
+
+## v648 (Nov 19)
+Varsity Bowl: pass concepts rewritten with 3-5 waypoint routes (stop & go, out & up, crossers, rub, yankee, dagger, four levels, wheel & drag, play action post, bootleg, orbit etc.); 20 new concepts plus screen/bubble; 4 run plays only used by the RB tap.

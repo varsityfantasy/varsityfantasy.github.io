@@ -1228,3 +1228,6 @@ Varsity Bowl: owner said still too fast, asked for 3x less. `SPD`=.18 (was .55),
 
 ## v626 (Nov 18)
 Varsity Bowl: speed halfway between v624 and v625 (`SPD`=.34, receivers ~27 px/s; carriers 1.4x). Throw less sensitive (`PULLK` 3.1, max 420). Pass plays snap when you start pulling back (pointermove >10px), a tap no longer snaps them; run plays still snap on tap.
+
+## v627 (Nov 18)
+Varsity Bowl: players 1.5x faster (`SPD`=.51, receivers ~40 px/s), ball 10% slower (117+72a), pass snap starts the play at once (snapT .04), pass rush a bit quicker.

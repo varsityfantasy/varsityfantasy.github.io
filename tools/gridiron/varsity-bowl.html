@@ -15,7 +15,7 @@ const W=480,H=216,cv=document.getElementById('c'),g=cv.getContext('2d');cv.width
 const YD=12,EZ=10*YD,GOAL=EZ+100*YD,FL=GOAL+EZ,FT=40,FH=154,CY=FH/2;
 const rnd=(a,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,dst=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const A=o=>clamp((o-45)/50,0,1);
-const SPD=.34;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
+const SPD=.51;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 
 /* ---------- bitmap font (5x7) ---------- */
@@ -175,7 +175,7 @@ function setupPlay(pl){
  if(Math.random()<.35){s0.man=null;s0.zone={x:los+80,y:40}}
  P.def=[...P.dl,...P.lb,...P.cb,...P.s];P.off=[P.qb,...P.ol,...P.rc];P.all=[...P.off,...P.def];
  const olA=A(olo);
- P.dl.forEach(d=>{d.fr=Math.max(2.6,(2.7+3.0*olA-.8*d.a+rnd(-.3,.6))*1.8)});
+ P.dl.forEach(d=>{d.fr=Math.max(2.6,(2.7+3.0*olA-.8*d.a+rnd(-.3,.6))*1.3)});
  P.lb.forEach(d=>{d.fr=pl.k==='run'?rnd(.7,1.4):9});P.s.forEach(d=>d.fr=pl.k==='run'?rnd(1.1,1.8):9);P.cb.forEach(d=>d.fr=pl.k==='run'?rnd(1.4,2.2):9);
  if(S.blitz){const b=P.lb[1];b.man=null;b.zone=null;b.fr=1.5+1.6*olA;b.blitz=true;s1.man=null}
  P.qb.hold=true;if(pl.k==='run'){P.qb.hold=true}
@@ -188,7 +188,7 @@ function ptrDir(){if(!ptr.down)return null;const dx=ptr.x-ptr.sx,dy=ptr.y-ptr.sy
 function moveTo(p,tx,ty,spd,dt){const dx=tx-p.x,dy=ty-p.y,l=Math.hypot(dx,dy);if(l<.5){p.vx*=.6;p.vy*=.6;return l}const s=Math.min(spd*dt,l),k=s/l;p.x+=dx*k;p.y+=dy*k;p.vx=dx/l*spd;p.vy=dy/l*spd;p.ph+=s/5;if(Math.abs(dx)>1)p.f=dx>0?1:-1;return l}
 function carrierMove(C,dt){
  const S=G.pl,d=ptrDir();let sp=C.spd*(C.slow>0?.75:1);C.slow=Math.max(0,C.slow-dt);C.imm=Math.max(0,C.imm-dt);C.jcd=Math.max(0,(C.jcd||0)-dt);
- if(C.dive>0){C.dive-=dt;C.x+=C.f*65*dt;if(C.dive<=0){S.end=S.end||.01;endPlay('tackle',C.x,'DIVE')}return}
+ if(C.dive>0){C.dive-=dt;C.x+=C.f*95*dt;if(C.dive<=0){S.end=S.end||.01;endPlay('tackle',C.x,'DIVE')}return}
  let hx=1,hy=0;
  if(C.jk>0){C.jk-=dt;C.x+=C.jvx*dt;C.y+=C.jvy*dt;hx=C.jvx;hy=C.jvy}
  else{
@@ -198,7 +198,7 @@ function carrierMove(C,dt){
   C.vx+=(nx*sp-C.vx)*Math.min(1,9*dt);C.vy+=(ny*sp-C.vy)*Math.min(1,9*dt);C.x+=C.vx*dt;C.y+=C.vy*dt;C.ph+=Math.hypot(C.vx,C.vy)*dt/5;if(Math.abs(C.vx)>6)C.f=C.vx>0?1:-1}
  afterMove(C)}
 function afterMove(C){const S=G.pl;if(C.x>=GOAL){endPlay('td',GOAL);return}if(C.y<2||C.y>FH-2){C.y=clamp(C.y,2,FH-2);endPlay('oob',C.x,'OUT OF BOUNDS')}}
-function juke(C,dx,dy){if(C.jcd>0||C.dive>0)return;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;if(dx<-.5)dx=-.5;C.jk=.22;C.jvx=dx*75;C.jvy=dy*75;C.imm=Math.max(C.imm,.28);C.jcd=.65;C.manual=true;
+function juke(C,dx,dy){if(C.jcd>0||C.dive>0)return;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;if(dx<-.5)dx=-.5;C.jk=.22;C.jvx=dx*110;C.jvy=dy*110;C.imm=Math.max(C.imm,.28);C.jcd=.65;C.manual=true;
  let fooled=0;for(const d of P.def){if(dst(d,C)<30&&Math.random()<.5+(C.a-d.a)*.4+.15){d.imm=.8;d.slow=.6;fooled++}}
  fx.push({t:'JUKE!',x:C.x,y:C.y-24,l:.7,c:'#ffe14a'});sfx.tap()}
 function dive(C){if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}
@@ -207,12 +207,12 @@ function dive(C){if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:
 function throwAt(wx,wy,lob){
  const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.15)return;
  S.thrown=true;G.st.att++;
- const bs=(130+80*Q.a)*(lob?.8:1),near=P.dl.some(d=>d.fr<S.t&&dst(d,Q)<40);
+ const bs=(117+72*Q.a)*(lob?.8:1),near=P.dl.some(d=>d.fr<S.t&&dst(d,Q)<40);
  const er=1.5+(1-Q.a)*10+(near?4:0)+(lob?2:0),an=rnd(0,6.283),rr=Math.sqrt(Math.random())*er;
  const tx=clamp(wx+Math.cos(an)*rr,2,FL-2),ty=clamp(wy+Math.sin(an)*rr*.8,2,FH-2);
  const d=Math.hypot(tx-Q.x,ty-Q.y),T=Math.max(.3,d/bs);
  S.ball={x:Q.x,y:Q.y,z:8,fx:Q.x,fy:Q.y,tx,ty,T,t:0,lob:!!lob,h:lob?26+d*.16:8+d*.08};S.land={x:tx,y:ty};Q.throwA=.3;Q.f=tx>=Q.x?1:-1;sfx.throw()}
-function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i++){const d=Math.hypot(pp.x-Q.x,pp.y-Q.y);T=Math.max(.3,d/((130+80*Q.a)*(lob?.8:1)));pp=predict(r,T)}throwAt(pp.x,pp.y,lob)}
+function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i++){const d=Math.hypot(pp.x-Q.x,pp.y-Q.y);T=Math.max(.3,d/((117+72*Q.a)*(lob?.8:1)));pp=predict(r,T)}throwAt(pp.x,pp.y,lob)}
 function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.length){const w=r.rt[i],d=Math.hypot(w.x-x,w.y-y);if(d<=left){x=w.x;y=w.y;left-=d;i++}else{x+=(w.x-x)/d*left;y+=(w.y-y)/d*left;left=0}}if(left>0&&r.ext){x=Math.min(FL-8,x+r.dx*left);y=clamp(y+r.dy*left,5,FH-5)}return{x,y}}
 function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;
@@ -251,7 +251,7 @@ function stepPlay(dt){
  if(S.pl.k==='run'&&!S.handed&&t>=S.snapT+S.hoT&&!S.thrown){S.handed=true;ptr.sx=ptr.x;ptr.sy=ptr.y;const rb=P.rb;S.carrier=rb;rb.ball=true;rb.manual=false;rb.spd=(64+32*rb.a)*SPD*1.4;G.pl.runF=true;P.def.forEach(d=>{if(d.role!=='dl')d.fr=Math.min(d.fr,t+rnd(.1,.5))});fx.push({t:'HANDOFF',x:rb.x,y:rb.y-24,l:.5,c:'#fff'})}
  if(S.pl.sc&&sn&&!S.thrown&&t>S.snapT+.9&&false){}
  /* QB: he only drops back (Retro Bowl style); you cannot move him */
- if(!S.carrier&&!S.thrown&&sn){const dropX=G.los-26;if(t<S.snapT+.7&&Q.x>dropX){Q.x-=13*dt;Q.vx=-13;Q.ph+=.05}else{Q.vx*=.8;Q.vy*=.8}}
+ if(!S.carrier&&!S.thrown&&sn){const dropX=G.los-26;if(t<S.snapT+.7&&Q.x>dropX){Q.x-=20*dt;Q.vx=-20;Q.ph+=.07}else{Q.vx*=.8;Q.vy*=.8}}
  if(Q.throwA>0)Q.throwA-=dt;
  /* the carrier */
  if(S.carrier&&!S.done)carrierMove(S.carrier,dt);
@@ -406,7 +406,7 @@ function gesture(p,dx,dy,l,dt){
 const MAXTHROW=420,PULLK=3.1;
 function aimInfo(){const Q=P&&P.qb;if(!Q||!ptr.down)return null;const vx=ptr.sx-ptr.x,vy=ptr.sy-ptr.y,l=Math.hypot(vx,vy);if(l<8)return null;const dist=Math.min(MAXTHROW,l*PULLK);return{x:Q.x+vx/l*dist,y:Q.y+vy/l*dist,lob:performance.now()-ptr.still>=450,l,dist,ux:vx/l,uy:vy/l}}
 function advance(){const n=G.next;G.next=null;G.msg=null;if(n)n()}
-function snap(){if(G.phase!=='presnap')return;G.phase='play';G.hintN++;sfx.whistle();ptr.hitb=null}
+function snap(){if(G.phase!=='presnap')return;G.phase='play';if(G.pl)G.pl.snapT=.04;G.hintN++;sfx.whistle();ptr.hitb=null}
 addEventListener('keydown',e=>{if(G&&G.phase==='presnap'&&(e.key===' '||e.key==='Enter'))snap()});
 
 /* ---------- screens ---------- */

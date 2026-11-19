@@ -1318,3 +1318,6 @@ Varsity Bowl (not shipped): ball is a real football shape (`fball()`: dark outli
 
 ## v656 (Nov 19)
 Varsity Bowl (not shipped): removed the dark initials boxes above receivers in presnap (`labelBox` call).
+
+## v657 (Nov 19)
+Varsity Bowl (not shipped): OL and DL get down in a three-point stance until the snap (crouched sprite in `drawPlayer0`), spread wider (OL 19 px apart, DL in the gaps, 23 px between the lines); pass rushers keep their lanes until their `fr` time.

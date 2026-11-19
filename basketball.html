@@ -3948,7 +3948,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v643 · Nov 18';
+const APP_BUILD='v644 · Nov 19';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8616,7 +8616,7 @@ function vbTeams(){
   return {team,opps}}
 function vbHTML(){const r=vbRec(),can=!!ME.uid&&ME.mode!=='guest';
   return `<section class="card rc-card"><div class="qh"><h3>Varsity Bowl</h3>${r.w||r.l||r.t?`<span class="muted">${r.w||0}-${r.l||0}${r.t?'-'+r.t:''}</span>`:''}</div>
-  <p class="muted" style="text-align:center">A football game from above. Pick a play, then pull back like a slingshot to snap and throw: the farther you pull, the farther it goes, and you aim by direction. After a catch, drag to run, flick to juke, tap to dive. Kick the extra point or go for 2. Play a quick game, or a season with playoffs. The better your cards, the faster, surer and tougher your players are.</p>
+  <p class="muted" style="text-align:center">A football game from above. Every play is a random pass concept. Pull back like a slingshot to snap and throw (or tap your running back for a handoff): the farther you pull, the farther it goes, and you aim by direction. After a catch, drag to run, flick to juke, tap to dive. Kick the extra point or go for 2. Play a quick game, or a season with playoffs. The better your cards, the faster, surer and tougher your players are.</p>
   ${can?'':'<p class="hint" style="text-align:center">Sign in to play with your own cards. You will play with a demo team.</p>'}
   <div class="rco-modes" style="margin-top:10px"><button class="btn" data-act="vbOpen">Play</button></div>
   <p class="hint" style="text-align:center;margin-top:8px">Best played with your phone turned sideways.</p></section>`}

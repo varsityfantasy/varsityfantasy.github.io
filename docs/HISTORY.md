@@ -1279,3 +1279,6 @@ Player card (`drawerHTML`): the Season totals table moved from the bottom to the
 
 ## v643 (Nov 19)
 Player card on desktop: `.dp>*{flex-shrink:0}` so the season totals box is no longer squeezed to a tiny scrolling sliver (the card is a flex column with overflow-y:auto).
+
+## v644 (Nov 19)
+Varsity Bowl: no play menu. `toSelect()` auto-picks `randPass()` (29 pass concepts in `PLAYS`); CHANGE PLAY re-rolls. Tap the RB in presnap = run handoff (`pick(RUNS)`, snap). Defense `S.cov`: c2/c3/c4 zones, c2m/c3m zone+man under, man, blitz1/blitz3 (17% of plays). Tackles easier after the catch (base p .33, longer break immunity).

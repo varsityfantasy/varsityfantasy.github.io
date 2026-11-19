@@ -1234,3 +1234,6 @@ Varsity Bowl: players 1.5x faster (`SPD`=.51, receivers ~40 px/s), ball 10% slow
 
 ## v628 (Nov 18)
 Varsity Bowl: players 10% faster (`SPD`=.56); QB drops back to 5 yards (dropX=los-60, 44 px/s).
+
+## v629 (Nov 18)
+Varsity Bowl: ball 10% faster (129+79a). New run cycle in `drawPlayer` (sine stride, foot lift, arm swing, body bob and forward lean; step rate ph/7). Throwing backwards (pull toward the defense, aim.x < QB.x) calls `scramble()`: QB becomes the ball carrier.

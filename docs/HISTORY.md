@@ -1249,3 +1249,6 @@ Varsity Bowl: no lob pass (aimInfo lob always false, one throw speed). Removed t
 
 ## v633 (Nov 18)
 Basketball projected stats (owner). `proj(p)` is overridden in `tools/make_basketball.py`: with no 2026-27 game yet a player projects to last season's per-game line (`BB_PST`: pts, reb, ast, 3pm, gp, fantasy, stl, blk, and now tov at index 8), x0.95 and scaled down if he played under 8 games. Once games come in they count more and last season's line counts as up to 2 games (less if he played under 12 games), with the usual opponent adjustment. The player sheet's "Projected next game" card, lineup/advisor projections and the card's PROJ PPG all use the same number now. Players with no last-season stats still show "No games yet". Regenerated basketball.html.
+
+## v634 (Nov 19)
+Varsity Bowl: field 22% wider sideline to sideline (H 250, FH 188). Receivers get open more: DBs 18% slower, man coverage re-aims every .5-.8 s without leading, zone .42 s, contest radius 11 (was 14). Carriers after a catch/handoff/scramble run at the same SPD (was 1.4x) and defenders pursue 1.2x.

@@ -11,8 +11,8 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 /* Varsity Bowl: a bird's-eye pixel football game in the style of Retro Bowl. You run the offense: pick a play, tap a receiver
    (or flick toward him) to throw, drag to scramble and run, flick to juke, tap to dive. The opponent's drives are simulated.
    Your cards (OVR) set speed, arm, hands and pass protection. Embedded by index.html (v617); also runs on its own with a demo roster. */
-const W=480,H=216,cv=document.getElementById('c'),g=cv.getContext('2d');cv.width=W;cv.height=H;g.imageSmoothingEnabled=false;
-const YD=12,EZ=10*YD,GOAL=EZ+100*YD,FL=GOAL+EZ,FT=40,FH=154,CY=FH/2;
+const W=480,H=250,cv=document.getElementById('c'),g=cv.getContext('2d');cv.width=W;cv.height=H;g.imageSmoothingEnabled=false;
+const YD=12,EZ=10*YD,GOAL=EZ+100*YD,FL=GOAL+EZ,FT=40,FH=188,CY=FH/2;
 const rnd=(a,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,dst=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const A=o=>clamp((o-45)/50,0,1);
 const SPD=.56;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
@@ -175,7 +175,7 @@ function setupPlay(pl){
  dl.forEach(d=>{const p=mkP('dl',1,los+6,CY+d,dm(),'DL');p.spd=(54+26*p.a)*SPD;P.dl.push(p)});
  lbY.forEach(d=>{const p=mkP('lb',1,los+24,CY+d,dm(),'LB');p.spd=(56+26*p.a)*SPD;P.lb.push(p)});
  const cb0=mkP('cb',1,los+11,14,dm(),'CB'),cb1=mkP('cb',1,los+11,FH-14,dm(),'CB'),s0=mkP('s',1,los+40,46,dm(),'S'),s1=mkP('s',1,los+48,FH-46,dm(),'S');
- [cb0,cb1,s0,s1].forEach(p=>p.spd=(58+28*p.a)*SPD);P.cb=[cb0,cb1];P.s=[s0,s1];
+ [cb0,cb1,s0,s1].forEach(p=>p.spd=(58+28*p.a)*SPD*.82);P.cb=[cb0,cb1];P.s=[s0,s1];
  cb0.man=P.wr0;cb1.man=P.wr1;s0.man=P.wr2;P.lb[0].man=P.te;P.lb[2].man=P.rb;s1.zone={x:los+110,y:CY};P.lb[1].zone={x:los+46,y:CY};
  if(Math.random()<.35){s0.man=null;s0.zone={x:los+80,y:40}}
  P.def=[...P.dl,...P.lb,...P.cb,...P.s];P.off=[P.qb,...P.ol,...P.rc];P.all=[...P.off,...P.def];
@@ -209,7 +209,7 @@ function juke(C,dx,dy){if(C.dive>0)return;if(Math.abs(dy)<4)return;dx=0;dy=dy>0?
 function dive(C){if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}
 
 /* throw it backwards and the QB tucks it and runs */
-function scramble(){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.1)return;S.carrier=Q;Q.ball=true;Q.manual=false;Q.rt=[];Q.ri=0;Q.spd=(60+32*Q.a)*SPD*1.4;Q.f=1;S.qbRan=true;ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();P.def.forEach(d=>d.fr=Math.min(d.fr,S.t))}
+function scramble(){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.1)return;S.carrier=Q;Q.ball=true;Q.manual=false;Q.rt=[];Q.ri=0;Q.spd=(60+32*Q.a)*SPD*1.0;Q.f=1;S.qbRan=true;ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();P.def.forEach(d=>d.fr=Math.min(d.fr,S.t))}
 /* the throw: you aim. The ball flies to the spot you tap (or drag to and release); whoever is there when it lands can catch it */
 function throwAt(wx,wy,lob){
  const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.15)return;
@@ -224,14 +224,14 @@ function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.l
 function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;
  let r=null,dT=15;P.rc.forEach(o=>{const d=Math.hypot(o.x-b.tx,o.y-b.ty);if(d<dT){dT=d;r=o}});
- const cands=P.def.filter(d=>Math.hypot(d.x-b.tx,d.y-b.ty)<14);
+ const cands=P.def.filter(d=>Math.hypot(d.x-b.tx,d.y-b.ty)<11);
  let who=null,kind='inc';
  if(r){const rs=50+r.a*28+rnd(0,26)-dT*.5;
   if(cands.length){const best=cands.reduce((a,c)=>(!a||c.a>a.a)?c:a,null),ds=34+best.a*28+rnd(0,26)-(b.lob?14:0);
    if(ds>rs+6){who=best;kind='int'}else if(ds>rs-8){kind='pbu'}else{who=r;kind='catch'}}
   else{const pc=clamp(.86+.1*r.a-dT*.01,.6,.99);if(Math.random()<pc){who=r;kind='catch'}else kind='drop'}}
  else if(cands.length){const best=cands.reduce((a,c)=>(!a||dst(c,{x:b.tx,y:b.ty})<dst(a,{x:b.tx,y:b.ty}))?c:a,null);if(Math.random()<.4+best.a*.2){who=best;kind='int'}}
- if(kind==='catch'){ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();S.carrier=who;who.ball=true;who.manual=false;who.rt=[];who.ri=0;who.spd=(who.key==='rb'?64+32*who.a:60+32*who.a)*SPD*1.4;who.f=1;G.st.cmp++;S.catchX=who.x;P.def.forEach(d=>d.fr=Math.min(d.fr,S.t));sfx.catch();
+ if(kind==='catch'){ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();S.carrier=who;who.ball=true;who.manual=false;who.rt=[];who.ri=0;who.spd=(who.key==='rb'?64+32*who.a:60+32*who.a)*SPD*1.0;who.f=1;G.st.cmp++;S.catchX=who.x;P.def.forEach(d=>d.fr=Math.min(d.fr,S.t));sfx.catch();
   if(G.pl.pl.sc){P.def.forEach(d=>{if(d.role==='dl'||d.role==='lb')d.fr=S.t})}
   fx.push({t:'CAUGHT',x:who.x,y:who.y-24,l:.6,c:'#7dff7d'})}
  else if(kind==='int'){S.carrier=who;who.ball=true;G.st.it++;endPlay('int',who.x,'INTERCEPTED!');sfx.bad()}
@@ -255,7 +255,7 @@ function stepPlay(dt){
    if(S.pl.k==='run'&&r.key==='rb'&&!S.handed){const w=r.rt[Math.min(r.ri,r.rt.length-1)];if(w){moveTo(r,w.x,w.y,r.spd,dt);if(dst(r,w)<4&&r.ri<r.rt.length-1)r.ri++}return}
    runRoute(r,dt)})}
  /* handoff */
- if(S.pl.k==='run'&&!S.handed&&t>=S.snapT+S.hoT&&!S.thrown){S.handed=true;ptr.sx=ptr.x;ptr.sy=ptr.y;const rb=P.rb;S.carrier=rb;rb.ball=true;rb.manual=false;rb.spd=(64+32*rb.a)*SPD*1.4;G.pl.runF=true;P.def.forEach(d=>{if(d.role!=='dl')d.fr=Math.min(d.fr,t+rnd(.1,.5))});fx.push({t:'HANDOFF',x:rb.x,y:rb.y-24,l:.5,c:'#fff'})}
+ if(S.pl.k==='run'&&!S.handed&&t>=S.snapT+S.hoT&&!S.thrown){S.handed=true;ptr.sx=ptr.x;ptr.sy=ptr.y;const rb=P.rb;S.carrier=rb;rb.ball=true;rb.manual=false;rb.spd=(64+32*rb.a)*SPD*1.0;G.pl.runF=true;P.def.forEach(d=>{if(d.role!=='dl')d.fr=Math.min(d.fr,t+rnd(.1,.5))});fx.push({t:'HANDOFF',x:rb.x,y:rb.y-24,l:.5,c:'#fff'})}
  if(S.pl.sc&&sn&&!S.thrown&&t>S.snapT+.9&&false){}
  /* QB: he only drops back (Retro Bowl style); you cannot move him */
  if(!S.carrier&&!S.thrown&&sn){const dropX=G.los-60;if(t<S.snapT+1.4&&Q.x>dropX){Q.x-=44*dt;Q.vx=-44;Q.ph+=.12}else{Q.vx*=.8;Q.vy*=.8}}
@@ -294,11 +294,11 @@ function stepDef(dt){
   d.tt-=dt;
   let tx,ty;
   const ballIn=S.ball&&!S.ball.done&&!S.ball.drop;
-  if(C){tx=C.x+C.vx*.25;ty=C.y+C.vy*.25;if(d.fr>t){sp*=.2;if(d.role==='dl'||d.role==='lb'){/* still blocked */}}}
+  if(C){sp*=1.2;tx=C.x+C.vx*.25;ty=C.y+C.vy*.25;if(d.fr>t){sp*=.2;if(d.role==='dl'||d.role==='lb'){/* still blocked */}}}
   else if(ballIn&&S.ball.t>.22&&Math.hypot(d.x-S.land.x,d.y-S.land.y)<60){tx=S.land.x;ty=S.land.y;sp*=.8}
   else if(d.role==='dl'||(d.blitz)){tx=Q.x;ty=Q.y;if(d.fr>t){const u=clamp((t-S.snapT)/Math.max(.5,d.fr-S.snapT),0,1);sp*=.28+.6*u*u;tx=Math.max(Q.x+15,Q.x+(d.fr-t)*10)}}
-  else if(d.man){if(d.tt<=0){d.tx=d.man.x+d.man.vx*.1+11;d.ty=d.man.y;d.tt=.26+rnd(0,.12)}tx=d.tx;ty=d.ty;if(S.pl.k==='run'&&!S.handed){tx=d.x;ty=d.y}if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:(P.rb.x+20);ty=S.carrier?S.carrier.y:P.rb.y}}
-  else if(d.zone){let best=null,bd=46;P.rc.forEach(r=>{const dd=Math.hypot(r.x-d.zone.x,r.y-d.zone.y);if(dd<bd){bd=dd;best=r}});if(best){if(d.tt<=0){d.tx=best.x+9;d.ty=best.y;d.tt=.22}tx=d.tx;ty=d.ty}else{tx=d.zone.x;ty=d.zone.y}
+  else if(d.man){if(d.tt<=0){d.tx=d.man.x+13;d.ty=d.man.y;d.tt=.5+rnd(0,.3)}tx=d.tx;ty=d.ty;if(S.pl.k==='run'&&!S.handed){tx=d.x;ty=d.y}if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:(P.rb.x+20);ty=S.carrier?S.carrier.y:P.rb.y}}
+  else if(d.zone){let best=null,bd=46;P.rc.forEach(r=>{const dd=Math.hypot(r.x-d.zone.x,r.y-d.zone.y);if(dd<bd){bd=dd;best=r}});if(best){if(d.tt<=0){d.tx=best.x+12;d.ty=best.y;d.tt=.42}tx=d.tx;ty=d.ty}else{tx=d.zone.x;ty=d.zone.y}
    if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:P.rb.x;ty=S.carrier?S.carrier.y:P.rb.y}}
   else{tx=d.x;ty=d.y}
   if(d.role==='lb'||d.role==='s'||d.role==='cb'){if(!C&&S.pl.k==='run'&&d.fr>t){/* read the run */}}

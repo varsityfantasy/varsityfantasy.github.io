@@ -1273,3 +1273,6 @@ Basketball props: no limit per team for any stat (steals, blocks and points+rebo
 
 ## v641 (Nov 19)
 `fmtDate(d)` now says Today / Tomorrow / Yesterday for those days and the date otherwise (`fmtDate(d,1)` keeps the plain date, used for 'Next round locks' and 'Stats start after the first games on'). `dayLab` no longer adds ' · Today'.
+
+## v642 (Nov 19)
+Player card (`drawerHTML`): the Season totals table moved from the bottom to the top, right under the Season pts / Per game bar and above Teams played, projection, chart and game log.

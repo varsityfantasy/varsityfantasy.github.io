@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v641 · Nov 18';
+const APP_BUILD='v642 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10100,12 +10100,12 @@ function drawerHTML(p){
     <div class="dh"><div class="dhl">${av(p.name,p.school,56)}<div><h2>${T10W(p,esc(p.name))}</h2><div class="sub">${pb(p.pos,p.sub)}${gtag(p)}<span>${slogo(p.school)}${p.ext?secTlk(p.sec,p.school):tlk(p.school)}, ${tw?played:ng} game${(tw?played:ng)===1?'':'s'}</span></div></div></div><div class="dh-btns"><button class="btn sm" data-act="pshare" data-id="${esc(p.key)}">Share</button><button class="btn ghost sm" data-act="close" id="dclose">Close</button></div></div>
     <div class="big"><div><span class="lbl">Season pts</span><b>${f1(total)}</b></div><div><span class="lbl">Per game</span><b>${f1(avg)}</b></div>${p.totN?'':`<div><span class="lbl">${BEST_L}</span><b>${f1(best)}</b></div>`}${ovrOf(p.key)?`<div><span class="lbl">Overall</span><b>${ovrOf(p.key)}</b></div>`:''}</div>
     ${twNote}
+    ${totals}
     ${teams}
     ${p.totN?'':projCard(p)}
     ${p.totN?'':weekChart(p)}
     <div id="la" style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">${lineupAction(p)}</div>
     <div class="scroll">${p.totN?`<table><thead><tr><th>Season stat</th><th class="n">Total</th><th class="n">Pts</th></tr></thead><tbody>${KEYS.filter(k=>p.games[0].stat[k]).map(k=>`<tr><td>${esc(LABEL[k]||k)}</td><td class="n">${Math.round(p.games[0].stat[k]*10)/10}</td><td class="n">${PTS[k]?f1(p.games[0].stat[k]*PTS[k]):'—'}</td></tr>`).join('')}</tbody></table>`:`<table><thead><tr><th>${GAME_H}</th><th>Stat line</th><th class="n">Pts</th></tr></thead><tbody>${logBB||log}</tbody></table>`}</div>
-    ${totals}
     ${p.totN?'<p class="muted" style="font-size:.78rem;margin-top:8px">Week-by-week games for this section are loading in.</p>':''}
     <p class="rm-lnk"><button class="link" type="button" data-act="remOpen" data-n="${esc(p.name)}" data-s="${esc(p.school)}">Request removal</button></p>
   </aside>`;

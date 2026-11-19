@@ -1203,3 +1203,7 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v618 (Nov 18)
 - Admin dashboard, Games page: new "1v1 matches (Hoops Battle)" card (basketball app only; the football dashboard says to open the basketball one). Counts each finished match once and leaves out every match Zed Hornby played (profile name match). `hbRecord` now saves every finished online match (free too): `hb.g` matches, `hb.gw` won, `hb.ml` last 40 `{i:matchId,t,w}`; `hb.w/l/wn` stay wagers only. `hoops-battle.html` posts `result` for free matches too (was only when `NET.w`). Before v618 only wagered games were saved, so the card adds about half of the old w+l total as "earlier". Stats in `dashStats` as `hbA`.
+
+## v619 (Nov 18)
+- Varsity Bowl, closer to Retro Bowl's mechanics (mechanics only, own art, names and code): season mode (8 games, then QUARTER/SEMI/FINAL playoffs if you win 5 of 8, saved in localStorage `vs-vb-ssn`; each game's opponent is 1.8 OVR harder than the last; `ssNew/ssPlay/ssAfter`, `drawSeason`), extra point choice (kick +1 or go for 2 from the 2: `xpKick`, `xpTwo`, `G.twoPt`), fumbles (tackles 2%, +3% when two defenders are on him; sacks 7%), overtime (each team one possession from its 25, up to 3 rounds, `startOT`), hold-to-lob throws (press 240 ms or more on a receiver: higher, slower, harder for defenders to break up, less accurate). Quick game stays on the title screen.
+- Still different from Retro Bowl: no team management, contracts or draft, no kick returns, no defence snaps, field goal is a timing bar (not a swipe).

@@ -1225,3 +1225,6 @@ Varsity Bowl: all players, ball, dive and juke ~45% slower (`SPD`). Pre-snap scr
 
 ## v625 (Nov 18)
 Varsity Bowl: owner said still too fast, asked for 3x less. `SPD`=.18 (was .55), ball 115+70a, dive/juke/QB drop slower, DL pocket time x2.6, routes 85% length, ball carriers after catch/handoff 1.9x SPD. Bot passing yards dropped (bot leads receivers poorly at this speed); revisit if the owner finds passing too hard.
+
+## v626 (Nov 18)
+Varsity Bowl: speed halfway between v624 and v625 (`SPD`=.34, receivers ~27 px/s; carriers 1.4x). Throw less sensitive (`PULLK` 3.1, max 420). Pass plays snap when you start pulling back (pointermove >10px), a tap no longer snaps them; run plays still snap on tap.

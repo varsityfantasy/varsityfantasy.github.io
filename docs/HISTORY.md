@@ -1333,3 +1333,6 @@ Varsity Bowl (not shipped): helmets drawn as a round shell with canvas ellipses 
 
 ## v661 (Nov 19)
 Varsity Bowl (not shipped): each play is 50% shotgun (`S.sg`: QB starts 46 px behind the line, holds the ball, no drop) or under center (QB 15 px behind, drops to 60 px as before).
+
+## v662 (Nov 19)
+Varsity Bowl (not shipped): carrier stamina (`C.cs`, speed drops up to 27% over ~6.5 s of carrying, each juke adds `C.tired` up to 20%); defenders chase at x1.5 (was 1.38); a defender within 13 px of the catcher tackles him at the catch 88% of the time (`resolveCatch`).

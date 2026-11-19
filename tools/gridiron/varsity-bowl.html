@@ -255,13 +255,13 @@ function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i
 function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.length){const w=r.rt[i],d=Math.hypot(w.x-x,w.y-y);if(d<=left){x=w.x;y=w.y;left-=d;i++}else{x+=(w.x-x)/d*left;y+=(w.y-y)/d*left;left=0}}if(left>0&&r.ext){x=Math.min(FL-8,x+r.dx*left);y=clamp(y+r.dy*left,5,FH-5)}return{x,y}}
 function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;
- let r=null,dT=15;P.rc.forEach(o=>{const d=Math.hypot(o.x-b.tx,o.y-b.ty);if(d<dT){dT=d;r=o}});
- const cands=P.def.filter(d=>Math.hypot(d.x-b.tx,d.y-b.ty)<11);
+ let r=null,dT=26;P.rc.forEach(o=>{const d=Math.hypot(o.x-b.tx,o.y-b.ty);if(d<dT){dT=d;r=o}});
+ const cands=P.def.filter(d=>Math.hypot(d.x-b.tx,d.y-b.ty)<11);if(r&&dT>12&&Math.random()<.4)fx.push({t:'DIVE!',x:r.x,y:r.y-24,l:.5,c:'#ffb84a'});
  let who=null,kind='inc';
  if(r){const rs=50+r.a*28+rnd(0,26)-dT*.5;
   if(cands.length){const best=cands.reduce((a,c)=>(!a||c.a>a.a)?c:a,null),ds=34+best.a*28+rnd(0,26)-(b.lob?14:0);
    if(ds>rs+6){who=best;kind='int'}else if(ds>rs-8){kind='pbu'}else{who=r;kind='catch'}}
-  else{const pc=clamp(.86+.1*r.a-dT*.01,.6,.99);if(Math.random()<pc){who=r;kind='catch'}else kind='drop'}}
+  else{const pc=clamp(.88+.1*r.a-dT*.028,.2,.99);if(Math.random()<pc){who=r;kind='catch'}else kind='drop'}}
  else if(cands.length){const best=cands.reduce((a,c)=>(!a||dst(c,{x:b.tx,y:b.ty})<dst(a,{x:b.tx,y:b.ty}))?c:a,null);if(Math.random()<.4+best.a*.2){who=best;kind='int'}}
  if(kind==='catch'){ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();S.carrier=who;who.ball=true;who.manual=false;who.rt=[];who.ri=0;who.spd=(who.key==='rb'?64+32*who.a:60+32*who.a)*SPD*1.0;who.f=1;G.st.cmp++;S.catchX=who.x;P.def.forEach(d=>d.fr=Math.min(d.fr,S.t));sfx.catch();
   if(G.pl.pl.sc){P.def.forEach(d=>{if(d.role==='dl'||d.role==='lb')d.fr=S.t})}
@@ -285,6 +285,9 @@ function stepPlay(dt){
  /* offense: routes */
  if(sn){P.rc.forEach(r=>{if(r===C)return;
    if(S.pl.k==='run'&&r.key==='rb'&&!S.handed){const w=r.rt[Math.min(r.ri,r.rt.length-1)];if(w){moveTo(r,w.x,w.y,r.spd,dt);if(dst(r,w)<4&&r.ri<r.rt.length-1)r.ri++}return}
+   const bl=S.ball&&!S.ball.done&&!S.ball.drop;
+   if(bl&&S.tgt===undefined){let bd=80,bt=null;P.rc.forEach(o=>{const d=Math.hypot(o.x-S.land.x,o.y-S.land.y);if(d<bd){bd=d;bt=o}});S.tgt=bt}
+   if(bl&&S.tgt===r){/* the target reads the ball and goes to get it */moveTo(r,S.land.x,S.land.y,r.spd*1.12,dt);r.ph+=.05;return}
    runRoute(r,dt)})}
  /* handoff */
  if(S.pl.k==='run'&&!S.handed&&t>=S.snapT+S.hoT&&!S.thrown){S.handed=true;ptr.sx=ptr.x;ptr.sy=ptr.y;const rb=P.rb;S.carrier=rb;rb.ball=true;rb.manual=false;rb.spd=(64+32*rb.a)*SPD*1.0;G.pl.runF=true;P.def.forEach(d=>{if(d.role!=='dl')d.fr=Math.min(d.fr,t+rnd(.1,.5))});fx.push({t:'HANDOFF',x:rb.x,y:rb.y-24,l:.5,c:'#fff'})}
@@ -643,6 +646,6 @@ addEventListener('message',e=>{const d=e.data;if(!d||!d.vb)return;
 addEventListener('resize',layout);layout();
 try{parent.postMessage({vb:'ready'},'*')}catch(_){}
 const q=new URLSearchParams(location.search);if(q.get('demo')==='1'){}
-window.__vb={get camX(){return camX},xpKick,xpTwo,ssNew,ssPlay,get SS(){return SS},get SCR(){return SCR},update,oppApply,fgSettle,get G(){return G},get P(){return P},CFG,PLAYS,resetGame,choosePlay,snap,throwTo,juke,dive,advance,tackles,ptr,get fx(){return fx},setCam(x){camX=x;camT=x}};
+window.__vb={throwAt,get camX(){return camX},xpKick,xpTwo,ssNew,ssPlay,get SS(){return SS},get SCR(){return SCR},update,oppApply,fgSettle,get G(){return G},get P(){return P},CFG,PLAYS,resetGame,choosePlay,snap,throwTo,juke,dive,advance,tackles,ptr,get fx(){return fx},setCam(x){camX=x;camT=x}};
 requestAnimationFrame(frame);
 </script></body></html>

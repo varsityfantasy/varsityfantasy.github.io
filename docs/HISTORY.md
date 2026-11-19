@@ -1282,3 +1282,6 @@ Player card on desktop: `.dp>*{flex-shrink:0}` so the season totals box is no lo
 
 ## v644 (Nov 19)
 Varsity Bowl: no play menu. `toSelect()` auto-picks `randPass()` (29 pass concepts in `PLAYS`); CHANGE PLAY re-rolls. Tap the RB in presnap = run handoff (`pick(RUNS)`, snap). Defense `S.cov`: c2/c3/c4 zones, c2m/c3m zone+man under, man, blitz1/blitz3 (17% of plays). Tackles easier after the catch (base p .33, longer break immunity).
+
+## v645 (Nov 19)
+Varsity Bowl: on a throw the nearest receiver (`S.tgt`, within 80 px of the landing spot) leaves his route and runs to the ball; catch reach up to 26 px, chance falls with distance (`.88+.1a-dT*.028`), so bad throws are harder but still attempted.

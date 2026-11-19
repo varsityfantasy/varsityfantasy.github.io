@@ -494,7 +494,6 @@ function drawWorld(){
  const S=G.pl,C=S&&S.carrier;
  list.forEach(p=>drawPlayer(p,{ring:G.phase==='play'&&S&&!S.done&&((C&&p===C)||(!C&&!S.thrown&&p===P.qb))}));
  /* labels */
- if(G.phase==='presnap'&&S&&P)P.rc.forEach(r=>labelBox(r));
  /* the ball */
  if(S&&S.ball&&!S.ball.done){const b=S.ball,x=Math.round(b.x-camX),y=Math.round(FT+b.y);rect(x-4,y-1,8,3,'rgba(0,0,0,.35)');const yy=y-Math.round(b.z);fball(x,yy,Math.atan2(b.ty-b.fy,b.tx-b.fx)*.6)}
  else if(S&&S.ball&&S.ball.drop){const b=S.ball,x=Math.round(b.x-camX),y=Math.round(FT+b.y);fball(x,y-1,.3)}

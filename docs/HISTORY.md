@@ -1315,3 +1315,6 @@ Varsity Bowl (not shipped): turf back to the v647 look (owner did not like the v
 
 ## v655 (Nov 19)
 Varsity Bowl (not shipped): ball is a real football shape (`fball()`: dark outline, brown oval, laces), 9x5 px, between the old 6x3 and the v653 10x6; used in the air, on the ground, held and diving.
+
+## v656 (Nov 19)
+Varsity Bowl (not shipped): removed the dark initials boxes above receivers in presnap (`labelBox` call).

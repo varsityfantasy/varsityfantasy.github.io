@@ -1243,3 +1243,6 @@ Varsity Bowl: ball another 10% faster (142+87a). Jukes are about half as long (1
 
 ## v631 (Nov 18)
 Varsity Bowl: pass rush is gradual and staggered (each DL has its own free time `fr`, speed ramps with u^2 and the DL holds 15 px off the QB until free), OL pair with a DL (`OLP`) and back up with him until he wins. New helmet: shell with dome, shine, stripe, ear hole, grey face-mask cage, chin strap.
+
+## v632 (Nov 18)
+Varsity Bowl: no lob pass (aimInfo lob always false, one throw speed). Removed the JUKE! pop-up. Jukes only go sideways (dx forced 0, flick needs vertical movement).

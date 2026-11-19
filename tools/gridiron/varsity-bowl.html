@@ -227,7 +227,7 @@ function setupPlay(pl){
 function ptrDir(){if(!ptr.down)return null;const dx=ptr.x-ptr.sx,dy=ptr.y-ptr.sy,l=Math.hypot(dx,dy);if(l<9)return{x:0,y:0,z:1};return{x:dx/l,y:dy/l,z:0}}
 function moveTo(p,tx,ty,spd,dt){const dx=tx-p.x,dy=ty-p.y,l=Math.hypot(dx,dy);if(l<.5){p.vx*=.6;p.vy*=.6;return l}const s=Math.min(spd*dt,l),k=s/l;p.x+=dx*k;p.y+=dy*k;p.vx=dx/l*spd;p.vy=dy/l*spd;p.ph+=s/7;if(Math.abs(dx)>1)p.f=dx>0?1:-1;return l}
 function carrierMove(C,dt){
- const S=G.pl,d=ptrDir();let sp=C.spd*1.15*(C.slow>0?.75:1);C.slow=Math.max(0,C.slow-dt);C.imm=Math.max(0,C.imm-dt);C.jcd=Math.max(0,(C.jcd||0)-dt);
+ const S=G.pl,d=ptrDir();let sp=C.spd*1.38*(C.slow>0?.75:1);C.slow=Math.max(0,C.slow-dt);C.imm=Math.max(0,C.imm-dt);C.jcd=Math.max(0,(C.jcd||0)-dt);
  if(C.dive>0){C.dive-=dt;C.x+=C.f*95*dt;if(C.dive<=0){S.end=S.end||.01;endPlay('tackle',C.x,'DIVE')}return}
  let hx=1,hy=0;
  if(C.jk>0){C.jk-=dt;C.x+=C.jvx*dt;C.y+=C.jvy*dt;hx=C.jvx;hy=C.jvy}

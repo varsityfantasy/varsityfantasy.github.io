@@ -1297,3 +1297,6 @@ Varsity Bowl: pass concepts rewritten with 3-5 waypoint routes (stop & go, out &
 
 ## v649 (Nov 19)
 Varsity Bowl `runRoute`: after the last waypoint a receiver keeps going the way he was headed, but only 46 px if that was back toward the QB and 64 px if sideways (`r.eu`), then settles and sways in the zone; forward routes still run on. `predict()` matches.
+
+## v650 (Nov 19)
+Varsity Bowl: ball carrier speed +20% (`carrierMove` sp=C.spd*1.38, was 1.15). Defenders unchanged.

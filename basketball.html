@@ -3947,7 +3947,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v639 · Nov 18';
+const APP_BUILD='v640 · Nov 18';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7056,7 +7056,7 @@ function propCands(){
         (rows[m]=rows[m]||[]).push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
       });
     });
-    Object.entries(rows).forEach(([m,a])=>{a.sort((x,y)=>y.mean-x.mean);const top=a.slice(0,BBPP&&(m==='pts'||m==='reb'||m==='ast')?a.length:(PP_TOP[m]||1));list.push(...top,...a.filter(x=>!top.includes(x)&&PP_ALWAYS.includes(x.name+'|'+x.school)))});
+    Object.entries(rows).forEach(([m,a])=>{a.sort((x,y)=>y.mean-x.mean);const top=a.slice(0,BBPP?a.length:(PP_TOP[m]||1));list.push(...top,...a.filter(x=>!top.includes(x)&&PP_ALWAYS.includes(x.name+'|'+x.school)))});
     /* v398 (owner): a player whose card you own always has a prop line in each of his team's games, so the card boost can be used. If the normal rules left him without one (weak stat line, under 3 games, outside the top 4), he gets his best-fitting stat with the minimums waived. */
     (by[sc]||[]).forEach(p=>{
       if(!own.has(p.key)||injOf(p,g.w))return;

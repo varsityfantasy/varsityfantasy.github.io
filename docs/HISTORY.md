@@ -1267,3 +1267,6 @@ Basketball props: no cap per team per stat (`PP_TOP` only applies to football no
 
 ## v639 (Nov 19)
 Basketball props: owner wants points, rebounds and assists at 2+ per game with no cap; steals and blocks back to their old minimums (1 and .8) and caps (2 each); points+rebounds+assists unchanged (12, top 4).
+
+## v640 (Nov 19)
+Basketball props: no limit per team for any stat (steals, blocks and points+rebounds+assists too). Minimums: points/rebounds/assists 2, steals 1, blocks .8, pra 12. Football keeps `PP_TOP`.

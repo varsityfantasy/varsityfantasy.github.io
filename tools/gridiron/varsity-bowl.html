@@ -388,7 +388,7 @@ function hitBtn(p){for(let i=btns.length-1;i>=0;i--){const b=btns[i];if(p.x>=b.x
 addEventListener('pointerdown',e=>{e.preventDefault();const p=toC(e);ptr.down=true;ptr.id=e.pointerId;ptr.x=ptr.sx=p.x;ptr.y=ptr.sy=p.y;ptr.t0=performance.now();ptr.moved=0;ptr.hitb=hitBtn(p);ptr.pdn=true;try{cv.setPointerCapture&&0}catch(_){}},{passive:false});
 addEventListener('pointermove',e=>{if(!ptr.down)return;const p=toC(e);ptr.x=p.x;ptr.y=p.y;ptr.moved=Math.max(ptr.moved,Math.hypot(p.x-ptr.sx,p.y-ptr.sy))},{passive:false});
 const up=e=>{if(!ptr.down)return;ptr.down=false;const p=toC(e);ptr.x=p.x;ptr.y=p.y;const dt=performance.now()-ptr.t0,dx=p.x-ptr.sx,dy=p.y-ptr.sy,l=Math.hypot(dx,dy);
- const b=ptr.hitb;ptr.hitb=null;if(b&&b===hitBtn(p)&&l<14){sfx.tap();b.fn();return}
+ const b=ptr.hitb,b2=hitBtn(p);ptr.hitb=null;if(b&&b2&&b.x===b2.x&&b.y===b2.y&&b.w===b2.w&&b.h===b2.h&&l<14){sfx.tap();b2.fn();return}
  gesture(p,dx,dy,l,dt)};
 addEventListener('pointerup',up);addEventListener('pointercancel',up);
 function gesture(p,dx,dy,l,dt){

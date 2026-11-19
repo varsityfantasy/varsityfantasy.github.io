@@ -1213,3 +1213,6 @@ Admin dashboard, Economy page: new Gifts sent card (`X.gfA`). Friend gifts come 
 
 ## v621 (Nov 18)
 - Varsity Bowl: PRACTICE mode on the title screen (`resetGame({prac:1})`): no clock, no opponent drives, no 4th-down menu; after a touchdown, turnover or lost downs the ball goes back to your 30. Also published once as a private artifact so the owner can test the controls in the side panel.
+
+## v622 (Nov 18)
+- Varsity Bowl buttons did nothing on a real finger tap: the buttons are rebuilt every frame, and the tap handler compared the button object from the press with the one at release, which only matched when press and release landed in the same frame (a mouse click in a test). Now it compares the button's position and size.

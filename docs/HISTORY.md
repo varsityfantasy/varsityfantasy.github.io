@@ -1324,3 +1324,6 @@ Varsity Bowl (not shipped): OL and DL get down in a three-point stance until the
 
 ## v658 (Nov 19)
 Varsity Bowl (not shipped): line spacing halfway between v656 and v657 (OL 16 px, DL at +-8/+-24); helmets: dark facemask bars over a lighter face instead of light bars over a dark face (read as a skull).
+
+## v659 (Nov 19)
+Varsity Bowl (not shipped): new helmet sprite `helmetP()` shared by standing and stance poses: rounded shell with highlight, center stripe, ear hole, brim, dark facemask bars over the face.

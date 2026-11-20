@@ -1356,3 +1356,6 @@ Varsity Bowl (not shipped): keyboard for the ball carrier: up/down arrows (or W/
 
 ## v667 (Nov 19)
 Varsity Bowl title roster: the DEF row is now three rows, DL / LB / DB, each with its name label and average overall.
+
+## v668 (Nov 19)
+Landscape (owner: "go horizontal mode on the app to play game"): the portrait lock is gone so games can be played sideways. `manifest.webmanifest` orientation `portrait` -> `any` (Android/installed PWA); `native/ios/App/App/Info.plist` iPhone orientations now include LandscapeLeft/Right (needs a new native build to take effect). No layout changes: Field Goal/Hoops already size to the window (`fgRescale`), Hoops Battle already wants landscape, Varsity Bowl fits either way. Checked at 844x390.

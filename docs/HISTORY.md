@@ -1417,3 +1417,6 @@ Varsity Bowl mode pages, take 2 (owner: v685's HTML overlay looked like generic 
 
 ## v687 (Nov 19)
 Varsity Bowl (owner): QUICK is a 4th option on the home screen (plays one game with the current team setup); Quick and Practice removed from the mode page, which now has only the opponent level and a big SEASON tile (no description, shows week and record while one is running). Season = 11 regular weeks: 10 games + 1 bye (`SS.bye`, random week 4-9, auto-skipped in `ssAfter`), then QUARTER/SEMI/FINAL if you win 6 of 10 (`REG`, `NEEDW`, `ssLoss`). New save key `vs-vb-ssn2` (old 8-game seasons are dropped). Season screen redrawn: regular season and playoffs columns with opponent logos and BYE row.
+
+## v688 (Nov 19)
+Varsity Bowl arrow-key jukes (owner: make sure they work): the game is shown inside an iframe (app overlay, artifact page) and pointerdown's preventDefault kept the iframe from taking keyboard focus, so arrows went to the outer page. Fixes: `window.focus()` on every press inside the game; the app's `vbOpen` forwards arrow/WASD/space/Enter keydowns to the game (`{vb:'key',k}`, handled by `onKey`). Jukes are also bigger (0.2 s at 100 px/s, about 20 px instead of 10).

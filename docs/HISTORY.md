@@ -1420,3 +1420,6 @@ Varsity Bowl (owner): QUICK is a 4th option on the home screen (plays one game w
 
 ## v688 (Nov 19)
 Varsity Bowl arrow-key jukes (owner: make sure they work): the game is shown inside an iframe (app overlay, artifact page) and pointerdown's preventDefault kept the iframe from taking keyboard focus, so arrows went to the outer page. Fixes: `window.focus()` on every press inside the game; the app's `vbOpen` forwards arrow/WASD/space/Enter keydowns to the game (`{vb:'key',k}`, handled by `onKey`). Jukes are also bigger (0.2 s at 100 px/s, about 20 px instead of 10).
+
+## v689 (Nov 19)
+Varsity Bowl (owner): level ELITE renamed PRO; level stars redrawn as real 7x7 pixel stars (the old ones looked like houses). Field goals are now skill, no dice roll: tap 1 locks POWER on a rising/falling bar that must reach the DIST line (`fgMaxR()` = 44-68 yd for range 40-99, less when tired), tap 2 stops a sweeping ball between uprights whose width comes from accuracy and distance (`fgHalf()`). Results SHORT! / WIDE LEFT / WIDE RIGHT / GOOD (`doFG`, `fgTap`, `fgResolve`, `drawMeter`). Speed slows both meters. Space/Enter also tap. Taps in the first 250 ms are ignored so the FIELD GOAL button press does not lock the power. Extra points are still automatic. `fgSettle` kept for the test bot.

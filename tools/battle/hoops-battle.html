@@ -65,7 +65,7 @@ h1 span{color:#FFC23D}
 
 <div id="menu" class="ov"><div class="box mn"><div>
   <h1>Varsity <span>Hoops Battle</span></h1>
-  <p class="sub">One on one. Two hoops. Four buttons. <small style="opacity:.55">v54</small></p>
+  <p class="sub">One on one. Two hoops. Four buttons. <small style="opacity:.55">v55</small></p>
   <span class="lbl" id="l-mode">Play against</span>
   <div class="seg" id="s-mode">
     <button type="button" data-v="ai" aria-pressed="true">Computer</button>
@@ -205,15 +205,17 @@ function stepP(p,c,dt){
     if(!mv&&!p.has||!mv&&p.has&&!p.gath){p.stl=(p.stl||0)+dt;if(p.stl>=EN.still){p.stl=0;p.en=Math.min(1,p.en+EN.bar)}}else p.stl=0}
   else p.vx+=(mv*sp*.8-p.vx)*Math.min(1,dt*3);
   if(p.shoot||p.gath)p.face=g.hp[1-p.i].cx>p.x?1:-1;
-  const jp=c.j&&!p.pj,jump=()=>{p.tk=Math.abs(g.hp[1-p.i].cx-p.x);const v=JV*(p.has?1:1.14)*(.8+.2*Math.min(1,p.en/.25));p.air=true;p.vy=-v;p.ap=v/PG;p.jt=0;p.gath=false;p.en=Math.max(0,p.en-(p.has?EN.shot:EN.jump));if(p.has)p.shoot=true;sfx('jump')};
+  const jp=c.j&&!p.pj,jump=()=>{p.sw=!!(c.w&&p.has);p.tk=Math.abs(g.hp[1-p.i].cx-p.x);const v=JV*(p.has?1:1.14)*(.8+.2*Math.min(1,p.en/.25));p.air=true;p.vy=-v;p.ap=v/PG;p.jt=0;p.gath=false;p.en=Math.max(0,p.en-(p.has?EN.shot:EN.jump));if(p.has)p.shoot=true;sfx('jump')};
   if(!p.air&&p.has){
     /* with the ball: a quick tap is a pump fake, holding JUMP for HOLD seconds goes up for the shot */
     if(p.gath){if(!c.j){p.gath=false;p.pump=.3;p.dd=true;p.en=Math.max(0,p.en-EN.fake)}else{p.gt+=dt;if(p.gt>=HOLD)jump()}}
+    else if(jp&&c.w){p.gath=false;p.pump=0;p.dd=false;jump()}   /* v55 (owner): sliding from RUN onto JUMP is a shot, never a pump fake: no gather, you go straight up */
     else if(jp&&p.pump<=.06){p.gath=true;p.gt=0}}
   else if(!p.air){if(jp)jump()}
   else{
     p.jt+=dt;p.vy+=PG*dt*(p.dk>0?.4:1);p.y+=p.vy*dt;
     if(p.shoot&&p.has&&!c.j&&p.jt>.03)release(p,false);
+    else if(p.sw&&p.shoot&&p.has&&c.j&&p.jt>=p.ap-.02){const hx=g.hp[1-p.i].cx;if(Math.abs(hx-p.x)<130&&p.vx*(hx-p.x)>0)release(p,false)}   /* v55: a running drive in range takes its shot at the top of the jump by itself; the defender still has the whole rise to block it */
     if(p.y>=GY){p.y=GY;p.vy=0;p.air=false;if(p.shoot&&p.has)release(p,true);p.shoot=false}}
   p.x+=p.vx*dt;clampP(p);if(p.dk>0){p.dk-=dt;p.dkT+=dt;const hh=g.hp[p.dkh];p.x+=(hh.cx+hh.dir*34-p.x)*Math.min(1,dt*9);p.face=-hh.dir;p.vx=0}p.ph+=Math.abs(p.vx)*dt*.043;p.pj=c.j}
 /* letting go of JUMP with the ball: a dunk when high and close to the rim, a jump shot otherwise. q = 1 when you let go exactly at the top (vertex) of the jump,
@@ -585,18 +587,18 @@ document.addEventListener('contextmenu',e=>{if(!(e.target&&e.target.closest&&e.t
 document.addEventListener('touchstart',e=>{if(e.target&&e.target.closest&&e.target.closest('.tb,#ctl,canvas'))e.preventDefault()},{passive:false});
 addEventListener('message',e=>{const d=e.data;if(d&&d.hb==='key'&&typeof d.k==='string'){const k=d.k.length===1?d.k.toLowerCase():d.k;K[k]=!!d.down;if(d.down&&(k==='Escape'||k==='p'))togglePause()}});
 addEventListener('blur',()=>{for(const k in K)K[k]=false;if(g&&g.phase!=='over'&&!paused&&g.started&&!(parent!==window&&!document.hidden))togglePause()});
-function human(i){const t=TCH[i];if(OPT.mode==='2p')return i===0?{l:K.a||t.l,r:K.d||t.r,j:K.w||t.j,s:K.s||t.s}:{l:K.ArrowLeft||t.l,r:K.ArrowRight||t.r,j:K.ArrowUp||t.j,s:K.ArrowDown||t.s};
-  return {l:K.a||K.ArrowLeft||t.l,r:K.d||K.ArrowRight||t.r,j:K.w||K.ArrowUp||K[' ']||t.j,s:K.Shift||K.s||K.ArrowDown||t.s}}
+function human(i){const t=TCH[i];if(OPT.mode==='2p')return i===0?{l:K.a||t.l,r:K.d||t.r,j:K.w||t.j,s:K.s||t.s,w:!!t.w}:{l:K.ArrowLeft||t.l,r:K.ArrowRight||t.r,j:K.ArrowUp||t.j,s:K.ArrowDown||t.s,w:!!t.w};
+  return {l:K.a||K.ArrowLeft||t.l,r:K.d||K.ArrowRight||t.r,j:K.w||K.ArrowUp||K[' ']||t.j,s:K.Shift||K.s||K.ArrowDown||t.s,w:!!t.w}}
 function buildCtl(){const c=document.getElementById('ctl'),two=OPT.mode==='2p',b=(p,k,t,cl)=>`<button type="button" class="tb ${cl||''}" data-p="${p}" data-k="${k}" aria-label="${k==='l'?'Left':k==='r'?'Right':k==='s'?'Sprint':'Jump'}">${t}</button>`;
   c.innerHTML=two?`<div class="pad">${b(0,'l','◀')}${b(0,'r','▶')}${b(0,'s','RUN','s')}${b(0,'j','JUMP','j')}</div><div class="pad p2">${b(1,'j','JUMP','j')}${b(1,'s','RUN','s')}${b(1,'l','◀')}${b(1,'r','▶')}</div>`
                  :`<div class="pad">${b(0,'l','◀')}${b(0,'r','▶')}</div><div class="pad">${b(0,'s','RUN','s')}${b(0,'j','JUMP','j')}</div>`;
   /* v53 (owner): hold RUN and slide the same finger onto JUMP: RUN stays down and JUMP presses too (running block / running shot). Each button keeps the set of fingers on it so two fingers still work. */
   const B={},hold={};c.querySelectorAll('.tb').forEach(el=>{B[el.dataset.p+el.dataset.k]=el});
-  const upd=(p,k)=>{const on=!!(hold[p+k]&&hold[p+k].size);TCH[p][k]=on;B[p+k].classList.toggle('dn',on)},
+  const upd=(p,k)=>{const on=!!(hold[p+k]&&hold[p+k].size);TCH[p][k]=on;if(k==='j'&&!on)TCH[p].w=false;B[p+k].classList.toggle('dn',on)},
     add=(p,k,id)=>{(hold[p+k]=hold[p+k]||new Set()).add(id);upd(p,k)},del=(p,k,id)=>{if(hold[p+k]&&hold[p+k].delete(id))upd(p,k)};
   c.querySelectorAll('.tb').forEach(el=>{const p=+el.dataset.p,k=el.dataset.k;
     el.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});el.addEventListener('pointerdown',e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId)}catch(_){}add(p,k,e.pointerId)});
-    if(k==='s'&&B[p+'j'])el.addEventListener('pointermove',e=>{const r=B[p+'j'].getBoundingClientRect();(Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2))<=r.width/2?add:del)(p,'j',e.pointerId)});
+    if(k==='s'&&B[p+'j'])el.addEventListener('pointermove',e=>{const r=B[p+'j'].getBoundingClientRect();if(Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2))<=r.width/2){if(!(hold[p+'j']&&hold[p+'j'].has(e.pointerId))){TCH[p].w=true}add(p,'j',e.pointerId)}else del(p,'j',e.pointerId)});
     for(const ev of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,e=>{del(p,k,e.pointerId);if(k==='s')del(p,'j',e.pointerId)});el.addEventListener('contextmenu',e=>e.preventDefault())})}
 
 /* ---------------- loop ---------------- */
@@ -791,8 +793,8 @@ function netMsg(m){NET.last=performance.now();
   else if(m.k==='ch'&&NET.role==='host'){setChar(1,m.c)}
   else if(m.k==='s'&&NET.role==='guest'&&g){const from={P:g.P.map(p=>({x:p.x,y:p.y})),b:{x:g.ball.x,y:g.ball.y}};Object.assign(g,m.g);
     const t1=performance.now();NET.iv=Math.max(30,Math.min(90,NET.t0?(t1-NET.t0)*1.15:50));NET.from=from;NET.tg={P:g.P.map(p=>({x:p.x,y:p.y})),b:{x:g.ball.x,y:g.ball.y}};NET.t0=t1;for(const n of m.snd||[])sfx(n)}}
-function netGuest(dt){const now=performance.now(),inp=el('rot').hidden?(h=>({l:h.r,r:h.l,j:h.j,s:h.s}))(human(0)):{l:false,r:false,j:false},key=(inp.l?1:0)+''+(inp.r?1:0)+(inp.j?1:0)+(inp.s?1:0);
-  if(key!==NET.lastIn||now-NET.lastInT>150){NET.lastIn=key;NET.lastInT=now;netTx({k:'i',i:{l:!!inp.l,r:!!inp.r,j:!!inp.j,s:!!inp.s}})}
+function netGuest(dt){const now=performance.now(),inp=el('rot').hidden?(h=>({l:h.r,r:h.l,j:h.j,s:h.s,w:h.w}))(human(0)):{l:false,r:false,j:false},key=(inp.l?1:0)+''+(inp.r?1:0)+(inp.j?1:0)+(inp.s?1:0);
+  if(key!==NET.lastIn||now-NET.lastInT>150){NET.lastIn=key;NET.lastInT=now;netTx({k:'i',i:{l:!!inp.l,r:!!inp.r,j:!!inp.j,s:!!inp.s,w:!!inp.w}})}
   if(NET.from&&NET.tg){const k=Math.min(1.6,(now-NET.t0)/(NET.iv||50));   /* v38: when the next snapshot is late, keep moving along the same line for up to .6 of an interval (about 30 ms) instead of freezing, so a slow packet reads as a small catch-up and not a stutter */
     g.P.forEach((p,i)=>{p.x=NET.from.P[i].x+(NET.tg.P[i].x-NET.from.P[i].x)*k;p.y=Math.min(GY,NET.from.P[i].y+(NET.tg.P[i].y-NET.from.P[i].y)*k)});
     g.ball.x=NET.from.b.x+(NET.tg.b.x-NET.from.b.x)*k;g.ball.y=Math.min(GY-BR,NET.from.b.y+(NET.tg.b.y-NET.from.b.y)*k)}

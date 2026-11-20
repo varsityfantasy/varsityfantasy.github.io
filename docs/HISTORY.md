@@ -1359,3 +1359,5 @@ Varsity Bowl title roster: the DEF row is now three rows, DL / LB / DB, each wit
 
 ## v668 (Nov 19)
 Landscape (owner: "go horizontal mode on the app to play game"): the portrait lock is gone so games can be played sideways. `manifest.webmanifest` orientation `portrait` -> `any` (Android/installed PWA); `native/ios/App/App/Info.plist` iPhone orientations now include LandscapeLeft/Right (needs a new native build to take effect). No layout changes: Field Goal/Hoops already size to the window (`fgRescale`), Hoops Battle already wants landscape, Varsity Bowl fits either way. Checked at 844x390.
+
+(1) Varsity Bowl title roster: DL / LB / DB rows show the best player of that group (name and overall, `topOf`); the TEAM screen lists everyone. (2) Hoops Battle v55 (1-on-1): sliding from RUN onto JUMP sets `TCH[p].w` (sent online as `w`); with the ball that is a shot, never a pump fake: no gather, straight up (`p.sw`). If he is running toward the hoop within 130 px, the shot is released by itself at the top of the jump (`release()` makes a dunk or layup), so the defender still has the whole rise to block it. Tapping JUMP is still a pump fake.

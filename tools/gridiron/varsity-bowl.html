@@ -32,15 +32,15 @@ function sh(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,gg=n>>8&255,b=n
 const lum=hex=>{const n=parseInt(hex.slice(1),16);return((n>>16)*.3+(n>>8&255)*.59+(n&255)*.11)};
 function line(x0,y0,x1,y1,c,w){x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);const dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1;let er=dx+dy;g.fillStyle=c;for(let n=0;n<2000;n++){g.fillRect(x0,y0,w,w);if(x0===x1&&y0===y1)break;const e2=2*er;if(e2>=dy){er+=dy;x0+=sx}if(e2<=dx){er+=dx;y0+=sy}}}
 /* route previews: each receiver has his own colour; outlined pixel path with a solid arrowhead */
-const RCOL=['#ffd23f','#5fc8ff','#ff7a6b','#d79bff','#7dff7d'];
-function routeDraw(pts,c){const o='rgba(8,12,10,.7)';
- for(let i=1;i<pts.length;i++)line(pts[i-1][0]-1,pts[i-1][1]-1,pts[i][0]-1,pts[i][1]-1,o,4);
- for(let i=1;i<pts.length;i++)line(pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1],c,2);
- for(let i=1;i<pts.length-1;i++){rect(pts[i][0]-2,pts[i][1]-2,6,6,o);rect(pts[i][0]-1,pts[i][1]-1,4,4,c)}
- const n=pts.length;if(n<2)return;const [x0,y0]=pts[n-2],[x1,y1]=pts[n-1],a=Math.atan2(y1-y0,x1-x0),tip=[x1+Math.cos(a)*5+1,y1+Math.sin(a)*5+1],
-  L=[x1+Math.cos(a+2.4)*6+1,y1+Math.sin(a+2.4)*6+1],R=[x1+Math.cos(a-2.4)*6+1,y1+Math.sin(a-2.4)*6+1];
- const tri=(p,q,r,col,k)=>{g.fillStyle=col;g.beginPath();g.moveTo(p[0]+k*Math.cos(a),p[1]+k*Math.sin(a));g.lineTo(q[0]-k*Math.cos(a+.6),q[1]-k*Math.sin(a+.6));g.lineTo(r[0]-k*Math.cos(a-.6),r[1]-k*Math.sin(a-.6));g.closePath();g.fill()};
- tri(tip,L,R,o,1.6);tri(tip,L,R,c,0)}
+const RCOL=['#ffe14a','#ffe14a','#ffe14a','#ffe14a','#ffe14a'];
+function routeDraw(pts,c){if(pts.length<2)return;
+ const P_=pts.map(p=>[Math.round(p[0])+.5,Math.round(p[1])+.5]),n=P_.length,[x0,y0]=P_[n-2],[x1,y1]=P_[n-1],a=Math.atan2(y1-y0,x1-x0),stop=[x1-Math.cos(a)*4,y1-Math.sin(a)*4];
+ const path=()=>{g.beginPath();g.moveTo(P_[0][0],P_[0][1]);for(let i=1;i<n-1;i++)g.arcTo(P_[i][0],P_[i][1],P_[i+1][0],P_[i+1][1],7);g.lineTo(stop[0],stop[1])};
+ g.lineJoin='round';g.lineCap='round';
+ path();g.strokeStyle='rgba(0,0,0,.55)';g.lineWidth=5;g.stroke();
+ path();g.strokeStyle=c;g.lineWidth=2.4;g.stroke();
+ const head=(k,col)=>{g.fillStyle=col;g.beginPath();g.moveTo(x1+Math.cos(a)*(3+k),y1+Math.sin(a)*(3+k));g.lineTo(x1+Math.cos(a+2.5)*(7+k),y1+Math.sin(a+2.5)*(7+k));g.lineTo(x1+Math.cos(a-2.5)*(7+k),y1+Math.sin(a-2.5)*(7+k));g.closePath();g.fill()};
+ head(1.6,'rgba(0,0,0,.6)');head(0,c);g.lineCap='butt';g.lineJoin='miter'}
 function arrow(x0,y0,x1,y1,c,w){line(x0,y0,x1,y1,c,w);const a=Math.atan2(y1-y0,x1-x0);for(const s of[-2.5,2.5])line(x1,y1,x1-Math.cos(a+s*.4)*6,y1-Math.sin(a+s*.4)*6,c,w)}
 
 /* ---------- sound ---------- */
@@ -122,26 +122,22 @@ function applyTeam(){
 
 /* ---------- plays (route points are offsets in px from the start spot, x forward, y down) ---------- */
 const PS=.78;
+/* plays (owner, Nov 19): real concepts with spacing; every receiver finishes in his own part of the field (tools: /tmp check, min 34 px apart) */
 const PLAYS=[
- {id:'stopgo',n:'STOP & GO',k:'pass',r:{wr0:[[70,0],[58,-2],[96,0],[214,4]],wr1:[[40,0],[84,-30],[170,-40]],wr2:[[50,0],[60,28],[100,40]],te:[[56,0],[56,16],[90,24]],rb:[[12,-16],[44,-44],[80,-60]]}},
- {id:'outup',n:'OUT & UP',k:'pass',r:{wr0:[[80,0],[88,32],[200,32]],wr1:[[80,0],[88,-32],[200,-32]],wr2:[[70,0],[110,-36],[170,-36]],te:[[44,0],[70,20],[80,24]],rb:[[14,18],[44,44],[60,60]]}},
- {id:'xshallow',n:'SHALLOW CROSS',k:'pass',r:{wr0:[[20,0],[44,70],[70,150]],wr1:[[20,0],[44,-70],[70,-150]],wr2:[[90,0],[150,-10],[200,10]],te:[[60,0],[90,20],[120,26]],rb:[[10,22],[30,58],[44,84]]}},
- {id:'yankee',n:'YANKEE',k:'pass',r:{wr0:[[60,0],[110,0],[210,60]],wr1:[[40,0],[90,-40],[160,-100]],wr2:[[70,0],[130,-10],[190,-30]],te:[[44,0],[60,10],[70,14]],rb:[[12,-16],[40,-40],[60,-56]]}},
- {id:'rub',n:'RUB',k:'pass',r:{wr2:[[18,0],[44,-30],[84,-50]],te:[[24,0],[44,34],[84,50]],wr0:[[90,0],[120,-4],[200,10]],wr1:[[90,0],[120,4],[200,-10]],rb:[[14,16],[44,36],[70,60]]}},
- {id:'dagger',n:'DAGGER',k:'pass',r:{te:[[100,0],[200,0]],wr1:[[80,0],[140,-70],[170,-90]],wr0:[[210,0]],wr2:[[44,0],[70,-26],[96,-40]],rb:[[12,16],[34,40],[50,56]]}},
- {id:'lvl4',n:'FOUR LEVELS',k:'pass',r:{wr0:[[50,0],[100,60],[130,80]],wr2:[[84,0],[130,-10],[150,-14]],wr1:[[160,0],[196,-20],[206,-28]],te:[[30,0],[46,20],[60,26]],rb:[[14,-18],[44,-44],[60,-60]]}},
- {id:'wheel2',n:'WHEEL & DRAG',k:'pass',r:{rb:[[14,34],[64,64],[130,68],[200,68]],wr0:[[40,0],[90,24],[110,60]],wr1:[[110,0],[140,0],[190,-10]],wr2:[[20,0],[56,-74],[70,-110]],te:[[50,0],[70,-8],[90,-10]]}},
- {id:'curlflat',n:'CURL-FLAT',k:'pass',r:{wr0:[[120,0],[106,8],[100,10]],wr1:[[120,0],[106,-8],[100,-10]],wr2:[[96,0],[84,-4],[70,-8]],te:[[44,0],[70,24],[84,28]],rb:[[8,28],[26,62],[40,80]]}},
- {id:'smash2',n:'CORNER-FLAT',k:'pass',r:{wr0:[[50,0],[50,0],[60,0],[110,0],[190,-18]],wr2:[[110,0],[170,-24],[200,-30]],wr1:[[56,0],[52,-4]],te:[[80,0],[120,26],[130,30]],rb:[[10,-16],[40,-40],[60,-56]]}},
- {id:'deepx2',n:'DEEP CROSSERS',k:'pass',r:{wr0:[[60,0],[120,70],[190,120]],wr1:[[160,0],[190,-10],[210,-14]],wr2:[[90,0],[130,-30],[160,-60]],te:[[44,0],[60,22],[70,30]],rb:[[12,16],[40,40],[56,56]]}},
- {id:'pa',n:'PLAY ACTION POST',k:'pass',r:{wr0:[[110,0],[170,0],[220,50]],wr1:[[100,0],[170,0],[210,-30]],wr2:[[60,0],[96,-26],[130,-26]],te:[[44,0],[80,0],[110,-24]],rb:[[10,16],[30,50],[40,60]]}},
- {id:'snag',n:'SNAG',k:'pass',r:{wr0:[[130,0],[196,0]],wr2:[[20,0],[44,-30],[56,-40]],te:[[56,0],[56,22],[40,26]],wr1:[[56,0],[50,-22],[44,-30]],rb:[[8,24],[26,60],[40,76]]}},
- {id:'spot',n:'SPOT',k:'pass',r:{wr0:[[26,0],[60,28],[84,30]],wr1:[[90,0],[130,-4],[200,-24]],wr2:[[70,0],[96,-34],[110,-34]],te:[[96,0],[160,12],[190,12]],rb:[[8,-24],[30,-60],[40,-80]]}},
- {id:'sluggo',n:'SLANT & GO',k:'pass',r:{wr0:[[16,0],[44,24],[70,28],[200,30]],wr1:[[16,0],[44,-24],[70,-28],[200,-30]],wr2:[[50,0],[84,-30],[120,-34]],te:[[40,0],[44,16],[60,20]],rb:[[10,18],[34,50],[50,70]]}},
- {id:'tebehind',n:'TE DRIFT',k:'pass',r:{te:[[30,0],[50,40],[110,60],[170,60]],wr0:[[100,0],[150,0],[170,30]],wr1:[[100,0],[150,0],[170,-30]],wr2:[[16,0],[40,-26],[70,-26],[90,-4]],rb:[[10,-20],[30,-52],[48,-70]]}},
- {id:'orbit',n:'ORBIT',k:'pass',r:{wr2:[[-4,-10],[24,-30],[70,-8],[110,30]],wr0:[[90,0],[124,-4],[190,20]],wr1:[[56,0],[56,-10],[64,-6]],te:[[60,0],[90,12],[110,18]],rb:[[10,16],[44,36],[70,60]]}},
- {id:'comeback2',n:'COMEBACK',k:'pass',r:{wr0:[[150,0],[130,12],[120,18]],wr1:[[150,0],[130,-12],[120,-18]],wr2:[[84,0],[124,-30],[134,-34]],te:[[44,0],[64,20],[70,24]],rb:[[12,20],[40,44],[54,60]]}},
- {id:'bootleg',n:'BOOTLEG',k:'pass',r:{te:[[20,0],[40,30],[100,54],[150,54]],wr0:[[120,0],[180,0],[210,40]],wr1:[[90,0],[110,-20],[130,-60],[170,-70]],wr2:[[30,0],[60,-20],[90,-20]],rb:[[10,16],[30,50],[44,64]]}},
+ {id:'fourv',n:'FOUR VERTS',k:'pass',r:{wr0:[[220,0]],wr1:[[220,0]],wr2:[[30,0],[200,18]],te:[[30,0],[200,-18]],rb:[[12,18],[38,30]]}},
+ {id:'smash',n:'SMASH',k:'pass',r:{wr0:[[64,0],[56,0]],wr2:[[96,0],[180,-26]],wr1:[[64,0],[56,0]],te:[[90,0],[174,36]],rb:[[12,-20],[44,-44]]}},
+ {id:'mesh',n:'MESH',k:'pass',r:{wr2:[[20,0],[46,36],[100,96]],te:[[20,0],[46,-36],[100,-72]],wr0:[[110,0],[206,56]],wr1:[[110,0],[194,10]],rb:[[12,18],[38,30]]}},
+ {id:'stick',n:'STICK',k:'pass',r:{wr2:[[66,0],[62,-22]],wr0:[[220,0]],te:[[12,20],[44,40]],wr1:[[30,0],[94,-56]],rb:[[12,-20],[44,-60]]}},
+ {id:'dagger',n:'DAGGER',k:'pass',r:{wr2:[[30,0],[200,30]],wr0:[[150,0],[156,70]],wr1:[[90,0],[186,-56]],te:[[70,0],[64,-8]],rb:[[12,18],[38,30]]}},
+ {id:'flood',n:'FLOOD',k:'pass',r:{wr0:[[220,0]],wr2:[[120,0],[126,-26]],rb:[[12,-20],[44,-74]],wr1:[[130,0],[136,-60]],te:[[60,0],[54,-8]]}},
+ {id:'slants',n:'SLANTS',k:'pass',r:{wr0:[[30,0],[94,56]],wr2:[[50,0],[56,-26]],wr1:[[40,0],[104,-56]],te:[[66,0],[60,-8]],rb:[[12,18],[38,30]]}},
+ {id:'curlflat',n:'CURL-FLAT',k:'pass',r:{wr0:[[120,0],[108,12]],wr1:[[120,0],[108,-12]],wr2:[[40,0],[46,-24]],te:[[12,20],[44,36]],rb:[[12,-20],[44,-30]]}},
+ {id:'snag',n:'SNAG',k:'pass',r:{wr0:[[100,0],[184,-6]],wr2:[[60,0],[54,8]],wr1:[[220,0]],te:[[12,-20],[44,-40]],rb:[[12,18],[38,30]]}},
+ {id:'ycross',n:'Y-CROSS',k:'pass',r:{te:[[40,0],[80,-30],[170,-74]],wr2:[[220,0]],wr0:[[140,0],[122,-20]],wr1:[[100,0],[196,-56]],rb:[[12,20],[44,40]]}},
+ {id:'pashot',n:'PLAY ACTION SHOT',k:'pass',r:{wr0:[[130,0],[226,56]],wr1:[[220,0]],wr2:[[90,0],[96,50]],te:[[60,0],[66,30]],rb:[[12,18],[38,30]]}},
+ {id:'hitchseam',n:'HITCH-SEAM',k:'pass',r:{wr0:[[70,0],[62,0]],wr1:[[70,0],[62,0]],wr2:[[30,0],[200,18]],te:[[30,0],[200,-18]],rb:[[12,18],[38,30]]}},
+ {id:'wheel',n:'WHEEL',k:'pass',r:{rb:[[12,28],[60,44],[210,44]],wr1:[[110,0],[116,-70]],wr0:[[130,0],[118,12]],wr2:[[80,0],[176,56]],te:[[50,0],[44,-8]]}},
+ {id:'comeback',n:'COMEBACK',k:'pass',r:{wr0:[[150,0],[132,-20]],wr1:[[150,0],[132,20]],wr2:[[100,0],[106,52]],te:[[12,20],[44,34]],rb:[[12,-20],[44,-40]]}},
  {id:'screen',n:'RB SCREEN',k:'pass',sc:1,hold:['rb'],r:{rb:[[-2,26],[22,46]],wr0:[[70,0],[150,0]],wr1:[[70,0],[150,0]],wr2:[[36,0],[56,10]],te:[[40,0]]}},
  {id:'dive',n:'INSIDE RUN',k:'run',r:{rb:[[26,-10],[110,-10]],wr0:[[60,0]],wr1:[[60,0]],wr2:[[50,0]]}},
  {id:'sweep',n:'SWEEP LEFT',k:'run',r:{rb:[[10,-30],[58,-58],[110,-58]],wr0:[[60,0]],wr1:[[60,0]],wr2:[[50,0]]}},
@@ -217,10 +213,11 @@ function drawField(){
  for(let y=1;y<100;y++){if(y%5===0)continue;const sx=Math.round(EZ+y*YD-camX);if(sx<0||sx>W)continue;rect(sx,FT+CY-20,1,3,'#cfe0c4');rect(sx,FT+CY+17,1,3,'#cfe0c4');rect(sx,FT+2,1,3,'#b9d4b0');rect(sx,FT+FH-5,1,3,'#b9d4b0')}
  for(let y=10;y<=90;y+=10){const sx=EZ+y*YD-camX,n=y<=50?y:100-y;if(sx<-30||sx>W+30)continue;const s=String(n);const w=tw(s,2);for(let i=0;i<s.length;i++){drawFlip(s[s.length-1-i],sx-w/2+i*12,FT+8,'#e6efd6',2,1);drawStr(s[i],Math.round(sx-w/2+i*12),FT+FH-22,'#e6efd6',2)}}
  /* mid logo */
- {const sx=Math.round(EZ+50*YD-camX),cy=FT+CY;if(sx>-40&&sx<W+40){const T=TEAMS[0],r=24;
-  g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.arc(sx+1,cy+2,r+3,0,7);g.fill();
-  g.fillStyle='#fff';g.beginPath();g.arc(sx,cy,r+3,0,7);g.fill();g.fillStyle=T.e;g.beginPath();g.arc(sx,cy,r+1,0,7);g.fill();
-  if(lgKey(T.lg)){g.save();g.beginPath();g.arc(sx,cy,r-1,0,7);g.clip();g.fillStyle='#fff';g.fillRect(sx-r,cy-r,r*2,r*2);lgo(T.lg,sx-r+2,cy-r+2,r*2-4);g.restore()}else txt('V',sx,cy-10,ezc(0),3,'c',true)}}
+ {const sx=Math.round(EZ+50*YD-camX),cy=FT+CY;if(sx>-40&&sx<W+40){const r=24,disk=(rr,col)=>{g.fillStyle=col;g.beginPath();g.arc(sx,cy,rr,0,7);g.fill()};
+  disk(r+4,'rgba(0,0,0,.3)');disk(r+3,'#f4f1e6');disk(r+1,'#f2c230');disk(r-2,'#0f2a4a');disk(r-5,'#123459');
+  const V=['##.....##','##.....##','.##...##.','.##...##.','..##.##..','..##.##..','...###...','...###...','....#....'];
+  pxi(V,sx-13,cy-12,3,'#071a30');pxi(V,sx-14,cy-14,3,'#f2c230');pxi(['#','#'],sx-14,cy-14,3,'#fff3b0');
+  pxi(PX.star,sx-r+2,cy-3,1,'#f4f1e6');pxi(PX.star,sx+r-9,cy-3,1,'#f4f1e6')}}
  /* end zone: NAME down the middle, school logo on each side */
  for(const k of[0,1]){const ex=Math.round((k?GOAL:0)-camX);if(ex<-130||ex>W)continue;const T=TEAMS[k],nm=String(lgKey(T.lg)||T.n).toUpperCase().replace(/[^A-Z0-9' .-]/g,'').slice(0,14),cx=ex+EZ/2,cy=FT+FH/2;
   const sc=tw(nm,3)<=FH-24?3:2,len=tw(nm,sc),ink=ezc(k),tx=cx-(sc*7)/2;

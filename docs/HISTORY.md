@@ -1387,3 +1387,6 @@ Varsity Bowl menu polish (owner: 'detail is ugly'): `menuBg(sky)` draws a cached
 
 ## v677 (Nov 19)
 Varsity Bowl: removed the explanation line at the bottom of the home and title screens (owner).
+
+## v678 (Nov 19)
+Varsity Bowl menu extras (owner: more of the stadium detail): `bgHero()` animates twinkling stars, a crowd wave and pulsing light towers; `logo(y,sc)` draws the two-tone logo with a drop edge; faint painted VARSITY in the home screen end zone.

@@ -1366,3 +1366,6 @@ Owner: app and games very laggy. Profiled the Stats tab in headless Chrome at 4x
 
 ## v670 (Nov 19)
 Varsity Bowl title roster: added the K row (kicker name and overall).
+
+## v671 (Nov 19)
+Varsity Bowl kicker attributes (`AT.KK`): range, accuracy, speed, stamina (40-99, average = OVR, trainable in My Team with presets BOOMER/PRECISE/ICEMAN). Range = how fast a field goal's chance falls with distance and how long punts go; accuracy = XP chance and how forgiving the FG meter is; speed = how slowly the meter sweeps; stamina = how little he tires over the game's kicks (`kTire`, `G.kn`).

@@ -93,7 +93,9 @@ function buildRoster(list){const by={};list.forEach(r=>(by[r.slot]=by[r.slot]||[
  ros.df=Math.round(ros.dsub.dl*.3+ros.dsub.lb*.3+ros.dsub.db*.4);return ros}
 const schoolList=()=>VBD?Object.keys(VBD.schools):[];
 const schoolPool=sc=>{const d=VBD&&VBD.schools[sc];return d?d.r.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4]})):[]};
-const demoPool=()=>VBD&&VBD.demo?VBD.demo.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],key:'d:'+x[1]})):[];
+/* sample team (owner, Nov 19): Zed Hornby's real cards, read from his signed-in account (OVR already includes the rarity bump). Used when the game is opened without the app's cards. */
+const SAMPLE_TEAM={n:"BISHOP'S",s:"Bishop's",c1:'#800001',c2:'#cea978'},SAMPLE_POOL=[["DB","Noah Lauifi",89,11,{"tkl":80,"dInt":1,"tfl":2,"pbu":6}],["DL","Isaiah Garcia",95,11,{"tkl":68,"sack":11.5,"dInt":1,"ff":2,"tfl":26.5}],["DB","Carson Hasting",57,2,{"tkl":2}],["DL","Hunter Torino",58,2,{"tkl":2}],["DL","Reese Monahan",59,1,{"tkl":1}],["WR","Rory Dunn",85,8,{"passYd":199,"passTD":2,"rushYd":12,"rec":20,"recYd":270,"recTD":3}],["DL","Aaron Pena",94,11,{"tkl":52,"sack":3.5,"ff":1,"fr":1,"tfl":12}],["DB","Tomas Zaldivar",78,10,{"tkl":28,"dInt":1,"pbu":5}],["DB","Nolan Seelhorst",87,8,{"tkl":37,"dInt":1,"ff":1,"tfl":1,"pbu":2}],["WR","Nolan Seelhorst",52,8,{"rushYd":28}],["DB","Jaeden Blossom",67,4,{"tkl":4}],["QB","Evin Dill",95,12,{"passYd":1463,"passTD":14,"int":7,"rushYd":1015,"rushTD":12,"rec":1}],["DB","Derick Beane",64,2,{"tkl":2,"tfl":1}],["DL","Teddy Irvin",76,10,{"tkl":21,"sack":2,"tfl":6}],["DB","Marcel Banuelos",73,8,{"tkl":17,"fr":1,"pbu":1}],["DL","Christopher Angeles",56,2,{"tkl":2}],["RB","Yacub Abdulahhi",65,4,{"rushYd":52}],["DL","Lukas Franco",59,5,{"tkl":8}],["WR","Bruce Esajian",76,9,{"rushYd":12,"rec":10,"recYd":114,"recTD":1}],["WR","Zed Hornby",87,11,{"rushYd":22,"rec":48,"recYd":614,"recTD":8}],["WR","Aden Brown",74,6,{"rushYd":-1,"rec":14,"recYd":143}],["LB","Steven Gomez",79,6,{"tkl":26,"tfl":4}],["DB","Adrian Ismaili",67,9,{"tkl":11,"dInt":1,"tfl":1}],["WR","Aidan Flores",77,9,{"rushYd":76,"rec":5,"recYd":130,"recTD":3}],["RB","Elijah Richardson",86,10,{"rushYd":593,"rushTD":5,"rec":3,"recYd":23,"fumLost":1}],["LB","Xander Molina",76,6,{"tkl":43}],["LB","Jax Vizkeleti",73,8,{"tkl":22,"tfl":1}],["DB","Nicholas Hedgecock",70,9,{"tkl":21,"pbu":2}],["LB","Riley Davis-Reagan",86,11,{"tkl":71,"sack":1,"dInt":2,"tfl":4,"pbu":4}],["WR","Cyrus King",71,1,{"rec":1,"recYd":1}],["RB","Mateo De Alba",72,8,{"rushYd":94,"rushTD":1}],["K","Victor Ruiz",85,7,{"xpm":17,"xpMiss":1,"fgm":4,"puntYd":822,"punts":24}],["K","Luis Bautista",45,2,{"xpMiss":1,"fgMiss":1}]];
+const demoPool=()=>SAMPLE_POOL.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],key:'d:'+x[0]+x[1]}));
 const schOv=sc=>{const a=schoolPool(sc).map(x=>x.o).sort((x,y)=>y-x).slice(0,11);return a.length?a.reduce((x,y)=>x+y,0)/a.length:0};
 function applyTeam(){
  if(CFG.mode==='school'&&!(VBD&&VBD.schools[CFG.school]))CFG.mode='cards';
@@ -101,6 +103,7 @@ function applyTeam(){
  CFG.ros=buildRoster(list);
  if(CFG.mode==='school'){const d=VBD.schools[CFG.school];CFG.team={n:nmS(CFG.school),s:CFG.school,c1:d.c[0],c2:d.c[1]}}
  else if(CFG.cardTeam)CFG.team=CFG.cardTeam;
+ else CFG.team=SAMPLE_TEAM;
  const mine=CFG.mode==='school'?CFG.school:CFG.cardSchool;
  if(VBD){const o=schoolList().filter(x=>x!==mine).map(x=>({n:nmS(x),s:x,c1:VBD.schools[x].c[0],c2:VBD.schools[x].c[1],ov:schOv(x)}));if(o.length)CFG.opps=o}
  saveJ(CKEY,{mode:CFG.mode,school:CFG.school,chosen:!!CFG.chosen})}
@@ -733,7 +736,7 @@ function drawGone(){rect(0,0,W,H,'rgba(0,0,0,.8)');btns=[];txt('YOUR FRIEND LEFT
 function bgV(){bgPlain()}
 function drawV1(){bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});txt('ONLINE 1V1',W/2,8,'#f2c230',1,'c');
  txt('PLAY A FRIEND WITH YOUR OWN TEAM',W/2,40,'#fff',1,'c');txt('YOU TAKE TURNS ON OFFENSE · THE CLOCK RUNS FOR BOTH',W/2,54,'#9fb7a0',1,'c',true);
- txt('YOUR TEAM: '+String(CFG.team.n).slice(0,16)+(CFG.real?'':' (DEMO CARDS)'),W/2,84,'#cfe8cf',1,'c');
+ txt('YOUR TEAM: '+String(CFG.team.n).slice(0,16)+(CFG.real?'':' (SAMPLE CARDS)'),W/2,84,'#cfe8cf',1,'c');
  btn(W/2-130,104,120,40,'CREATE GAME',()=>{const c=String(Math.floor(1000+Math.random()*9000));SCR='v1host';vOpen('host',c)},{c:'#7dff7d'});
  btn(W/2+10,104,120,40,'JOIN GAME',()=>{NETV.code='';NETV.err='';SCR='v1join'},{c:'#9fd8ff'});
  btn(W/2-45,160,90,18,'EDIT TEAM',()=>{TS.back='v1';SCR='team';TS.sel=0},{c:'#4a5a4c',tc:'#cfe8cf'})}
@@ -822,7 +825,7 @@ function drawTeam(){
  if(has)btn(46,4,58,14,'SCHOOL',()=>setMode('school'),{c:!cards?'#f2c230':'#4a5a4c',tc:!cards?'#14110a':'#cfe8cf'});
  btn(has?108:46,4,64,14,'MY TEAM',()=>setMode('cards'),{c:cards?'#f2c230':'#4a5a4c',tc:cards?'#14110a':'#cfe8cf'});
  if(!cards)btn(178,4,200,14,CFG.school.slice(0,32),()=>{SCR='pick'},{c:'#9fd8ff'});
- else txt(CFG.real?'FROM YOUR CARDS':'DEMO CARDS · OPEN PACKS FOR YOURS',180,8,'#9fb7a0',1);
+ else txt(CFG.real?'FROM YOUR CARDS':'SAMPLE: ZED HORNBY\'S CARDS',180,8,'#9fb7a0',1);
  const L=entList();TS.sel=clamp(TS.sel,0,L.length-1);
  panel(4,26,236,192,'rgba(0,0,0,.55)');
  L.forEach((e,i)=>{const y=29+i*10.5,sel=i===TS.sel;btns.push({x:4,y:y-1,w:236,h:10,fn:()=>{TS.sel=i}});if(sel)rect(5,y-1,234,10,'rgba(242,194,48,.3)');

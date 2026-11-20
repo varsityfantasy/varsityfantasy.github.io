@@ -1396,3 +1396,6 @@ Varsity Bowl team logos (owner): `vb-data.js` now has `VB_DATA.logos` (48 px web
 
 ## v680 (Nov 19)
 Varsity Bowl logos made bigger (owner: not visible): 46 px logo in each end zone (name text now scale 2 under it), 56 px team logo top right of the title screen, 18 px logos in the picker (rows are 22 px, 8 visible), 32 px logos on the final screen and opponent-drive banner, 12 px in the scoreboard.
+
+## v681 (Nov 19)
+Varsity Bowl sample My Team (owner): `SAMPLE_POOL` / `SAMPLE_TEAM` in varsity-bowl.html are Zed Hornby's 33 real cards (read from his signed-in account in Chrome via `vbRoster()`: slot, name, OVR with rarity bump, games, season stats) with Bishop's colours. `demoPool()` returns them when the game runs without the app's cards (standalone page); the labels say SAMPLE CARDS. Inside the app the signed-in player's own cards still win. No TE card in that collection, so the game fills TE with a generic 55.

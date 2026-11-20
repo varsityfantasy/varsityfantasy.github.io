@@ -624,8 +624,8 @@ function drawTitle(){
  txt(CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',W/2,98,'#cfe8cf',1,'c');
  /* starters */
  const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
- const R=CFG.ros,ds=R.dsub||{dl:0,lb:0,db:0},rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)]];
- panel(16,114,200,112,'rgba(0,0,0,.7)');txt('YOUR STARTERS',24,119,'#f2c230',1);btn(160,112,48,12,'TEAM',()=>{SCR='team';TS.sel=0},{c:'#9fd8ff'});
+ const R=CFG.ros,ds=R.dsub||{dl:0,lb:0,db:0},rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
+ panel(16,114,200,122,'rgba(0,0,0,.7)');txt('YOUR STARTERS',24,119,'#f2c230',1);btn(160,112,48,12,'TEAM',()=>{SCR='team';TS.sel=0},{c:'#9fd8ff'});
  rows.forEach((r,i)=>{const y=131+i*10;txt(r[0],24,y,'#9fb7a0',1);txt(String(r[1].n).slice(0,22),48,y,'#fff',1);txt(String(r[1].o),204,y,r[1].o>=85?'#ffd23f':r[1].o>=72?'#7dff7d':'#fff',1,'r')});
  /* options */
  txt('GAME LENGTH',W-140,112,'#f2c230',1,'c');

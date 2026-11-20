@@ -41,7 +41,7 @@ const sfx={hit:()=>{beep(90,.14,.08,'sawtooth')},td:()=>{[523,659,784,1046].forE
 const NAMES=['M.Reyes','D.Mills','T.Hart','K.Lee','C.Price','J.Cole','A.Cruz','R.Boyd','L.Vega','S.Tran'];
 let CFG={team:{n:'VARSITY',c1:'#1d4ed8',c2:'#ffffff'},opps:[{n:'RIVALS',c1:'#c8102e',c2:'#ffffff'},{n:'TITANS',c1:'#0b6e4f',c2:'#ffd23f'},{n:'ROYALS',c1:'#5b2a86',c2:'#ffffff'},{n:'COUGARS',c1:'#e07a10',c2:'#101010'}],
  ros:{qb:{n:'J.Walker',o:72},rb:{n:'M.Reyes',o:70},wr:[{n:'D.Mills',o:72},{n:'T.Hart',o:68},{n:'K.Lee',o:66}],te:{n:'C.Price',o:64},k:{n:'A.Cruz',o:65},df:64},real:false,ql:120,lvl:1};
-const LVL=[{n:'ROOKIE',o:58},{n:'VARSITY',o:78},{n:'ELITE',o:92}];
+const LVL=[{n:'ROOKIE',o:58},{n:'ELITE',o:78},{n:'VARSITY',o:92}];
 const rosOl=()=>70;/* the offensive line is the same for every team */
 const ini=n=>{const p=String(n||'').trim().split(/\s+/);if(p.length>1)return p[0][0]+'.'+p[p.length-1][0];return String(n||'??').replace(/^(.)\.?(.).*$/,'$1.$2')};
 

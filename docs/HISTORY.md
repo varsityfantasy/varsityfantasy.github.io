@@ -1402,3 +1402,6 @@ Varsity Bowl sample My Team (owner): `SAMPLE_POOL` / `SAMPLE_TEAM` in varsity-bo
 
 ## v682 (Nov 19)
 Varsity Bowl My Team shows each player's school (owner): `vbRoster()` sends `sc` (school) with every card; the game keeps it on each entry (`mkEnt` sc, `scAb()` shortens names), and shows logo + school in the Starters panel, the team list and the player detail. School-mode rosters carry their school too. The sample cards have schools.
+
+## v683 (Nov 19)
+Varsity Bowl levels (owner): VARSITY is now the hardest (opponent 92), ELITE second (78), ROOKIE easiest (58). Same array order/indices as before, only the names swapped, so the default (middle) is now ELITE.

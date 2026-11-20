@@ -326,7 +326,7 @@ function carrierMove(C,dt){
   C.vx+=(nx*sp-C.vx)*Math.min(1,9*dt);C.vy+=(ny*sp-C.vy)*Math.min(1,9*dt);C.x+=C.vx*dt;C.y+=C.vy*dt;C.ph+=Math.hypot(C.vx,C.vy)*dt/7;if(Math.abs(C.vx)>6)C.f=C.vx>0?1:-1}
  afterMove(C)}
 function afterMove(C){const S=G.pl;if(C.x>=GOAL){endPlay('td',GOAL);return}if(C.y<2||C.y>FH-2){C.y=clamp(C.y,2,FH-2);endPlay('oob',C.x,'OUT OF BOUNDS')}}
-function juke(C,dx,dy){if(C.dive>0)return;if(Math.abs(dy)<4)return;C.tired=Math.min(.2,(C.tired||0)+.015);dx=0;dy=dy>0?1:-1;C.jk=.14;C.jvx=dx*72;C.jvy=dy*72;C.imm=Math.max(C.imm,.14);C.jcd=0;C.manual=true;
+function juke(C,dx,dy,back){if(C.dive>0)return;if(!back&&Math.abs(dy)<4)return;C.tired=Math.min(.2,(C.tired||0)+.015);dx=back?-1:0;dy=back?0:dy>0?1:-1;C.jk=.14;C.jvx=dx*72;C.jvy=dy*72;C.imm=Math.max(C.imm,.14);C.jcd=0;C.manual=true;
  let fooled=0;for(const d of P.def){if(dst(d,C)<30&&Math.random()<.5+((C.q?C.q.spd:C.a)-d.a)*.4+.15){d.imm=.8;d.slow=.6;fooled++}}
  sfx.tap()}
 function dive(C){if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}
@@ -544,7 +544,13 @@ const MAXTHROW=420,PULLK=3.1;
 function aimInfo(){const Q=P&&P.qb;if(!Q||!ptr.down)return null;const vx=ptr.sx-ptr.x,vy=ptr.sy-ptr.y,l=Math.hypot(vx,vy);if(l<8)return null;const dist=Math.min(MAXTHROW,l*PULLK);return{x:Q.x+vx/l*dist,y:Q.y+vy/l*dist,lob:false,l,dist,ux:vx/l,uy:vy/l}}
 function advance(){const n=G.next;G.next=null;G.msg=null;if(n)n()}
 function snap(){if(G.phase!=='presnap')return;G.phase='play';if(G.pl)G.pl.snapT=.04;G.hintN++;sfx.whistle();ptr.hitb=null}
-addEventListener('keydown',e=>{if(G&&G.phase==='presnap'&&(e.key===' '||e.key==='Enter'))snap()});
+addEventListener('keydown',e=>{if(G&&G.phase==='presnap'&&(e.key===' '||e.key==='Enter'))snap();
+ /* computer: up / down arrows (or W / S) juke sideways, left arrow (or A) hops back; no jukes forward */
+ if(G&&G.phase==='play'&&G.pl&&G.pl.carrier&&!G.pl.done&&!paused){const k=e.key,C=G.pl.carrier;
+  if(k==='ArrowUp'||k==='w'||k==='W'){e.preventDefault();juke(C,0,-10)}
+  else if(k==='ArrowDown'||k==='s'||k==='S'){e.preventDefault();juke(C,0,10)}
+  else if(k==='ArrowLeft'||k==='a'||k==='A'){e.preventDefault();juke(C,0,0,true)}
+  else if(k===' '){e.preventDefault();dive(C)}}});
 
 /* ---------- screens ---------- */
 function btn(x,y,w,h,label,fn,o){o=o||{};btns.push({x,y,w,h,fn});const c=o.c||'#f2c230';rect(x-1,y-1,w+2,h+2,'#000');rect(x,y,w,h,c);rect(x,y,w,2,sh(c,.4));rect(x,y+h-3,w,3,sh(c,-.3));txt(label,x+w/2,y+h/2-3.5,o.tc||'#14110a',o.sc||1,'c',true)}

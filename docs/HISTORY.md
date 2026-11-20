@@ -1350,3 +1350,6 @@ Varsity Bowl (still not shipped in the app): attributes and two team modes.
 - Modes (Team screen, `drawTeam`): SCHOOL = pick any of the 86 schools in `tools/gridiron/vb-data.js` (real roster, fixed natural ratings, school colors; `drawPick` list with drag/wheel scroll). MY TEAM = the lineup from your cards (the app sends `pool` = every card as slot/name/OVR+rarity bump/games/stats in `vbRoster()`), and you train each starter with +/- 3 point steps, presets (Gunslinger, Pocket, Scrambler / Burner, Hands, Power / Hitter, Speedster, Bruiser) and Reset; unspent points are spread automatically at kickoff. Builds are stored in localStorage `vs-vb-build`, the mode and school in `vs-vb-cfg`. Standalone (no app) My Team uses 19 demo cards from the data file.
 - DEF cards are split by `sub` into DL, LB and DB (CB/S count as DB). Slots: QB 1, RB 1, WR 3, TE 1, K 1, DL 4, LB 3, DB 4; missing slots are filled with 55 OVR placeholders.
 - `tools/gridiron/make_vbdata.py` regenerates `vb-data.js` from the football app (run make_previews.py first; instructions in its docstring). Re-run after stats or OVR change. Publish vb-data.js next to varsity-bowl.html on the test page.
+
+## v666 (Nov 19)
+Varsity Bowl (not shipped): keyboard for the ball carrier: up/down arrows (or W/S) juke sideways, left arrow (or A) hops back (`juke(C,0,0,true)`), space dives. No forward juke.

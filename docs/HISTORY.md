@@ -1378,3 +1378,6 @@ Varsity Bowl first screen (owner): `SCR='home'` with `drawHome()` = three button
 
 ## v674 (Nov 19)
 Me tab (owner): two more rank boxes, 'Among <pos>s nationally' and 'Overall nationally', ranked against every loaded section (`natRanks()`, cached; `avLoad()` is called when the Me tab renders; shows a loading box until `avReady()`). The pool is every section the app has data for (California for now).
+
+## v675 (Nov 19)
+Varsity Bowl home screen fix (owner: illegible/overlapping): shorter two-line card captions, logo moved into a header band, clearer M glyph in the pixel font. Checked at desktop 960x540 and phone landscape 780x360 (home, 1v1 lobby, host, join).

@@ -670,7 +670,7 @@ function drawHome(){
   ['MY SCHOOL',['ANY SCHOOL,','REAL ROSTER'],'#9fd8ff',()=>{if(schoolList().length){TS.pf=true;if(!CFG.school)CFG.school=schoolList()[0];setMode('school');TS.pf=true;SCR='pick'}else{setMode('cards');SCR='title'}}],
   ['1V1',['ONLINE VS','A FRIEND'],'#ff8b5a',()=>{setMode('cards');SCR='v1'}]];
  opts.forEach((o,i)=>{const x=12+i*156,y=112,w=148,h=82;panel(x-4,y-4,w+8,h+8,'rgba(6,12,20,.8)');btn(x,y,w,h,'',o[3],{c:o[2]});txt(o[0],x+w/2,y+14,'#14110a',2,'c',true);rect(x+14,y+36,w-28,1,'rgba(0,0,0,.4)');rect(x+14,y+37,w-28,1,'rgba(255,255,255,.35)');txt(o[1][0],x+w/2,y+48,'#14110a',1,'c',true);txt(o[1][1],x+w/2,y+61,'#14110a',1,'c',true)});
- rect(0,H-20,W,20,'rgba(0,0,0,.6)');txt('4 QUARTERS OF 2:00 / 3 TIMEOUTS / 3 AUDIBLES A HALF',W/2,H-14,'#9fb7a0',1,'c',true)}
+}
 /* ---------- 1v1: drive by drive against a friend ---------- */
 const NETV={role:'',code:'',ch:null,bc:null,sb:null,st:'',err:'',last:0,opp:null,tm:0},SB_URL='https://urdkamhsdjhzhrjwzyoq.supabase.co',SB_KEY='sb_publishable_Kwc2VdtM1AbcKB7xgsOhlw_KOw02EOb';
 const VQ=new URLSearchParams(location.search),LOCALNET=VQ.get('local')==='1';
@@ -767,8 +767,7 @@ function drawTitle(){
  txt('OPPONENT LEVEL',qx+8,py+51,'#9fb7a0',1,'l',true);
  LVL.forEach((q,i)=>btn(qx+8+i*67,py+62,63,14,q.n,()=>{CFG.lvl=i},{c:CFG.lvl===i?'#f2c230':'#3d4b3f',tc:CFG.lvl===i?'#14110a':'#cfe8cf'}));
  btn(qx+8,py+86,63,28,'QUICK',()=>{SCR='game';resetGame()},{c:'#9fd8ff'});btn(qx+75,py+86,63,28,'SEASON',()=>{if(!SS)ssNew();SCR='season'},{c:'#f2c230'});btn(qx+142,py+86,64,28,'PRACTICE',()=>{SCR='game';resetGame({prac:1})},{c:'#7dff7d'});
- rect(0,H-20,W,20,'rgba(0,0,0,.6)');
- txt(CFG.mode==='school'?'SCHOOL MODE / REAL ROSTER':CFG.real?'MY TEAM / LINEUP FROM YOUR CARDS':'MY TEAM / DEMO CARDS / OPEN PACKS FOR YOURS',W/2,H-14,'#9fb7a0',1,'c',true)}
+}
 
 /* ---------- team screen (School / My Team) and the school picker ---------- */
 const TS={sel:0,pk:0,ly:null,back:null,pf:false};

@@ -1405,3 +1405,6 @@ Varsity Bowl My Team shows each player's school (owner): `vbRoster()` sends `sc`
 
 ## v683 (Nov 19)
 Varsity Bowl levels (owner): VARSITY is now the hardest (opponent 92), ELITE second (78), ROOKIE easiest (58). Same array order/indices as before, only the names swapped, so the default (middle) is now ELITE.
+
+## v684 (Nov 19)
+Varsity Bowl shows TEAM OVR (owner): `teamOvr()` = average OVR of all 18 starters (`entList()`), in the Starters panel header and the 1v1 lobby.

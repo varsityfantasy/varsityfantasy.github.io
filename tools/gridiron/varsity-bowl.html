@@ -737,7 +737,7 @@ function drawGone(){rect(0,0,W,H,'rgba(0,0,0,.8)');btns=[];txt('YOUR FRIEND LEFT
 function bgV(){bgPlain()}
 function drawV1(){bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});txt('ONLINE 1V1',W/2,8,'#f2c230',1,'c');
  txt('PLAY A FRIEND WITH YOUR OWN TEAM',W/2,40,'#fff',1,'c');txt('YOU TAKE TURNS ON OFFENSE · THE CLOCK RUNS FOR BOTH',W/2,54,'#9fb7a0',1,'c',true);
- txt('YOUR TEAM: '+String(CFG.team.n).slice(0,16)+(CFG.real?'':' (SAMPLE CARDS)'),W/2,84,'#cfe8cf',1,'c');
+ txt('YOUR TEAM: '+String(CFG.team.n).slice(0,16)+' · OVR '+teamOvr()+(CFG.real?'':' (SAMPLE CARDS)'),W/2,84,'#cfe8cf',1,'c');
  btn(W/2-130,104,120,40,'CREATE GAME',()=>{const c=String(Math.floor(1000+Math.random()*9000));SCR='v1host';vOpen('host',c)},{c:'#7dff7d'});
  btn(W/2+10,104,120,40,'JOIN GAME',()=>{NETV.code='';NETV.err='';SCR='v1join'},{c:'#9fd8ff'});
  btn(W/2-45,160,90,18,'EDIT TEAM',()=>{TS.back='v1';SCR='team';TS.sel=0},{c:'#4a5a4c',tc:'#cfe8cf'})}
@@ -758,12 +758,12 @@ addEventListener('keydown',e=>{if(G||SCR!=='v1join')return;const k=e.key;if(/^[0
 
 function drawTitle(){
  bgHero();
- logo(6,3);{const nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n);lgo(nm,W-86,10,56,1)}btn(6,6,38,14,'BACK',()=>{SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});
+ logo(6,3);{const nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n);lgo(nm,W-86,8,56,1)}btn(6,6,38,14,'BACK',()=>{SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});
  {const t=CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',w=tw(t.toUpperCase(),1),nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n),hv=lgKey(nm);rect(W/2-w/2-(hv?18:0)-6,56,w+(hv?18:0)+12,22,'rgba(0,0,0,.45)');txt(t,W/2+(hv?9:0),63,'#cfe8cf',1,'c')}
  const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
  const R=CFG.ros,rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
  const px=8,py=100,pw=234,ph=128;
- panel(px,py,pw,ph);rect(px,py,pw,13,'#1b2a3f');rect(px,py+13,pw,1,'#f2c230');txt('STARTERS',px+8,py+3,'#f2c230',1);btn(px+pw-52,py+1,48,11,'EDIT',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#9fd8ff'});
+ panel(px,py,pw,ph);rect(px,py,pw,13,'#1b2a3f');rect(px,py+13,pw,1,'#f2c230');txt('STARTERS',px+8,py+3,'#f2c230',1);txt('TEAM OVR',px+92,py+3,'#9fb7a0',1,'l',true);txt(String(teamOvr()),px+148,py+3,'#ffd23f',1,'l',true);btn(px+pw-52,py+1,48,11,'EDIT',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#9fd8ff'});
  rows.forEach((r,i)=>{const y=py+19+i*10.5;if(i%2)rect(px+2,y-2,pw-4,10,'rgba(255,255,255,.05)');txt(r[0],px+8,y,'#9fb7a0',1,'l',true);lgo(r[1].sc,px+22,y-1,9);txt(String(r[1].n).slice(0,15),px+34,y,'#fff',1,'l',true);txt(scAb(r[1].sc),px+134,y,'#8fa592',1,'l',true);txt(String(r[1].o),px+pw-8,y,r[1].o>=85?'#ffd23f':r[1].o>=72?'#7dff7d':'#fff',1,'r',true)});
  const qx=252,qw=214;
  panel(qx,py,qw,ph);rect(qx,py,qw,13,'#1b2a3f');rect(qx,py+13,qw,1,'#f2c230');txt('GAME SETUP',qx+8,py+3,'#f2c230',1);
@@ -776,6 +776,7 @@ function drawTitle(){
 /* ---------- team screen (School / My Team) and the school picker ---------- */
 const TS={sel:0,pk:0,ly:null,back:null,pf:false};
 const entList=()=>{const R=CFG.ros;return [R.qb,R.rb,...R.wr,R.te,R.k,...R.dl,...R.lb,...R.db]};
+const teamOvr=()=>{const L=entList();return L.length?Math.round(L.reduce((a,e)=>a+e.o,0)/L.length):0};
 function setMode(m){CFG.mode=m;CFG.chosen=true;applyTeam()}
 /* the numbers the screen shows and edits: your own draft (it may have points left over) or the natural spread */
 function rawAt(e){const ks=AT[grp(e.slot)],c=CFG.mode==='cards'&&e.key&&CFG.build[e.key];if(c&&ks.every(k=>c[k]>=AMIN&&c[k]<=AMAX)&&ks.reduce((a,k)=>a+c[k],0)<=4*clamp(e.o,AMIN,AMAX))return c;return natAt(e.slot,e.o,e.g,e.s)}

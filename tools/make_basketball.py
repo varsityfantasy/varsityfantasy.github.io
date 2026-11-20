@@ -382,9 +382,9 @@ def transform(s, mp, games, seeds, teams, prior):
     s = rep(s, "const BEST_L='Best week',GAME_L='Wk',GAME_H='Week';", "const BEST_L='Best game',GAME_L='Game',GAME_H='Game';")
     # preseason: nobody has played, so every player counts as one game of 0.0 (lists, pools and cards stay full).
     # This switches itself off as soon as any real stat line exists.
-    s = rep(s, "function agg(p,scope){\n  const g=scoped(p,scope);\n",
+    s = rep(s, "function agg(p,scope){\n  /* memoised per player for the current data revision (the Stats tab calls this thousands of times per render) */\n  const c=p._ag;if(c&&c.r===_rev&&c.sc===scope&&c.g===p.games)return c.v;\n  const g=scoped(p,scope);\n",
             "let _pk=-1,_pv=true;\nfunction PRE(){if(typeof UI!=='undefined'&&(vsec()||(UI.view==='games'&&UI.sb&&UI.sb!==HOME_SEC)))return false;   /* v499: another section's players are real 2026-27 box scores, never preseason */\n  if(_pk!==_rev){_pk=_rev;_pv=!players().some(p=>p.games.some(Boolean))}return _pv}\n"
-            "function agg(p,scope){\n  const g=scoped(p,scope);\n  if(!g.length&&!p.sample&&!p.ext&&PRE())return{n:1,s:sum([]),v:0,unv:false,ver:false};\n")
+            "function agg(p,scope){\n  /* memoised per player for the current data revision (the Stats tab calls this thousands of times per render) */\n  const c=p._ag;if(c&&c.r===_rev&&c.sc===scope&&c.g===p.games)return c.v;\n  const g=scoped(p,scope);\n  if(!g.length&&!p.sample&&!p.ext&&PRE())return{n:1,s:sum([]),v:0,unv:false,ver:false};\n")
     # preseason: points read "—" instead of 0.0, and a note on the Stats page says when the season starts
     s = rep(s, "  infoIcons();\n", "  infoIcons();bbPre();\n")
     s = rep(s, "function infoIcons(){",

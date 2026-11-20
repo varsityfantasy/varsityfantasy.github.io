@@ -3337,7 +3337,7 @@ const POS_PICK=['QB','RB','WR','TE','DL','LB','DB','K'];
 const posOptions=sel=>{const L=POS_PICK?POS_ALL.filter(x=>POS_PICK.includes(x[0])):POS_ALL;if(!L.some(x=>x[0]===sel))sel='';
   return (sel?'':'<option value="" selected disabled>Choose your position</option>')+L.map(([k,n])=>`<option value="${k}" ${k===sel?'selected':''}>${n} (${k})</option>`).join('')};
 
-const blank=()=>Object.fromEntries(KEYS.map(k=>[k,0]));
+const blank=()=>{const o={};for(let i=0;i<KEYS.length;i++)o[KEYS[i]]=0;return o};
 const S0=o=>Object.assign(blank(),o||{});
 /* punting is scored on the game's average punt: under 30 yds 0, 30-39.9 yds 1 per punt, 40-49.9 yds 2.5 per punt, 50+ yds 3.25 per punt */
 const PUNT_TIERS=[[50,3.25],[40,2.5],[30,1]];
@@ -3587,9 +3587,11 @@ function memDb(){
 /* ---------- Supabase: accounts and the shared database ---------- */
 /* the real site needs the server: when the login library cannot load, the app says so instead of starting a
    local-only profile that never saves (the single-file previews set this to false and run in demo mode) */
-const TODAY=()=>{try{return new Date().toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'})}catch(_){const d=new Date(Date.now()-8*36e5);return d.toISOString().slice(0,10)}};
+let _tdC=0,_tdV='',_tdF=null;
+const TODAY=()=>{const n=Date.now();if(n-_tdC<1000&&_tdV)return _tdV;try{if(!_tdF)_tdF=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles'});_tdV=_tdF.format(n)}catch(_){const d=new Date(n-8*36e5);_tdV=d.toISOString().slice(0,10)}_tdC=n;return _tdV};
 /* games close at kickoff/tip-off, San Diego time. Games without a listed time are treated as 7:00 pm starts. */
-const NOWPT=()=>{try{const o={};new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(x=>o[x.type]=x.value);return o.year+'-'+o.month+'-'+o.day+'T'+o.hour+':'+o.minute}catch(_){return new Date(Date.now()-8*36e5).toISOString().slice(0,16)}};
+let _npC=0,_npV='',_npF=null;
+const NOWPT=()=>{const n=Date.now();if(n-_npC<1000&&_npV)return _npV;try{const o={};if(!_npF)_npF=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});_npF.formatToParts(n).forEach(x=>o[x.type]=x.value);_npV=o.year+'-'+o.month+'-'+o.day+'T'+o.hour+':'+o.minute}catch(_){_npV=new Date(n-8*36e5).toISOString().slice(0,16)}_npC=n;return _npV};
 const KICK='19:00';
 const tipped=g=>!!g&&NOWPT()>=g.d+'T'+(g.t||KICK);   /* the game's own tip-off */
 /* v582 (owner): basketball Pick ’em and Player props for a day close at 7:00 PM Pacific for ALL of that day's games */
@@ -4018,9 +4020,13 @@ function players(){
 const pByKey=k=>{players();return k?(_pl.map[k]||secByKey(k)):undefined};
 const scoped=(p,scope)=>scope==='season'?p.games.filter(Boolean):[p.games[scope-1]].filter(Boolean);
 function agg(p,scope){
+  /* memoised per player for the current data revision (the Stats tab calls this thousands of times per render) */
+  const c=p._ag;if(c&&c.r===_rev&&c.sc===scope&&c.g===p.games)return c.v;
   const g=scoped(p,scope);
   const s=sum(g.map(x=>x.stat));
-  return{n:g.reduce((a,x)=>a+(x.n||1),0),s,v:Math.round(g.reduce((a,x)=>a+pts(x.stat),0)*10)/10,unv:g.some(x=>x.ver==='self'),ver:g.length>0&&g.every(x=>x.ver==='verified')};
+  const v={n:g.reduce((a,x)=>a+(x.n||1),0),s,v:Math.round(g.reduce((a,x)=>a+pts(x.stat),0)*10)/10,unv:g.some(x=>x.ver==='self'),ver:g.length>0&&g.every(x=>x.ver==='verified')};
+  try{p._ag={r:_rev,sc:scope,g:p.games,v}}catch(_){}
+  return v;
 }
 const metric=a=>a.v;
 /* "Previous" ranks everyone by their most recent game instead of their running total (it ignores the scoring period) */

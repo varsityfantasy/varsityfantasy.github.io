@@ -598,8 +598,8 @@ addEventListener('keydown',e=>{if(G&&G.phase==='presnap'&&(e.key===' '||e.key===
   else if(k===' '){e.preventDefault();dive(C)}}});
 
 /* ---------- screens ---------- */
-function btn(x,y,w,h,label,fn,o){o=o||{};btns.push({x,y,w,h,fn});const c=o.c||'#f2c230';rect(x-1,y-1,w+2,h+2,'#000');rect(x,y,w,h,c);rect(x,y,w,2,sh(c,.4));rect(x,y+h-3,w,3,sh(c,-.3));txt(label,x+w/2,y+h/2-3.5,o.tc||'#14110a',o.sc||1,'c',true)}
-function panel(x,y,w,h,c){rect(x-2,y-2,w+4,h+4,'#000');rect(x,y,w,h,c||'rgba(8,16,10,.88)');}
+function btn(x,y,w,h,label,fn,o){o=o||{};btns.push({x,y,w,h,fn});const c=o.c||'#f2c230';rect(x-1,y-1,w+2,h+2,'#000');rect(x,y,w,h,c);rect(x,y,w,2,sh(c,.45));rect(x,y+2,w,Math.max(1,h>18?Math.floor(h/3):0),sh(c,.12));rect(x,y+h-3,w,3,sh(c,-.32));rect(x-1,y-1,1,1,'rgba(0,0,0,0)');if(h>=14){rect(x-1,y-1,2,2,'#000');rect(x+w-1,y-1,2,2,'#000');rect(x-1,y+h-1,2,2,'#000');rect(x+w-1,y+h-1,2,2,'#000')}txt(label,x+w/2,y+h/2-3.5,o.tc||'#14110a',o.sc||1,'c',true)}
+function panel(x,y,w,h,c){rect(x-2,y-2,w+4,h+4,'#000');rect(x-1,y-1,w+2,h+2,'#4b5d4d');rect(x,y,w,h,c||'rgba(6,12,20,.9)');rect(x,y,w,1,'rgba(255,255,255,.18)');rect(x-2,y-2,2,2,'rgba(0,0,0,0)');}
 function draw(){
  btns=[];
  if(!G){SCR==='season'&&SS?drawSeason():SCR==='team'?drawTeam():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
@@ -664,16 +664,13 @@ function drawHUD(){
 
 /* ---------- home: three ways to play ---------- */
 function drawHome(){
- g.fillStyle='#000';g.fillRect(0,0,W,H);camX=0;
- rect(0,0,W,H,'#173a1c');for(let i=0;i<8;i++)rect(i*60,0,30,H,'#1a421f');
- for(let x=0;x<W;x+=40)rect(x+19,0,2,H,'#2c5a2f');
- rect(0,0,W,84,'#0b0f18');rect(0,84,W,2,'#f2c230');rect(0,H-22,W,22,'#0b0f18');
- txt('VARSITY',W/2,10,'#f2c230',4,'c');txt('BOWL',W/2,46,'#fff',4,'c');
+ bgHero();
+ txt('VARSITY',W/2,10,'#f2c230',4,'c');txt('BOWL',W/2,40,'#fff',4,'c');
  const opts=[['MY TEAM',['BUILT FROM','YOUR CARDS'],'#f2c230',()=>{setMode('cards');SCR='title'}],
   ['MY SCHOOL',['ANY SCHOOL,','REAL ROSTER'],'#9fd8ff',()=>{if(schoolList().length){TS.pf=true;if(!CFG.school)CFG.school=schoolList()[0];setMode('school');TS.pf=true;SCR='pick'}else{setMode('cards');SCR='title'}}],
   ['1V1',['ONLINE VS','A FRIEND'],'#ff8b5a',()=>{setMode('cards');SCR='v1'}]];
- opts.forEach((o,i)=>{const x=12+i*156,y=102,w=148,h=84;btn(x,y,w,h,'',o[3],{c:o[2]});txt(o[0],x+w/2,y+16,'#14110a',2,'c',true);rect(x+14,y+38,w-28,2,'rgba(0,0,0,.35)');txt(o[1][0],x+w/2,y+50,'#14110a',1,'c',true);txt(o[1][1],x+w/2,y+63,'#14110a',1,'c',true)});
- txt('4 QUARTERS OF 2:00 / 3 TIMEOUTS / 3 AUDIBLES A HALF',W/2,H-15,'#9fb7a0',1,'c',true)}
+ opts.forEach((o,i)=>{const x=12+i*156,y=112,w=148,h=82;panel(x-4,y-4,w+8,h+8,'rgba(6,12,20,.8)');btn(x,y,w,h,'',o[3],{c:o[2]});txt(o[0],x+w/2,y+14,'#14110a',2,'c',true);rect(x+14,y+36,w-28,1,'rgba(0,0,0,.4)');rect(x+14,y+37,w-28,1,'rgba(255,255,255,.35)');txt(o[1][0],x+w/2,y+48,'#14110a',1,'c',true);txt(o[1][1],x+w/2,y+61,'#14110a',1,'c',true)});
+ rect(0,H-20,W,20,'rgba(0,0,0,.6)');txt('4 QUARTERS OF 2:00 / 3 TIMEOUTS / 3 AUDIBLES A HALF',W/2,H-14,'#9fb7a0',1,'c',true)}
 /* ---------- 1v1: drive by drive against a friend ---------- */
 const NETV={role:'',code:'',ch:null,bc:null,sb:null,st:'',err:'',last:0,opp:null,tm:0},SB_URL='https://urdkamhsdjhzhrjwzyoq.supabase.co',SB_KEY='sb_publishable_Kwc2VdtM1AbcKB7xgsOhlw_KOw02EOb';
 const VQ=new URLSearchParams(location.search),LOCALNET=VQ.get('local')==='1';
@@ -733,7 +730,7 @@ function drawWait(){const v=G.vs,s=v&&v.st;
  else txt('WAITING FOR THEIR NEXT PLAY...',W/2,92,'#9fb7a0',1,'c');
  txt(TEAMS[0].n.slice(0,10)+' '+G.score[0]+'   '+TEAMS[1].n.slice(0,10)+' '+G.score[1],W/2,166,'#fff',1,'c')}
 function drawGone(){rect(0,0,W,H,'rgba(0,0,0,.8)');btns=[];txt('YOUR FRIEND LEFT THE GAME',W/2,92,'#ff8b5a',2,'c');btn(W/2-50,130,100,20,'BACK',()=>{vClose();SCR='home';G=null},{c:'#f2c230'})}
-function bgV(){bgPlain();rect(0,0,W,22,'#0b0f18')}
+function bgV(){bgPlain()}
 function drawV1(){bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});txt('ONLINE 1V1',W/2,8,'#f2c230',1,'c');
  txt('PLAY A FRIEND WITH YOUR OWN TEAM',W/2,40,'#fff',1,'c');txt('YOU TAKE TURNS ON OFFENSE · THE CLOCK RUNS FOR BOTH',W/2,54,'#9fb7a0',1,'c',true);
  txt('YOUR TEAM: '+String(CFG.team.n).slice(0,16)+(CFG.real?'':' (DEMO CARDS)'),W/2,84,'#cfe8cf',1,'c');
@@ -756,26 +753,22 @@ function drawV1Join(){bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='v1'},{c:'#4a
 addEventListener('keydown',e=>{if(G||SCR!=='v1join')return;const k=e.key;if(/^[0-9]$/.test(k)&&(NETV.code||'').length<4)NETV.code=(NETV.code||'')+k;else if(k==='Backspace')NETV.code=(NETV.code||'').slice(0,-1);else if(k==='Enter'&&(NETV.code||'').length===4)vOpen('guest',NETV.code)});
 
 function drawTitle(){
- g.fillStyle='#000';g.fillRect(0,0,W,H);
- camX=0;
- /* a field backdrop */
- for(let y=0;y<H;y+=1){}
- rect(0,0,W,H,'#173a1c');for(let i=0;i<8;i++)rect(i*60,0,30,H,'#1a421f');
- rect(0,0,W,40,'#0b0f18');rect(0,H-30,W,30,'#0b0f18');
- for(let x=0;x<W;x+=40)rect(x+19,40,2,H-70,'#2c5a2f');
- txt('VARSITY',W/2,18,'#f2c230',5,'c');txt('BOWL',W/2,56,'#fff',5,'c');btn(4,4,36,14,'BACK',()=>{SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});
- txt(CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',W/2,98,'#cfe8cf',1,'c');
- /* starters */
+ bgHero();
+ txt('VARSITY',W/2,6,'#f2c230',3,'c');txt('BOWL',W/2,32,'#fff',3,'c');btn(6,6,38,14,'BACK',()=>{SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});
+ txt(CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',W/2,62,'#cfe8cf',1,'c');
  const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
- const R=CFG.ros,ds=R.dsub||{dl:0,lb:0,db:0},rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
- panel(16,114,200,122,'rgba(0,0,0,.7)');txt('YOUR STARTERS',24,119,'#f2c230',1);btn(160,112,48,12,'TEAM',()=>{SCR='team';TS.sel=0},{c:'#9fd8ff'});
- rows.forEach((r,i)=>{const y=131+i*10;txt(r[0],24,y,'#9fb7a0',1);txt(String(r[1].n).slice(0,22),48,y,'#fff',1);txt(String(r[1].o),204,y,r[1].o>=85?'#ffd23f':r[1].o>=72?'#7dff7d':'#fff',1,'r')});
- /* options */
- txt('4 QUARTERS OF 2:00',W-140,112,'#f2c230',1,'c');txt('3 TIMEOUTS A GAME',W-140,124,'#cfe8cf',1,'c',true);txt('3 AUDIBLES A HALF',W-140,134,'#cfe8cf',1,'c',true);
- txt('OPPONENT LEVEL',W-140,144,'#f2c230',1,'c');
- LVL.forEach((q,i)=>btn(W-212+i*58,156,54,14,q.n,()=>{CFG.lvl=i},{c:CFG.lvl===i?'#f2c230':'#4a5a4c',tc:CFG.lvl===i?'#14110a':'#cfe8cf'}));
- btn(W-212,178,54,20,'QUICK',()=>{SCR='game';resetGame()},{c:'#9fd8ff'});btn(W-152,178,54,20,'SEASON',()=>{if(!SS)ssNew();SCR='season'},{c:'#f2c230'});btn(W-92,178,54,20,'PRACTICE',()=>{SCR='game';resetGame({prac:1})},{c:'#7dff7d'});
- txt(CFG.mode==='school'?'SCHOOL MODE · REAL ROSTER':CFG.real?'MY TEAM · LINEUP FROM YOUR CARDS':'MY TEAM · DEMO CARDS · OPEN PACKS FOR YOURS',W/2,H-9,'#7f9a80',1,'c',true)}
+ const R=CFG.ros,rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
+ const px=14,py=100,pw=222,ph=128;
+ panel(px,py,pw,ph);rect(px,py,pw,13,'#1b2a3f');rect(px,py+13,pw,1,'#f2c230');txt('STARTERS',px+8,py+3,'#f2c230',1);btn(px+pw-52,py+1,48,11,'EDIT',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#9fd8ff'});
+ rows.forEach((r,i)=>{const y=py+19+i*10.5;if(i%2)rect(px+2,y-2,pw-4,10,'rgba(255,255,255,.05)');txt(r[0],px+8,y,'#9fb7a0',1,'l',true);txt(String(r[1].n).slice(0,22),px+34,y,'#fff',1,'l',true);txt(String(r[1].o),px+pw-8,y,r[1].o>=85?'#ffd23f':r[1].o>=72?'#7dff7d':'#fff',1,'r',true)});
+ const qx=252,qw=214;
+ panel(qx,py,qw,ph);rect(qx,py,qw,13,'#1b2a3f');rect(qx,py+13,qw,1,'#f2c230');txt('GAME SETUP',qx+8,py+3,'#f2c230',1);
+ ['4 QUARTERS OF 2:00','3 TIMEOUTS A GAME','3 AUDIBLES A HALF'].forEach((t,i)=>{rect(qx+8,py+21+i*10,3,3,'#f2c230');txt(t,qx+16,py+19+i*10,'#cfe8cf',1,'l',true)});
+ txt('OPPONENT LEVEL',qx+8,py+51,'#9fb7a0',1,'l',true);
+ LVL.forEach((q,i)=>btn(qx+8+i*67,py+62,63,14,q.n,()=>{CFG.lvl=i},{c:CFG.lvl===i?'#f2c230':'#3d4b3f',tc:CFG.lvl===i?'#14110a':'#cfe8cf'}));
+ btn(qx+8,py+86,63,28,'QUICK',()=>{SCR='game';resetGame()},{c:'#9fd8ff'});btn(qx+75,py+86,63,28,'SEASON',()=>{if(!SS)ssNew();SCR='season'},{c:'#f2c230'});btn(qx+142,py+86,64,28,'PRACTICE',()=>{SCR='game';resetGame({prac:1})},{c:'#7dff7d'});
+ rect(0,H-20,W,20,'rgba(0,0,0,.6)');
+ txt(CFG.mode==='school'?'SCHOOL MODE / REAL ROSTER':CFG.real?'MY TEAM / LINEUP FROM YOUR CARDS':'MY TEAM / DEMO CARDS / OPEN PACKS FOR YOURS',W/2,H-14,'#9fb7a0',1,'c',true)}
 
 /* ---------- team screen (School / My Team) and the school picker ---------- */
 const TS={sel:0,pk:0,ly:null,back:null,pf:false};
@@ -787,7 +780,33 @@ function trainAdj(e,k,d){const ks=AT[grp(e.slot)],tot=4*clamp(e.o,AMIN,AMAX),b=O
  if(d>0)d=Math.min(d,left,AMAX-b[k]);else d=Math.max(d,AMIN-b[k]);if(!d)return;b[k]+=d;CFG.build[e.key]=b;saveJ(BKEY,CFG.build);applyTeam()}
 function trainPre(e,w){const ks=AT[grp(e.slot)],tot=4*clamp(e.o,AMIN,AMAX),v=fit(w.map(x=>x*e.o),tot),b={};ks.forEach((k,i)=>b[k]=v[i]);CFG.build[e.key]=b;saveJ(BKEY,CFG.build);applyTeam()}
 function trainReset(e){delete CFG.build[e.key];saveJ(BKEY,CFG.build);applyTeam()}
-function bgPlain(){g.fillStyle='#000';g.fillRect(0,0,W,H);rect(0,0,W,H,'#173a1c');for(let i=0;i<8;i++)rect(i*60,0,30,H,'#1a421f');rect(0,0,W,22,'#0b0f18')}
+/* menu look: night stadium, crowd, light towers, striped turf, vignette */
+let _mb=null;
+function menuBg(sky){
+ if(!_mb||_mb.sky!==sky){const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');let sd=7;const R=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  const F=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h)};
+  F('#06090f',0,0,W,H);
+  for(let y=0;y<sky;y+=2){const t=y/sky,r=Math.round(8+t*14),gg=Math.round(12+t*30),bb=Math.round(26+t*52);F('rgb('+r+','+gg+','+bb+')',0,y,W,2)}
+  if(sky>40){for(let i=0;i<46;i++)F('rgba(255,255,255,'+(.25+R()*.5)+')',Math.floor(R()*W),Math.floor(R()*(sky-30)),1,1);
+   /* crowd */
+   const cy=sky-22;F('#0a0d14',0,cy,W,22);
+   for(let yy=0;yy<4;yy++)for(let xx=0;xx<W;xx+=3){if(R()<.7){const k=R(),col=k<.2?'#c8102e':k<.4?'#f2c230':k<.6?'#9fd8ff':k<.8?'#e8e8e8':'#3b5ccc';F(col,xx+(yy%2),cy+3+yy*5,2,2);F('#1a1f2b',xx+(yy%2),cy+5+yy*5,2,2)}}
+   F('#f2c230',0,sky-2,W,2);F('#000',0,sky,W,1);
+   /* light towers */
+   [[34,0],[W-34,0]].forEach(([lx])=>{F('#1c2230',lx-1,cy-24,3,24);F('#2b3345',lx-14,cy-38,28,14);for(let r=0;r<2;r++)for(let q=0;q<4;q++)F('#fff7c8',lx-12+q*7,cy-36+r*6,5,4);
+    for(let k=0;k<6;k++){x.fillStyle='rgba(255,247,200,'+(.07-.01*k)+')';x.beginPath();x.moveTo(lx-14,cy-24);x.lineTo(lx+14,cy-24);x.lineTo(lx+40+k*8,sky+90);x.lineTo(lx-40-k*8,sky+90);x.fill()}})}
+  else{F('#0b0f18',0,0,W,sky);F('#f2c230',0,sky,W,1)}
+  /* turf */
+  const top=sky+(sky>40?2:1);
+  for(let i=0;i*30<W+30;i++)F(i%2?'#1b4a22':'#1f5428',i*30,top,30,H-top);
+  for(let xx=0;xx<W;xx+=30)F('rgba(255,255,255,.13)',xx,top,1,H-top);
+  for(let yy=top+((sky>40)?20:34);yy<H;yy+=50)F('rgba(255,255,255,.08)',0,yy,W,1);
+  /* vignette */
+  const gr=x.createRadialGradient(W/2,H*.55,H*.35,W/2,H*.55,W*.62);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.55)');x.fillStyle=gr;x.fillRect(0,top,W,H-top);
+  _mb={sky,c}}
+ g.drawImage(_mb.c,0,0);camX=0}
+function bgHero(){menuBg(92)}
+function bgPlain(){menuBg(22);rect(0,22,W,1,'#000')}
 function drawTeam(){
  bgPlain();const cards=CFG.mode==='cards',has=schoolList().length>0;
  btn(4,4,36,14,'BACK',()=>{SCR=TS.back||'title';TS.back=null},{c:'#4a5a4c',tc:'#cfe8cf'});

@@ -1381,3 +1381,6 @@ Me tab (owner): two more rank boxes, 'Among <pos>s nationally' and 'Overall nati
 
 ## v675 (Nov 19)
 Varsity Bowl home screen fix (owner: illegible/overlapping): shorter two-line card captions, logo moved into a header band, clearer M glyph in the pixel font. Checked at desktop 960x540 and phone landscape 780x360 (home, 1v1 lobby, host, join).
+
+## v676 (Nov 19)
+Varsity Bowl menu polish (owner: 'detail is ugly'): `menuBg(sky)` draws a cached night-stadium backdrop (gradient sky, stars, crowd, light towers with beams, striped turf with yard lines, vignette); `bgHero()` for home/title, `bgPlain()` (thin header) for team/pick/1v1. `panel()` has a lit border; `btn()` has a gloss band and notched corners (also in game). Title screen re-laid out: compact logo, STARTERS panel (EDIT button) and GAME SETUP panel with bullets, level toggles and three mode buttons. Checked at 960x540 and 780x360.

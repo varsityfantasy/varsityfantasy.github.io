@@ -5,7 +5,58 @@
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #c{position:absolute;left:50%;top:50%;image-rendering:pixelated;image-rendering:crisp-edges;transform:translate(-50%,-50%)}
-</style></head><body><canvas id="c"></canvas>
+
+#ui{position:absolute;left:50%;top:50%;width:480px;height:250px;transform-origin:center;pointer-events:none;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+#ui[hidden]{display:none}
+#ui .wrap{position:absolute;inset:0;pointer-events:auto;padding:10px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
+#ui button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#ui .top{display:flex;align-items:center;gap:8px;height:34px}
+#ui .back{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:12px;flex:none}
+#ui .back:active{background:rgba(255,255,255,.25)}
+#ui .tm{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+#ui .tm img{width:32px;height:32px;border-radius:7px;object-fit:cover;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4);flex:none}
+#ui .tm .ph{width:32px;height:32px;border-radius:7px;flex:none}
+#ui .tmn{display:flex;flex-direction:column;min-width:0;line-height:1.1}
+#ui .tmn small{font-size:6.5px;font-weight:700;letter-spacing:.14em;color:#f2c230;text-transform:uppercase}
+#ui .tmn b{font-size:14px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ui .ovr{margin-left:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#ffd84a,#f2a91a);color:#1a1205;border-radius:8px;padding:3px 9px;box-shadow:0 3px 10px rgba(242,169,26,.35);flex:none}
+#ui .ovr b{font-size:15px;font-weight:900;line-height:1}#ui .ovr small{font-size:5.5px;font-weight:800;letter-spacing:.12em}
+#ui .body{flex:1;display:grid;grid-template-columns:1.12fr 1fr;gap:8px;min-height:0}
+#ui .card{background:rgba(9,14,26,.78);border:1px solid rgba(255,255,255,.09);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#ui .ch{display:flex;align-items:center;justify-content:space-between;padding:6px 9px 4px}
+#ui .ch span{font-size:6.5px;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.55);text-transform:uppercase}
+#ui .lnk{font-size:7px;font-weight:700;color:#8fd0ff;background:rgba(143,208,255,.12);padding:3px 8px;border-radius:20px}
+#ui .lnk:active{background:rgba(143,208,255,.28)}
+#ui .rows{padding:0 5px 5px;display:flex;flex-direction:column;gap:1px;overflow:hidden}
+#ui .r{display:grid;grid-template-columns:18px 12px 1fr auto 20px;align-items:center;gap:5px;height:14.6px;padding:0 4px;border-radius:5px;font-size:7.4px}
+#ui .r:nth-child(odd){background:rgba(255,255,255,.035)}
+#ui .pos{font-size:5.6px;font-weight:800;text-align:center;border-radius:3px;padding:1.5px 0;background:rgba(242,194,48,.16);color:#ffd257}
+#ui .pos.d{background:rgba(255,120,110,.16);color:#ff9a8a}#ui .pos.k{background:rgba(143,208,255,.16);color:#9fd8ff}
+#ui .r img,#ui .r i{width:11px;height:11px;border-radius:2px;object-fit:cover;background:#fff;display:block}#ui .r i{background:rgba(255,255,255,.1)}
+#ui .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ui .sc{font-size:6px;color:rgba(255,255,255,.42);white-space:nowrap;max-width:62px;overflow:hidden;text-overflow:ellipsis}
+#ui .o{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}#ui .o.a{color:#ffd23f}#ui .o.b{color:#7ee787}#ui .o.c{color:#cfd6e4}
+#ui .gs{padding:2px 9px 9px;display:flex;flex-direction:column;gap:7px;flex:1}
+#ui .lab{font-size:6px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.45);text-transform:uppercase;margin-bottom:3px}
+#ui .seg{display:grid;grid-template-columns:repeat(3,1fr);background:rgba(255,255,255,.07);border-radius:7px;padding:2px;gap:2px}
+#ui .seg button{font-size:7px;font-weight:700;padding:5px 0;border-radius:5px;color:rgba(255,255,255,.65);background:transparent}
+#ui .seg button.on{background:#f2c230;color:#1a1205;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+#ui .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;flex:1}
+#ui .md{border-radius:9px;padding:7px 6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;text-align:left;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 12px rgba(0,0,0,.35);transition:transform .08s}
+#ui .md:active{transform:scale(.96)}
+#ui .md .ic{position:absolute;top:6px;left:6px;font-size:13px;line-height:1}
+#ui .md b{font-size:9px;font-weight:800;line-height:1.1}#ui .md small{font-size:5.6px;font-weight:600;opacity:.75;margin-top:2px;line-height:1.25}
+#ui .md.q{background:linear-gradient(160deg,#4fa8ff,#1e5fd8)}#ui .md.s{background:linear-gradient(160deg,#ffcf3d,#e3901a);color:#1a1205}#ui .md.p{background:linear-gradient(160deg,#4bd38a,#14915a)}
+#ui .rules{display:flex;gap:4px;flex-wrap:wrap}#ui .rules span{font-size:5.8px;font-weight:600;color:rgba(255,255,255,.6);background:rgba(255,255,255,.07);padding:2.5px 6px;border-radius:20px}
+#ui .v1{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#ui .v1 h2{margin:0;font-size:17px;font-weight:900;letter-spacing:-.01em}#ui .v1 p{margin:-6px 0 0;font-size:7.5px;color:rgba(255,255,255,.6)}
+#ui .v1 .row{display:grid;grid-template-columns:150px 150px;gap:10px}
+#ui .big{height:62px;border-radius:12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:9px 11px;text-align:left;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px rgba(0,0,0,.4)}
+#ui .big:active{transform:scale(.97)}#ui .big b{font-size:11px;font-weight:800}#ui .big small{font-size:6.5px;opacity:.8;margin-top:2px}#ui .big .ic{position:absolute;top:8px;left:10px;font-size:15px}
+#ui .big.c{background:linear-gradient(160deg,#4bd38a,#14915a)}#ui .big.j{background:linear-gradient(160deg,#4fa8ff,#1e5fd8)}
+#ui .chip{display:flex;align-items:center;gap:7px;background:rgba(9,14,26,.78);border:1px solid rgba(255,255,255,.09);border-radius:30px;padding:4px 12px 4px 4px;font-size:8px;font-weight:700}
+#ui .chip img{width:20px;height:20px;border-radius:50%;object-fit:cover;background:#fff}#ui .chip em{font-style:normal;color:#ffd23f;font-weight:800}
+</style></head><body><canvas id="c"></canvas><div id="ui" hidden></div>
 <script src="vb-data.js"></script>
 <script>
 'use strict';
@@ -567,7 +618,7 @@ function toFinal(){if(G.vs&&!G.vs.fin){G.vs.fin=1;vTx({k:'end',sc:G.score.slice(
 /* ---------- input ---------- */
 const ptr={down:false,x:0,y:0,sx:0,sy:0,t0:0,id:null,moved:0};
 let lay={s:1,rot:false};
-function layout(){const vw=innerWidth,vh=innerHeight;lay.rot=vh>vw*1.05;const aw=lay.rot?vh:vw,ah=lay.rot?vw:vh;let s=Math.min(aw/W,ah/H);if(s>2)s=Math.floor(s*2)/2;lay.s=s;cv.style.width=Math.round(W*s)+'px';cv.style.height=Math.round(H*s)+'px';cv.style.transform='translate(-50%,-50%)'+(lay.rot?' rotate(90deg)':'')}
+function layout(){const vw=innerWidth,vh=innerHeight;lay.rot=vh>vw*1.05;const aw=lay.rot?vh:vw,ah=lay.rot?vw:vh;let s=Math.min(aw/W,ah/H);if(s>2)s=Math.floor(s*2)/2;lay.s=s;cv.style.width=Math.round(W*s)+'px';cv.style.height=Math.round(H*s)+'px';cv.style.transform='translate(-50%,-50%)'+(lay.rot?' rotate(90deg)':'');const u=document.getElementById('ui');if(u)u.style.transform='translate(-50%,-50%)'+(lay.rot?' rotate(90deg)':'')+' scale('+s+')'}
 function toC(e){const dx=e.clientX-innerWidth/2,dy=e.clientY-innerHeight/2,s=lay.s;const u=lay.rot?dy/s:dx/s,v=lay.rot?-dx/s:dy/s;return{x:W/2+u,y:H/2+v}}
 function hitBtn(p){for(let i=btns.length-1;i>=0;i--){const b=btns[i];if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h)return b}return null}
 addEventListener('pointerdown',e=>{e.preventDefault();const p=toC(e);ptr.down=true;ptr.id=e.pointerId;ptr.x=ptr.sx=p.x;ptr.y=ptr.sy=p.y;ptr.t0=performance.now();ptr.moved=0;ptr.hitb=hitBtn(p);ptr.still=performance.now();ptr.lx=p.x;ptr.ly=p.y;ptr.pdn=true;try{cv.setPointerCapture&&0}catch(_){}},{passive:false});
@@ -606,6 +657,7 @@ function btn(x,y,w,h,label,fn,o){o=o||{};btns.push({x,y,w,h,fn});const c=o.c||'#
 function panel(x,y,w,h,c){rect(x-2,y-2,w+4,h+4,'#000');rect(x-1,y-1,w+2,h+2,'#4b5d4d');rect(x,y,w,h,c||'rgba(6,12,20,.9)');rect(x,y,w,1,'rgba(255,255,255,.18)');rect(x-2,y-2,2,2,'rgba(0,0,0,0)');}
 function draw(){
  btns=[];
+ uiTick();
  if(!G){SCR==='season'&&SS?drawSeason():SCR==='team'?drawTeam():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
  const ph=G.phase;
  camX+=(clamp(camT,0,FL-W)-camX)*.14;camX=clamp(camX,0,FL-W);
@@ -735,7 +787,7 @@ function drawWait(){const v=G.vs,s=v&&v.st;
  txt(TEAMS[0].n.slice(0,10)+' '+G.score[0]+'   '+TEAMS[1].n.slice(0,10)+' '+G.score[1],W/2,166,'#fff',1,'c')}
 function drawGone(){rect(0,0,W,H,'rgba(0,0,0,.8)');btns=[];txt('YOUR FRIEND LEFT THE GAME',W/2,92,'#ff8b5a',2,'c');btn(W/2-50,130,100,20,'BACK',()=>{vClose();SCR='home';G=null},{c:'#f2c230'})}
 function bgV(){bgPlain()}
-function drawV1(){bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});txt('ONLINE 1V1',W/2,8,'#f2c230',1,'c');
+function drawV1(){bgHero();rect(0,0,W,H,'rgba(4,8,16,.62)');return;bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});txt('ONLINE 1V1',W/2,8,'#f2c230',1,'c');
  txt('PLAY A FRIEND WITH YOUR OWN TEAM',W/2,40,'#fff',1,'c');txt('YOU TAKE TURNS ON OFFENSE · THE CLOCK RUNS FOR BOTH',W/2,54,'#9fb7a0',1,'c',true);
  txt('YOUR TEAM: '+String(CFG.team.n).slice(0,16)+' · OVR '+teamOvr()+(CFG.real?'':' (SAMPLE CARDS)'),W/2,84,'#cfe8cf',1,'c');
  btn(W/2-130,104,120,40,'CREATE GAME',()=>{const c=String(Math.floor(1000+Math.random()*9000));SCR='v1host';vOpen('host',c)},{c:'#7dff7d'});
@@ -756,7 +808,47 @@ function drawV1Join(){bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='v1'},{c:'#4a
  if(NETV.err)txt(NETV.err,W/2,H-8,'#ff8b5a',1,'c',true)}
 addEventListener('keydown',e=>{if(G||SCR!=='v1join')return;const k=e.key;if(/^[0-9]$/.test(k)&&(NETV.code||'').length<4)NETV.code=(NETV.code||'')+k;else if(k==='Backspace')NETV.code=(NETV.code||'').slice(0,-1);else if(k==='Enter'&&(NETV.code||'').length===4)vOpen('guest',NETV.code)});
 
-function drawTitle(){
+
+/* ---------- modern HTML menus over the canvas (title + 1v1 lobby): crisp text, cards, real buttons ---------- */
+const UI_=document.getElementById('ui');
+const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const lgU=n=>{const k=lgKey(n);return k?VBD.logos[k]:''};
+const lgImg=(n,cls)=>{const u=lgU(n);return u?`<img src="${u}" alt="" ${cls?'class="'+cls+'"':''}>`:'<i></i>'};
+function uiSet(h){if(!h){if(!UI_.hidden){UI_.hidden=true;UI_.innerHTML='';UI_.dataset.k=''}return}if(UI_.dataset.k!==h){UI_.innerHTML=h;UI_.dataset.k=h}UI_.hidden=false}
+function uiTick(){if(G||paused){uiSet('');return}if(SCR==='title')uiSet(uiTitle());else if(SCR==='v1')uiSet(uiV1());else uiSet('')}
+function teamHead(back,kicker){const sch=CFG.mode==='school',nm=sch?CFG.school:(CFG.team.s||''),u=lgU(nm)||lgU(CFG.team.n),c1=CFG.team.c1||'#1d4ed8';
+ return `<div class="top"><button class="back" data-a="${back}" aria-label="Back">&#10094;</button><div class="tm">${u?`<img src="${u}" alt="">`:`<span class="ph" style="background:${esc(c1)}"></span>`}<div class="tmn"><small>${esc(kicker)}</small><b>${esc(sch?CFG.school:(CFG.team.s||CFG.team.n))}</b></div></div><div class="ovr"><b>${teamOvr()}</b><small>TEAM OVR</small></div></div>`}
+function uiTitle(){
+ const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
+ const R=CFG.ros,rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
+ const sch=CFG.mode==='school',kick=sch?'My School · real roster':(CFG.real?'My Team · your cards':'My Team · sample cards');
+ const ss=SS&&!SS.done&&SS.res.length?`Week ${Math.min(SS.res.length+1,8)} · ${ssWins()}-${SS.res.slice(0,8).length-ssWins()}`:'8 games + playoffs';
+ return `<div class="wrap">${teamHead('home',kick)}
+ <div class="body">
+  <div class="card"><div class="ch"><span>Starters</span><button class="lnk" data-a="edit">${sch?'View roster':'Edit lineup'}</button></div>
+   <div class="rows">${rows.map(([p,e])=>`<div class="r"><span class="pos ${['DL','LB','DB'].includes(p)?'d':p==='K'?'k':''}">${p}</span>${lgImg(e.sc)}<span class="nm">${esc(e.n)}</span><span class="sc">${esc(e.sc||'')}</span><span class="o ${e.o>=85?'a':e.o>=72?'b':'c'}">${e.o}</span></div>`).join('')}</div></div>
+  <div class="card"><div class="ch"><span>Play</span>${sch?'<button class="lnk" data-a="school">Change school</button>':''}</div>
+   <div class="gs"><div><div class="lab">Opponent level</div><div class="seg">${LVL.map((q,i)=>`<button data-a="lvl" data-i="${i}" class="${CFG.lvl===i?'on':''}">${q.n[0]+q.n.slice(1).toLowerCase()}</button>`).join('')}</div></div>
+    <div class="modes"><button class="md q" data-a="quick"><span class="ic">&#9889;</span><b>Quick game</b><small>One game</small></button><button class="md s" data-a="season"><span class="ic">&#127942;</span><b>Season</b><small>${esc(ss)}</small></button><button class="md p" data-a="prac"><span class="ic">&#127944;</span><b>Practice</b><small>No clock</small></button></div>
+    <div class="rules"><span>4 × 2:00 quarters</span><span>3 timeouts</span><span>3 audibles a half</span></div></div></div>
+ </div></div>`}
+function uiV1(){return `<div class="wrap">${teamHead('home','Online 1v1')}
+ <div class="v1"><h2>Play a friend</h2><p>Take turns on offense with your own team. The clock runs for both of you.</p>
+  <div class="row"><button class="big c" data-a="create"><span class="ic">&#10010;</span><b>Create game</b><small>Get a code to share</small></button><button class="big j" data-a="join"><span class="ic">&#128273;</span><b>Join game</b><small>Enter your friend's code</small></button></div>
+  <button class="lnk" data-a="edit1">Edit lineup${CFG.real?'':' · sample cards'}</button></div></div>`}
+UI_.addEventListener('pointerdown',e=>e.stopPropagation());UI_.addEventListener('pointerup',e=>e.stopPropagation());
+UI_.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;try{sfx.tap()}catch(_){}const a=b.dataset.a;
+ if(a==='home'){vClose();SCR='home'}
+ else if(a==='edit'){SCR='team';TS.sel=0;TS.back='title'}
+ else if(a==='edit1'){TS.back='v1';SCR='team';TS.sel=0}
+ else if(a==='school'){TS.pf=true;SCR='pick'}
+ else if(a==='lvl')CFG.lvl=+b.dataset.i;
+ else if(a==='quick'){SCR='game';resetGame()}
+ else if(a==='season'){if(!SS)ssNew();SCR='season'}
+ else if(a==='prac'){SCR='game';resetGame({prac:1})}
+ else if(a==='create'){const c=String(Math.floor(1000+Math.random()*9000));SCR='v1host';vOpen('host',c)}
+ else if(a==='join'){NETV.code='';NETV.err='';SCR='v1join'}});
+function drawTitle(){bgHero();rect(0,0,W,H,'rgba(4,8,16,.45)');return;
  bgHero();
  logo(6,3);{const nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n);lgo(nm,W-86,8,56,1)}btn(6,6,38,14,'BACK',()=>{SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});
  {const t=CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',w=tw(t.toUpperCase(),1),nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n),hv=lgKey(nm);rect(W/2-w/2-(hv?18:0)-6,56,w+(hv?18:0)+12,22,'rgba(0,0,0,.45)');txt(t,W/2+(hv?9:0),63,'#cfe8cf',1,'c')}

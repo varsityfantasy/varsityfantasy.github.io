@@ -1408,3 +1408,6 @@ Varsity Bowl levels (owner): VARSITY is now the hardest (opponent 92), ELITE sec
 
 ## v684 (Nov 19)
 Varsity Bowl shows TEAM OVR (owner): `teamOvr()` = average OVR of all 18 starters (`entList()`), in the Starters panel header and the 1v1 lobby.
+
+## v685 (Nov 19)
+Varsity Bowl mode pages redesigned (owner: 'low effort, old fashioned'): the title page (My Team / My School) and the 1v1 lobby are now an HTML overlay `#ui` over the canvas (`uiTick()` in `draw()`, `uiTitle()`, `uiV1()`, `teamHead()`; scaled/rotated with the canvas in `layout()`; clicks handled by data-a on `#ui`, pointer events stopped so the canvas ignores them). Crisp system font, glass cards, team logo + name header with a gold TEAM OVR badge, starters list with position chips, school logos, school names and tiered OVR colours, a segmented opponent-level control, and gradient Quick game / Season (shows week and record when one is running) / Practice tiles. The canvas only draws the stadium behind it. Checked at 960x540, phone landscape and phone portrait (rotated).

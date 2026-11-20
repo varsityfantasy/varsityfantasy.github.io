@@ -1353,3 +1353,6 @@ Varsity Bowl (still not shipped in the app): attributes and two team modes.
 
 ## v666 (Nov 19)
 Varsity Bowl (not shipped): keyboard for the ball carrier: up/down arrows (or W/S) juke sideways, left arrow (or A) hops back (`juke(C,0,0,true)`), space dives. No forward juke.
+
+## v667 (Nov 19)
+Varsity Bowl title roster: the DEF row is now three rows, DL / LB / DB, each with its name label and average overall.

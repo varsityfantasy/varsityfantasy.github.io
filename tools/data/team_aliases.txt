@@ -12,3 +12,6 @@ The Preuss School=Preuss UCSD
 Francis Parker School=Francis Parker
 Southwest SD=Southwest San Diego
 San Diego Southwest=Southwest San Diego
+SJDLCS=St. Jeanne de Lestonnac
+MAELV=Mater Academy East
+SLMHS=Sports Leadership & Management

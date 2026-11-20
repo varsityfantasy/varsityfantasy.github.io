@@ -3948,7 +3948,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v664 · Nov 19';
+const APP_BUILD='v665 · Nov 19';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8598,25 +8598,23 @@ async function hbOpen(m){
 const VB_BUMP={c:0,u:2,r:4,e:6,l:8,m:10};
 const vbRec=()=>{try{return JSON.parse(localStorage.getItem('vs-vb')||'{}')||{}}catch(_){return {}}};
 function vbRoster(){
+  /* v665: the game gets every card you own as {slot, name, OVR (+ rarity bump), games, season stats}; it picks the starters and turns OVR into attributes itself (varsity-bowl.html: Team screen) */
   const u=ME.uid,own=u&&ME.mode!=='guest'?cardsOf(u):{},by={};
   players().forEach(p=>{if(p&&p.key&&!p.ext)by['pc:'+p.key]=p});
-  const mine=[];
+  const pool=[];
   for(const id of Object.keys(own)){const p=by[id];if(!p||!['QB','RB','WR','TE','K','DEF'].includes(p.pos))continue;
-    const base=ovrOf(p.key)||58,o=Math.min(99,base+(VB_BUMP[cardR(u,id)]||0));mine.push({pos:p.pos,n:p.name||'Player',o})}
-  mine.sort((a,b)=>b.o-a.o);
-  const take=(pos,k)=>mine.filter(x=>x.pos===pos).slice(0,k);
-  const wo=['J.Walker','M.Reyes','D.Mills','T.Hart','K.Lee','C.Price','A.Cruz'],fill=(arr,k,i0)=>{const o=arr.map(x=>({n:x.n,o:x.o}));while(o.length<k)o.push({n:wo[(i0+o.length)%wo.length],o:55});return o};
-  const qb=fill(take('QB',1),1,0)[0],rb=fill(take('RB',1),1,1)[0],wr=fill(take('WR',3),3,2),te=fill(take('TE',1),1,5)[0],k=fill(take('K',1),1,6)[0],df=mine.filter(x=>x.pos==='DEF').slice(0,6);
-  const dv=df.length?Math.round((df.reduce((a,b)=>a+b.o,0)+(6-df.length)*55)/6):58;
-  return {real:mine.length>0,ros:{qb,rb,wr,te,k,df:dv}}}
+    const base=ovrOf(p.key)||58,o=Math.min(99,base+(VB_BUMP[cardR(u,id)]||0)),sl=p.pos==='DEF'?(['CB','S','DB'].includes(p.sub)?'DB':p.sub==='DL'?'DL':'LB'):p.pos;
+    let g=0,st={};try{const a=agg(p,'season');g=a.n||0;for(const k in a.s)if(a.s[k])st[k]=Math.round(a.s[k]*10)/10}catch(_){}
+    pool.push({slot:sl,n:p.name||'Player',o,g,s:st,key:id})}
+  return {real:pool.length>0,pool}}
 function vbTeams(){
   const pr=myProfile()||{},sc=pr.school||'',nm=x=>String(x||'').toUpperCase().replace(/[^A-Z0-9' ]/g,'').replace(/\b(HIGH SCHOOL|HIGH|ACADEMY|CHARTER|SCHOOL)\b/g,'').trim().slice(0,9)||'VARSITY';
   const col=x=>{const c=schCol(x);return c?{c1:c[0],c2:c[1]}:{c1:'#1d4ed8',c2:'#ffffff'}};
   const team=Object.assign({n:nm(sc)},col(sc)),opps=SD_SCHOOLS.filter(x=>x!==sc&&schCol(x)).map(x=>Object.assign({n:nm(x)},col(x)));
-  return {team,opps}}
+  return {team,opps,school:sc}}
 function vbHTML(){const r=vbRec(),can=!!ME.uid&&ME.mode!=='guest';
   return `<section class="card rc-card"><div class="qh"><h3>Varsity Bowl</h3>${r.w||r.l||r.t?`<span class="muted">${r.w||0}-${r.l||0}${r.t?'-'+r.t:''}</span>`:''}</div>
-  <p class="muted" style="text-align:center">A football game from above. Every play is a random pass concept. Pull back like a slingshot to snap and throw (or tap your running back for a handoff): the farther you pull, the farther it goes, and you aim by direction. After a catch, drag to run, flick to juke, tap to dive. Kick the extra point or go for 2. Play a quick game, or a season with playoffs. The better your cards, the faster, surer and tougher your players are.</p>
+  <p class="muted" style="text-align:center">A football game from above. Play as any San Diego school, or build a team from your own cards and train their attributes. Every play is a random pass concept. Pull back like a slingshot to snap and throw (or tap your running back for a handoff): the farther you pull, the farther it goes, and you aim by direction. After a catch, drag to run, flick to juke, tap to dive. Kick the extra point or go for 2. Play a quick game, or a season with playoffs. The better your cards, the faster, surer and tougher your players are.</p>
   ${can?'':'<p class="hint" style="text-align:center">Sign in to play with your own cards. You will play with a demo team.</p>'}
   <div class="rco-modes" style="margin-top:10px"><button class="btn" data-act="vbOpen">Play</button></div>
   <p class="hint" style="text-align:center;margin-top:8px">Best played with your phone turned sideways.</p></section>`}
@@ -8626,7 +8624,7 @@ function vbOpen(){
   el.innerHTML=`<iframe title="Varsity Bowl" allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#000" src="tools/gridiron/varsity-bowl.html?embed=1&b=${encodeURIComponent(APP_BUILD)}"></iframe><button class="fgx-x" aria-label="Close game" style="left:12px;right:auto;top:calc(8px + env(safe-area-inset-top,0px));width:36px;height:36px;font-size:16px">✕</button>`;
   document.body.appendChild(el);document.body.classList.add('fg-on');
   const fr=el.querySelector('iframe');
-  const send=()=>{try{const r=vbRoster(),t=vbTeams();fr.contentWindow.postMessage({vb:'init',team:t.team,opps:t.opps,ros:r.ros,real:r.real},'*')}catch(_){}};
+  const send=()=>{try{const r=vbRoster(),t=vbTeams();fr.contentWindow.postMessage({vb:'init',team:t.team,opps:t.opps,school:t.school,pool:r.pool,real:r.real},'*')}catch(_){}};
   const done=()=>{removeEventListener('message',on);el.remove();document.body.classList.remove('fg-on');if(dirty&&!typing()){dirty=false;try{render(true)}catch(_){}}},
   on=e=>{const d=e.data;if(!d||!d.vb||e.source!==fr.contentWindow)return;
     if(d.vb==='ready')send();

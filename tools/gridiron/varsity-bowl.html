@@ -84,7 +84,8 @@ Object.assign(CFG,{mode:'school',school:'',pool:[],cardTeam:null,cardSchool:'',b
 function getAt(e){const tot=4*clamp(e.o,AMIN,AMAX),ks=AT[grp(e.slot)],c=CFG.mode==='cards'&&e.key&&CFG.build[e.key];
  if(c&&ks.every(k=>c[k]>=AMIN&&c[k]<=AMAX)){const sum=ks.reduce((a,k)=>a+c[k],0);if(sum<=tot){const v=sum===tot?ks.map(k=>c[k]):fit(ks.map(k=>c[k]),tot),r={};ks.forEach((k,i)=>r[k]=v[i]);return r}}
  return natAt(e.slot,e.o,e.g,e.s)}
-function mkEnt(r){const e={slot:r.slot,n:r.n,o:Math.round(r.o),key:r.key||null,g:r.g||0,s:r.s||{}};e.at=getAt(e);return e}
+const scAb=n=>String(n||'').replace(' Country Day',' CD').replace(' Academy','').replace(' Catholic',' Cath.').replace('Rancho ','Rch ').replace('Ranch','Rnch').replace(' Canyon',' Cyn').replace(' Christian',' Chr.').slice(0,12);
+function mkEnt(r){const e={slot:r.slot,n:r.n,o:Math.round(r.o),key:r.key||null,g:r.g||0,s:r.s||{},sc:r.sc||''};e.at=getAt(e);return e}
 function buildRoster(list){const by={};list.forEach(r=>(by[r.slot]=by[r.slot]||[]).push(r));
  const get=(sl,k,i0)=>{const a=(by[sl]||[]).slice().sort((x,y)=>y.o-x.o).slice(0,k).map(mkEnt);while(a.length<k)a.push(mkEnt({slot:sl,n:FILLN[(i0+a.length)%FILLN.length],o:55,key:'f:'+sl+a.length}));return a};
  const ros={qb:get('QB',1,0)[0],rb:get('RB',1,1)[0],wr:get('WR',3,2),te:get('TE',1,5)[0],k:get('K',1,6)[0],dl:get('DL',4,1),lb:get('LB',3,3),db:get('DB',4,5)};
@@ -92,10 +93,10 @@ function buildRoster(list){const by={};list.forEach(r=>(by[r.slot]=by[r.slot]||[
  ros.dsub={dl:av(ros.dl,{str:.4,tkl:.35,spd:.25}),lb:av(ros.lb,{tkl:.5,str:.2,spd:.15,sta:.15}),db:av(ros.db,{spd:.45,tkl:.3,sta:.15,str:.1})};
  ros.df=Math.round(ros.dsub.dl*.3+ros.dsub.lb*.3+ros.dsub.db*.4);return ros}
 const schoolList=()=>VBD?Object.keys(VBD.schools):[];
-const schoolPool=sc=>{const d=VBD&&VBD.schools[sc];return d?d.r.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4]})):[]};
+const schoolPool=sc=>{const d=VBD&&VBD.schools[sc];return d?d.r.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],sc})):[]};
 /* sample team (owner, Nov 19): Zed Hornby's real cards, read from his signed-in account (OVR already includes the rarity bump). Used when the game is opened without the app's cards. */
-const SAMPLE_TEAM={n:"BISHOP'S",s:"Bishop's",c1:'#800001',c2:'#cea978'},SAMPLE_POOL=[["DB","Noah Lauifi",89,11,{"tkl":80,"dInt":1,"tfl":2,"pbu":6}],["DL","Isaiah Garcia",95,11,{"tkl":68,"sack":11.5,"dInt":1,"ff":2,"tfl":26.5}],["DB","Carson Hasting",57,2,{"tkl":2}],["DL","Hunter Torino",58,2,{"tkl":2}],["DL","Reese Monahan",59,1,{"tkl":1}],["WR","Rory Dunn",85,8,{"passYd":199,"passTD":2,"rushYd":12,"rec":20,"recYd":270,"recTD":3}],["DL","Aaron Pena",94,11,{"tkl":52,"sack":3.5,"ff":1,"fr":1,"tfl":12}],["DB","Tomas Zaldivar",78,10,{"tkl":28,"dInt":1,"pbu":5}],["DB","Nolan Seelhorst",87,8,{"tkl":37,"dInt":1,"ff":1,"tfl":1,"pbu":2}],["WR","Nolan Seelhorst",52,8,{"rushYd":28}],["DB","Jaeden Blossom",67,4,{"tkl":4}],["QB","Evin Dill",95,12,{"passYd":1463,"passTD":14,"int":7,"rushYd":1015,"rushTD":12,"rec":1}],["DB","Derick Beane",64,2,{"tkl":2,"tfl":1}],["DL","Teddy Irvin",76,10,{"tkl":21,"sack":2,"tfl":6}],["DB","Marcel Banuelos",73,8,{"tkl":17,"fr":1,"pbu":1}],["DL","Christopher Angeles",56,2,{"tkl":2}],["RB","Yacub Abdulahhi",65,4,{"rushYd":52}],["DL","Lukas Franco",59,5,{"tkl":8}],["WR","Bruce Esajian",76,9,{"rushYd":12,"rec":10,"recYd":114,"recTD":1}],["WR","Zed Hornby",87,11,{"rushYd":22,"rec":48,"recYd":614,"recTD":8}],["WR","Aden Brown",74,6,{"rushYd":-1,"rec":14,"recYd":143}],["LB","Steven Gomez",79,6,{"tkl":26,"tfl":4}],["DB","Adrian Ismaili",67,9,{"tkl":11,"dInt":1,"tfl":1}],["WR","Aidan Flores",77,9,{"rushYd":76,"rec":5,"recYd":130,"recTD":3}],["RB","Elijah Richardson",86,10,{"rushYd":593,"rushTD":5,"rec":3,"recYd":23,"fumLost":1}],["LB","Xander Molina",76,6,{"tkl":43}],["LB","Jax Vizkeleti",73,8,{"tkl":22,"tfl":1}],["DB","Nicholas Hedgecock",70,9,{"tkl":21,"pbu":2}],["LB","Riley Davis-Reagan",86,11,{"tkl":71,"sack":1,"dInt":2,"tfl":4,"pbu":4}],["WR","Cyrus King",71,1,{"rec":1,"recYd":1}],["RB","Mateo De Alba",72,8,{"rushYd":94,"rushTD":1}],["K","Victor Ruiz",85,7,{"xpm":17,"xpMiss":1,"fgm":4,"puntYd":822,"punts":24}],["K","Luis Bautista",45,2,{"xpMiss":1,"fgMiss":1}]];
-const demoPool=()=>SAMPLE_POOL.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],key:'d:'+x[0]+x[1]}));
+const SAMPLE_TEAM={n:"BISHOP'S",s:"Bishop's",c1:'#800001',c2:'#cea978'},SAMPLE_POOL=[["DB","Noah Lauifi",89,11,{"tkl":80,"dInt":1,"tfl":2,"pbu":6},"Cathedral Catholic"],["DL","Isaiah Garcia",95,11,{"tkl":68,"sack":11.5,"dInt":1,"ff":2,"tfl":26.5},"Bishop's"],["DB","Carson Hasting",57,2,{"tkl":2},"Granite Hills"],["DL","Hunter Torino",58,2,{"tkl":2},"La Costa Canyon"],["DL","Reese Monahan",59,1,{"tkl":1},"Rancho Bernardo"],["WR","Rory Dunn",85,8,{"passYd":199,"passTD":2,"rushYd":12,"rec":20,"recYd":270,"recTD":3},"Scripps Ranch"],["DL","Aaron Pena",94,11,{"tkl":52,"sack":3.5,"ff":1,"fr":1,"tfl":12},"Otay Ranch"],["DB","Tomas Zaldivar",78,10,{"tkl":28,"dInt":1,"pbu":5},"Eastlake"],["DB","Nolan Seelhorst",87,8,{"tkl":37,"dInt":1,"ff":1,"tfl":1,"pbu":2},"Torrey Pines"],["WR","Nolan Seelhorst",52,8,{"rushYd":28},"Torrey Pines"],["DB","Jaeden Blossom",67,4,{"tkl":4},"Steele Canyon"],["QB","Evin Dill",95,12,{"passYd":1463,"passTD":14,"int":7,"rushYd":1015,"rushTD":12,"rec":1},"West Hills"],["DB","Derick Beane",64,2,{"tkl":2,"tfl":1},"Madison"],["DL","Teddy Irvin",76,10,{"tkl":21,"sack":2,"tfl":6},"La Jolla Country Day"],["DB","Marcel Banuelos",73,8,{"tkl":17,"fr":1,"pbu":1},"Southwest EC"],["DL","Christopher Angeles",56,2,{"tkl":2},"Otay Ranch"],["RB","Yacub Abdulahhi",65,4,{"rushYd":52},"Crawford"],["DL","Lukas Franco",59,5,{"tkl":8},"Victory Christian Academy"],["WR","Bruce Esajian",76,9,{"rushYd":12,"rec":10,"recYd":114,"recTD":1},"Bishop's"],["WR","Zed Hornby",87,11,{"rushYd":22,"rec":48,"recYd":614,"recTD":8},"Bishop's"],["WR","Aden Brown",74,6,{"rushYd":-1,"rec":14,"recYd":143},"Steele Canyon"],["LB","Steven Gomez",79,6,{"tkl":26,"tfl":4},"Poway"],["DB","Adrian Ismaili",67,9,{"tkl":11,"dInt":1,"tfl":1},"Poway"],["WR","Aidan Flores",77,9,{"rushYd":76,"rec":5,"recYd":130,"recTD":3},"Montgomery"],["RB","Elijah Richardson",86,10,{"rushYd":593,"rushTD":5,"rec":3,"recYd":23,"fumLost":1},"Chula Vista"],["LB","Xander Molina",76,6,{"tkl":43},"Christian"],["LB","Jax Vizkeleti",73,8,{"tkl":22,"tfl":1},"Foothills Christian"],["DB","Nicholas Hedgecock",70,9,{"tkl":21,"pbu":2},"La Jolla Country Day"],["LB","Riley Davis-Reagan",86,11,{"tkl":71,"sack":1,"dInt":2,"tfl":4,"pbu":4},"La Jolla Country Day"],["WR","Cyrus King",71,1,{"rec":1,"recYd":1},"Mt. Carmel"],["RB","Mateo De Alba",72,8,{"rushYd":94,"rushTD":1},"Victory Christian Academy"],["K","Victor Ruiz",85,7,{"xpm":17,"xpMiss":1,"fgm":4,"puntYd":822,"punts":24},"Hilltop"],["K","Luis Bautista",45,2,{"xpMiss":1,"fgMiss":1},"Helix"]];
+const demoPool=()=>SAMPLE_POOL.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],sc:x[5],key:'d:'+x[0]+x[1]}));
 const schOv=sc=>{const a=schoolPool(sc).map(x=>x.o).sort((x,y)=>y-x).slice(0,11);return a.length?a.reduce((x,y)=>x+y,0)/a.length:0};
 function applyTeam(){
  if(CFG.mode==='school'&&!(VBD&&VBD.schools[CFG.school]))CFG.mode='cards';
@@ -761,9 +762,9 @@ function drawTitle(){
  {const t=CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',w=tw(t.toUpperCase(),1),nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n),hv=lgKey(nm);rect(W/2-w/2-(hv?18:0)-6,56,w+(hv?18:0)+12,22,'rgba(0,0,0,.45)');txt(t,W/2+(hv?9:0),63,'#cfe8cf',1,'c')}
  const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
  const R=CFG.ros,rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
- const px=14,py=100,pw=222,ph=128;
+ const px=8,py=100,pw=234,ph=128;
  panel(px,py,pw,ph);rect(px,py,pw,13,'#1b2a3f');rect(px,py+13,pw,1,'#f2c230');txt('STARTERS',px+8,py+3,'#f2c230',1);btn(px+pw-52,py+1,48,11,'EDIT',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#9fd8ff'});
- rows.forEach((r,i)=>{const y=py+19+i*10.5;if(i%2)rect(px+2,y-2,pw-4,10,'rgba(255,255,255,.05)');txt(r[0],px+8,y,'#9fb7a0',1,'l',true);txt(String(r[1].n).slice(0,22),px+34,y,'#fff',1,'l',true);txt(String(r[1].o),px+pw-8,y,r[1].o>=85?'#ffd23f':r[1].o>=72?'#7dff7d':'#fff',1,'r',true)});
+ rows.forEach((r,i)=>{const y=py+19+i*10.5;if(i%2)rect(px+2,y-2,pw-4,10,'rgba(255,255,255,.05)');txt(r[0],px+8,y,'#9fb7a0',1,'l',true);lgo(r[1].sc,px+22,y-1,9);txt(String(r[1].n).slice(0,15),px+34,y,'#fff',1,'l',true);txt(scAb(r[1].sc),px+134,y,'#8fa592',1,'l',true);txt(String(r[1].o),px+pw-8,y,r[1].o>=85?'#ffd23f':r[1].o>=72?'#7dff7d':'#fff',1,'r',true)});
  const qx=252,qw=214;
  panel(qx,py,qw,ph);rect(qx,py,qw,13,'#1b2a3f');rect(qx,py+13,qw,1,'#f2c230');txt('GAME SETUP',qx+8,py+3,'#f2c230',1);
  ['4 QUARTERS OF 2:00','3 TIMEOUTS A GAME','3 AUDIBLES A HALF'].forEach((t,i)=>{rect(qx+8,py+21+i*10,3,3,'#f2c230');txt(t,qx+16,py+19+i*10,'#cfe8cf',1,'l',true)});
@@ -829,9 +830,9 @@ function drawTeam(){
  const L=entList();TS.sel=clamp(TS.sel,0,L.length-1);
  panel(4,26,236,192,'rgba(0,0,0,.55)');
  L.forEach((e,i)=>{const y=29+i*10.5,sel=i===TS.sel;btns.push({x:4,y:y-1,w:236,h:10,fn:()=>{TS.sel=i}});if(sel)rect(5,y-1,234,10,'rgba(242,194,48,.3)');
-  txt(e.slot,9,y,grp(e.slot)==='DF'?'#ff9a8a':'#f2c230',1);txt(String(e.n).slice(0,20),32,y,'#fff',1);txt(String(e.o),234,y,e.o>=85?'#ffd23f':e.o>=72?'#7dff7d':'#fff',1,'r')});
+  txt(e.slot,9,y,grp(e.slot)==='DF'?'#ff9a8a':'#f2c230',1);lgo(e.sc,30,y-1,9);txt(String(e.n).slice(0,15),42,y,'#fff',1);txt(scAb(e.sc),140,y,'#8fa592',1,'l',true);txt(String(e.o),234,y,e.o>=85?'#ffd23f':e.o>=72?'#7dff7d':'#fff',1,'r')});
  const e=L[TS.sel];panel(246,26,230,192,'rgba(0,0,0,.55)');
- txt(String(e.n).slice(0,24),254,31,'#fff',1);txt(e.slot+' · OVR '+e.o,254,42,'#f2c230',1);
+ txt(String(e.n).slice(0,24),254,31,'#fff',1);txt(e.slot+' · OVR '+e.o,254,42,'#f2c230',1);if(e.sc){lgo(e.sc,W-34-4,31,26,1);txt(scAb(e.sc),254+tw((e.slot+' · OVR '+e.o).toUpperCase(),1)+10,42,'#8fa592',1,'l',true)}
  const ks=AT[grp(e.slot)],b=rawAt(e),tot=4*clamp(e.o,AMIN,AMAX),left=tot-ks.reduce((a,k)=>a+b[k],0);
  ks.forEach((k,i)=>{const y=56+i*22;txt(ALAB[k],254,y,'#cfe8cf',1);rect(254,y+10,140,6,'#0b0f18');const w=Math.round(140*(b[k]-AMIN)/(AMAX-AMIN));rect(254,y+10,w,6,b[k]>=85?'#ffd23f':b[k]>=70?'#7dff7d':b[k]>=55?'#9fd8ff':'#ff9a8a');
   txt(String(b[k]),414,y+9,'#fff',1,'r');
@@ -964,7 +965,7 @@ addEventListener('pointerup',e=>{if(G&&G.phase==='meter'&&G.meter&&!G.meter.done
 
 /* ---------- messages from the app ---------- */
 addEventListener('message',e=>{const d=e.data;if(!d||!d.vb)return;
- if(d.vb==='init'){if(d.team)CFG.cardTeam=d.team;if(d.school)CFG.cardSchool=d.school;if(Array.isArray(d.pool)&&d.pool.length){CFG.pool=d.pool.filter(x=>x&&x.slot&&x.n).map(x=>({slot:x.slot,n:x.n,o:+x.o||55,g:+x.g||0,s:x.s||{},key:x.key}));CFG.real=true;
+ if(d.vb==='init'){if(d.team)CFG.cardTeam=d.team;if(d.school)CFG.cardSchool=d.school;if(Array.isArray(d.pool)&&d.pool.length){CFG.pool=d.pool.filter(x=>x&&x.slot&&x.n).map(x=>({slot:x.slot,n:x.n,o:+x.o||55,g:+x.g||0,s:x.s||{},sc:x.sc||'',key:x.key}));CFG.real=true;
    if(!CFG.chosen)CFG.mode='cards'}
   if(!VBD&&d.opps&&d.opps.length)CFG.opps=d.opps;
   applyTeam()}});

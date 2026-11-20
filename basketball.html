@@ -3950,7 +3950,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v681 · Nov 19';
+const APP_BUILD='v682 · Nov 19';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8621,7 +8621,7 @@ function vbRoster(){
   for(const id of Object.keys(own)){const p=by[id];if(!p||!['QB','RB','WR','TE','K','DEF'].includes(p.pos))continue;
     const base=ovrOf(p.key)||58,o=Math.min(99,base+(VB_BUMP[cardR(u,id)]||0)),sl=p.pos==='DEF'?(['CB','S','DB'].includes(p.sub)?'DB':p.sub==='DL'?'DL':'LB'):p.pos;
     let g=0,st={};try{const a=agg(p,'season');g=a.n||0;for(const k in a.s)if(a.s[k])st[k]=Math.round(a.s[k]*10)/10}catch(_){}
-    pool.push({slot:sl,n:p.name||'Player',o,g,s:st,key:id})}
+    pool.push({slot:sl,n:p.name||'Player',o,g,s:st,sc:p.school||'',key:id})}
   return {real:pool.length>0,pool}}
 function vbTeams(){
   const pr=myProfile()||{},sc=pr.school||'',nm=x=>String(x||'').toUpperCase().replace(/[^A-Z0-9' ]/g,'').replace(/\b(HIGH SCHOOL|HIGH|ACADEMY|CHARTER|SCHOOL)\b/g,'').trim().slice(0,9)||'VARSITY';

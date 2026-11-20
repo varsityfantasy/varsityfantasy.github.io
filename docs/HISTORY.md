@@ -1399,3 +1399,6 @@ Varsity Bowl logos made bigger (owner: not visible): 46 px logo in each end zone
 
 ## v681 (Nov 19)
 Varsity Bowl sample My Team (owner): `SAMPLE_POOL` / `SAMPLE_TEAM` in varsity-bowl.html are Zed Hornby's 33 real cards (read from his signed-in account in Chrome via `vbRoster()`: slot, name, OVR with rarity bump, games, season stats) with Bishop's colours. `demoPool()` returns them when the game runs without the app's cards (standalone page); the labels say SAMPLE CARDS. Inside the app the signed-in player's own cards still win. No TE card in that collection, so the game fills TE with a generic 55.
+
+## v682 (Nov 19)
+Varsity Bowl My Team shows each player's school (owner): `vbRoster()` sends `sc` (school) with every card; the game keeps it on each entry (`mkEnt` sc, `scAb()` shortens names), and shows logo + school in the Starters panel, the team list and the player detail. School-mode rosters carry their school too. The sample cards have schools.

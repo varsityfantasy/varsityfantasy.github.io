@@ -1393,3 +1393,6 @@ Varsity Bowl menu extras (owner: more of the stadium detail): `bgHero()` animate
 
 ## v679 (Nov 19)
 Varsity Bowl team logos (owner): `vb-data.js` now has `VB_DATA.logos` (48 px webp copies of the app's school logos for all 86 schools; `make_vbdata.py small_logos()` rebuilds them from logos.js). `lgo(key,x,y,size,border)` draws one (`lgKey` matches case-insensitively). Shown in the school picker, the title header, the in-game scoreboard, the opponent-drive banner and the final screen. Team and opponent objects carry `s` (school key) and `TEAMS[i].lg`; 1v1 hello sends `s` too, because `n` is a shortened 9-14 letter name.
+
+## v680 (Nov 19)
+Varsity Bowl logos made bigger (owner: not visible): 46 px logo in each end zone (name text now scale 2 under it), 56 px team logo top right of the title screen, 18 px logos in the picker (rows are 22 px, 8 visible), 32 px logos on the final screen and opponent-drive banner, 12 px in the scoreboard.

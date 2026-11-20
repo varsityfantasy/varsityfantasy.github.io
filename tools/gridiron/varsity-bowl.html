@@ -192,8 +192,8 @@ function drawField(){
  /* mid logo */
  {const sx=EZ+50*YD-camX;if(sx>-30&&sx<W+30){g.fillStyle='#1b6e22';g.beginPath();g.arc(Math.round(sx),FT+CY,22,0,7);g.fill();g.strokeStyle='#f4d35e';g.lineWidth=2;g.stroke();txt('V',sx,FT+CY-10,'#f4d35e',3,'c',true)}}
  /* end zone text */
- {const a=0-camX;if(a>-130&&a<W){txtR(TEAMS[0].n.slice(0,9),a+EZ/2-8,FT+FH/2+tw(TEAMS[0].n.slice(0,9),3)/2,ezc(0),3,-1)}
-  const b=GOAL-camX;if(b>-130&&b<W){const nn=TEAMS[1].n.slice(0,9);txtR(nn,b+EZ/2-14,FT+FH/2-tw(nn,3)/2,ezc(1),3,1)}}
+ {const a=0-camX,cy=FT+FH/2+26;if(a>-130&&a<W){const n0=TEAMS[0].n.slice(0,9);lgo(TEAMS[0].lg,a+EZ/2-23,FT+12,46,1);txtR(n0,a+EZ/2-7,cy+tw(n0,2)/2,ezc(0),2,-1)}
+  const b=GOAL-camX;if(b>-130&&b<W){const nn=TEAMS[1].n.slice(0,9);lgo(TEAMS[1].lg,b+EZ/2-23,FT+12,46,1);txtR(nn,b+EZ/2-7,cy-tw(nn,2)/2,ezc(1),2,1)}}
  /* sidelines */
  rect(0,FT-3,W,3,'#e6efd6');rect(0,FT+FH,W,3,'#e6efd6');
  rect(0,FT+FH+3,W,H-FT-FH-3,'#1f6a2a');
@@ -650,7 +650,7 @@ function drawWorld(){
 function drawHUD(){
  rect(0,0,W,14,'#000');
  const sc=G.score;
- lgo(TEAMS[0].lg,24,2,10);lgo(TEAMS[1].lg,88,2,10);txt(TEAMS[0].n.slice(0,3)+' '+sc[0],36,4,'#fff',1);txt(TEAMS[1].n.slice(0,3)+' '+sc[1],100,4,'#fff',1);
+ lgo(TEAMS[0].lg,21,1,12);lgo(TEAMS[1].lg,85,1,12);txt(TEAMS[0].n.slice(0,3)+' '+sc[0],36,4,'#fff',1);txt(TEAMS[1].n.slice(0,3)+' '+sc[1],100,4,'#fff',1);
  rect(36,12,tw(TEAMS[0].n.slice(0,3)+' '+sc[0],1),1,'#fff');
  const q=G.q===5?'OVERTIME':['','1ST','2ND','3RD','4TH'][G.q]+' QTR',m=Math.floor(G.clock/60),s=Math.floor(G.clock%60);
  txt(G.prac?'PRACTICE':G.q===5?q:q+' '+m+':'+('0'+s).slice(-2),W/2-20,4,'#fff',1,'c');
@@ -754,8 +754,8 @@ addEventListener('keydown',e=>{if(G||SCR!=='v1join')return;const k=e.key;if(/^[0
 
 function drawTitle(){
  bgHero();
- logo(6,3);btn(6,6,38,14,'BACK',()=>{SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});
- {const t=CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',w=tw(t.toUpperCase(),1),nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n),hv=lgKey(nm);rect(W/2-w/2-(hv?18:0)-6,56,w+(hv?18:0)+12,22,'rgba(0,0,0,.45)');if(hv)lgo(nm,W/2-w/2-16,58,18,1);txt(t,W/2+(hv?9:0),63,'#cfe8cf',1,'c')}
+ logo(6,3);{const nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n);lgo(nm,W-86,10,56,1)}btn(6,6,38,14,'BACK',()=>{SCR='home'},{c:'#4a5a4c',tc:'#cfe8cf'});
+ {const t=CFG.mode==='school'?'PLAYING AS '+CFG.school.toUpperCase():'YOUR CARDS ARE YOUR TEAM',w=tw(t.toUpperCase(),1),nm=CFG.mode==='school'?CFG.school:(CFG.team.s||CFG.team.n),hv=lgKey(nm);rect(W/2-w/2-(hv?18:0)-6,56,w+(hv?18:0)+12,22,'rgba(0,0,0,.45)');txt(t,W/2+(hv?9:0),63,'#cfe8cf',1,'c')}
  const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
  const R=CFG.ros,rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
  const px=14,py=100,pw=222,ph=128;
@@ -841,12 +841,12 @@ function drawTeam(){
  txt('EACH ATTRIBUTE: MIN '+AMIN+' · MAX '+AMAX,10,228,'#7f9a80',1,0,true);
  btn(380,224,90,20,'DONE',()=>{SCR=TS.back||'title';TS.back=null},{c:'#f2c230'})}
 function drawPick(){
- bgPlain();const L=schoolList(),RH=12,vis=14,max=Math.max(0,L.length*RH-vis*RH);TS.pk=clamp(TS.pk,0,max);
+ bgPlain();const L=schoolList(),RH=22,vis=8,max=Math.max(0,L.length*RH-vis*RH);TS.pk=clamp(TS.pk,0,max);
  btn(4,4,36,14,'BACK',()=>{SCR=TS.pf?'home':'team';TS.pf=false},{c:'#4a5a4c',tc:'#cfe8cf'});txt('PICK YOUR SCHOOL',W/2,8,'#f2c230',1,'c');txt(L.length+' SCHOOLS · DRAG TO SCROLL',W-8,8,'#7f9a80',1,'r',true);
  panel(60,26,360,vis*RH+4,'rgba(0,0,0,.6)');
  const i0=Math.floor(TS.pk/RH);for(let i=i0;i<Math.min(L.length,i0+vis+1);i++){const y=28+i*RH-TS.pk;if(y<26||y>26+vis*RH-4)continue;const sc=L[i],on=sc===CFG.school;
   btns.push({x:60,y:y-1,w:360,h:RH,fn:()=>{CFG.school=sc;CFG.chosen=true;applyTeam();SCR=TS.pf?'title':'team';TS.pf=false}});if(on)rect(61,y-1,358,RH-1,'rgba(242,194,48,.3)');
-  const c=VBD.schools[sc].c;lgo(sc,64,y-1,11);rect(80,y,8,8,c[0]);rect(89,y,8,8,c[1]);txt(sc.slice(0,38),104,y+1,on?'#ffd23f':'#fff',1);txt(String(Math.round(schOv(sc))),412,y+1,'#9fb7a0',1,'r')}
+  const c=VBD.schools[sc].c;lgo(sc,66,y+1,18,1);rect(92,y+5,8,8,c[0]);rect(101,y+5,8,8,c[1]);txt(sc.slice(0,38),118,y+6,on?'#ffd23f':'#fff',1);txt(String(Math.round(schOv(sc))),412,y+6,'#9fb7a0',1,'r')}
  if(max>0){const h=Math.max(16,(vis*RH)*(vis*RH)/(L.length*RH)),yy=28+(vis*RH-h)*TS.pk/max;rect(424,28,3,vis*RH,'#0b0f18');rect(424,yy,3,h,'#9fd8ff')}}
 addEventListener('pointermove',e=>{if(G||SCR!=='pick'||!ptr.down)return;const p=toC(e);if(TS.ly!=null)TS.pk-=p.y-TS.ly;TS.ly=p.y});
 addEventListener('pointerup',()=>{TS.ly=null});addEventListener('pointercancel',()=>{TS.ly=null});
@@ -909,7 +909,7 @@ function drawXP(){rect(0,14,W,H-14,'rgba(0,0,0,.6)');txt('TOUCHDOWN!',W/2,30,'#f
  btn(W/2-130,84,120,36,'KICK +1',xpKick,{c:'#9fd8ff'});btn(W/2+10,84,120,36,'GO FOR 2',xpTwo,{c:'#f2c230'});txt('2 POINTS: ONE PLAY FROM THE 2 YARD LINE',W/2,134,'#8fb39a',1,'c',true)}
 function drawOpp(){
  const o=G.opp2;rect(0,14,W,H-14,'rgba(0,0,0,.72)');
- lgo(G.opp.s||G.opp.n,W/2-tw((G.opp.n+' DRIVE').toUpperCase(),2)/2-24,26,20,1);txt(G.opp.n+' DRIVE',W/2+10,30,TEAMS[1].j===('#1a1a1a')?'#fff':'#fff',2,'c');
+ lgo(G.opp.s||G.opp.n,W/2-tw((G.opp.n+' DRIVE').toUpperCase(),2)/2-40,20,32,1);txt(G.opp.n+' DRIVE',W/2+18,30,TEAMS[1].j===('#1a1a1a')?'#fff':'#fff',2,'c');
  txt(o.why,W/2,52,'#9fb7a0',1,'c');
  const t=G.camOpp;
  o.lines.forEach((l,i)=>{if(t>i*.6)txt(l,W/2,76+i*14,'#fff',1,'c')});
@@ -937,9 +937,9 @@ function drawBanner(){rect(0,70,W,70,'rgba(0,0,0,.75)');txt(G.banner,W/2,82,'#f2
 function drawFinal(){
  rect(0,14,W,H-14,'rgba(0,0,0,.78)');
  txt(G.win?'YOU WIN!':G.tie?'TIE GAME':'YOU LOSE',W/2,28,G.win?'#ffe14a':G.tie?'#fff':'#ff6a6a',4,'c');
- [0,1].forEach(i=>{const t=TEAMS[i].n.slice(0,12)+'  '+G.score[i],y=70+i*22;txt(t,W/2+10,y,'#fff',2,'c');lgo(TEAMS[i].lg,W/2+10-tw(t.toUpperCase(),2)/2-24,y-4,20,1)});
- const st=G.st;txt('PASS YDS '+st.py+'   RUSH YDS '+st.ry+'   TDS '+st.td,W/2,124,'#9fb7a0',1,'c');txt('COMP '+st.cmp+'/'+st.att+'   INT '+st.it+'   SACKS '+st.sk,W/2,136,'#9fb7a0',1,'c');
- G.fin+=0;btn(W/2-70,156,140,24,G.ssn?'CONTINUE SEASON':'PLAY AGAIN',()=>{vClose();SCR=G.ssn?'season':G.vs?'home':'title';G=null},{sc:1,c:'#f2c230'})}
+ [0,1].forEach(i=>{const t=TEAMS[i].n.slice(0,12)+'  '+G.score[i],y=64+i*34;txt(t,W/2+18,y+8,'#fff',2,'c');lgo(TEAMS[i].lg,W/2+18-tw(t.toUpperCase(),2)/2-38,y-2,32,1)});
+ const st=G.st;txt('PASS YDS '+st.py+'   RUSH YDS '+st.ry+'   TDS '+st.td,W/2,136,'#9fb7a0',1,'c');txt('COMP '+st.cmp+'/'+st.att+'   INT '+st.it+'   SACKS '+st.sk,W/2,148,'#9fb7a0',1,'c');
+ G.fin+=0;btn(W/2-70,170,140,24,G.ssn?'CONTINUE SEASON':'PLAY AGAIN',()=>{vClose();SCR=G.ssn?'season':G.vs?'home':'title';G=null},{sc:1,c:'#f2c230'})}
 function drawPause(){rect(0,0,W,H,'rgba(0,0,0,.7)');txt('PAUSED',W/2,70,'#fff',3,'c');txt('TAP TO RESUME',W/2,106,'#cfe8cf',1,'c');btns=[];btn(W/2-50,130,100,20,'QUIT GAME',()=>{paused=false;const vs=G&&G.vs;if(vs)vTx({k:'bye'});vClose();SCR=G&&G.ssn?'season':vs?'home':'title';G=null},{c:'#ff8b5a'})}
 
 /* ---------- main loop ---------- */

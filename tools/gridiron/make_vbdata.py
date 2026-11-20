@@ -20,12 +20,25 @@ JS='''()=>{
  const demo=[];const need={QB:1,RB:2,WR:3,TE:1,K:1,DL:4,LB:3,DB:4};
  for(let i=40;i<all.length&&Object.values(need).some(v=>v>0);i+=1){const x=all[i];if(need[x[0]]>0&&(i%3===0)){need[x[0]]--;demo.push(x)}}
  return {schools:out,demo}}'''
+def small_logos(schools):
+    """48 px copies of the app's school logos (logos.js) so the game can show them."""
+    import re,io,base64
+    from PIL import Image
+    L=open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','logos.js')).read()
+    m=json.loads(re.search(r'window\.SCHOOL_LOGOS\s*=\s*(\{.*\})\s*;?\s*$',L,re.S).group(1));out={}
+    for sc in schools:
+        u=m.get(sc)
+        if not u:continue
+        im=Image.open(io.BytesIO(base64.b64decode(u.split(',')[1]))).convert('RGBA');im.thumbnail((48,48),Image.LANCZOS)
+        b=io.BytesIO();im.save(b,'WEBP',quality=80,method=6);out[sc]='data:image/webp;base64,'+base64.b64encode(b.getvalue()).decode()
+    return out
 async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox'])
         pg=await b.new_page()
         await pg.goto('file://'+SRC);await pg.wait_for_timeout(2500)
         d=await pg.evaluate(JS)
+    d['logos']=small_logos(d['schools'])
     open(OUT,'w').write('window.VB_DATA='+json.dumps(d,separators=(',',':'))+';\n')
     print(OUT,len(d['schools']),'schools',os.path.getsize(OUT)//1024,'KB',len(d['demo']),'demo cards')
 asyncio.run(main())

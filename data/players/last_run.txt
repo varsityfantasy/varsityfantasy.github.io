@@ -1,11 +1,4 @@
-2026-11-21T11:35:36Z run 44899096790
-rosters bb: 1535 schools, 1531 with a team address (1531 from the page cache), 1276 to read
-rosters done: all teams read. read 1276, no player rows 115, not found 0; 15964 players on file, 11054 with a position, 15195 with a class
-  353 teams from their 25-26 roster (no current roster posted yet)
-  first empty page https://www.maxpreps.com/ca/santa-clara/wilcox-chargers/basketball/roster/: 222847 chars, 0 <tr>, 0 careerid, near the first one: '<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="robots" content="max-image-preview:large" data-next-head=""/><meta name="requestContext" content="{&quot;deviceType&quot;:&'
-round 1:
-bb: 898 played games, 671 already counted, 227 to fetch (0 have no box-score link)
-done: all requested games read. fetched 227, no stats on page 180, team not matched 0, not found 0
-round 2:
-bb: 898 played games, 898 already counted, 0 to fetch (0 have no box-score link)
-done: all requested games read. fetched 0, no stats on page 0, team not matched 0, not found 0
+2026-11-21T15:28:49Z run 44918960447
+rosters fb: 1535 schools, 1156 with a team address (1156 from the page cache), 1156 to read
+rosters done: all teams read. read 1156, no player rows 35, not found 0; 47084 players on file, 40727 with a position, 46936 with a class
+  first empty page https://www.maxpreps.com/ca/san-francisco/sacred-heart-cathedral-preparatory-fighting-irish/football/roster/: 246358 chars, 0 <tr>, 0 careerid, near the first one: '<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="robots" content="max-image-preview:large" data-next-head=""/><meta name="requestContext" content="{&quot;deviceType&quot;:&'

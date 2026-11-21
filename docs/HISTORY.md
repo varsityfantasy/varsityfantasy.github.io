@@ -1438,3 +1438,9 @@ Basketball scores (owner: add the missing ones): the 12:22 PM section collection
 
 ## v694 (Nov 20 2026)
 Football: 5 Nov 20 semifinal finals from the High School On SI scoreboard (Oceanside 41-3 RB, St. Augustine 49-32 Del Norte, Valley Center 20-7 Mission Bay, Hoover 30-10 Mt. Carmel, Morse 14-13 Olympian). 6 Nov 20 games were still live at 10:45 pm, left unscored for the daily task.
+
+## v695 (Nov 20 2026)
+Football: owner-reported finals Torrey Pines 21-20 Granite Hills, San Diego 45-14 San Pasqual (Morse 14-13 was already in).
+
+## v696 (Nov 20 2026)
+Football: owner-reported final Maranatha Christian 24-20 at Otay Ranch.

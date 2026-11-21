@@ -1447,3 +1447,6 @@ Football: owner-reported final Maranatha Christian 24-20 at Otay Ranch.
 
 ## v697 (Nov 20 2026)
 Football: owner-reported final Poway 35-34 Point Loma.
+
+## v698 (Nov 20 2026)
+Football: owner-reported final Vincent Memorial 25-22 Escondido Charter.

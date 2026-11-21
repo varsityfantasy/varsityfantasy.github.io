@@ -2337,6 +2337,11 @@ body.fg-on{overflow:hidden}
 .rk-cols b{display:block;font:900 1.5rem var(--f-display,inherit)}.rk-cols small{font-size:.7rem;opacity:.85}
 .rk-poster .metric-grid{gap:8px}.rk-poster .metric{background:rgba(6,20,42,.38);border:1px solid rgba(255,255,255,.18);color:#fff}.rk-poster .metric small{color:rgba(255,255,255,.8)}.rk-poster .metric b{color:#FFC21A}
 .rk-poster .rank-cta{margin-top:12px}
+.rk-poster.rk-sk{color:var(--ri);box-shadow:inset 0 0 0 3px var(--rbd),0 0 18px -4px var(--rbd)}
+.rk-sk .rk-tag{color:var(--rnm);font-family:var(--rf);text-shadow:0 0 14px var(--rg)}.rk-sk .rk-h,.rk-sk .rk-hero small,.rk-sk .rk-hero span,.rk-sk .rk-cols small{color:var(--rs);opacity:1}
+.rk-sk .rk-hero b{color:var(--rn);font-family:var(--rf);text-shadow:0 0 22px var(--rg)}.rk-sk .rk-cols b{font-family:var(--rf)}
+.rk-sk .rk-cols{border-color:var(--rs);border-color:color-mix(in srgb,var(--rs) 40%,transparent)}
+.rk-sk .metric{background:var(--rb);border:1px solid var(--rbs);color:var(--ri)}.rk-sk .metric small{color:var(--rs)}.rk-sk .metric b{color:var(--rn);font-family:var(--rf)}
 .me-sec{border:1px solid #2A4A78;border-radius:18px;overflow:hidden;padding-top:0!important}
 .me-sec>h3{margin:0 -16px 10px!important;padding:12px 16px;color:#fff;font-family:var(--f-display,inherit);text-transform:uppercase;letter-spacing:.04em;background:repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 27px,transparent 27px 54px),linear-gradient(145deg,#1C4E8C,#2878B3)}
 .st-seg.s3{grid-template-columns:repeat(3,minmax(0,1fr))}.st-seg.s3 button{flex-direction:column;gap:4px;padding:10px 4px;text-align:center}.st-seg.s3 button span{align-items:center}.st-seg.s3 button small{display:none}.sbr-tn{display:flex;align-items:center;gap:8px}.sbr-tn .av{flex:none}
@@ -3950,7 +3955,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v698 · Nov 20';
+const APP_BUILD='v699 · Nov 21';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -5138,7 +5143,23 @@ const SHARE={
   holo:['Holo','m',{conic:['#ff7eb3','#7afcff','#feff9c','#b48cff','#ff7eb3'],shine:1,ink:'#14062e',sub:'#2a1650',num:'#14183a',box:'rgba(255,255,255,.35)'}],
   ring:['Ring night','m',{lin:[180,['#0b0a12','#2a1d05']],spots:[[.5,.36,'rgba(255,236,170,.55)']],ring:1,ink:'#fff',name:'#FFD36B',sub:'#e8d9b0',num:'#FFD36B'}],
   diamond:['Diamond','m',{lin:[160,['#c9f6ff','#5fb4ff','#2a4fb5']],shine:1,ink:'#08224a',sub:'#123a6e',num:'#14183a',box:'rgba(255,255,255,.4)'}],
-  inferno:['Inferno','m',{conic:['#ffd23d','#ff5a1f','#9e1b0b','#2a0505','#9e1b0b','#ff5a1f','#ffd23d'],cy:1.1,ink:'#fff',glow:'#ff4f6d',sub:'#ffe0c8',num:'#fff'}]};
+  inferno:['Inferno','m',{conic:['#ffd23d','#ff5a1f','#9e1b0b','#2a0505','#9e1b0b','#ff5a1f','#ffd23d'],cy:1.1,ink:'#fff',glow:'#ff4f6d',sub:'#ffe0c8',num:'#fff'}],
+  /* v694 (owner): more rank card designs */
+  field:['Gridiron','u',{base:'#2f7d32',pat:'yard',pc:'rgba(255,255,255,.5)',ink:'#fff',sub:'#e6f5e6',num:'#fff',box:'rgba(0,0,0,.22)',bs:'rgba(255,255,255,.7)'}],
+  chalk:['Chalkboard','u',{base:'#22302a',pat:'chalk',pc:'rgba(255,255,255,.16)',ink:'#f2f2ea',sub:'#cfd8cf',num:'#ffe27a',box:'rgba(0,0,0,0)',bs:'rgba(242,242,234,.7)',font:'mono'}],
+  mint:['Mint','u',{lin:[160,['#e9fff6','#b8f2dc']],ink:'#0f3a2c',sub:'#2b5e4c',num:'#0e8a5f',box:'rgba(255,255,255,.6)'}],
+  jersey:['Jersey stripes','r',{base:'#14244A',pat:'diag',pc:'rgba(255,255,255,.07)',ink:'#fff',sub:'#cdd8f0',num:'#FFC21A',box:'rgba(255,255,255,.08)',bs:'#FFC21A'}],
+  camo:['Camo','r',{base:'#4b5a3a',spots:[[.2,.3,'rgba(30,38,24,.9)'],[.75,.2,'rgba(120,128,84,.9)'],[.4,.72,'rgba(30,38,24,.85)'],[.88,.8,'rgba(140,130,90,.8)']],ink:'#f2efe2',sub:'#e3e0cc',num:'#f2c94c',box:'rgba(0,0,0,.25)'}],
+  sakura:['Cherry blossom','r',{lin:[160,['#ffe3ee','#ffb7cf']],pat:'dots',pc:'rgba(255,255,255,.65)',ink:'#5a1030',sub:'#7a2a4a',num:'#d2205f',box:'rgba(255,255,255,.55)'}],
+  aurora:['Aurora','e',{base:'#04121c',spots:[[.2,.2,'rgba(61,255,170,.6)'],[.8,.35,'rgba(79,140,255,.6)'],[.5,.92,'rgba(180,90,255,.5)']],ink:'#fff',sub:'#d4f5ea',num:'#7dffcf'}],
+  honey:['Honeycomb','e',{base:'#f2a900',pat:'hex',pc:'rgba(80,40,0,.35)',ink:'#1a0e00',sub:'#3a2200',num:'#1a0e00',box:'rgba(255,255,255,.3)',bs:'#1a0e00'}],
+  ocean:['Deep sea','e',{lin:[180,['#0a5f8f','#062a4f','#020c1f']],spots:[[.5,0,'rgba(140,230,255,.45)']],ink:'#fff',sub:'#c4ecff',num:'#5ff2ff'}],
+  vice:['Vice','l',{lin:[160,['#ff4fd2','#7a2bd8','#1ad8d0']],ink:'#fff',shadow:'#1b0a3a',sub:'#ffe6fb',num:'#fff36b',box:'rgba(20,6,40,.35)'}],
+  blackout:['Blackout','l',{lin:[180,['#141414','#000']],border:'#E3B23C',ink:'#fff',sub:'#a8a8a8',num:'#E3B23C',box:'rgba(255,255,255,.04)',bs:'#E3B23C'}],
+  storm:['Thunder','l',{lin:[180,['#1b2333','#0b0f18']],spots:[[.7,.08,'rgba(160,190,255,.55)'],[.2,0,'rgba(120,140,200,.4)']],glow:'#9fc0ff',ink:'#fff',sub:'#c8d4ee',num:'#ffe95c'}],
+  emerald:['Emerald','l',{lin:[150,['#7dffc0','#0f9b5a','#04331e']],shine:1,ink:'#fff',sub:'#d6ffe9',num:'#fff',box:'rgba(0,0,0,.2)'}],
+  royal:['Royal','m',{lin:[150,['#2a0a4a','#5a1a8a','#2a0a4a']],pat:'diag',pc:'rgba(255,211,107,.08)',border:'#FFD36B',ink:'#fff',name:'#FFD36B',sub:'#e8d9ff',num:'#FFD36B',box:'rgba(0,0,0,.25)',bs:'#FFD36B',font:'serif'}],
+  ruby:['Ruby','m',{lin:[150,['#ff6b8a','#b3123b','#4a0012']],shine:1,ink:'#fff',sub:'#ffd6df',num:'#fff',box:'rgba(0,0,0,.2)'}]};
 const CREST_SHAPES={shield:'polygon(50% 0,100% 12%,100% 60%,50% 100%,0 60%,0 12%)',round:'circle(50%)',diamond:'polygon(50% 0,100% 50%,50% 100%,0 50%)',pennant:'polygon(0 0,100% 0,100% 70%,50% 100%,0 70%)',hex:'polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)'};
 (function(){
   const add=x=>ITEMS.push(x);
@@ -5259,6 +5280,8 @@ function simSkin(svg){const f=ME.uid?eqOf(ME.uid,'field'):'';if(!f||!itemSp(ITEM
   return svg.replace(/<\/svg>\s*$/,`<g pointer-events="none">${O}</g></svg>`)}
 const jerseyStyle=()=>{const j=ME.uid?eqOf(ME.uid,'jersey'):'';if(!j)return '';const x=ITEM[j];return ` jy" style="--j1:${x.jy[0]};--j2:${x.jy[1]}`};
 /* share cards: CSS for the little preview, canvas for the real image */
+/* v694 (owner): the equipped rank card style also skins the Me tab "How you compare" poster */
+function rkSkin(d){const ink=d.ink||'#fff';return `${shCss(d)};color:${ink};--ri:${ink};--rnm:${d.name||ink};--rn:${d.num||'#fff'};--rs:${d.sub||ink};--rb:${d.box||'rgba(0,0,0,.25)'};--rbs:${d.bs||'transparent'};--rg:${d.glow||'transparent'};--rbd:${d.border||'transparent'};--rf:${d.font==='serif'?'Georgia,serif':d.font==='mono'?'"Courier New",monospace':'var(--f-display,inherit)'}`}
 function shCss(d){const L=[];
   const stops=a=>a.map(s=>Array.isArray(s)?`${s[0]} ${s[1]*100}%`:s).join(',');
   if(d.spots)d.spots.forEach(([x,y,c])=>L.push(`radial-gradient(circle at ${x*100}% ${y*100}%,${c},transparent 45%)`));
@@ -5268,6 +5291,10 @@ function shCss(d){const L=[];
   if(d.pat==='carbon')L.push(`linear-gradient(90deg,transparent 46%,${d.stripe} 46% 52%,transparent 52%),repeating-linear-gradient(45deg,#1d2025 0 3px,#2b2f36 3px 6px)`);
   if(d.pat==='wood')L.push('repeating-linear-gradient(90deg,#c98a4b 0 8px,#b8783c 8px 9px,#d39a5c 9px 18px)');
   if(d.pat==='scan')L.push('repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px)');
+  if(d.pat==='diag')L.push(`repeating-linear-gradient(135deg,${d.pc} 0 12px,transparent 12px 24px)`);
+  if(d.pat==='yard')L.push(`repeating-linear-gradient(0deg,transparent 0 22px,${d.pc} 22px 24px)`);
+  if(d.pat==='chalk')L.push(`radial-gradient(circle,transparent 5px,${d.pc} 5px 6.5px,transparent 7px) 0 0/30px 30px`);
+  if(d.pat==='hex')L.push(`radial-gradient(circle,transparent 6px,${d.pc} 6.5px 8px,transparent 8.5px) 0 0/18px 16px,radial-gradient(circle,transparent 6px,${d.pc} 6.5px 8px,transparent 8.5px) 9px 8px/18px 16px`);
   if(d.pat==='stars')L.push('radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 20%,#fff,transparent),radial-gradient(1px 1px at 45% 75%,#fff,transparent)');
   if(d.conic)L.push(`conic-gradient(from 30deg${d.cy?' at 50% 110%':''},${d.conic.join(',')})`);
   if(d.inner)L.push(`linear-gradient(${d.inner[0]}deg,${d.inner[1].join(',')})`);
@@ -5289,6 +5316,10 @@ function shareDraw(k,me,info){
   if(D.pat==='scan'){x.fillStyle='rgba(0,0,0,.35)';for(let j=0;j<H;j+=8)x.fillRect(0,j,W,3)}
   if(D.pat==='veins'){x.strokeStyle='rgba(150,150,160,.35)';x.lineWidth=5;[[0,.3,1,.15],[0,.7,1,.45],[.2,1,.9,.1]].forEach(([a,b,c2,d2])=>{x.beginPath();x.moveTo(a*W,b*H);x.bezierCurveTo(W*.4,b*H-120,W*.6,d2*H+140,c2*W,d2*H);x.stroke()})}
   if(D.pat==='retrogrid'){x.save();x.strokeStyle='rgba(255,79,224,.75)';x.lineWidth=4;const top=H*.72;for(let i=-10;i<=20;i++){x.beginPath();x.moveTo(W/2+(i-5)*40,top);x.lineTo(W/2+(i-5)*240,H);x.stroke()}for(let j=0;j<8;j++){const y=top+Math.pow(j/8,1.8)*(H-top);x.beginPath();x.moveTo(0,y);x.lineTo(W,y);x.stroke()}x.restore()}
+  if(D.pat==='diag'){x.save();x.fillStyle=D.pc;for(let i=-H;i<W+H;i+=96){x.beginPath();x.moveTo(i,0);x.lineTo(i+48,0);x.lineTo(i+48-H,H);x.lineTo(i-H,H);x.fill()}x.restore()}
+  if(D.pat==='yard'){x.fillStyle=D.pc;for(let j=60;j<H;j+=120){x.fillRect(0,j,W,6);for(let i=40;i<W;i+=60)x.fillRect(i,j+54,4,18)}}
+  if(D.pat==='chalk'){x.strokeStyle=D.pc;x.lineWidth=6;for(let j=60,r=0;j<H;j+=150,r++)for(let i=(r%2?130:50);i<W;i+=170){if((i+j)%3){x.beginPath();x.arc(i,j,26,0,7);x.stroke()}else{x.beginPath();x.moveTo(i-22,j-22);x.lineTo(i+22,j+22);x.moveTo(i+22,j-22);x.lineTo(i-22,j+22);x.stroke()}}}
+  if(D.pat==='hex'){x.strokeStyle=D.pc;x.lineWidth=5;const r=46,hw=r*Math.sqrt(3);for(let j=0,row=0;j<H+r;j+=r*1.5,row++)for(let i=(row%2?hw/2:0);i<W+hw;i+=hw){x.beginPath();for(let k=0;k<6;k++){const a=Math.PI/3*k+Math.PI/6;x.lineTo(i+r*Math.cos(a),j+r*Math.sin(a))}x.closePath();x.stroke()}}
   if(D.pat==='stars'){x.fillStyle='#fff';for(let i=0;i<160;i++){x.globalAlpha=.4+(i%5)/8;x.fillRect((i*137)%W,(i*263)%H,i%7?2:4,i%7?2:4)}x.globalAlpha=1}
   if(D.spots)D.spots.forEach(([sx,sy,cl])=>{const g=x.createRadialGradient(sx*W,sy*H,0,sx*W,sy*H,W*.62);g.addColorStop(0,cl);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,W,H)});
   if(D.shine){const g=lg(115,[['rgba(255,255,255,0)',0],['rgba(255,255,255,0)',.36],['rgba(255,255,255,.45)',.47],['rgba(255,255,255,0)',.58],['rgba(255,255,255,0)',1]]);x.fillStyle=g;x.fillRect(0,0,W,H)}
@@ -9934,6 +9965,7 @@ function viewMe(){
   /* v376: defenders are ranked together, so say "defenders" instead of DEF */
   const PW=posNm(me);
   const cell=c=>`<div class="rc"><b>#${c.rank}</b><small>of ${c.of}, top ${Math.ceil(c.rank/c.of*100)}%</small></div>`;
+  const rkDE=(()=>{const k=ME.uid&&eqOf(ME.uid,'share');return k&&SHARE[k.slice(3)]?SHARE[k.slice(3)][2]:null})();
   let ranks='',near='',schoolBoard='',avgCard='',weekCard='';
   if(info){
     const mc=(label,c)=>`<div class="metric"><small>${label}</small><b>#${c.rank}</b><small>of ${c.of} ${c.of===1?'player':'players'}</small></div>`;
@@ -9987,7 +10019,7 @@ function viewMe(){
       ${meSides().length>1?`<div class="side-sw"><small>You play both ways. Pick which profile to view. Each one has its own stats and rankings.</small><div class="chips" role="group" aria-label="Profile">${meSides().map(p=>`<button class="chip" data-act="meSide" data-v="${esc(p.key)}" aria-pressed="${me.key===p.key}">${esc(p.pos==='DEF'?(p.sub||'DEF'):p.pos)}</button>`).join('')}</div></div>`:''}
       ${info?`<div class="big"><div><span class="lbl">${UI.scope==='season'?'Season pts':'Week pts'}</span><b>${f1(info.a.v)}</b></div><div><span class="lbl">Games</span><b>${PRE()?0:info.a.n}</b></div><div><span class="lbl">Per game</span><b>${f1(info.a.v/info.a.n)}</b></div></div>`:''}
       <div class="tools bare">${scopeSel('scope3',UI.rank==='prev')}${rankSw()}</div>
-    <div class="me-cmp rk-poster"><div class="rk-top"><span class="rk-tag">VARSITY</span><span class="rk-h">How you compare</span></div>${info?`<div class="rk-hero"><small>${esc(me.school)} · ${esc(me.sub||me.pos)}</small><b>#${info.section.pos.rank}</b><span>of ${info.section.pos.of} ${PW}s in the San Diego section</span></div><div class="rk-cols"><div><b>${f1(info.a.v)}</b><small>${UI.scope==='season'?'Season pts':'Week pts'}</small></div><div><b>${f1(info.a.v/info.a.n)}</b><small>Per game</small></div><div><b>#${info.school.pos.rank}</b><small>of ${info.school.pos.of} at school</small></div></div>`:''}${ranks}</div>
+    <div class="me-cmp rk-poster${rkDE?' rk-sk':''}"${rkDE?` style="${rkSkin(rkDE)}"`:''}><div class="rk-top"><span class="rk-tag">VARSITY</span><span class="rk-h">How you compare</span></div>${info?`<div class="rk-hero"><small>${esc(me.school)} · ${esc(me.sub||me.pos)}</small><b>#${info.section.pos.rank}</b><span>of ${info.section.pos.of} ${PW}s in the San Diego section</span></div><div class="rk-cols"><div><b>${f1(info.a.v)}</b><small>${UI.scope==='season'?'Season pts':'Week pts'}</small></div><div><b>${f1(info.a.v/info.a.n)}</b><small>Per game</small></div><div><b>#${info.school.pos.rank}</b><small>of ${info.school.pos.of} at school</small></div></div>`:''}${ranks}</div>
   </section>
   ${weekCard}
   ${avgCard}

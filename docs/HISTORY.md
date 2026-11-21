@@ -1435,3 +1435,6 @@ Score check (owner asked for a full overnight score/stat check): overnight cloud
 
 ## v693 (Nov 20)
 Basketball scores (owner: add the missing ones): the 12:22 PM section collection had none of the 13 missing SD games, so 3 came from the High School On SI San Diego Section scoreboard (Nov 19: Hamilton 74 at Julian 16, Vincent Memorial 47 at Hoover 65, Preuss UCSD 58 at Mira Mesa 65); 27 other SI scores for Nov 18-19 matched the app. Removed a duplicate schedule line (Poway vs Mt. Carmel listed twice on Nov 19; the scored 94-64 copy stays). Still no score anywhere for 9 games: Holtville-San Luis, King-Chavez-Borrego Springs, High Tech SD-Foothills Christian (Nov 18); San Diego Academy, The Cambridge School and School for Entrepreneurship & Technology each vs Southern California Yeshiva, Guajome Park-St. Jeanne de Lestonnac, Warner-Mountain Empire, Tri-City Christian-Mission Bay (Nov 19). SI lists SET's Nov 19 opponent as San Diego Jewish Academy (63-47), so the 3 Yeshiva games may be wrong schedule entries.
+
+## v694 (Nov 20 2026)
+Football: 5 Nov 20 semifinal finals from the High School On SI scoreboard (Oceanside 41-3 RB, St. Augustine 49-32 Del Norte, Valley Center 20-7 Mission Bay, Hoover 30-10 Mt. Carmel, Morse 14-13 Olympian). 6 Nov 20 games were still live at 10:45 pm, left unscored for the daily task.

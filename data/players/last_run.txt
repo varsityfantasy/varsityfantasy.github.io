@@ -1,10 +1,5 @@
-2026-11-20T15:32:36Z run 44764171858
-rosters fb: 1535 schools, 1156 with a team address (1156 from the page cache), 35 to read
-rosters done: STOPPED: the first 30 roster pages had no player rows (page format changed?). read 30, no player rows 30, not found 0; 46870 players on file, 40528 with a position, 46725 with a class
-  first empty page https://www.maxpreps.com/ca/san-francisco/sacred-heart-cathedral-preparatory-fighting-irish/football/roster/: 246376 chars, 0 <tr>, 0 careerid, near the first one: '<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="robots" content="max-image-preview:large" data-next-head=""/><meta name="requestContext" content="{&quot;deviceType&quot;:&'
-round 1:
-fb: 6124 played games, 6123 already counted, 1 to fetch (0 have no box-score link)
-done: all requested games read. fetched 1, no stats on page 0, team not matched 0, not found 0
-round 2:
-fb: 6124 played games, 6124 already counted, 0 to fetch (0 have no box-score link)
-done: all requested games read. fetched 0, no stats on page 0, team not matched 0, not found 0
+2026-11-21T11:34:11Z run 44899096790
+rosters bb: 1535 schools, 1531 with a team address (1531 from the page cache), 1276 to read
+rosters done: all teams read. read 1276, no player rows 115, not found 0; 15964 players on file, 11054 with a position, 15195 with a class
+  353 teams from their 25-26 roster (no current roster posted yet)
+  first empty page https://www.maxpreps.com/ca/santa-clara/wilcox-chargers/basketball/roster/: 222847 chars, 0 <tr>, 0 careerid, near the first one: '<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="robots" content="max-image-preview:large" data-next-head=""/><meta name="requestContext" content="{&quot;deviceType&quot;:&'

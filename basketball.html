@@ -60,6 +60,7 @@
 .bk-t b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bk-t.on{border-color:#FFC23D;background:rgba(255,194,61,.14)}.bk-t.gs b{font-style:italic;opacity:.85}
 .bk-t.ok{border-color:#3DDC84;background:rgba(61,220,132,.16)}.bk-t.no{border-color:#E5483B;background:rgba(229,72,59,.14);text-decoration:line-through}.bk-t.was{border-color:#3DDC84}.bk-t.tbd{opacity:.5;cursor:default}
 .bk-t:disabled{cursor:default}.bk-m{font-size:11px;text-align:right;opacity:.7;font-weight:700}
+.bt-res.bt-flash{animation:btFlash 1.6s ease-out 1}@keyframes btFlash{0%,30%{box-shadow:0 0 0 3px var(--accent,#3b6cff),0 0 24px rgba(59,108,255,.55)}100%{box-shadow:0 0 0 0 transparent}}
 </style>
 <title>Varsity Basketball</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -3955,7 +3956,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v699 · Nov 21';
+const APP_BUILD='v700 · Nov 22';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -11549,7 +11550,9 @@ document.addEventListener('click',async e=>{
   else if(a==='copyRank'){const me=meP(),info=me&&myRanks(me);if(info)copyText(rankText(info,me),'Copied. Paste it anywhere.')}
   else if(a==='meSide'){UI.meSide=t.dataset.v;render()}
   else if(a==='meEdit'){UI.meEdit=!UI.meEdit;render()}
-  else if(a==='lkBets'){const b=lkUnseen(ME.uid);UI.mtab=b.pp.length?'props':'picks';location.hash='#minigames';render()}
+  else if(a==='lkBets'){const b=lkUnseen(ME.uid);UI.mtab=b.pp.length?'props':'picks';UI.mgRes=false;location.hash='#minigames';render();
+    /* v700 (owner: "See results isn't working"): Your results is at the bottom of Pick 'em / Player props, so the button looked like it did nothing. Scroll to it and flash it. */
+    let n=0;const go=()=>{const e=document.querySelector('.bt-res');if(e&&location.hash==='#minigames'){e.scrollIntoView({behavior:'smooth',block:'start'});e.classList.remove('bt-flash');void e.offsetWidth;e.classList.add('bt-flash')}else if(++n<15)setTimeout(go,80)};setTimeout(go,120)}
   else if(a==='goLocker'){const c=$('#cfm');if(c&&!c.hidden&&typeof closeConfirm==='function')closeConfirm();location.hash='#shop'}
   else if(a==='lkTab'){UI.lk=t.dataset.v;render()}
   else if(a==='pkAd'){if(((invOf(ME.uid).fr||{}).ad)===TODAY()){say('Come back tomorrow for another free pack.');return}adPlay(()=>packOpen('rookie','ad'),1)}

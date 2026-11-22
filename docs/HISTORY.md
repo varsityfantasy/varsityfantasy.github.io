@@ -1454,3 +1454,6 @@ Football: owner-reported final Vincent Memorial 25-22 Escondido Charter.
 ## v699 Nov 21: 15 more rank card designs; equipped style skins "How you compare" (owner)
 - New `SHARE` styles: Gridiron, Chalkboard, Mint (u); Jersey stripes, Camo, Cherry blossom (r); Aurora, Honeycomb, Deep sea (e); Vice, Blackout, Thunder, Emerald (l); Royal, Ruby (m). New patterns `diag`, `yard`, `chalk`, `hex` are drawn in both `shCss()` and `shareDraw()`.
 - The equipped share style now also styles the whole Me tab "How you compare" poster (`.rk-poster.rk-sk`, `rkSkin(d)` sets the background plus CSS vars for text, numbers, tiles, font, glow and border; `rkDE` in the Me renderer). No style equipped = the old blue poster.
+
+## v700 (Nov 22): See results jumps to your results
+- Owner: the Locker's "See results" button wasn't working. It did switch to Minigames > Pick 'em / Player props, but "Your results" sits at the bottom of that page, so it looked like nothing happened. The `lkBets` handler now resets `UI.mgRes`, scrolls to `.bt-res` (retries until it renders) and flashes it (`.bt-flash`, `btFlash` keyframes).

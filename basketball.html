@@ -3846,7 +3846,8 @@ function landGo(){const a=document.querySelector('a.sport-opt:not(.on)');if(!a)r
 const REDO=[{id:'is-1',who:/^\s*isaac\s+smedra\s*$/i}];
 /* v379 (owner): put specific accounts on their box-score player's profile. Matched by the sign-in email or a profile name
    within 2 letters; the profile is set (and marked done, so no forced redo/setup) once per account (fx[id]). */
-const PROFILE_FIX=[{id:'is-p1',em:/smedra/i,nm:'isaac smedra',set:{name:'Isaac Smedra',school:"Bishop's",role:'player',sport:'fb',pos:'DEF',posLabel:'DL'},redo:'is-1'}];
+const PROFILE_FIX=[{id:'is-p1',em:/smedra/i,nm:'isaac smedra',set:{name:'Isaac Smedra',school:"Bishop's",role:'player',sport:'fb',pos:'DEF',posLabel:'DL'},redo:'is-1'},
+  {id:'jp-p1',em:/^jpeacock8826@gmail\.com$/i,nm:'justin peacock',set:{name:'Justin Peacock',school:'San Diego',role:'player',sport:'fb',pos:'DEF',posLabel:'DL'}}];   /* v702 owner: put this account on Justin Peacock's player profile */
 function profileFix(){if(ME.mode!=='live'||!ME.uid||VA||!S.loaded.profiles||window.__pfx)return;const p=myProfile()||{};
   for(const f of PROFILE_FIX){if((p.fx||{})[f.id])continue;
     const hit=f.em.test(String(ME.email||''))||(p.name&&nmLev(nmNorm(p.name),f.nm)<=2);if(!hit)continue;window.__pfx=1;
@@ -3956,7 +3957,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v701 · Nov 22';
+const APP_BUILD='v702 · Nov 22';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

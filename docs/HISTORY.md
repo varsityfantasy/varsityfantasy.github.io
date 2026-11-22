@@ -1460,3 +1460,6 @@ Football: owner-reported final Vincent Memorial 25-22 Escondido Charter.
 
 ## v701 (Nov 22): Player props crash when every game has started
 - Owner's phone: "TypeError: undefined is not an object (evaluating 'cur.id')" and See results did nothing. In the Player props game picker, the fallback list (`gl.slice()`) was taken after `gl.length=0`, so once every game with lines had started and you had no picks in them the list was empty and `cur` was undefined. Now the copy (`glAll`) is taken first, and `L` is empty if `cur` is missing.
+
+## v702 (Nov 22): Justin Peacock account fix
+- `PROFILE_FIX` entry `jp-p1`: the account signing in with jpeacock8826@gmail.com (or a profile named within 2 letters of "Justin Peacock") gets the player profile Justin Peacock · San Diego · football · DEF/DL, matching his box-score entry, the next time he opens the app.

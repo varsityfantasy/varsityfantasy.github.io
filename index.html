@@ -3945,7 +3945,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v700 · Nov 22';
+const APP_BUILD='v701 · Nov 22';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7291,13 +7291,13 @@ function propsHTML(){
     /* v270: pick a game, then see that game's player lines (no long scroll through every line) */
     const gl=[],seen={};all.forEach(x=>{const id=gid(x.game);if(!seen[id]){seen[id]={id,g:x.game,n:0,mine:0};gl.push(seen[id])}seen[id].n++;if(mine[x.id]||UI.sl.legs[x.id])seen[id].mine++});
     gl.sort((a,b)=>(a.g.d+(a.g.t||KICK))<(b.g.d+(b.g.t||KICK))?-1:1);
-    const glOpen=gl.filter(x=>!started(x.g)||x.mine);gl.length=0;gl.push(...(glOpen.length?glOpen:gl.slice()));
+    const glOpen=gl.filter(x=>!started(x.g)||x.mine),glAll=gl.slice();gl.length=0;gl.push(...(glOpen.length?glOpen:glAll));   /* v701: the fallback copy was taken after gl was emptied, so with every game started cur was undefined (crash on 'cur.id') */
     const myS=(myProfile()||{}).school,mine1=myS&&gl.find(x=>!started(x.g)&&(x.g.h===myS||x.g.a===myS));
     if(mine1&&!BBPP){const i=gl.indexOf(mine1);gl.splice(i,1);gl.unshift(mine1)}   /* v287: your own school's game comes first */
     const cur=gl.find(x=>x.id===UI.ppG)||(BBPP?null:mine1)||gl.find(x=>!started(x.g))||gl[0];
     const gbtn=x=>`<button class="pp-gm${x===cur?' on':''}" data-act="ppG" data-v="${esc(x.id)}" aria-pressed="${x===cur}"><span class="pp-gl">${slogo(x.g.a,26)}<i>at</i>${slogo(x.g.h,26)}</span><b>${esc(abbr(x.g.a))} at ${esc(abbr(x.g.h))}</b><small>${esc(fmtDate(x.g.d))} · ${x.n} ${x.n===1?'line':'lines'}${x.mine?` · <em>${x.mine} picked</em>`:''}</small></button>`;
     const pick=BBPP?[...new Set(gl.map(x=>x.g.d))].map(d=>`<div class="pp-day"><b>${esc(dayLab(d))}</b><span class="muted">${gl.filter(x=>x.g.d===d).length} ${gl.filter(x=>x.g.d===d).length===1?'game':'games'}</span></div><div class="pp-games" role="group" aria-label="Games on ${esc(fmtDate(d))}">${gl.filter(x=>x.g.d===d).map(gbtn).join('')}</div>`).join(''):`<div class="pp-games" role="group" aria-label="Choose a game">${gl.map(gbtn).join('')}</div>`;
-    const L=all.filter(x=>gid(x.game)===cur.id).sort((a,b)=>a.school===b.school?0:a.school===cur.g.a?-1:1);
+    const L=!cur?[]:all.filter(x=>gid(x.game)===cur.id).sort((a,b)=>a.school===b.school?0:a.school===cur.g.a?-1:1);
     ppPick=`<div class="qh"><h3>Pick a game</h3><span class="muted">${gl.length} ${gl.length===1?'game':'games'} with lines</span></div>${pick}`;
     /* v273: one card per player (like Sleeper): the main line shows, the player's other lines are chips to switch to */
     const byP=[],pi={};L.forEach(x=>{if(!pi[x.k]){pi[x.k]=[];byP.push(pi[x.k])}pi[x.k].push(x)});

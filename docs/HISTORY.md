@@ -1457,3 +1457,6 @@ Football: owner-reported final Vincent Memorial 25-22 Escondido Charter.
 
 ## v700 (Nov 22): See results jumps to your results
 - Owner: the Locker's "See results" button wasn't working. It did switch to Minigames > Pick 'em / Player props, but "Your results" sits at the bottom of that page, so it looked like nothing happened. The `lkBets` handler now resets `UI.mgRes`, scrolls to `.bt-res` (retries until it renders) and flashes it (`.bt-flash`, `btFlash` keyframes).
+
+## v701 (Nov 22): Player props crash when every game has started
+- Owner's phone: "TypeError: undefined is not an object (evaluating 'cur.id')" and See results did nothing. In the Player props game picker, the fallback list (`gl.slice()`) was taken after `gl.length=0`, so once every game with lines had started and you had no picks in them the list was empty and `cur` was undefined. Now the copy (`glAll`) is taken first, and `L` is empty if `cur` is missing.

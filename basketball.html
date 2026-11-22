@@ -3444,7 +3444,7 @@ let T10S=null;
 const isT10=p=>{if(!p||!p.key)return false;if(!p.ext&&PRE())return (window.BB_TOP10||[]).includes(p.key);if(UI.view==='league'&&UI.psec==='ALL'&&UI.stab==='players'&&allLoading()===0){if(!_t10A||_t10A.k!==_apl_k()){_t10A={k:_apl_k(),s:new Set(allPl().filter(x=>x.mp).map(x=>({k:x.key,v:agg(x,'season')})).filter(x=>x.v.n>0).sort((a,b)=>b.v.v-a.v.v).slice(0,10).map(x=>x.k))}}return _t10A.s.has(p.key)}if(p.ext)return secT10(p.sec).has(p.key);if(!T10S){try{T10S=new Set(players().filter(x=>x.mp).map(x=>({k:x.key,v:agg(x,'season')})).filter(x=>x.v.n>0).sort((a,b)=>b.v.v-a.v.v).slice(0,10).map(x=>x.k))}catch(_){T10S=new Set()}}return T10S.has(p.key)};
 /* Player of the Week: the top 3 fantasy scorers of the latest COMPLETED week (Monday to Sunday) that has box scores. v569 (owner): it changes on Monday morning
    (Pacific), not as games come in during the week; before any week has finished it uses the week in progress. Gets his own tag, like TOP 10. */
-const potwLim=()=>{try{return wkOf(TODAY())-1}catch(_){return 99}};
+const potwLim=()=>{try{const t=TODAY();return wkOf(t)-(new Date(t+'T12:00:00Z').getUTCDay()===0?0:1)}catch(_){return 99}}; /* v705 (owner, Nov 22): Sunday already counts as the end of the week, so the new Players of the Week show from Sunday (was Monday) */
 let POTW_C=null;
 function weekTop(sc){if(sc&&SECP[sc])return secPOTW(sc);if(POTW_C&&POTW_C.d===TODAY())return POTW_C;POTW_C={w:0,list:[],d:TODAY()};try{const ps=players().filter(x=>x.mp),lim=potwLim();let w=0,w2=0;ps.forEach(p=>p.games.forEach((g,i)=>{if(g&&g.stat){if(i+1>w2)w2=i+1;if(i+1<=lim&&i+1>w)w=i+1}}));if(!w)w=w2;
   if(w){POTW_C={d:TODAY(),w,list:ps.map(p=>{const g=p.games[w-1];return g&&g.stat?{p,v:pts(g.stat)}:null}).filter(Boolean).sort((a,b)=>b.v-a.v).slice(0,3)}}}catch(_){}return POTW_C}
@@ -3957,7 +3957,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v704 · Nov 22';
+const APP_BUILD='v705 · Nov 22';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

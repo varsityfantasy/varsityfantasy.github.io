@@ -1,5 +1,8 @@
-2026-11-23T05:56:27Z run 45120387629
+2026-11-23T05:56:36Z run 45120387629
 rosters bb: 1535 schools, 1531 with a team address (1531 from the page cache), 600 to read
 rosters done: all teams read. read 600, no player rows 114, not found 0; 16153 players on file, 11152 with a position, 15357 with a class
   331 teams from their 25-26 roster (no current roster posted yet)
   first empty page https://www.maxpreps.com/ca/santa-clara/wilcox-chargers/basketball/roster/: 222867 chars, 0 <tr>, 0 careerid, near the first one: '<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width, initial-scale=1" data-next-head=""/><meta name="robots" content="max-image-preview:large" data-next-head=""/><meta name="requestContext" content="{&quot;deviceType&quot;:&'
+round 1:
+bb: 1109 played games, 1109 already counted, 0 to fetch (0 have no box-score link)
+done: all requested games read. fetched 0, no stats on page 0, team not matched 0, not found 0

@@ -1484,3 +1484,7 @@ Merged the 8 other Nov 20 games that have MaxPreps stats (`collect_week.js` `__R
 
 ## v708 (Nov 22, owner: "last week should truly be last week, not a player's last game")
 - Football Stats "Last week" rank (`lastAgg`) now uses the real last completed week, `potwLim()` (Mon-Sat: the previous Mon-Sun week; Sunday: the week that just ended), so a player with no game that week shows no game / 0 instead of a game from weeks earlier. Basketball keeps "Last game" (`GAME_L==='Game'`).
+
+## v709 (Nov 22, owner: Justin Peacock still not on his player profile)
+- v702's `PROFILE_FIX` `jp-p1` only matched the exact email jpeacock8826@gmail.com or a profile name within 2 letters of "Justin Peacock", so a different sign-in email or a short name ("Justin P", "JP Peacock") never matched. It now also matches any email containing "peacock" or a profile name containing "peacock" with school San Diego (`sn`/`sch`). Runs once on his next open; the Me tab then shows his stats (box-score player id 911, DL, 7 games).
+- Could not check his actual account from here (Supabase is not reachable from the workspace); if it still does not take, look him up in Admin > users (name, email, `fx`).

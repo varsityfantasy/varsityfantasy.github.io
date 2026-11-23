@@ -3317,7 +3317,7 @@ const slogo=(s,size=18)=>{const u=logoFor(s);return u?`<img class="slogo" src="$
 const _pwRim=(name,seed)=>{try{const f=x=>x.p.name===name&&(x.p.school===seed||x.p.key===seed);let i=weekTop().list.findIndex(f);if(i<0){const sc=vsec()||(UI.view==='games'&&UI.sb!==HOME_SEC&&SECP[UI.sb]?UI.sb:'');if(sc)i=weekTop(sc).list.findIndex(f)}return i<0?'':i===0?' rim-g':' rim-s'}catch(_){return''}};
 const av=(name,seed,size=40,fu)=>{const ini=String(name).split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()||'?';const u=logoFor(seed);const fk=fu||seed,fr=fk&&typeof frameOf==='function'&&S.picks&&S.picks[fk]?frameOf(fk):'';   /* fu: the user whose frame to draw when seed is a school */return `<span class="av${_pwRim(name,seed)}${fr?' avf '+fr+(typeof ITEM!=='undefined'&&ITEM[fr]&&ITEM[fr].fc?' gfr'+(ITEM[fr].glow?' gfr-g':''):''):''}" style="${fr&&typeof ITEM!=='undefined'&&ITEM[fr]&&ITEM[fr].fc?`--fr1:${ITEM[fr].fc[0]};--fr2:${ITEM[fr].fc[1]};`:''}--h:${hash(seed||name)%360};width:${size}px;height:${size}px;font-size:${Math.round(size*.36)}px" aria-hidden="true">${esc(ini)}${u?`<img class="avl" src="${u}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:''}</span>`};
 /* position filters: offense by position, defense by group (DB covers CB, S and plain DB) */
-const FILTERS=['ALL','QB','RB','WR','TE','DEF','DL','LB','DB','K'];
+const FILTERS=['ALL','QB','RB','WR','TE','DL','LB','DB','K'];   /* v706 (owner): no DEF position chip, defenders are DL / LB / DB */
 const FLABEL={ALL:'All'};
 const posMatch=(p,f)=>f==='ALL'||p.pos===f||(p.pos==='DEF'&&(p.sub===f||(f==='DB'&&['CB','S','DB'].includes(p.sub))));
 /* v518 (owner): rank by exact position — a DB is ranked against DBs, not all defenders */
@@ -3946,7 +3946,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v705 · Nov 22';
+const APP_BUILD='v706 · Nov 22';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4091,7 +4091,7 @@ const slotsOf=g=>{
 const slotsFor=gid=>slotsOf(S.groups[gid]).filter(s=>!s.bench);
 const SLOTS=[
   {k:'QB',label:'QB',elig:['QB']},{k:'RB',label:'RB',elig:['RB']},{k:'WR',label:'WR',elig:['WR']},
-  {k:'TE',label:'TE',elig:['TE']},{k:'FLEX',label:'FLEX',elig:['RB','WR','TE']},{k:'DEF',label:'DEF',elig:['DEF']},{k:'K',label:'K',elig:['K']}
+  {k:'TE',label:'TE',elig:['TE']},{k:'FLEX',label:'FLEX',elig:['RB','WR','TE']},{k:'DEF',label:'DL/LB/DB',elig:['DEF']},{k:'K',label:'K',elig:['K']}
 ];
 /* Accepted trades (groups/<id>.trades) are laid over each team's saved lineup, so both sides change at once and nobody has to be online.
    An accepted trade stores, for each team, the spots it changes: spot, who was there (o), who is there after (n, empty = open spot).
@@ -7131,11 +7131,11 @@ function propCands(){
       Object.entries(PP_MK).forEach(([m,M])=>{if(M.off)return;
         if(M.pos&&!M.pos.includes(p.pos))return;
         if(BBPP){const b=bbStat(p,M,played);if(!b||b.mean<M.min)return;const line=Math.max(.5,Math.floor(b.mu)+.5),po=_pOver(b.vals,b.mu,line,!!M.y);
-          (rows[m]=rows[m]||[]).push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
+          (rows[m]=rows[m]||[]).push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
         const vals=played.map(s=>+M.f(s)||0),n=vals.length,mean=vals.reduce((a,b)=>a+b,0)/n,last=vals.slice(-3),rc=last.reduce((a,b)=>a+b,0)/last.length;
         if(mean<M.min)return;
         const mu=.6*mean+.4*rc,line=Math.max(.5,Math.floor(mu)+.5),po=_pOver(vals,mu,line,!!M.y);
-        (rows[m]=rows[m]||[]).push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
+        (rows[m]=rows[m]||[]).push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
       });
     });
     Object.entries(rows).forEach(([m,a])=>{a.sort((x,y)=>y.mean-x.mean);const top=a.slice(0,BBPP?a.length:(PP_TOP[m]||1));list.push(...top,...a.filter(x=>!top.includes(x)&&PP_ALWAYS.includes(x.name+'|'+x.school)))});
@@ -7149,12 +7149,12 @@ function propCands(){
       let played=BBPP?bbHist(p,g):p.games.map((x,i)=>x&&i+1<g.w?x.stat:null).filter(Boolean);
       if(BBPP){let bb=null;ms.forEach(([m,M])=>{const b=bbStat(p,M,played)||bbStat(Object.assign({},p,{key:'-'}),M,[{}]);if(!bb||b.mean/M.min>bb.b.mean/bb.M.min)bb={m,M,b}});
         const {m,M,b}=bb,line=Math.max(.5,Math.floor(b.mu)+.5),po=_pOver(b.vals,b.mu,line,!!M.y);
-        list.push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
+        list.push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
       if(!played.length)played=[{}];
       let bm=null;
       ms.forEach(([m,M])=>{const vals=played.map(s=>+M.f(s)||0),mean=vals.reduce((a,b)=>a+b,0)/vals.length;if(!bm||mean/M.min>bm.r)bm={m,M,vals,mean,r:mean/M.min}});
       const {m,M,vals,mean}=bm,n=vals.length,last=vals.slice(-3),rc=last.reduce((a,b)=>a+b,0)/last.length,mu=Math.max(.05,.6*mean+.4*rc),line=Math.max(.5,Math.floor(mu)+.5),po=_pOver(vals,mu,line,!!M.y);
-      list.push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
+      list.push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
     });
   })});
   const mo=Object.keys(PP_MK);

@@ -164,6 +164,7 @@ print('biggest gains',[ (round(d,1),n,s,a,b) for d,n,s,a,b in deltas[-12:]])
 print('biggest drops',[ (round(d,1),n,s,a,b) for d,n,s,a,b in deltas[:8]])
 g=[x for x in P if x['n']=='Malachi Gutierrez'];print(g[:1])
 if 'write' in sys.argv:
+    import est_pos;print('positions estimated for',est_pos.estimate(P),'defenders with no roster position')
     D['players']=P;D['updated']=datetime.date.today().strftime('%b %-d, %Y');D['games']=D.get('games') if WEEK else len([g for g in G.values() if g.get('d')])
     out=s0[:i]+json.dumps(D,separators=(',',':'),ensure_ascii=False)+';'+s0[j:]
     open(ROOT+'stats.js','w').write(out);print('written')

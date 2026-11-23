@@ -3957,7 +3957,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v705 · Nov 22';
+const APP_BUILD='v706 · Nov 22';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -7099,11 +7099,11 @@ function propCands(){
       Object.entries(PP_MK).forEach(([m,M])=>{if(M.off)return;
         if(M.pos&&!M.pos.includes(p.pos))return;
         if(BBPP){const b=bbStat(p,M,played);if(!b||b.mean<M.min)return;const line=Math.max(.5,Math.floor(b.mu)+.5),po=_pOver(b.vals,b.mu,line,!!M.y);
-          (rows[m]=rows[m]||[]).push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
+          (rows[m]=rows[m]||[]).push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
         const vals=played.map(s=>+M.f(s)||0),n=vals.length,mean=vals.reduce((a,b)=>a+b,0)/n,last=vals.slice(-3),rc=last.reduce((a,b)=>a+b,0)/last.length;
         if(mean<M.min)return;
         const mu=.6*mean+.4*rc,line=Math.max(.5,Math.floor(mu)+.5),po=_pOver(vals,mu,line,!!M.y);
-        (rows[m]=rows[m]||[]).push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
+        (rows[m]=rows[m]||[]).push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
       });
     });
     Object.entries(rows).forEach(([m,a])=>{a.sort((x,y)=>y.mean-x.mean);const top=a.slice(0,BBPP?a.length:(PP_TOP[m]||1));list.push(...top,...a.filter(x=>!top.includes(x)&&PP_ALWAYS.includes(x.name+'|'+x.school)))});
@@ -7117,12 +7117,12 @@ function propCands(){
       let played=BBPP?bbHist(p,g):p.games.map((x,i)=>x&&i+1<g.w?x.stat:null).filter(Boolean);
       if(BBPP){let bb=null;ms.forEach(([m,M])=>{const b=bbStat(p,M,played)||bbStat(Object.assign({},p,{key:'-'}),M,[{}]);if(!bb||b.mean/M.min>bb.b.mean/bb.M.min)bb={m,M,b}});
         const {m,M,b}=bb,line=Math.max(.5,Math.floor(b.mu)+.5),po=_pOver(b.vals,b.mu,line,!!M.y);
-        list.push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
+        list.push({id:g.d+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean:b.mean,rc:b.rc,n:b.n,hits:b.real.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu:b.mu,pr:b.pr});return}
       if(!played.length)played=[{}];
       let bm=null;
       ms.forEach(([m,M])=>{const vals=played.map(s=>+M.f(s)||0),mean=vals.reduce((a,b)=>a+b,0)/vals.length;if(!bm||mean/M.min>bm.r)bm={m,M,vals,mean,r:mean/M.min}});
       const {m,M,vals,mean}=bm,n=vals.length,last=vals.slice(-3),rc=last.reduce((a,b)=>a+b,0)/last.length,mu=Math.max(.05,.6*mean+.4*rc),line=Math.max(.5,Math.floor(mu)+.5),po=_pOver(vals,mu,line,!!M.y);
-      list.push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:p.pos,line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
+      list.push({id:g.w+'|'+p.key+'|'+m,k:p.key,m,w:g.w,g:gid(g),game:g,school:sc,opp,name:p.name,pos:posOf(p),line,mean,rc,n,hits:vals.filter(v=>v>line).length,over:_dec(po),under:_dec(1-po),po,mu});
     });
   })});
   const mo=Object.keys(PP_MK);

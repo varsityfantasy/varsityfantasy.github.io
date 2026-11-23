@@ -3366,10 +3366,8 @@ const posOptions=sel=>{const L=POS_PICK?POS_ALL.filter(x=>POS_PICK.includes(x[0]
 
 const blank=()=>{const o={};for(let i=0;i<KEYS.length;i++)o[KEYS[i]]=0;return o};
 const S0=o=>Object.assign(blank(),o||{});
-/* punting is scored on the game's average punt: under 30 yds 0, 30-39.9 yds 1 per punt, 40-49.9 yds 2.5 per punt, 50+ yds 3.25 per punt */
-const PUNT_TIERS=[[50,3.25],[40,2.5],[30,1]];
-const puntPts=s=>{const n=(s&&s.punts)||0;if(!n)return ((s&&s.puntYd)||0)*.05; /* punt count not imported yet: 0.5 per 10 yds */const avg=(s.puntYd||0)/n;const t=PUNT_TIERS.find(([m])=>avg>=m);return t?t[1]*n:0};
-const pts=s=>Math.round((KEYS.reduce((a,k)=>a+((s&&s[k])||0)*PTS[k],0)+puntPts(s))*10)/10;
+/* v707 (owner): no punting anywhere. puntYd, in20 and punts stay in PTS only as inert slots (worth 0) because stats.js week arrays are read by KEYS position (indexes 20-22). */
+const pts=s=>Math.round(KEYS.reduce((a,k)=>a+((s&&s[k])||0)*PTS[k],0)*10)/10;
 const sum=list=>{const o=blank();list.forEach(g=>KEYS.forEach(k=>o[k]+=(g&&g[k])||0));return o};
 const same=(a,b)=>KEYS.every(k=>((a&&a[k])||0)===((b&&b[k])||0));
 function line(pos,s){return `${s.pts} pts · ${s.reb} reb · ${s.ast} ast`}
@@ -3488,7 +3486,7 @@ const mpP=MP?MP.players.map(p=>({key:'mp'+p.id,gr:p.g||0,name:p.n,school:p.s,pos
    A side with no stats that week gets a 0 line, so it counts as a game played worth 0 points. */
 /* No cross-crediting: an offense card scores only offense, a defense card only defense.
    A one-card player who also has stats on the other side of the ball gets a second card (key + 'x') for that side,
-   and his original card keeps only its own side. Kick and punt return TDs stay with the offense card. */
+   and his original card keeps only its own side. Kick return TDs stay with the offense card. */
 const OFFK=['passYd','passTD','int','rushYd','rushTD','rec','recYd','recTD','fumLost','retTD'],DEFK=['tkl','tfl','sack','dInt','pbu','ff','fr','dTD'];
 const zeroStat=()=>Object.fromEntries(KEYS.map(k=>[k,0]));
 const keepOnly=(st,ks)=>{const o=zeroStat();ks.forEach(k=>o[k]=st[k]||0);return o};
@@ -3957,7 +3955,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v706 · Nov 22';
+const APP_BUILD='v707 · Nov 22';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

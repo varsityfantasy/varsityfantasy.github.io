@@ -1481,3 +1481,6 @@ Merged the 8 other Nov 20 games that have MaxPreps stats (`collect_week.js` `__R
 ## v707 (Nov 22, owner: "remove anything related to punting")
 - Punting is gone from the app: no punt scoring (`PUNT_TIERS`/`puntPts` removed, `in20` now 0), no "yd per punt" on kicker lines, no Punt fields in the admin stat entry (`FIELDS.K`), no Punt labels, no Punter (`P`) position in `POS_ALL`/`POS_MAP`.
 - `puntYd`, `in20`, `punts` remain in `PTS` as inert 0-point slots only because stats.js week arrays are read by KEYS position (indexes 20-22); removing them would shift TFL/PBU. Punt data in stats.js is untouched and unused.
+
+## v708 (Nov 22, owner: "last week should truly be last week, not a player's last game")
+- Football Stats "Last week" rank (`lastAgg`) now uses the real last completed week, `potwLim()` (Mon-Sat: the previous Mon-Sun week; Sunday: the week that just ended), so a player with no game that week shows no game / 0 instead of a game from weeks earlier. Basketball keeps "Last game" (`GAME_L==='Game'`).

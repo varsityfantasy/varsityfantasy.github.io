@@ -61,6 +61,27 @@
 .bk-t.ok{border-color:#3DDC84;background:rgba(61,220,132,.16)}.bk-t.no{border-color:#E5483B;background:rgba(229,72,59,.14);text-decoration:line-through}.bk-t.was{border-color:#3DDC84}.bk-t.tbd{opacity:.5;cursor:default}
 .bk-t:disabled{cursor:default}.bk-m{font-size:11px;text-align:right;opacity:.7;font-weight:700}
 .bt-res.bt-flash{animation:btFlash 1.6s ease-out 1}@keyframes btFlash{0%,30%{box-shadow:0 0 0 3px var(--accent,#3b6cff),0 0 24px rgba(59,108,255,.55)}100%{box-shadow:0 0 0 0 transparent}}
+
+/* v710 (owner): podium position/class pills readable on gold, silver and bronze (dark chips) */
+.pod .pos{background:rgba(18,14,6,.86);color:color-mix(in srgb,var(--c) 55%,#fff);box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.pod .gr{background:rgba(18,14,6,.86);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.pod .ps{color:#17130A!important;font-weight:700}
+/* v710: Players of the Week dropdown */
+.pw-h{width:100%;background:none;border:0;padding:0;cursor:pointer;color:inherit;text-align:left}
+.pw-hr{display:flex;align-items:center;gap:8px}
+.pw-cv{color:#FFC23D;transition:transform .2s ease}
+.pw-shut .pw-cv{transform:rotate(-90deg)}
+.pw-card.pw-shut{padding-bottom:12px}.pw-shut .pw-h{margin-bottom:0}
+.pw-body{animation:pwDrop .22s ease-out}
+@keyframes pwDrop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+/* v710 (owner): Deep Stats tab with a high-tech hex/pulse logo */
+.st-seg button.ds-tab b{background:linear-gradient(90deg,#7FF3FF,#4DA3FF 55%,#B58CFF);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.04em}
+.st-seg button.ds-tab .ds-ic{color:#5FE3FF;filter:drop-shadow(0 0 4px rgba(95,227,255,.75))}
+.st-seg button.ds-tab .ds-ic path:nth-of-type(3){stroke-dasharray:28;animation:dsPulse 2.4s linear infinite}
+@keyframes dsPulse{0%{stroke-dashoffset:28}60%,100%{stroke-dashoffset:0}}
+.st-seg button.ds-tab[aria-pressed=true] b{background:none;color:#2A1700}
+.st-seg button.ds-tab[aria-pressed=true] .ds-ic{color:#2A1700;filter:none}
+@media (prefers-reduced-motion:reduce){.st-seg button.ds-tab .ds-ic path{animation:none!important}.pw-body{animation:none}}
 </style>
 <title>Varsity</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -3944,7 +3965,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v709 · Nov 22';
+const APP_BUILD='v710 · Nov 23';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -9201,6 +9222,8 @@ function listHTML(){
   const left=rows.length-shown,more=rows.length>5?`<div class="btns" style="justify-content:center">${left>0?`<button class="btn ghost" data-act="more">Show ${Math.min(10,left)} more (${left} left)</button>`:''}${shown>5?`<button class="btn ghost" data-act="less">Show less</button>`:''}</div>`:'';
   return (top?podiumHTML(vis):'')+(rest.length?`<div class="board"><div class="row hd"><span class="rk">#</span><span></span><span class="who">Player</span><span class="ln">Stat line</span><span class="pt">${UI.rank==='ovr'?'Overall':UI.rank==='prev'?(GAME_L==='Game'?'Last game pts':'Last week pts'):UI.rank==='pg'&&GAME_L==='Game'?'Pts per game':'Fantasy pts'}</span></div>${rest.map(x=>rowHTML(x,x.rank)).join('')}</div>`:'')+more+leadersHTML(rows);
 }
+/* v710 (owner): Players of the Week folds up: tap its header (remembered per device) */
+const pwShut=()=>{try{return localStorage.getItem('v_pwShut')==='1'}catch(_){return false}};
 function hotHTML(sc,force){
   if(!force&&(UI.scope!=='season'||UI.pos!=='ALL'||UI.q||UI.school!=='ALL'))return'';
   const wt=weekTop(sc===undefined?vsec():sc),pd=wt.list;if(!pd.length)return'';
@@ -9210,7 +9233,7 @@ function hotHTML(sc,force){
     <span class="pw-k">${k}</span>${av(x.p.name,x.p.school,k===1?46:38)}
     <span class="pw-who"><span class="pw-nm"><b>${esc(x.p.name)}</b><em class="top10 potw${k>1?' s':''}">POTW</em>${isT10(x.p)?'<em class="top10">TOP 10</em>':''}</span><small>${esc(x.p.school)}${x.p.gr?' · '+gLbl(x.p.gr):''} · ${esc(sl(g&&g.stat))}</small></span>
     <span class="pw-pt">${f1(x.v)}<i>pts</i></span></button>`};
-  return `<section class="card pw-card"><div class="pw-h"><h3>Players of the Week</h3><span class="pw-wk">Week ${wt.w}</span></div>${pd.map((x,i)=>row(x,i+1)).join('')}</section>`;
+  const shut=pwShut();return `<section class="card pw-card${shut?' pw-shut':''}"><button class="pw-h" data-act="pwT" aria-expanded="${!shut}"><h3>Players of the Week</h3><span class="pw-hr"><span class="pw-wk">Week ${wt.w}</span><svg class="pw-cv" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>${shut?'':`<div class="pw-body">${pd.map((x,i)=>row(x,i+1)).join('')}</div>`}</section>`;
 }
 /* ---------- Stats sub-tab: position leaders, who's heating up, best single games, top teams ----------
    Built only from box-score stat lines, so it works for football and (once games are played) basketball. */
@@ -9307,7 +9330,7 @@ function statsHTML(){
     ${sxTeams(D)}`;
 }
 function viewLeague(){
-  const seg=`<div class="pr-seg st-seg s3" role="tablist" aria-label="Stats sections">${[['players','Players','Full leaderboard'],['stats','Stats','Leaders and trends'],['overall','Overall','Teams and games']].map(([v,l,d])=>`<button role="tab" data-act="stTab" data-v="${v}" aria-pressed="${UI.stab===v}" aria-selected="${UI.stab===v}">${v==='overall'?'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4zM8 6H4v1a3 3 0 0 0 4 2.8M16 6h4v1a3 3 0 0 1-4 2.8M12 13v4M8 20h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':v==='players'?'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 5a3.3 3.3 0 0 1 0 6.4M18 14.8c2 .6 3.3 2.3 3.5 5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'}<span><b>${l}</b><small>${d}</small></span></button>`).join('')}</div>`;
+  const seg=`<div class="pr-seg st-seg s3" role="tablist" aria-label="Stats sections">${[['players','Players','Full leaderboard'],['stats','Stats','Leaders and trends'],['overall','Deep Stats','Teams and games']].map(([v,l,d])=>`<button role="tab" data-act="stTab" data-v="${v}"${v==='overall'?' class="ds-tab"':''} aria-pressed="${UI.stab===v}" aria-selected="${UI.stab===v}">${v==='overall'?'<svg class="ds-ic" viewBox="0 0 24 24" width="25" height="25" aria-hidden="true"><path d="M12 1.8l8.8 5.1v10.2L12 22.2l-8.8-5.1V6.9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 5.2l5.9 3.4v6.8L12 18.8l-5.9-3.4V8.6z" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity=".45"/><path d="M5 12.6h3.2l1.6-3.4 2.3 6.2 1.9-4.4 1.2 1.6H19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="1.8" r="1.3" fill="currentColor"/><circle cx="20.8" cy="17.1" r="1.3" fill="currentColor"/><circle cx="3.2" cy="17.1" r="1.3" fill="currentColor"/></svg>':v==='players'?'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 5a3.3 3.3 0 0 1 0 6.4M18 14.8c2 .6 3.3 2.3 3.5 5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'}<span><b>${l}</b><small>${d}</small></span></button>`).join('')}</div>`;
   /* v490: another section's weekly file is fetched the first time it is picked; once it is in, everything below runs on its players */
   const xs=UI.psec!=='ALL'&&UI.psec!==HOME_SEC&&SECTIONS[UI.psec]?UI.psec:'',xr=xs?!!secPl(xs):false,xst=xs?secState(xs):'';
   const ix=(sbIdx()||{sections:{}}).sections;
@@ -9320,7 +9343,7 @@ function viewLeague(){
   const fN=(UI.scope!=='season'?1:0)+(UI.school!=='ALL'?1:0)+(UI.grade?1:0);
   const secRow=secDD('psec',(()=>{const L=[['ALL','All sections']].concat(Object.values(SECTIONS).map(x=>[x.id,x.name])),m=mySec();return ME&&ME.uid&&myProfile()&&SECTIONS[m]?[L[0],L.find(x=>x[0]===m),...L.slice(1).filter(x=>x[0]!==m)]:L})(),UI.psec);
   const secId=UI.psec==='ALL'?HOME_SEC:UI.psec;
-  if(UI.stab==='overall')return `<div class="head"><h2>Overall</h2><p>${esc(SECTIONS[secId].full)}: teams, scoring and the biggest games.</p></div>${seg}${secRow}${sbOverall(secId)}`;
+  if(UI.stab==='overall')return `<div class="head"><h2>Deep Stats</h2><p>${esc(SECTIONS[secId].full)}: teams, scoring and the biggest games.</p></div>${seg}${secRow}${sbOverall(secId)}`;
   if(UI.stab==='stats')return `<div class="head"><h2>Stats</h2><p>${secId===HOME_SEC?'Leaders, hot streaks and top teams.':esc(SECTIONS[secId].full)+': leaders by position and top teams.'}</p></div>${seg}${secRow}${secId===HOME_SEC||xr?(xr?hotHTML(xs,true):'')+statsHTML():xst==='loading'?secLoad('Crunching the stats',secId):sbSecStats(secId)}`;
   if(xs&&!xr&&xst==='loading')return `<div class="head"><h2>Players</h2><p>${esc(SECTIONS[xs].full)}, ranked by fantasy points.</p></div>${seg}${secRow}${secLoad('Rounding up players',xs)}`;
   if(xs&&!xr)return `<div class="head"><h2>Players</h2><p>${esc(SECTIONS[UI.psec].full)}, ranked by fantasy points.</p></div>${seg}${secRow}${sbPlayersHTML(UI.psec)}`;
@@ -11440,6 +11463,7 @@ document.addEventListener('click',async e=>{
     setTimeout(()=>{if(UI.cmpNew===sd){UI.cmpNew=null;UI.cmpPh=null}},1500)}
   else if(a==='cmpClear'){UI.cmp[+t.dataset.s]=null;render()}
   else if(a==='cmpReset'){UI.cmp=[null,null];render()}
+  else if(a==='pwT'){try{localStorage.setItem('v_pwShut',pwShut()?'0':'1')}catch(_){}render()}
   else if(a==='stTab'){UI.stab=['stats','overall'].includes(t.dataset.v)?t.dataset.v:'players';render()}
   else if(a==='sxPos'){UI.sx.pos=t.dataset.v;UI.sx.k='';render()}
   else if(a==='sxK'){UI.sx.k=t.dataset.v;render()}

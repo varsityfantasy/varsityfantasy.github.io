@@ -1045,14 +1045,15 @@ function pcard(x,y,w,h,e,o){o=o||{};const t=performance.now()/1000,walk=!e,ov=wa
  /* backdrop: team-colour stripes, rays for Legend and up */
  for(let k=0;k<iw;k+=6)rect(ix+k,iy,3,ih-20,'rgba(255,255,255,.05)');rect(ix,iy+ih-34,iw,14,'rgba(0,0,0,.25)');
  if('lmx'.includes(rr)&&!walk){const cx=ix+iw/2,cy=iy+34;for(let a=0;a<8;a++){const an=a/8*Math.PI*2+t*.4;for(let d=6;d<30;d+=2)rect(cx+Math.cos(an)*d,cy+Math.sin(an)*d*.8,1,1,sh(rc,.3))}}
- /* OVR + position */
- txt(String(ov),ix+2,iy+2,walk?'#8a93a6':'#fff',2,'l');
- const pp=walk?(o.pos||'--'):e.slot,pc=walk?'#59627a':posCol(pp);rect(ix+2,iy+18,tw(pp,1)+4,9,'#000');rect(ix+3,iy+19,tw(pp,1)+2,7,pc);txt(pp,ix+4,iy+19,'#14110a',1,'l',true);
- if(sc&&lgKey(sc)){rect(ix+iw-14,iy+2,13,13,'#000');lgo(sc,ix+iw-13,iy+3,11)}
- /* helmet + shoulders */
- const hs=Math.max(1,Math.floor(iw/16)),hx=Math.round(ix+iw/2-6.5*hs),hy=Math.round(iy+ih-24-9*hs-5*hs+4*hs);
- const hc1=lum(c1)<35?sh(c1,.18):c1;[[-1,0],[1,0],[0,-1],[0,1]].forEach(([a,b2])=>{pxi(HELM.jer,hx+a,hy+8*hs+b2,hs,'#000');pxi(HELM.sh,hx+a,hy+b2,hs,'#000')});pxi(HELM.jer,hx,hy+8*hs,hs,sh(hc1,-.2));pxi(HELM.sh,hx,hy,hs,hc1);pxi(HELM.st,hx,hy,hs,c2);pxi(HELM.fm,hx,hy,hs,walk?'#6b7280':'#cfd6e0');pxi(HELM.ear,hx,hy,hs,'rgba(0,0,0,.5)');rect(hx+hs*2,hy+hs,hs*3,hs,'rgba(255,255,255,.35)');
- if(walk)txt('?',hx+4*hs,hy+3*hs,'#9aa3b5',1,'c',true);
+ /* OVR top left, position top right */
+ txt(String(ov),ix+1,iy+2,walk?'#8a93a6':'#fff',2,'l');
+ const pp=walk?(o.pos||'--'):e.slot,pc=walk?'#59627a':posCol(pp),pw=tw(pp,1)+6,px2=ix+iw-pw-1;rect(px2-1,iy+2,pw+2,12,'#000');rect(px2,iy+3,pw,10,pc);rect(px2,iy+3,pw,1,sh(pc,.5));rect(px2,iy+12,pw,1,sh(pc,-.4));txt(pp,px2+3,iy+5,'#000',1,'l',true);
+ /* portrait: the school logo, big, on a light badge (helmet when there is no logo) */
+ const top=iy+19,bot=iy+ih-21,L=Math.min(iw-8,bot-top-4),lx=Math.round(ix+iw/2-L/2),ly=Math.round(top+(bot-top-L)/2);
+ if(sc&&lgKey(sc)){rect(lx-3,ly-2,L+6,L+4,'#000');rect(lx-2,ly-3,L+4,L+6,'#000');rect(lx-2,ly-1,L+4,L+2,'#f4f1e6');rect(lx-1,ly-2,L+2,L+4,'#f4f1e6');rect(lx-1,ly+L,L+2,2,'#d9d3c0');lgo(sc,lx,ly,L)}
+ else{const hs=Math.max(1,Math.floor(iw/16)),hx=Math.round(ix+iw/2-6.5*hs),hy=Math.round(top+2);
+  const hc1=lum(c1)<35?sh(c1,.18):c1;[[-1,0],[1,0],[0,-1],[0,1]].forEach(([a,b2])=>{pxi(HELM.jer,hx+a,hy+8*hs+b2,hs,'#000');pxi(HELM.sh,hx+a,hy+b2,hs,'#000')});pxi(HELM.jer,hx,hy+8*hs,hs,sh(hc1,-.2));pxi(HELM.sh,hx,hy,hs,hc1);pxi(HELM.st,hx,hy,hs,c2);pxi(HELM.fm,hx,hy,hs,walk?'#6b7280':'#cfd6e0');pxi(HELM.ear,hx,hy,hs,'rgba(0,0,0,.5)');rect(hx+hs*2,hy+hs,hs*3,hs,'rgba(255,255,255,.35)');
+  if(walk)txt('?',hx+4*hs,hy+3*hs,'#9aa3b5',1,'c',true)}
  /* name plate + rarity */
  const nm=walk?'WALK-ON':String(e.n).trim().split(/\s+/).slice(-1)[0].toUpperCase(),mx=Math.floor((iw-2)/6);
  rect(ix,iy+ih-20,iw,11,'#000');rect(ix,iy+ih-20,iw,1,rc);txt(nm.length>mx?nm.slice(0,mx-1)+'.':nm,ix+iw/2,iy+ih-18,'#fff',1,'c',true);
@@ -1066,8 +1067,8 @@ function drawTitle(){
  const sch=CFG.mode==='school';teamBanner(sch?'MY SCHOOL / REAL ROSTER':CFG.real?'MY TEAM / YOUR CARDS':'MY TEAM / SAMPLE CARDS');
  const A=lineupRows(),n=A.filter(Boolean).length;
  /* starting lineup: nine cards */
- rect(0,95,W,13,'rgba(0,0,0,.55)');rect(0,108,W,1,'#f2c230');txt('STARTING LINEUP',8,98,'#f2c230',1,'l');txt(n+'/9 ACTIVE - EMPTY SPOTS ARE WALK-ONS',112,98,'#7d8aa3',1,'l',true);
- btn(W-82,96,76,11,'EDIT ROSTER',()=>{SCR='team';TS.back='title';TS.cur=null},{c:'#f2c230'});
+ rect(0,94,W,16,'rgba(0,0,0,.6)');rect(0,110,W,1,'#f2c230');txt('STARTING LINEUP',8,99,'#f2c230',1,'l');txt(n+'/9 ACTIVE',112,99,'#9fb7a0',1,'l',true);
+ {const pu=Math.round((Math.sin(performance.now()/300)+1)*1.5);rect(W-121-pu,93-pu,116+2*pu,18+2*pu,'rgba(125,255,125,.25)')}btn(W-120,94,114,16,'EDIT ROSTER  >',()=>{SCR='team';TS.back='title';TS.cur=null},{c:'#7dff7d'});
  const cw=49,gp=3,x0=Math.round((W-(9*cw+8*gp))/2);
  A.forEach((e,i)=>{const x=x0+i*(cw+gp);btns.push({x,y:113,w:cw,h:84,fn:()=>{SCR='team';TS.back='title';TS.cur=e?e.key:null}});pcard(x,113,cw,84,e,{i})});
  /* season bar */
@@ -1075,8 +1076,9 @@ function drawTitle(){
  const live=SS&&SS.sl&&!SS.done&&SS.res.some(x=>!x.bye),fresh=!live;
  pxi(PX.cup,20,by+10,2,'#f2c230');
  txt(fresh?'SEASON':'SEASON - '+LVL[SS.lvl].n,44,by+8,'#fff',1,'l');
- txt(fresh?(SS&&SS.done?(SS.champ?'CHAMPIONS! START A NEW SEASON':'SEASON OVER. START A NEW ONE'):'PLAY YOUR REAL SCHEDULE, THEN THE PLAYOFFS'):ssLab(ssIdx())+' NEXT - RECORD '+ssWins()+'-'+ssLoss(),44,by+22,fresh?'#9fb7a0':'#7dff7d',1,'l',true);
- btn(W-150,by+8,134,24,live?'CONTINUE':'PLAY SEASON',()=>{if(!SS||!SS.sl||SS.done||(!SS.res.some(x=>!x.bye)&&SS.real!==((CFG.team&&CFG.team.s)||'')))ssNew();SCR='season'},{c:'#f2c230',sc:1})}
+ txt(fresh?(SS&&SS.done?(SS.champ?'CHAMPIONS!':'SEASON OVER'):'NEW SEASON'):ssLab(ssIdx())+' NEXT - RECORD '+ssWins()+'-'+ssLoss(),44,by+22,fresh?'#9fb7a0':'#7dff7d',1,'l',true);
+ if(fresh){txt('DIFFICULTY',190,by+5,'#9fb7a0',1,'c',true);LVL.forEach((q,i)=>{const x=148+i*44,on=CFG.lvl===i,cc=['#7dff7d','#f2c230','#ff8b5a'][i];btn(x,by+15,42,18,q.n.slice(0,7),()=>{CFG.lvl=i},{c:on?cc:'#2a3346',tc:on?'#14110a':'#8a93a6'})})}
+ btn(W-150,by+8,134,24,live?'CONTINUE':'PLAY SEASON',()=>{const nw=!SS||!SS.sl||SS.done||!SS.res.some(x=>!x.bye);if(nw){ssNew();SS.lvl=CFG.lvl;SS.lk=true;ssSave()}SCR='season'},{c:'#f2c230',sc:1})}
 
 /* ---------- team screen (School / My Team) and the school picker ---------- */
 const TS={sel:0,pk:0,ly:null,back:null,pf:false};

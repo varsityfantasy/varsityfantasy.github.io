@@ -561,7 +561,12 @@ function stepDef(dt){
   let tx,ty;
   const ballIn=S.ball&&!S.ball.done&&!S.ball.drop;
   if(C){sp*=1.5;tx=C.x+C.vx*.25;ty=C.y+C.vy*.25;if(d.fr>t){sp*=.2;if(d.role==='dl'||d.role==='lb'){/* still blocked */}}}
-  else if(ballIn&&S.ball.t>.15&&d.fr<=t+3&&Math.hypot(d.x-S.land.x,d.y-S.land.y)<(d.role==='dl'?30:90)){tx=S.land.x;ty=S.land.y;sp*=1.05}
+  else if(ballIn&&d.role!=='dl'&&!d.blitz&&S.ball.t>(d.rd==null?(d.rd=.06+(1-d.a)*.22):d.rd)){
+   /* owner Nov 25: once the ball is up, coverage players read it (reaction 0.06-0.28 s by rating) and attack: the one who can get there
+      plays the ball at the catch spot, the others close on the intended receiver so they can hit him or strip it */
+   const tg=S.tgt,toLand=Math.hypot(d.x-S.land.x,d.y-S.land.y),left=Math.max(.05,S.ball.T-S.ball.t),reach=d.spd*1.25*left;
+   if(toLand<=reach+18||!tg){tx=S.land.x;ty=S.land.y;sp*=1.15}else{tx=tg.x+(S.land.x-tg.x)*.5;ty=tg.y+(S.land.y-tg.y)*.5;sp*=1.05}}
+  else if(ballIn&&S.ball.t>.15&&d.fr<=t+3&&Math.hypot(d.x-S.land.x,d.y-S.land.y)<30){tx=S.land.x;ty=S.land.y;sp*=1.05}
   else if(d.role==='dl'||(d.blitz)){tx=Q.x;ty=Q.y+(d.fr>t?((d.y0||CY)-CY)*.75:0);if(d.fr>t){const u=clamp((t-S.snapT)/Math.max(.5,d.fr-S.snapT),0,1);sp*=.28+.6*u*u;tx=Math.max(Q.x+15,Q.x+(d.fr-t)*10)}}
   else if(d.man){if(d.tt<=0){d.tx=d.man.x+(d.cush||13);d.ty=d.man.y+(d.late?rnd(-9,9):0);d.tt=(d.late?.9:.5)+rnd(0,.3)}tx=d.tx;ty=d.ty;if(S.pl.k==='run'&&!S.handed){tx=d.x;ty=d.y}if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:(P.rb.x+20);ty=S.carrier?S.carrier.y:P.rb.y}}
   else if(d.zone){let best=null,bd=46;P.rc.forEach(r=>{const dd=Math.hypot(r.x-d.zone.x,r.y-d.zone.y);if(dd<bd){bd=dd;best=r}});if(best){if(d.tt<=0){d.tx=best.x+12;d.ty=best.y;d.tt=.42}tx=d.tx;ty=d.ty}else{tx=d.zone.x;ty=d.zone.y}
@@ -756,7 +761,7 @@ function gesture(p,dx,dy,l,dt){
  if(ph==='presnap'){const R=P&&P.rb;if(R&&l<14&&Math.hypot(p.x+camX-R.x,p.y-FT-R.y)<22){const run=pick(RUNS);setupPlay(run);G.curPlay=run;snap()}return}
  if(ph==='play'){const S=G.pl;
   if(S.done)return;
-  if(S.carrier){const C=S.carrier;if(l>20&&dt<320){juke(C,dx,dy)}else if(l<12&&dt<300){dive(C)}return}
+  if(S.carrier){const C=S.carrier;if(l>20&&dt<320){if(dx>0&&dx>Math.abs(dy)*1.2)dive(C);else juke(C,dx,dy)}else if(l<12&&dt<300){dive(C)}return}
   if(!S.thrown&&S.pl.k==='pass'){const a=ptr.aim;ptr.aim=null;if(a){if(a.x<P.qb.x-3)scramble();else throwAt(a.x,a.y,a.lob)}}
   return}
  if(ph==='result'&&G.rt>.5){advance();return}
@@ -768,11 +773,12 @@ function aimInfo(){const Q=P&&P.qb;if(!Q||!ptr.down)return null;const vx=ptr.sx-
 function advance(){const n=G.next;G.next=null;G.msg=null;if(n)n()}
 function snap(){if(G.phase!=='presnap')return;G.phase='play';if(G.pl)G.pl.snapT=.04;G.hintN++;sfx.whistle();ptr.hitb=null}
 function onKey(e){if(G&&G.phase==='meter'&&(e.key===' '||e.key==='Enter')){e.preventDefault();fgTap();return}if(G&&G.phase==='presnap'&&(e.key===' '||e.key==='Enter'))snap();
- /* computer: up / down arrows (or W / S) juke sideways, left arrow (or A) hops back; no jukes forward */
+ /* computer: up / down arrows (or W / S) juke sideways, left arrow (or A) hops back, right arrow (or D) or space dives forward. Phone: swipe up/down to juke, swipe forward (or tap) to dive */
  if(G&&G.phase==='play'&&G.pl&&G.pl.carrier&&!G.pl.done&&!paused){const k=e.key,C=G.pl.carrier;
   if(k==='ArrowUp'||k==='w'||k==='W'){e.preventDefault();juke(C,0,-10)}
   else if(k==='ArrowDown'||k==='s'||k==='S'){e.preventDefault();juke(C,0,10)}
   else if(k==='ArrowLeft'||k==='a'||k==='A'){e.preventDefault();juke(C,0,0,true)}
+  else if(k==='ArrowRight'||k==='d'||k==='D'){e.preventDefault();dive(C)}
   else if(k===' '){e.preventDefault();dive(C)}}}
 addEventListener('keydown',onKey);
 addEventListener('message',ev=>{const d=ev.data;if(d&&d.vb==='key'&&typeof d.k==='string')onKey({key:d.k,preventDefault(){}})});

@@ -1530,3 +1530,8 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 - Existing lockers: `cardsOf` shows each player card once at his band (memo `_cof`), `cardVers` includes 'x' for player cards; `pcSync()` (runs with the other account checks) rewrites the account's own saved `inv.cards` to `{band:1}` (other versions set to 0) whenever they differ, so OVR changes later re-sync too. Extra versions of the same player collapse into one card (no tokens back).
 - `CARD_PCT.x=125`; locker sort/filter know 'x'. Team, duo, special (sc:) and achievement (ac:) cards unchanged.
 - Varsity Bowl: `VB_BUMP` emptied (no rarity bonus). The game also now has 9-active-player lineups (tools/gridiron).
+
+## Varsity Bowl career mode (Nov 25, tools/gridiron/varsity-bowl.html)
+- Lineups: 9 active players in both modes (`luCap`, `curLineup`, `setLineup`, walk-ons OVR 50 fill open spots, `buildRoster(list,keys,mod)`); team OVR = average of the 9.
+- Career per team (`car()`, localStorage `vs-vb-career`): coach points (CP), facilities `FAC` (Weight Room, Track, Film Room +2 attrs/level; Training Room fewer injuries), training (+1 attribute point for 6 CP, `atTot`), morale per player (`morOf`, `carMod` applies facilities + morale to your roster), injuries per season (`SS.inj`), postgame screen with CP breakdown + press conference (`ssCareer`, `pressQ`, `pressAns`, `drawPress`), weekly challenges (`CHAL`, `ssChal`, +15 CP), rivalry week = last regular-season game (`ssRiv`, opponent +4, double CP), trophy case (`drawFac`).
+- Menus: lineup shown as player cards (`pcard`, rarity colour by OVR, big school logo), difficulty chosen in the season bar or season screen before week 1 and locked.

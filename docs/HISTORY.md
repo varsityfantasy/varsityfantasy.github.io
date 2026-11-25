@@ -1503,3 +1503,7 @@ Merged the 8 other Nov 20 games that have MaxPreps stats (`collect_week.js` `__R
 ## v712 (Nov 24, evening scheduled update)
 - Football: no played games without a score. Basketball: added San Diego Academy 42, Southern California Yeshiva 26 (Nov 19, SI scoreboard). 72 other past basketball games still have no score found (Nov 18 Borrego Springs/King-Chavez was not final on SI; most Nov 20-24 games not posted yet).
 - Triggered "Collect section players" for basketball (`players-bb`) for Nov 22-24 box scores. Football skipped (last run read every game already). Last football roster run STOPPED: first 30 MaxPreps roster pages had no player rows (page format changed?).
+
+## v713 (Nov 24, owner: Poway's record was wrong)
+- Poway showed 7-5 (5-5 regular season); MaxPreps has 6-6 (4-6). The Sep 18 game was Poway AT Mount Miguel (games.js had it reversed): Poway won 42-12 on the field but it was ruled a forfeit win for Mount Miguel (MaxPreps schedule "L 42-12 (FF)").
+- New optional games.js field `fw:'h'|'a'` = forfeit winner. `fRes(g,home)` makes the team page record (`viewTeam`, both copies of the per-game W/L), standings (`standingsHTML`) and the game card winner (`gameCard`) follow it; the on-field score and player stats stay. The game carries `r` (shown under the card): "Poway won 42-12 on the field; Mount Miguel win by forfeit". Poway now 6-6, Mount Miguel 2-8.

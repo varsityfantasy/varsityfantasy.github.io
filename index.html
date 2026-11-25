@@ -3965,7 +3965,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v712 · Nov 24';
+const APP_BUILD='v713 · Nov 24';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -4500,7 +4500,7 @@ function projTag(p){
 UI.gw=null;UI.gschool='ALL';UI.gdiv=null;UI.gtab='sched';UI.pk={};UI.at={};
 const tlk=n=>n&&SD_SCHOOLS.includes(n)?`<button class="tlk" data-act="team" data-t="${esc(n)}">${esc(n)}</button>`:esc(n||'TBD');
 function gameCard(g,opts={}){
-  const done=g.hs!=null&&g.as!=null,hw=done&&g.hs>g.as,aw=done&&g.as>g.hs;
+  const done=g.hs!=null&&g.as!=null,hw=done&&(g.fw?g.fw==='h':g.hs>g.as),aw=done&&(g.fw?g.fw==='a':g.as>g.hs);
   const side=(n,s,win,seed)=>`<div class="gm-t ${win?'win':''} ${done&&!win?'lose':''}">${slogo(n,26)}<b>${seed?`<small class="gm-seed">${seed}</small>`:''}${tlk(n)}</b><span class="gm-s">${done?s:''}</span></div>`;
   const tag=g.k==='P'?'<span class="gm-k p">Playoffs</span>':g.k==='L'?'<span class="gm-k">League</span>':'';
   return `<article class="gm ${opts.mine?'mine':''}">
@@ -4566,6 +4566,8 @@ function viewSched(head){
 /* ---------- games: schedule and standings, and picks ---------- */
 const gid=g=>g.w+'|'+g.h+'|'+g.a;
 const gDone=g=>g.hs!=null&&g.as!=null;
+/* v713 (owner): a forfeit keeps the on-field score (player stats still count) but the record goes to the forfeit winner: g.fw='h'|'a'. fRes = 1 win / -1 loss / 0 = use the score. */
+const fRes=(g,home)=>g.fw?((g.fw==='h')===home?1:-1):0;
 const TOK0=200;   /* v358 (owner): everyone starts with 200 (was 100). Balances are worked out from this, so existing accounts got the extra 100 too */
 /* v558 (owner): invite link. Everyone has a link <site>/?ref=<8 letters of their id>. A new account that signs up through it and finishes its profile gets
    REF_PAY tokens, and so does the person who invited them. It is stored on the new person's PROFILE (profiles/<uid>.ref={by,at}), which both apps share, so
@@ -4710,7 +4712,7 @@ function rwHTML(){
     <ul>${rwList().map(([k,l])=>`<li class="${have[k]?'ok':''}"><span class="rw-c" aria-hidden="true">${have[k]?'✓':''}</span><span>${esc(l)}</span><b>+${RW_PAY}</b></li>`).join('')}</ul></div>`}
 function standingsHTML(gs,school){
   const t={};
-  gs.filter(gDone).forEach(g=>{[[g.h,g.hs,g.as],[g.a,g.as,g.hs]].forEach(([n,f,a])=>{if(!SD_SCHOOLS.includes(n))return;const x=t[n]=t[n]||{n,w:0,l:0,t:0,pf:0,pa:0};x.pf+=f;x.pa+=a;if(f>a)x.w++;else if(f<a)x.l++;else x.t++})});
+  gs.filter(gDone).forEach(g=>{[[g.h,g.hs,g.as,true],[g.a,g.as,g.hs,false]].forEach(([n,f,a,hm])=>{if(!SD_SCHOOLS.includes(n))return;const x=t[n]=t[n]||{n,w:0,l:0,t:0,pf:0,pa:0};x.pf+=f;x.pa+=a;const fr=fRes(g,hm);if(fr?fr>0:f>a)x.w++;else if(fr?fr<0:f<a)x.l++;else x.t++})});
   /* section (playoff division) and seed for every team in a known bracket */
   const dv={};PO_DEFS.forEach(d=>d.rounds.forEach(r=>r.games.forEach(([p,q])=>[p,q].forEach(z=>{if(z.n&&!z.from)dv[z.n]={div:d.div,seed:z.s}}))));
   const OTHER='Division not set yet',divs=PO_DEFS.map(d=>d.div).concat([OTHER]);
@@ -9016,7 +9018,7 @@ function sbTeamPage(D,id){
   const hero=`<section class="card tm-hero"><span class="tm-logo">${sbLogo(t.name,64)}</span><div><h2>${esc(t.name)}</h2><p class="muted">${n?`<b>${rec}</b> · ${t.pf} points for, ${t.pa} against`:'No games played yet'}${t.league?' · '+esc(t.league):''}${t.city?' · '+esc(t.city):''}</p></div>${back}</section>`;
   let rw=0,rl=0,rt=0;
   const grows=gs.map(g=>{const home=mine(g),opp=home?g.away:g.home,oT=sbTD(D,home?g.away_id:g.home_id,opp),f=home?g.hs:g.as,a=home?g.as:g.hs,done=g.hs!=null&&g.as!=null;let res='';
-    if(done){if(f>a){rw++;res='W'}else if(f<a){rl++;res='L'}else{rt++;res='T'}}
+    if(done){const fr=fRes(g,home);if(fr?fr>0:f>a){rw++;res='W'}else if(fr?fr<0:f<a){rl++;res='L'}else{rt++;res='T'}}
     return `<div class="tm-g ${res}"><span class="tm-gd">${esc(sbDay(g.date))}</span><span class="tm-go"><span class="tm-lg">${sbLogo(opp,22)}</span><span>${sbTeamLink(oT,opp)}</span></span>${done?`<span class="tm-gs"><b class="tm-r">${res}</b> ${f}-${a}</span><span class="tm-rec">${rw}-${rl}${rt?'-'+rt:''}</span>`:`<span class="tm-gs muted">${g.time?esc(g.time):'Upcoming'}</span><span class="tm-rec"></span>`}</div>`}).join('');
   const games=`<section class="card"><div class="qh"><h3>Games</h3><span class="muted">${n?'Record '+rec:gs.length+' scheduled'}</span></div>${gs.length?`<div class="tm-gl">${grows}</div>`:'<p class="empty">No games on the schedule.</p>'}</section>`;
   const X=secPl(UI.sb),ps=X?X.list.filter(q=>q.school===t.name).map(q=>({p:q,a:agg(q,'season')})).filter(x=>x.a.n>0||!x.p.games.some(Boolean)).sort((x,y)=>y.a.v-x.a.v||(y.p.gr||0)-(x.p.gr||0)||x.p.name.localeCompare(y.p.name)):[];   /* v499: the whole roster, also players with no game yet (basketball's first weeks) */
@@ -9091,7 +9093,7 @@ function viewTeam(){
   const back=`<button class="btn sm ghost" data-act="tback">← Back</button>`;
   if(!name||!SD_SCHOOLS.includes(name)&&!gs.length)return `<div class="head"><h2>Team</h2></div><p class="empty">We could not find that team.</p>${back}`;
   let w=0,l=0,t=0,pf=0,pa=0;
-  gs.filter(gDone).forEach(g=>{const f=g.h===name?g.hs:g.as,a=g.h===name?g.as:g.hs;pf+=f;pa+=a;if(f>a)w++;else if(f<a)l++;else t++});
+  gs.filter(gDone).forEach(g=>{const f=g.h===name?g.hs:g.as,a=g.h===name?g.as:g.hs,fr=fRes(g,g.h===name);pf+=f;pa+=a;if(fr?fr>0:f>a)w++;else if(fr?fr<0:f<a)l++;else t++});
   let div='',seed='';PO_DEFS.forEach(d=>d.rounds.forEach(r=>r.games.forEach(([p,q])=>[p,q].forEach(z=>{if(z.n===name&&!z.from){div=d.div;seed=z.s}}))));
   const rec=`${w}-${l}${t?'-'+t:''}`;
   const hero=`<section class="card tm-hero"><span class="tm-logo">${slogo(name,64)||av(name,name,64)}</span><div><h2>${esc(name)}</h2><p class="muted">${gs.some(gDone)?`<b>${rec}</b> · ${pf} points for, ${pa} against`:'No games played yet'}${div?` · ${esc(div)}${seed?' · seed '+seed:''}`:''}</p></div>${back}</section>`;
@@ -9099,7 +9101,7 @@ function viewTeam(){
   let rw=0,rl=0,rt=0;
   const dt=d=>d?new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
   const grows=gs.map(g=>{const home=g.h===name,opp=home?g.a:g.h,f=home?g.hs:g.as,a=home?g.as:g.hs,done=gDone(g);let res='';
-    if(done){if(f>a){rw++;res='W'}else if(f<a){rl++;res='L'}else{rt++;res='T'}}
+    if(done){const fr=fRes(g,home);if(fr?fr>0:f>a){rw++;res='W'}else if(fr?fr<0:f<a){rl++;res='L'}else{rt++;res='T'}}
     return `<div class="tm-g ${res}"><span class="tm-gd">${esc(dt(g.d)||'Wk '+g.w)}</span><span class="tm-go"><span class="tm-lg">${slogo(opp,22)}</span><span>${tlk(opp)}${g.k==='P'?'<i class="tm-po">Playoffs</i>':''}</span></span>${done?`<span class="tm-gs"><b class="tm-r">${res}</b> ${f}-${a}</span><span class="tm-rec">${rw}-${rl}${rt?'-'+rt:''}</span>`:`<span class="tm-gs muted">${g.time?esc(g.time):'Upcoming'}</span><span class="tm-rec"></span>`}</div>`}).join('');
   const games=`<section class="card"><div class="qh"><h3>Games</h3><span class="muted">${gs.some(gDone)?'Record '+rec:gs.length+' scheduled'}</span></div>${gs.length?`<div class="tm-gl">${grows}</div>`:'<p class="empty">No games on the schedule.</p>'}</section>`;
   /* roster: every player, best to worst by season fantasy points */

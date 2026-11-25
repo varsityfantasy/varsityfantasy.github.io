@@ -1510,3 +1510,4 @@ Merged the 8 other Nov 20 games that have MaxPreps stats (`collect_week.js` `__R
 
 ## Varsity Bowl home screen (Nov 24, owner: "QUICK -> QUICK PLAY, make the first screen nicer")
 - `drawHome()` redrawn: three chunky striped tiles (`homeTile`) with new pixel icons (`PXH.cards`, `PXH.school`, `PXH.vs`), a short line above each name (YOUR CARDS / 86 REAL ROSTERS / PLAY A FRIEND) and an ONLINE tag on 1V1; QUICK is now a wide green QUICK MATCH bar (first named QUICK PLAY) under them (football icon, "ONE GAME WITH YOUR TEAM, RIGHT NOW", pulsing arrow). Same actions as before. The faint VARSITY watermark is gone.
+Varsity Bowl jukes (owner, Nov 24): up/down jukes keep moving forward a bit (`juke`: velocity 32 px/s forward + 66 px/s sideways, about 25 degrees ahead of straight sideways; same 0.14 s length). The back hop is unchanged.

@@ -392,7 +392,7 @@ function carrierMove(C,dt){
   C.vx+=(nx*sp-C.vx)*Math.min(1,9*dt);C.vy+=(ny*sp-C.vy)*Math.min(1,9*dt);C.x+=C.vx*dt;C.y+=C.vy*dt;C.ph+=Math.hypot(C.vx,C.vy)*dt/7;if(Math.abs(C.vx)>6)C.f=C.vx>0?1:-1}
  afterMove(C)}
 function afterMove(C){const S=G.pl;if(C.x>=GOAL){endPlay('td',GOAL);return}if(C.y<2||C.y>FH-2){C.y=clamp(C.y,2,FH-2);endPlay('oob',C.x,'OUT OF BOUNDS')}}
-function juke(C,dx,dy,back){if(C.dive>0)return;if(!back&&Math.abs(dy)<4)return;C.tired=Math.min(.2,(C.tired||0)+.015);dx=back?-1:0;dy=back?0:dy>0?1:-1;C.jk=.14;C.jvx=dx*72;C.jvy=dy*72;C.imm=Math.max(C.imm,.14);C.jcd=0;C.manual=true;
+function juke(C,dx,dy,back){if(C.dive>0)return;if(!back&&Math.abs(dy)<4)return;C.tired=Math.min(.2,(C.tired||0)+.015);dx=back?-1:.45;dy=back?0:dy>0?.92:-.92;C.jk=.14;C.jvx=dx*72;C.jvy=dy*72;/* owner Nov 24: side jukes keep some forward drive (about 25 deg ahead), not straight up/down */C.imm=Math.max(C.imm,.14);C.jcd=0;C.manual=true;
  let fooled=0;for(const d of P.def){if(dst(d,C)<30&&Math.random()<.5+((C.q?C.q.spd:C.a)-d.a)*.4+.15){d.imm=.8;d.slow=.6;fooled++}}
  sfx.tap()}
 function dive(C){if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}

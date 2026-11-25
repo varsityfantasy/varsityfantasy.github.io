@@ -150,3 +150,244 @@ josh-liguori||475c3bcb-9d2|9|5|1|1|0|0|0
 ezekiel-gachalian||475c3bcb-9d2|2|2|0|0|0|0|0
 jacob-nguyen||475c3bcb-9d2|4|2|0|1|0|0|0
 samuel-jahries||475c3bcb-9d2|26|5|2|1|2|0|0
+#2026-11-19|Chula Vista|Bayfront Charter
+aaron-marucut||c6e1415a-fae|2|3|0|3|0|0|0
+caleb-vizcaino||c6e1415a-fae|3|2|0|2|0|0|0
+daniel-herrera||c6e1415a-fae|0|0|1|0|0|0|0
+diego-fred||c6e1415a-fae|4|2|1|0|0|0|0
+drake-verdida||c6e1415a-fae|13|1|1|2|0|0|0
+emilio-reynoso||c6e1415a-fae|9|3|0|2|0|0|0
+isiah-orta||c6e1415a-fae|12|7|2|3|3|0|0
+jaylen-clark||c6e1415a-fae|6|1|2|4|0|0|0
+kaleb-horton||c6e1415a-fae|2|1|0|2|0|0|0
+led-priela||c6e1415a-fae|0|1|1|1|0|0|0
+michael-culhane||c6e1415a-fae|0|1|1|0|0|0|0
+myking-mitchell||c6e1415a-fae|5|4|0|4|0|0|0
+myshawn-mitchell||c6e1415a-fae|2|3|1|1|2|0|0
+wyatt-richards||c6e1415a-fae|0|0|2|1|0|0|0
+#2026-11-19|Escondido Adventist Academy|Valley Center
+danny-gambetta||76585ec4-8c6|2|1|0|0|0|0|0
+gareth-browning||76585ec4-8c6|0|3|0|0|0|0|0
+keidan-burden||76585ec4-8c6|2|0|0|0|0|0|0
+michael-hebbel||76585ec4-8c6|2|3|0|0|1|0|0
+sam-gomez-lopez||76585ec4-8c6|5|3|1|1|0|0|0
+zach-baker||76585ec4-8c6|28|2|1|3|3|0|0
+#2026-11-19|Valley Center|Escondido Adventist Academy
+aaren-devers||673c037d-ae9|7|0|0|0|0|0|0
+aswut-toscano||673c037d-ae9|4|0|0|0|0|0|0
+bridger-andreasen||673c037d-ae9|2|0|0|0|0|0|0
+chace-paxton||673c037d-ae9|18|0|0|0|0|0|0
+cyrus-castro||673c037d-ae9|2|0|0|0|0|0|0
+joel-herrera||673c037d-ae9|6|0|0|0|0|0|0
+jose-vargas||673c037d-ae9|2|0|0|0|0|0|0
+joshua-janata||673c037d-ae9|2|0|0|0|0|0|0
+judah-stehly||673c037d-ae9|3|0|0|0|0|0|0
+pierce-hall||673c037d-ae9|19|0|0|0|0|0|0
+stephen-isaac||673c037d-ae9|11|0|0|0|0|0|0
+trent-english||673c037d-ae9|5|0|0|0|0|0|0
+tyson-le||673c037d-ae9|2|0|0|0|0|0|0
+#2026-11-20|Hilltop|Liberty Charter
+adrian-alvarez||ec21ffde-b21|20|4|4|2|0|3|0
+aidan-buenrostro||ec21ffde-b21|4|2|0|2|4|2|0
+ami-blea||ec21ffde-b21|2|1|3|0|0|1|0
+braylon-gonzalez||ec21ffde-b21|2|3|0|0|0|0|0
+clarence-clay||ec21ffde-b21|0|2|1|0|1|1|0
+dejanie-best||ec21ffde-b21|4|4|0|2|0|1|0
+emiliano-mejia-cross||ec21ffde-b21|0|3|1|0|0|0|0
+ethan-segovia||ec21ffde-b21|6|3|1|2|0|0|0
+jonah-bee||ec21ffde-b21|3|1|0|1|0|2|0
+pierce-gigear||ec21ffde-b21|7|1|3|1|0|1|0
+sebastian-vazquez||ec21ffde-b21|5|1|0|0|0|2|0
+#2026-11-20|Holtville|Escondido
+adrien-valdovinos||7b821e87-ca3|6|2|0|0|0|0|0
+aiden-lyerly||7b821e87-ca3|2|1|2|2|0|0|0
+anthony-cortez||7b821e87-ca3|5|2|2|0|1|0|0
+david-sussex||7b821e87-ca3|37|2|2|0|0|3|0
+marcos-garcia||7b821e87-ca3|10|4|4|0|1|0|0
+salvador-lopez||7b821e87-ca3|0|0|0|1|0|2|0
+talen-nelson||7b821e87-ca3|5|3|0|2|0|0|0
+zavien-aguirre||7b821e87-ca3|0|1|0|1|1|1|0
+#2026-11-20|La Jolla|University City
+clint-keckeisen||582fa2b1-19e|0|4|2|1|0|1|0
+jacob-fechner||582fa2b1-19e|0|0|3|0|0|2|0
+jake-hunter||582fa2b1-19e|19|3|5|1|0|8|0
+kellen-mcgrath||582fa2b1-19e|2|0|0|0|0|0|0
+lawrence-duffin-iv||582fa2b1-19e|10|1|1|0|1|0|0
+lino-maricic||582fa2b1-19e|8|1|0|1|0|1|0
+matthew-smith||582fa2b1-19e|2|1|0|0|0|1|0
+nick-muus||582fa2b1-19e|9|2|0|0|0|2|0
+sean-bannon||582fa2b1-19e|0|1|0|1|0|0|0
+wyatt-belt||582fa2b1-19e|15|6|7|1|0|2|0
+#2026-11-20|San Marcos|Francis Parker
+aarav-sobti||ff3dcd2f-cde|6|0|1|0|0|2|0
+brody-barnhart||ff3dcd2f-cde|0|1|0|0|0|0|0
+cj-johnson||ff3dcd2f-cde|15|3|4|2|0|3|0
+marcus-tuason||ff3dcd2f-cde|8|3|3|0|0|0|0
+nico-mott||ff3dcd2f-cde|13|4|5|2|0|5|0
+ryan-jacobs||ff3dcd2f-cde|10|2|3|1|0|1|0
+sebastian-singh||ff3dcd2f-cde|10|5|0|2|0|4|0
+#2026-11-20|Southwest SD|Castle Park
+alex-cardoso||19409229-676|28|0|0|0|0|0|0
+christian-borja||19409229-676|6|0|0|0|0|0|0
+elijah-lewis||19409229-676|3|0|0|0|0|0|0
+jeffrey-tolberg||19409229-676|8|0|0|0|0|0|0
+jose-sainz||19409229-676|8|0|0|0|0|0|0
+leo-holguin||19409229-676|8|0|0|0|0|0|0
+marco-armenta||19409229-676|7|0|0|0|0|0|0
+sergio-alvarez||19409229-676|2|0|0|0|0|0|0
+#2026-11-20|Torrey Pines|El Camino
+andre-chung||ad43e80f-229|11|7|4|1|0|3|0
+brady-clark||ad43e80f-229|11|7|2|1|0|2|0
+brandon-sykes||ad43e80f-229|0|1|0|0|0|2|0
+hollis-sohn||ad43e80f-229|3|6|0|1|0|3|0
+jack-spetter||ad43e80f-229|2|2|1|1|0|1|0
+lucas-albright||ad43e80f-229|11|13|0|0|3|3|0
+mattias-vosloo||ad43e80f-229|2|0|3|0|0|0|0
+teddy-malewicz||ad43e80f-229|0|3|2|0|0|0|0
+tyler-humphrey||ad43e80f-229|22|7|2|1|2|4|0
+#2026-11-20|University City|La Jolla
+cyrell-harris||32f08693-bcf|6|0|2|2|0|1|0
+isaac-hudson||32f08693-bcf|17|8|2|1|0|2|0
+jennings-tallman||32f08693-bcf|8|5|1|2|0|2|0
+joaquin-vivek||32f08693-bcf|2|0|0|2|0|1|0
+jrue-frazier||32f08693-bcf|8|0|0|6|0|2|0
+mathias-baluyot||32f08693-bcf|8|3|10|1|0|5|0
+mohammed-abumettleq||32f08693-bcf|0|2|2|0|1|0|0
+tucker-wojdowski||32f08693-bcf|2|0|0|0|0|0|0
+#2026-11-21|Maranatha Christian|Granite Hills
+axel-erlendsen||02a2c472-986|3|0|0|0|0|0|0
+ethan-ekwueme||02a2c472-986|7|0|0|0|0|0|0
+john-beals||02a2c472-986|1|0|0|0|0|0|0
+josiah-chen||02a2c472-986|2|0|0|0|0|0|0
+zeek-ozeruga||02a2c472-986|44|0|0|0|0|0|0
+#2026-11-21|Patrick Henry|Chaminade
+anthony-tabar||e71f479e-b2c|9|6|3|1|0|1|0
+jack-gendron||e71f479e-b2c|14|5|0|0|0|0|0
+jax-verdin||e71f479e-b2c|0|1|1|0|0|0|0
+jonah-miller||e71f479e-b2c|6|5|1|1|0|4|0
+kymani-joseph||e71f479e-b2c|9|3|1|1|0|3|0
+louel-tadesse||e71f479e-b2c|5|0|5|2|0|9|0
+maximo-mineo||e71f479e-b2c|3|3|1|0|0|2|0
+roman-campisi||e71f479e-b2c|9|2|0|1|0|1|0
+ryan-miller||e71f479e-b2c|2|2|0|0|0|0|0
+#2026-11-21|The Cambridge School|Warner
+andric-wen||e1699eaa-1a9|0|0|2|0|0|0|0
+elijah-perez||e1699eaa-1a9|0|2|0|1|0|0|0
+jacob-golden||e1699eaa-1a9|18|6|0|0|0|0|0
+jeffrey-kim||e1699eaa-1a9|3|0|1|3|0|0|0
+levi-werner||e1699eaa-1a9|8|1|0|1|0|0|0
+maddox-foust||e1699eaa-1a9|16|13|1|5|0|0|0
+mateo-bonilla||e1699eaa-1a9|11|2|1|1|0|0|0
+#2026-11-23|Chula Vista|El Cajon Valley
+aaron-marucut||c6e1415a-fae|5|2|0|0|0|0|0
+caleb-vizcaino||c6e1415a-fae|0|2|0|0|0|0|0
+daniel-herrera||c6e1415a-fae|0|0|2|1|2|0|0
+drake-verdida||c6e1415a-fae|14|2|3|5|0|0|0
+emilio-reynoso||c6e1415a-fae|9|1|0|2|0|0|0
+isiah-orta||c6e1415a-fae|4|6|0|2|1|0|0
+jaylen-clark||c6e1415a-fae|3|3|2|4|1|0|0
+led-priela||c6e1415a-fae|0|1|0|1|0|0|0
+michael-culhane||c6e1415a-fae|2|2|0|2|0|0|0
+myking-mitchell||c6e1415a-fae|3|3|1|2|1|0|0
+myshawn-mitchell||c6e1415a-fae|6|4|0|2|1|0|0
+wyatt-richards||c6e1415a-fae|10|3|0|3|0|0|0
+#2026-11-23|Granite Hills|Vista Murrieta
+brendan-fullerton||aa2f89a2-015|8|1|1|1|0|0|0
+brett-stout||aa2f89a2-015|3|8|2|0|0|0|0
+ezra-jordan||aa2f89a2-015|0|2|0|0|0|0|0
+griffith-duffy||aa2f89a2-015|1|2|1|1|0|0|0
+kris-mays||aa2f89a2-015|13|3|2|0|1|0|0
+levi-moore||aa2f89a2-015|2|5|1|0|0|0|0
+roman-martinez||aa2f89a2-015|4|2|1|1|0|0|0
+#2026-11-23|Maranatha Christian|Canyon Crest Academy
+axel-erlendsen||02a2c472-986|6|0|0|0|0|0|0
+ethan-ekwueme||02a2c472-986|14|0|0|0|0|0|0
+john-beals||02a2c472-986|4|0|0|0|0|0|0
+zeek-ozeruga||02a2c472-986|23|0|0|0|0|0|0
+#2026-11-23|Santana|Mar Vista
+anthony-ajmayah||1125d6e8-e66|3|4|4|3|1|2|0
+david-lamey||1125d6e8-e66|8|5|1|2|0|2|0
+daxton-burroughs||1125d6e8-e66|11|5|5|3|0|4|0
+derek-pennington||1125d6e8-e66|6|3|1|2|0|0|0
+ethan-miller||1125d6e8-e66|6|1|1|0|0|0|0
+jack-lord||1125d6e8-e66|10|1|3|3|0|0|0
+kaiden-ross||1125d6e8-e66|6|1|0|1|0|0|0
+landon-braaksma||1125d6e8-e66|2|7|0|1|0|1|0
+ray-torranto||1125d6e8-e66|6|1|2|3|0|1|0
+will-wolchko||1125d6e8-e66|10|7|3|2|0|1|0
+#2026-11-23|The Cambridge School|Bonsall
+andric-wen||e1699eaa-1a9|0|6|1|0|0|0|0
+jacob-golden||e1699eaa-1a9|11|10|0|3|0|0|0
+levi-werner||e1699eaa-1a9|8|3|0|0|0|0|0
+maddox-foust||e1699eaa-1a9|13|20|1|1|0|0|0
+mateo-bonilla||e1699eaa-1a9|14|4|2|1|0|0|0
+#2026-11-23|Torrey Pines|Mission Bay
+andre-chung||ad43e80f-229|7|2|2|2|0|3|0
+brandon-sykes||ad43e80f-229|2|3|0|0|0|2|0
+hollis-sohn||ad43e80f-229|2|1|4|1|0|1|0
+jack-spetter||ad43e80f-229|2|6|0|0|0|2|0
+lucas-albright||ad43e80f-229|16|12|0|1|0|1|0
+mattias-vosloo||ad43e80f-229|5|2|1|2|0|0|0
+teddy-malewicz||ad43e80f-229|6|0|1|0|0|2|0
+tyler-humphrey||ad43e80f-229|19|8|2|2|1|5|0
+#2026-11-23|West Hills|Verdugo Hills
+andrew-palin||fe6cd6e7-3e9|0|4|1|0|0|1|0
+brenden-montano||fe6cd6e7-3e9|0|1|0|0|0|1|0
+cruz-castaneda||fe6cd6e7-3e9|2|1|3|0|0|1|0
+elijah-demers||fe6cd6e7-3e9|0|0|0|0|0|2|0
+jackson-davis||fe6cd6e7-3e9|16|6|0|0|2|1|0
+jaymz-shaw||fe6cd6e7-3e9|5|3|4|2|0|3|0
+jose-belnavis||fe6cd6e7-3e9|0|1|0|0|0|0|0
+malekai-dillon||fe6cd6e7-3e9|28|8|1|4|1|3|0
+miles-masek||fe6cd6e7-3e9|4|7|1|0|0|2|0
+noah-spencer||fe6cd6e7-3e9|0|2|2|0|0|2|0
+zach-spicer||fe6cd6e7-3e9|0|1|0|1|0|1|0
+#2026-11-24|Holtville|Kofa
+adrien-valdovinos||7b821e87-ca3|9|3|2|0|0|2|0
+aiden-lyerly||7b821e87-ca3|5|7|4|0|0|1|0
+anthony-cortez||7b821e87-ca3|7|2|0|0|0|0|0
+beau-williams||7b821e87-ca3|3|0|0|0|0|0|0
+david-sussex||7b821e87-ca3|27|6|3|0|0|2|0
+marcos-garcia||7b821e87-ca3|4|2|1|0|0|0|0
+talen-nelson||7b821e87-ca3|4|3|0|0|1|0|0
+zavien-aguirre||7b821e87-ca3|7|3|1|0|1|0|0
+#2026-11-24|Maranatha Christian|Vista Murrieta
+axel-erlendsen||02a2c472-986|5|0|0|0|0|0|0
+ethan-ekwueme||02a2c472-986|5|0|0|0|0|0|0
+josiah-chen||02a2c472-986|2|0|0|0|0|0|0
+zeek-ozeruga||02a2c472-986|16|0|0|0|0|0|0
+#2026-11-24|Sage Creek|Mira Mesa
+cole-creighton||475c3bcb-9d2|1|0|0|1|0|0|0
+jacob-nguyen||475c3bcb-9d2|9|2|3|2|0|0|0
+jayden-bringas||475c3bcb-9d2|1|3|1|0|1|0|0
+jaylon-davis||475c3bcb-9d2|23|4|2|0|0|0|0
+josh-liguori||475c3bcb-9d2|10|5|1|5|0|0|0
+samuel-jahries||475c3bcb-9d2|30|6|2|1|1|0|0
+#2026-11-24|San Marcos|Murrieta Valley
+aarav-sobti||ff3dcd2f-cde|11|7|2|1|1|1|0
+brody-barnhart||ff3dcd2f-cde|3|0|0|0|0|2|0
+cj-johnson||ff3dcd2f-cde|13|6|4|3|0|2|0
+marcus-tuason||ff3dcd2f-cde|2|1|1|0|0|4|0
+nico-mott||ff3dcd2f-cde|44|4|6|5|0|1|0
+ryan-jacobs||ff3dcd2f-cde|2|4|0|1|2|3|0
+sebastian-singh||ff3dcd2f-cde|2|7|0|0|2|2|0
+stephen-stagnaro||ff3dcd2f-cde|0|1|0|0|0|0|0
+#2026-11-24|Santana|Verdugo Hills
+anthony-ajmayah||1125d6e8-e66|0|0|1|0|0|0|0
+david-lamey||1125d6e8-e66|7|7|0|2|0|2|0
+daxton-burroughs||1125d6e8-e66|9|5|5|2|1|3|0
+derek-pennington||1125d6e8-e66|0|2|0|0|0|0|0
+ethan-miller||1125d6e8-e66|10|8|0|1|0|2|0
+jack-lord||1125d6e8-e66|4|3|0|3|0|2|0
+kaiden-ross||1125d6e8-e66|0|1|0|0|0|0|0
+landon-braaksma||1125d6e8-e66|3|3|1|0|0|0|0
+ray-torranto||1125d6e8-e66|0|0|1|0|0|0|0
+will-wolchko||1125d6e8-e66|19|5|3|0|4|2|0
+#2026-11-24|Southwest SD|Clairemont
+alex-cardoso||19409229-676|14|0|0|0|0|0|0
+christian-borja||19409229-676|5|0|0|0|0|0|0
+jeffrey-tolberg||19409229-676|4|0|0|0|0|0|0
+jose-sainz||19409229-676|4|0|0|0|0|0|0
+leo-holguin||19409229-676|8|0|0|0|0|0|0
+marco-armenta||19409229-676|2|0|0|0|0|0|0
+sergio-alvarez||19409229-676|2|0|0|0|0|0|0

@@ -702,15 +702,37 @@ function drawHUD(){
  const C=(G.phase==='play'&&G.pl&&G.pl.carrier)||null,who=C||(P&&P.qb&&(G.phase==='play'||G.phase==='presnap')?P.qb:null);
  if(who&&(G.phase==='play'||G.phase==='presnap'))txt(who.name+' ['+(who.role==='qb'?'QB':who.role==='rb'?'RB':who.role==='te'?'TE':'WR')+'] '+who.o,36,H-12,'#fff',1)}
 
-/* ---------- home: three ways to play ---------- */
+/* ---------- home: pick how to play (owner, Nov 24: nicer home, QUICK renamed QUICK PLAY) ---------- */
+const PXH={school:['.....#.....','.....##....','.....#.....','....###....','...#####...','.#########.','###########','#.#.#.#.#.#','#.#.#.#.#.#','#.#.#.#.#.#','###########'],
+ vs:['#...#..####','#...#.#....','.#.#...###.','.#.#......#','..#...####.'],
+ cards:['....#######','....#.....#','#######...#','#.....#...#','#..#..#...#','#.###.#...#','#..#..#...#','#.....#####','#.....#....','#######....']};
+/* home tile: chunky 3D block, stripes, big pixel icon, two-line label */
+function homeTile(x,y,w,h,c,fn,icon,label,sub,tag){btns.push({x,y,w,h,fn});
+ const down=ptr.down&&ptr.hitb&&ptr.hitb.x===x&&ptr.hitb.y===y,d=down?2:0,ink=sh(c,-.72);
+ rect(x-1,y-1,w+2,h+2,'#000');rect(x,y+h-4,w,4,sh(c,-.45));rect(x,y+d,w,h-4,c);
+ for(let k=-h;k<w;k+=12)for(let r=2;r<h-31;r++){const xx=x+k+r;if(xx>x+1&&xx<x+w-2){rect(xx,y+d+r,3,1,'rgba(255,255,255,.09)')}}
+ rect(x,y+d+h-30,w,26,sh(c,-.12));rect(x,y+d+h-31,w,1,'rgba(0,0,0,.25)');
+ rect(x,y+d,w,2,sh(c,.5));rect(x,y+d+2,2,h-8,sh(c,.25));rect(x+w-2,y+d+2,2,h-8,sh(c,-.15));
+ rect(x-1,y-1,2,2,'#000');rect(x+w-1,y-1,2,2,'#000');rect(x-1,y+h-1,2,2,'#000');rect(x+w-1,y+h-1,2,2,'#000');
+ const S=3,iw=icon[0].length*S,ih=icon.length*S,ix=Math.round(x+w/2-iw/2),iy=Math.round(y+d+(h-30-ih-10)/2)+1;pxi(icon,ix+2,iy+2,S,'rgba(0,0,0,.28)');pxi(icon,ix,iy,S,ink);
+ txt(label,x+w/2,y+d+h-27,ink,2,'c',true);
+ if(tag){const tw2=tw(tag,1)+8;rect(x+w-tw2-4,y+d+5,tw2+2,11,'#000');rect(x+w-tw2-3,y+d+6,tw2,9,ink);txt(tag,x+w-tw2/2-3,y+d+7,c,1,'c',true)}
+ if(sub)txt(sub,x+w/2,y+d+h-42,sh(c,-.5),1,'c',true)}
 function drawHome(){
- bgHero();
- logo(10,4);
- const opts=[['MY TEAM',['BUILT FROM','YOUR CARDS'],'#f2c230',()=>{setMode('cards');SCR='title'}],
-  ['MY SCHOOL',['ANY SCHOOL,','REAL ROSTER'],'#9fd8ff',()=>{if(schoolList().length){TS.pf=true;if(!CFG.school)CFG.school=schoolList()[0];setMode('school');TS.pf=true;SCR='pick'}else{setMode('cards');SCR='title'}}],
-  ['1V1',['ONLINE VS','A FRIEND'],'#ff8b5a',()=>{setMode('cards');SCR='v1'}],
-  ['QUICK',['ONE GAME,','RIGHT NOW'],'#7dff7d',()=>{SCR='game';resetGame()}]];
- txt('VARSITY',W/2,H-34,'rgba(255,255,255,.16)',3,'c',true);opts.forEach((o,i)=>{const w=111,x=6+i*118,y=112,h=82;panel(x-3,y-3,w+6,h+6,'rgba(6,12,20,.8)');btn(x,y,w,h,'',o[3],{c:o[2]});txt(o[0],x+w/2,y+14,'#14110a',2,'c',true);rect(x+12,y+36,w-24,1,'rgba(0,0,0,.4)');rect(x+12,y+37,w-24,1,'rgba(255,255,255,.35)');txt(o[1][0],x+w/2,y+48,'#14110a',1,'c',true);txt(o[1][1],x+w/2,y+61,'#14110a',1,'c',true)});
+ bgHero();rect(0,92,W,H-92,'rgba(0,0,0,.25)');
+ logo(8,4);
+ const t=performance.now()/1000,w=148,gap=8,x0=Math.round((W-(3*w+2*gap))/2),y=96,h=88;
+ homeTile(x0,y,w,h,'#f2c230',()=>{setMode('cards');SCR='title'},PXH.cards,'MY TEAM','YOUR CARDS',null);
+ homeTile(x0+w+gap,y,w,h,'#9fd8ff',()=>{if(schoolList().length){TS.pf=true;if(!CFG.school)CFG.school=schoolList()[0];setMode('school');TS.pf=true;SCR='pick'}else{setMode('cards');SCR='title'}},PXH.school,'MY SCHOOL','86 REAL ROSTERS',null);
+ homeTile(x0+2*(w+gap),y,w,h,'#ff8b5a',()=>{setMode('cards');SCR='v1'},PXH.vs,'1V1','PLAY A FRIEND','ONLINE');
+ /* QUICK PLAY: wide primary button */
+ const qy=y+h+8,qw=3*w+2*gap,qh=40,qc='#58e06a';btns.push({x:x0,y:qy,w:qw,h:qh,fn:()=>{SCR='game';resetGame()}});
+ const down=ptr.down&&ptr.hitb&&ptr.hitb.x===x0&&ptr.hitb.y===qy,d=down?2:0;
+ rect(x0-1,qy-1,qw+2,qh+2,'#000');rect(x0,qy+qh-4,qw,4,sh(qc,-.45));rect(x0,qy+d,qw,qh-4,qc);rect(x0,qy+d,qw,2,sh(qc,.5));
+ rect(x0-1,qy-1,2,2,'#000');rect(x0+qw-1,qy-1,2,2,'#000');rect(x0-1,qy+qh-1,2,2,'#000');rect(x0+qw-1,qy+qh-1,2,2,'#000');
+ pxi(PX.ball,x0+13,qy+d+9,2,'rgba(0,0,0,.3)');pxi(PX.ball,x0+12,qy+d+8,2,'#7a3d12');pxi(PX.lace,x0+12,qy+d+8,2,'#fff');
+ txt('QUICK PLAY',x0+42,qy+d+7,'#0d2410',2,'l',true);txt('ONE GAME WITH YOUR TEAM, RIGHT NOW',x0+42,qy+d+24,sh(qc,-.6),1,'l',true);
+ const pulse=Math.round((Math.sin(t*4)+1)*2);pxi(['#....','##...','###..','####.','###..','##...','#....'],x0+qw-24+pulse,qy+d+11,2,'#0d2410');
 }
 /* ---------- 1v1: drive by drive against a friend ---------- */
 const NETV={role:'',code:'',ch:null,bc:null,sb:null,st:'',err:'',last:0,opp:null,tm:0},SB_URL='https://urdkamhsdjhzhrjwzyoq.supabase.co',SB_KEY='sb_publishable_Kwc2VdtM1AbcKB7xgsOhlw_KOw02EOb';

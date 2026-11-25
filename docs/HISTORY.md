@@ -1507,3 +1507,6 @@ Merged the 8 other Nov 20 games that have MaxPreps stats (`collect_week.js` `__R
 ## v713 (Nov 24, owner: Poway's record was wrong)
 - Poway showed 7-5 (5-5 regular season); MaxPreps has 6-6 (4-6). The Sep 18 game was Poway AT Mount Miguel (games.js had it reversed): Poway won 42-12 on the field but it was ruled a forfeit win for Mount Miguel (MaxPreps schedule "L 42-12 (FF)").
 - New optional games.js field `fw:'h'|'a'` = forfeit winner. `fRes(g,home)` makes the team page record (`viewTeam`, both copies of the per-game W/L), standings (`standingsHTML`) and the game card winner (`gameCard`) follow it; the on-field score and player stats stay. The game carries `r` (shown under the card): "Poway won 42-12 on the field; Mount Miguel win by forfeit". Poway now 6-6, Mount Miguel 2-8.
+
+## Varsity Bowl home screen (Nov 24, owner: "QUICK -> QUICK PLAY, make the first screen nicer")
+- `drawHome()` redrawn: three chunky striped tiles (`homeTile`) with new pixel icons (`PXH.cards`, `PXH.school`, `PXH.vs`), a short line above each name (YOUR CARDS / 86 REAL ROSTERS / PLAY A FRIEND) and an ONLINE tag on 1V1; QUICK is now a wide green QUICK PLAY bar under them (football icon, "ONE GAME WITH YOUR TEAM, RIGHT NOW", pulsing arrow). Same actions as before. The faint VARSITY watermark is gone.

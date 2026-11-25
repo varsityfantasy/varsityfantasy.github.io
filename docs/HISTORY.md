@@ -1493,3 +1493,9 @@ Merged the 8 other Nov 20 games that have MaxPreps stats (`collect_week.js` `__R
 - Podium cards (Players tab): position and class-year pills are dark chips (`.pod .pos`, `.pod .gr`) so they read on gold, silver and bronze (the bronze #3 card was unreadable).
 - Players of the Week card folds up: tap its header (`data-act="pwT"`, `pwShut()`, remembered per device in localStorage `v_pwShut`).
 - The Stats page's third tab "Overall" is now "Deep Stats" with a hex/pulse logo (`.ds-tab`, `.ds-ic`); the page heading too. The tab's key is still `overall`. The "Overall" rank chip and OVR are unchanged.
+
+## v711 (Nov 24, owner: player props still showed University City vs Steele Canyon and nothing for the finals)
+- Player props list every scheduled game without a score (`propCands`, `gDone`), so the Nov 20 University City @ Steele Canyon game (no score in games.js) kept its props, and the finals had none because they were not in games.js.
+- games.js: University City 57, Steele Canyon 56 (Nov 20, MaxPreps scoreboard). Added the five week-15 finals from the MaxPreps scoreboard (away @ home): Fri Nov 27 Maranatha Christian @ Valley Center (D-IV, 3p), Torrey Pines @ Oceanside (D-I, 7p); Sat Nov 28 Hoover @ Morse (D-V, 12p), University City @ San Diego High (D-III, 3:30p), Poway @ St. Augustine (D-II, 7:30p). Props now cover exactly those 5 games (31-47 lines each).
+- Standing rule: whenever a round ends, add the score AND the next round's games so props move to the upcoming games.
+- UC/Steele Canyon player box score not merged: MaxPreps game pages return 406 from the browser right now.

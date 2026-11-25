@@ -21,7 +21,7 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 
 /* ---------- bitmap font (5x7) ---------- */
 const FONT={};(()=>{const S='A:01110,10001,10001,11111,10001,10001,10001;B:11110,10001,10001,11110,10001,10001,11110;C:01110,10001,10000,10000,10000,10001,01110;D:11110,10001,10001,10001,10001,10001,11110;E:11111,10000,10000,11110,10000,10000,11111;F:11111,10000,10000,11110,10000,10000,10000;G:01110,10001,10000,10111,10001,10001,01111;H:10001,10001,10001,11111,10001,10001,10001;I:01110,00100,00100,00100,00100,00100,01110;J:00111,00010,00010,00010,00010,10010,01100;K:10001,10010,10100,11000,10100,10010,10001;L:10000,10000,10000,10000,10000,10000,11111;M:10001,11011,11111,10101,10001,10001,10001;N:10001,11001,10101,10011,10001,10001,10001;O:01110,10001,10001,10001,10001,10001,01110;P:11110,10001,10001,11110,10000,10000,10000;Q:01110,10001,10001,10001,10101,10010,01101;R:11110,10001,10001,11110,10100,10010,10001;S:01111,10000,10000,01110,00001,00001,11110;T:11111,00100,00100,00100,00100,00100,00100;U:10001,10001,10001,10001,10001,10001,01110;V:10001,10001,10001,10001,10001,01010,00100;W:10001,10001,10001,10101,10101,11011,10001;X:10001,10001,01010,00100,01010,10001,10001;Y:10001,10001,01010,00100,00100,00100,00100;Z:11111,00001,00010,00100,01000,10000,11111;0:01110,10001,10011,10101,11001,10001,01110;1:00100,01100,00100,00100,00100,00100,01110;2:01110,10001,00001,00010,00100,01000,11111;3:11110,00001,00001,01110,00001,00001,11110;4:00010,00110,01010,10010,11111,00010,00010;5:11111,10000,11110,00001,00001,10001,01110;6:00110,01000,10000,11110,10001,10001,01110;7:11111,00001,00010,00100,01000,01000,01000;8:01110,10001,10001,01110,10001,10001,01110;9:01110,10001,10001,01111,00001,00010,01100;.:00000,00000,00000,00000,00000,01100,01100;-:00000,00000,00000,11111,00000,00000,00000;+:00000,00100,00100,11111,00100,00100,00000;::00000,01100,01100,00000,01100,01100,00000;!:00100,00100,00100,00100,00100,00000,00100;?:01110,10001,00001,00010,00100,00000,00100;/:00001,00001,00010,00100,01000,10000,10000;\':00100,00100,01000,00000,00000,00000,00000;,:00000,00000,00000,00000,01100,00100,01000;>:10000,01000,00100,00010,00100,01000,10000;<:00001,00010,00100,01000,00100,00010,00001;[:01110,01000,01000,01000,01000,01000,01110;]:01110,00010,00010,00010,00010,00010,01110;&:01100,10010,10100,01000,10101,10010,01101;%:11001,11010,00010,00100,01000,01011,10011';
-S.split(';').forEach(e=>{const k=e[0],rows=e.slice(2).split(',').map(r=>parseInt(r,2));FONT[k]=rows});FONT[' ']=[0,0,0,0,0,0,0]})();
+S.split(';').forEach(e=>{const k=e[0],rows=e.slice(2).split(',').map(r=>parseInt(r,2));FONT[k]=rows});FONT[' ']=[0,0,0,0,0,0,0];FONT['&']=[12,18,20,8,21,18,13];FONT[':']=[0,12,12,0,12,12,0];FONT["'"]=[4,4,8,0,0,0,0];FONT[',']=[0,0,0,0,12,4,8]})();
 function drawStr(s,x,y,c,sc){g.fillStyle=c;for(let i=0;i<s.length;i++){const gl=FONT[s[i]];if(!gl)continue;for(let r=0;r<7;r++){const row=gl[r];if(!row)continue;for(let k=0;k<5;k++)if(row&(16>>k))g.fillRect(x+(i*6+k)*sc,y+r*sc,sc,sc)}}}
 function tw(s,sc){return String(s).length*6*(sc||1)-(sc||1)}
 function txt(s,x,y,c,sc,al,ns){s=String(s).toUpperCase();sc=sc||1;const w=tw(s,sc);if(al==='c')x-=w/2;else if(al==='r')x-=w;x=Math.round(x);y=Math.round(y);if(!ns)drawStr(s,x+sc,y+sc,'#000',sc);drawStr(s,x,y,c,sc);return w}
@@ -154,24 +154,40 @@ let SCR='home',G=null,P=null,camX=0,camT=0,tNow=0,paused=false,btns=[],fx=[],fla
 const TEAMS=[null,null];
 /* season: 8 games, then up to 3 playoff rounds for 5+ wins; saved on this device */
 /* season (owner, Nov 19): 11 regular-season weeks = 10 games + 1 bye, then QUARTER/SEMI/FINAL if you win 6 of 10 */
-const SSK='vs-vb-ssn2',PO=['QUARTERFINAL','SEMIFINAL','CHAMPIONSHIP'],REG=11,NEEDW=6;
+/* season (owner, Nov 24): the team's REAL 2026 schedule from VB_DATA.sched (every regular-season game in order, real bye weeks, then its real
+   playoff opponents; rounds are added up to the championship with the best remaining teams). Teams without a schedule get the old random
+   season: 10 games + 1 bye, QUARTER/SEMI/FINAL. Win about 60% of the regular-season games to make the playoffs. */
+const SSK='vs-vb-ssn3';
 let SS=null;try{SS=JSON.parse(localStorage.getItem(SSK)||'null')}catch(_){}
 const ssSave=()=>{try{localStorage.setItem(SSK,JSON.stringify(SS))}catch(_){}};
-function ssNew(){const nm=CFG.opps.slice().sort(()=>Math.random()-.5);let pool=nm;while(pool.length<REG+3)pool=pool.concat(nm.length?nm:[{n:'RIVALS',c1:'#c8102e',c2:'#ffffff'}]);SS={res:[],opps:pool.slice(0,REG+3),bye:3+Math.floor(Math.random()*6),lvl:CFG.lvl,ql:CFG.ql,done:false,champ:false,msg:''};ssSave()}
-const ssIdx=()=>SS.res.length,ssLab=i=>i<REG?'WEEK '+(i+1):PO[i-REG];
-const ssReg=()=>SS.res.slice(0,REG).filter(r=>!r.bye);
+function oppObj(n){const d=VBD&&VBD.schools[n];return d?{n:nmS(n),s:n,c1:d.c[0],c2:d.c[1],ov:schOv(n)}:{n:String(n).toUpperCase().slice(0,16),c1:'#4a4f5c',c2:'#ffffff',ov:64}}
+function ssNew(){const me=CFG.team&&CFG.team.s,sc=me&&VBD&&VBD.sched&&VBD.sched[me];let sl=[],real='';
+ if(sc&&sc.filter(x=>!x[4]).length>=4){real=me;const rg=sc.filter(x=>!x[4]),po=sc.filter(x=>x[4]);
+  for(let w=rg[0][0];w<=rg[rg.length-1][0];w++){const gm=rg.filter(x=>x[0]===w);if(!gm.length)sl.push({bye:1});else gm.forEach(x=>sl.push({o:oppObj(x[2]),h:x[3],d:x[1]}))}
+  const used=new Set(po.map(x=>x[2]));const extra=(CFG.opps||[]).filter(o=>!used.has(o.s)).sort((x,y)=>(y.ov||0)-(x.ov||0));
+  const rounds=Math.max(3,po.length),pl=po.map(x=>({o:oppObj(x[2]),h:x[3],d:x[1],po:1}));let ei=0;while(pl.length<rounds)pl.unshift({o:extra[ei++]||oppObj('RIVALS'),po:1});
+  SS={sl:sl.concat(pl),reg:sl.length}}
+ else{const nm=CFG.opps.slice().sort(()=>Math.random()-.5);let pool=nm;while(pool.length<13)pool=pool.concat(nm.length?nm:[{n:'RIVALS',c1:'#c8102e',c2:'#ffffff'}]);
+  const by=3+Math.floor(Math.random()*6);for(let i=0;i<10;i++){if(i===by)sl.push({bye:1});sl.push({o:pool[i],h:i%2})}
+  SS={sl:sl.concat(pool.slice(10,13).map(o=>({o,po:1}))),reg:11}}
+ const ng=SS.sl.slice(0,SS.reg).filter(x=>!x.bye).length,np=SS.sl.length-SS.reg;
+ Object.assign(SS,{real,ng,need:Math.max(1,Math.round(ng*.6)),pn:['FIRST ROUND','QUARTERFINAL','SEMIFINAL','CHAMPIONSHIP'].slice(-np),res:[],lvl:CFG.lvl,ql:CFG.ql,done:false,champ:false,msg:''});
+ while(SS.sl[SS.res.length]&&SS.sl[SS.res.length].bye)SS.res.push({bye:1});ssSave()}
+const ssIdx=()=>SS.res.length,ssLab=i=>i<SS.reg?'WEEK '+(i+1):SS.pn[i-SS.reg];
+const ssReg=()=>SS.res.slice(0,SS.reg).filter(r=>!r.bye);
 const ssWins=()=>ssReg().filter(r=>r.me>r.op).length;
 const ssLoss=()=>ssReg().filter(r=>r.me<r.op).length;
+const ssOpp=i=>(SS.sl[i]||{}).o||{n:'RIVALS',c1:'#c8102e',c2:'#ffffff'};
 /* simulate a game: drive-by-drive dice using team strength (your TEAM OVR vs the opponent's rating) */
 function simScore(my,op,drives){let a=0,b=0;const pd=clamp(.3+(my-op)*.009,.08,.62),po=clamp(.3+(op-my)*.009,.08,.62);
  for(let i=0;i<drives;i++){let r=Math.random();if(r<pd)a+=Math.random()<.92?7:6;else if(r<pd+.14)a+=3;r=Math.random();if(r<po)b+=Math.random()<.92?7:6;else if(r<po+.14)b+=3}return[a,b]}
-function ssOppO(i){const op=SS.opps[i]||{};return Math.min(99,LVL[SS.lvl].o+i*1.3+(op.ov?clamp((op.ov-66)*.45,-6,8):0))}
+function ssOppO(i){const op=ssOpp(i);return Math.min(99,LVL[SS.lvl].o+i*1.3+(op.ov?clamp((op.ov-66)*.45,-6,8):0))}
 function ssSim(){const i=ssIdx();let [me,op]=simScore(teamOvr(),ssOppO(i),9);if(me===op){if(Math.random()<.5)me+=3;else op+=3}ssAfter({me,op,sim:1})}
 function simRest(){if(!G||G.vs||G.prac||G.over)return;const left=((4-G.q)*CFG.ql+G.clock)/(4*CFG.ql),d=Math.max(0,Math.round(9*left));const [a,b]=simScore(teamOvr(),G.oppO,d);G.score[0]+=a;G.score[1]+=b;if(G.score[0]===G.score[1]){if(Math.random()<.5)G.score[0]+=3;else G.score[1]+=3}G.q=4;G.clock=0;G.over=true;paused=false;P=null;G.pl=null;toFinal()}
-function ssPlay(){const i=ssIdx();CFG.lvl=SS.lvl;CFG.ql=120;SCR='game';resetGame({opp:SS.opps[i],bump:i*1.3,ssn:true})}
-function ssAfter(r){SS.res.push(r);if(SS.res.length===SS.bye)SS.res.push({bye:1});const i=SS.res.length;
- if(i===REG&&!r.bye){const w=ssWins(),l=ssLoss();if(w<NEEDW){SS.done=true;SS.msg='MISSED THE PLAYOFFS / '+w+'-'+l}else SS.msg='PLAYOFFS! YOU WENT '+w+'-'+l}
- else if(i>REG){if(r.me<=r.op){SS.done=true;SS.msg='KNOCKED OUT IN THE '+PO[i-REG-1]}else if(i===REG+3){SS.done=true;SS.champ=true;SS.msg='CHAMPIONS!'}}
+function ssPlay(){const i=ssIdx();CFG.lvl=SS.lvl;CFG.ql=120;SCR='game';resetGame({opp:ssOpp(i),bump:i*1.3,ssn:true})}
+function ssAfter(r){SS.res.push(r);while(SS.sl[SS.res.length]&&SS.sl[SS.res.length].bye)SS.res.push({bye:1});const i=SS.res.length;
+ if(i===SS.reg){const w=ssWins(),l=ssLoss();if(w<SS.need){SS.done=true;SS.msg='MISSED THE PLAYOFFS / '+w+'-'+l}else SS.msg='PLAYOFFS! YOU WENT '+w+'-'+l}
+ else if(i>SS.reg){if(r.me<=r.op){SS.done=true;SS.msg='KNOCKED OUT IN THE '+SS.pn[i-SS.reg-1]}else if(i===SS.sl.length){SS.done=true;SS.champ=true;SS.msg='CHAMPIONS!'}}
  ssSave()}
 function teamCols(){const me=CFG.team,op=G.opp;let c1=me.c1,c2=me.c2,d1=op.c1,d2=op.c2;if(Math.abs(lum(c1)-lum(d1))<55){d1=lum(d2)>140&&Math.abs(lum(c1)-lum(d2))>55?d2:'#f4f4f4';if(Math.abs(lum(c1)-lum(d1))<55)d1='#1a1a1a'}
  TEAMS[0]={e:me.c1,j:c1,p:lum(c2)>130?c2:'#e8e8e8',h:sh(c1,-.15),a:c2,n:me.n,lg:me.s||me.n};TEAMS[1]={e:op.c1,j:d1,p:lum(d2)>130?d2:'#e8e8e8',h:sh(d1,-.15),a:d2,n:op.n,lg:op.s||op.n}}
@@ -562,21 +578,56 @@ function fgSettle(acc){const dist=fgDist();G.kn=(G.kn||0)+1;let p=.99-(.0175-.00
  G.kick.after=()=>{if(ok){G.score[0]+=3;startOpp(25,'KICKOFF')}else{startOpp(clamp(100-Math.round((G.los-EZ)/YD),3,97),'MISSED FG')}};burn(6)}
 
 /* ---------- the opponent's drive (simulated) ---------- */
+/* the opponent's drive, play by play: returns {n plays, yds, key: highlight rows [{dd,txt,c}]} that end in the given outcome */
+const shortN=n=>{n=String(n||'').trim();const p=n.split(/\s+/);return (p.length>1?p[0][0]+'. '+p.slice(1).join(' '):n).toUpperCase().slice(0,16)};
+const ordS=d=>['','1ST','2ND','3RD','4TH'][d];
+const ylS=p=>p>50?'OPP '+(100-p):p===50?'MIDFIELD':'OWN '+p;
+function oppSim(yl,out){
+ const op=G.opp.s?schoolPool(G.opp.s):[],pk=(sl,i)=>{const a=op.filter(x=>x.slot===sl).sort((x,y)=>y.o-x.o);return a.length?shortN(a[Math.min(i||0,a.length-1)].n):sl==='QB'?'THE QB':sl==='RB'?'THE RB':'THE WR'};
+ const R=CFG.ros,dn=(l,i)=>shortN(((R&&R[l])||[])[i%Math.max(1,((R&&R[l])||[]).length)]?.n||'THE DEFENSE');
+ const qb=pk('QB'),rb=pk('RB'),wr=[pk('WR',0),pk('WR',1),pk('TE',0)];
+ let pos=yl,down=1,togo=10,n=0,yds=0;const all=[];const goal=()=>100-pos<10?'GOAL':String(togo);
+ const forceEnd=out==='td'?14:out==='fg'?11:9,minPlays=out==='td'?5:3;
+ while(n<20){n++;const dd=ordS(down)+' & '+goal(),at=ylS(pos);let y,t,c='#fff',big=false;
+  /* turnover drives end on a pick or a fumble */
+  if(out==='turnover'&&n>=Math.max(2,minPlays-1)&&Math.random()<.5){const pick=Math.random()<.6;all.push({dd,at,txt:pick?dn('db',n)+' INTERCEPTS '+qb+'!':dn('lb',n)+' FORCES A FUMBLE, BALL RECOVERED!',c:'#7dff7d',k:2});break}
+  const pass=Math.random()<.55,sackP=down===3&&togo>6?.16:.07,tflP=.08,r0=Math.random();
+  if(r0<sackP&&pass){y=-Math.round(rnd(4,9));t=dn('dl',n)+' SACKS '+qb+' FOR A LOSS OF '+(-y);c='#7dff7d'}
+  else if(r0<sackP+tflP&&!pass){y=-Math.round(rnd(1,4));t=dn(Math.random()<.5?'lb':'dl',n)+' STUFFS '+rb+', TACKLE FOR LOSS OF '+(-y);c='#7dff7d'}
+  else{const bias=out==='td'?3:out==='fg'?1.5:-1;y=Math.round(Math.max(-2,rnd(-1,9)+bias+(Math.random()<.12?rnd(10,30):0)));
+   if(pass&&Math.random()<.32&&out!=='td'){y=0;t=qb+' INCOMPLETE, '+dn('db',n)+' BREAKS IT UP';c='#9fd8ff'}
+   else t=pass?qb+' TO '+wr[n%3]+' FOR '+(y<0?'A LOSS OF '+(-y):y):rb+(y<=0?' STOPPED FOR '+(y<0?'A LOSS OF '+(-y):'NO GAIN'):' RUNS FOR '+y)}
+  /* steer: TD drives convert their 3rd and 4th downs, stalling drives do not */
+  const late=n>=minPlays;
+  if(down>=3&&y<togo&&(out==='td'||(out==='fg'&&pos<60)||(!late&&out!=='turnover'))){y=togo+Math.round(rnd(0,6));t=(pass?qb+' FINDS '+wr[n%3]+' FOR '+y:rb+' BREAKS FREE FOR '+y);c='#ffb84a'}
+  if(out!=='td'&&pos+y>=97)y=Math.max(0,96-pos);
+  if(out==='td'&&(pos+y>=100||n>=forceEnd)){y=100-pos;all.push({dd,at,txt:(pass?qb+' HITS '+wr[n%3]:rb)+' FOR A '+y+' YARD TOUCHDOWN!',c:'#ff6a6a',k:2});yds+=y;break}
+  big=y>=15;if(big&&!/FINDS|BREAKS/.test(t))c='#ffb84a';
+  pos+=y;yds+=y;togo-=y;const conv=togo<=0;
+  all.push({dd,at,txt:t,c,k:(big||y<0||down===3||c==='#7dff7d')?1:0,conv});
+  if(conv){down=1;togo=Math.min(10,100-pos)}else down++;
+  if(down===4||n>=forceEnd){
+   if(out==='fg'){const d=100-pos+17;all.push({dd:ordS(Math.min(4,down))+' & '+goal(),at:ylS(pos),txt:d+' YARD FIELD GOAL IS GOOD',c:'#ffb84a',k:2});break}
+   if(out==='td'){down=3;continue}
+   if(out==='turnover'){all.push({dd:'4TH & '+goal(),at:ylS(pos),txt:'STOPPED ON 4TH DOWN! TURNOVER ON DOWNS',c:'#7dff7d',k:2});break}
+   all.push({dd:'4TH & '+goal(),at:ylS(pos),txt:out==='clock'?'THEY RUN OUT THE CLOCK':'DEFENSE HOLDS, THEY PUNT',c:'#7dff7d',k:2});break}}
+ /* key plays: the finish plus the biggest moments, at most 5, in order */
+ const last=all[all.length-1],cand=all.slice(0,-1).map((p,i)=>({p,i,v:(p.c==='#7dff7d'?3:0)+(p.dd.startsWith('3RD')?2:0)+(p.c==='#ffb84a'?2.5:0)+(p.k?1:0)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,4).sort((a,b)=>a.i-b.i).map(x=>x.p);
+ if(!cand.length&&all.length>1)cand.push(all[0]);
+ return {n:all.length,yds:Math.max(0,yds),key:cand.concat([last])}}
+
 function startOpp(yl,why){
  if(G.vs)return vsHandoff(yl,why);
  const mo=Math.round(CFG.ros.df||64),oo=G.oppO,ds=CFG.ros.dsub||{dl:mo,lb:mo,db:mo};
  const diff=(oo-mo)/100,field=(yl-25)/100;
  let td=clamp(.2+field*.55+diff*.7-(ds.lb-mo)*.004,.06,.7),fg=clamp(.2+field*.3,.05,.4),to=clamp(.1-diff*.2+((ds.db+ds.dl)/2-mo)*.003,.04,.2);
  const r=Math.random();let out='punt';if(r<td)out='td';else if(r<td+fg)out='fg';else if(r<td+fg+to)out='turnover';
- let plays=out==='td'?Math.round(rnd(5,11)):Math.round(rnd(3,8)),burnT=Math.round(plays*rnd(11,17));
- let sc=0;
+ /* play by play (owner, Nov 24): simulate the drive down by down so the key plays can be shown (big gains, sacks, TFLs, 3rd downs, the finish) */
+ const D=oppSim(yl,out);let plays=D.n,burnT=Math.round(plays*rnd(11,17));
  if((G.q===4||G.q===2)&&G.score[1]<G.score[0]&&G.clock<70&&G.to[1]>0&&out!=='td'){const u=Math.min(G.to[1],3);G.to[1]-=u;burnT=Math.max(8,burnT-u*7)}
- if(G.q===4&&burnT>=G.clock&&out!=='td'){out='clock'}
- G.opp2={yl,why,out,plays,burnT,t:0,lines:[]};
+ if(G.q===4&&burnT>=G.clock&&out!=='td'){out='clock';const L=D.key[D.key.length-1];L.txt='THEY RUN OUT THE CLOCK';L.c='#fff'}
  const nm=G.opp.n;
- const yds=out==='td'?100-yl:out==='fg'?Math.round(rnd(8,40)):Math.round(rnd(0,35));
- G.opp2.lines=[nm+' BALL AT OWN '+yl];
- G.opp2.lines.push(plays+' PLAYS · '+yds+' YARDS');
+ G.opp2={yl,why,out,plays,burnT,t:0,lines:D.key,sum:plays+' PLAYS, '+D.yds+' YARDS'};
  G.opp2.res=out==='td'?nm+' TOUCHDOWN!':out==='fg'?nm+' FIELD GOAL':out==='turnover'?'DEFENSE FORCES A TURNOVER':out==='clock'?'TIME RUNS OUT':nm+' PUNTS';
  G.opp2.col=out==='td'?'#ff6a6a':out==='fg'?'#ffb84a':out==='clock'?'#fff':'#7dff7d';
  G.phase='opp';G.camOpp=0}
@@ -869,8 +920,8 @@ function drawTitle(){
  LVL.forEach((q,i)=>{const x=Math.round(sgx+i*seg),w=Math.round(seg)-(i<2?1:0),on=CFG.lvl===i;btns.push({x,y:sgy,w,h:22,fn:()=>{CFG.lvl=i}});
   if(on){rect(x,sgy,w,22,'#f2c230');rect(x,sgy,w,2,'#fff3b0');rect(x,sgy+20,w,2,'#a87a10')}if(i<2)rect(x+w,sgy,1,22,'#000');
   txt(q.n,x+w/2,sgy+4,on?'#14110a':'#c9d1de',1,'c',true);for(let k=0;k<=i;k++)pxi(PX.star,x+w/2-(i+1)*4.5+k*9+1,sgy+12,1,on?'#7a5306':'#f2c230')});
- const ss=SS&&!SS.done&&SS.res.length?(ssIdx()<REG?'WEEK '+(ssIdx()+1):PO[ssIdx()-REG])+'  '+ssWins()+'-'+ssLoss():'';
- tile(qx+8,py+66,qw-16,70,'#f2c230',()=>{if(!SS)ssNew();SCR='season'},[[PX.cup,'#fff7c8']],'SEASON',ss);}
+ const ss=SS&&SS.sl&&!SS.done&&SS.res.length?ssLab(ssIdx())+'  '+ssWins()+'-'+ssLoss():'';
+ tile(qx+8,py+66,qw-16,70,'#f2c230',()=>{if(!SS||!SS.sl||(!SS.res.some(x=>!x.bye)&&SS.real!==((CFG.team&&CFG.team.s)||'')))ssNew();SCR='season'},[[PX.cup,'#fff7c8']],'SEASON',ss);}
 
 /* ---------- team screen (School / My Team) and the school picker ---------- */
 const TS={sel:0,pk:0,ly:null,back:null,pf:false};
@@ -956,18 +1007,19 @@ addEventListener('pointermove',e=>{if(G||SCR!=='pick'||!ptr.down)return;const p=
 addEventListener('pointerup',()=>{TS.ly=null});addEventListener('pointercancel',()=>{TS.ly=null});
 addEventListener('wheel',e=>{if(!G&&SCR==='pick'){TS.pk+=e.deltaY*.5;e.preventDefault()}},{passive:false});
 function drawSeason(){
- bgPlain();const w=ssWins(),l=ssLoss(),n=SS.res.length;
+ bgPlain();const w=ssWins(),l=ssLoss(),n=SS.res.length,np=SS.sl.length-SS.reg;
  btn(4,4,36,14,'BACK',()=>{SCR='title'},{c:'#4a5a4c',tc:'#cfe8cf'});txt('SEASON',W/2,6,'#f2c230',2,'c');txt('RECORD '+w+'-'+l,W-8,8,'#fff',1,'r');
  panel(20,30,440,150,'rgba(8,13,24,.94)');
- rect(20,30,250,13,'#22314a');txt('REGULAR SEASON',28,33,'#f2c230',1);rect(280,30,180,13,'#22314a');txt('PLAYOFFS',288,33,'#f2c230',1);rect(274,30,2,150,'#000');
- for(let i=0;i<REG+3;i++){const po=i>=REG,x=po?288:28,y=po?50+(i-REG)*13:48+i*11.6,r=SS.res[i],cur=i===n&&!SS.done,bye=i===SS.bye;
-  if(cur)rect(x-5,y-2,po?168:240,11,'rgba(242,194,48,.25)');
-  txt(po?['QUARTER','SEMI','FINAL'][i-REG]:'WK '+(i+1),x,y,cur?'#f2c230':'#7d8aa3',1);
-  if(bye){txt('BYE',x+44,y,'#5d6a82',1);continue}
-  const show=!po||i<n||(n>=REG&&w>=NEEDW&&!SS.done)||SS.champ;
-  if(show){const o=SS.opps[i];if(o){if(lgKey(o.s||o.n)){rect(x+43,y-2,11,11,'#000');lgo(o.s||o.n,x+44,y-1,9)}txt(String(o.n).slice(0,po?9:12),x+58,y,'#fff',1)}}
+ rect(20,30,250,13,'#22314a');txt(SS.real?'2026 SCHEDULE':'REGULAR SEASON',28,33,'#f2c230',1);rect(280,30,180,13,'#22314a');txt('PLAYOFFS',288,33,'#f2c230',1);rect(274,30,2,150,'#000');
+ const rh=Math.min(11.6,128/SS.reg);
+ for(let i=0;i<SS.sl.length;i++){const po=i>=SS.reg,x=po?288:28,y=Math.round(po?50+(i-SS.reg)*13:47+i*rh),r=SS.res[i],cur=i===n&&!SS.done,sl=SS.sl[i];
+  if(cur)rect(x-5,y-2,po?168:240,Math.min(11,rh+1),'rgba(242,194,48,.25)');
+  txt(po?['1ST RD','QUARTER','SEMI','FINAL'].slice(-np)[i-SS.reg]:'WK '+(i+1),x,y,cur?'#f2c230':'#7d8aa3',1);
+  if(sl.bye){txt('BYE',x+44,y,'#5d6a82',1);continue}
+  const show=!po||i<n||(n>=SS.reg&&w>=SS.need&&!SS.done)||SS.champ;
+  if(show){const o=sl.o;if(o){let nx=x+44;if(!po){txt(sl.h?'VS':'AT',nx,y,'#5d6a82',1);nx+=14}if(lgKey(o.s||o.n)){rect(nx-1,y-2,11,11,'#000');lgo(o.s||o.n,nx,y-1,9)}txt(String(o.n).slice(0,po?9:13),nx+14,y,'#fff',1)}}
   if(r&&!r.bye)txt((r.sim?'SIM ':'')+(r.me>r.op?'W ':r.me<r.op?'L ':'T ')+r.me+'-'+r.op,x+(po?160:230),y,r.me>r.op?'#7dff7d':r.me<r.op?'#ff8b5a':'#fff',1,'r')}
- txt(SS.msg||(n<REG?'WIN '+NEEDW+' OF 10 TO REACH THE PLAYOFFS':''),W/2,190,SS.champ?'#ffe14a':'#cfe8cf',SS.champ?2:1,'c');
+ txt(SS.msg||(n<SS.reg?'WIN '+SS.need+' OF '+SS.ng+' TO REACH THE PLAYOFFS':''),W/2,190,SS.champ?'#ffe14a':'#cfe8cf',SS.champ?2:1,'c');
  if(!SS.done){btn(W/2-126,208,120,24,'PLAY '+ssLab(ssIdx()),ssPlay,{c:'#f2c230'});btn(W/2+6,208,120,24,'SIMULATE',ssSim,{c:'#9fd8ff'})}else btn(W/2-60,208,120,24,'NEW SEASON',()=>{ssNew()},{c:'#f2c230'})}
 function drawSelect(){
  rect(0,14,W,H-14,'rgba(0,0,0,.55)');
@@ -1012,15 +1064,17 @@ function drawResult(){
 function drawXP(){rect(0,14,W,H-14,'rgba(0,0,0,.6)');txt('TOUCHDOWN!',W/2,30,'#ffe14a',3,'c');txt('AFTER THE TOUCHDOWN',W/2,62,'#fff',1,'c');
  btn(W/2-130,84,120,36,'KICK +1',xpKick,{c:'#9fd8ff'});btn(W/2+10,84,120,36,'GO FOR 2',xpTwo,{c:'#f2c230'});txt('2 POINTS: ONE PLAY FROM THE 2 YARD LINE',W/2,134,'#8fb39a',1,'c',true)}
 function drawOpp(){
- const o=G.opp2;rect(0,14,W,H-14,'rgba(0,0,0,.72)');
- lgo(G.opp.s||G.opp.n,W/2-tw((G.opp.n+' DRIVE').toUpperCase(),2)/2-40,20,32,1);txt(G.opp.n+' DRIVE',W/2+18,30,TEAMS[1].j===('#1a1a1a')?'#fff':'#fff',2,'c');
- txt(o.why,W/2,52,'#9fb7a0',1,'c');
- const t=G.camOpp;
- o.lines.forEach((l,i)=>{if(t>i*.6)txt(l,W/2,76+i*14,'#fff',1,'c')});
- if(t>1.5){txt(o.res,W/2,116,o.col,2,'c');
-  txt('CLOCK: -'+Math.floor(o.burnT/60)+':'+('0'+(o.burnT%60)).slice(-2),W/2,142,'#9fb7a0',1,'c')}
- else{const n=Math.floor(t*4)%4;txt('SIMULATING'+'...'.slice(0,n),W/2,116,'#cfe8cf',1,'c')}
- if(t>1.9)btn(W/2-60,160,120,22,'CONTINUE',()=>oppApply(),{c:'#f2c230',sc:1})}
+ const o=G.opp2,t=G.camOpp;rect(0,14,W,H-14,'rgba(0,0,0,.78)');
+ lgo(G.opp.s||G.opp.n,W/2-tw((G.opp.n+' DRIVE').toUpperCase(),2)/2-40,18,28,1);txt(G.opp.n+' DRIVE',W/2+18,24,'#fff',2,'c');
+ txt(o.why+'  /  BALL AT '+ylS(o.yl),W/2,44,'#9fb7a0',1,'c');
+ const step=.55,shown=Math.min(o.lines.length,Math.floor(t/step)+1),done=t>o.lines.length*step+.3;
+ panel(24,56,432,o.lines.length*18+6,'rgba(8,13,24,.9)');
+ o.lines.slice(0,shown).forEach((l,i)=>{const y=61+i*18;rect(28,y-1,86,13,l.k===2?'#22314a':'#151d2c');txt(l.dd,71,y+2,'#f2c230',1,'c');
+  const s2=l.txt.length>54?l.txt.slice(0,54):l.txt;txt(s2,122,y+2,l.c||'#fff',1)});
+ const yb=62+o.lines.length*18+8;
+ if(done){txt(o.res,W/2,yb,o.col,2,'c');txt(o.sum+'  /  CLOCK -'+Math.floor(o.burnT/60)+':'+('0'+(o.burnT%60)).slice(-2),W/2,yb+20,'#9fb7a0',1,'c');
+  btn(W/2-60,Math.min(H-26,yb+34),120,22,'CONTINUE',()=>oppApply(),{c:'#f2c230',sc:1})}
+ else btn(W-70,H-22,64,16,'SKIP',()=>{G.camOpp=99},{c:'#4a5a4c',tc:'#cfe8cf'})}
 function drawKick(){
  const k=G.kick;rect(0,14,W,16,'rgba(0,0,0,.5)');txt(k.kind==='fg'?'FIELD GOAL TRY':k.kind==='punt'?'PUNT':'KICK',W/2,18,'#fff',1,'c');
  /* ball arc */
@@ -1086,6 +1140,6 @@ addEventListener('resize',layout);layout();
 try{parent.postMessage({vb:'ready'},'*')}catch(_){}
 const q=new URLSearchParams(location.search);if(q.get('demo')==='1'){}
 if(q.get('room')&&/^[0-9]{4}$/.test(q.get('room'))){CFG.chosen=true;setMode('cards');SCR='v1join';NETV.code=q.get('room');vOpen('guest',q.get('room'))}
-window.__vb={NETV,vOpen,vMsg,startReturn,retEnd,throwAt,get camX(){return camX},xpKick,xpTwo,ssNew,ssPlay,get SS(){return SS},get SCR(){return SCR},update,oppApply,fgSettle,get G(){return G},get P(){return P},CFG,PLAYS,resetGame,choosePlay,snap,throwTo,juke,dive,advance,tackles,ptr,get fx(){return fx},setCam(x){camX=x;camT=x}};
+window.__vb={oppSim,startOpp,ssNew,get SSx(){return SS},NETV,vOpen,vMsg,startReturn,retEnd,throwAt,get camX(){return camX},xpKick,xpTwo,ssNew,ssPlay,get SS(){return SS},get SCR(){return SCR},update,oppApply,fgSettle,get G(){return G},get P(){return P},CFG,PLAYS,resetGame,choosePlay,snap,throwTo,juke,dive,advance,tackles,ptr,get fx(){return fx},setCam(x){camX=x;camT=x}};
 requestAnimationFrame(frame);
 </script></body></html>

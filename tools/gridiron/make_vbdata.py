@@ -42,3 +42,4 @@ async def main():
     open(OUT,'w').write('window.VB_DATA='+json.dumps(d,separators=(',',':'))+';\n')
     print(OUT,len(d['schools']),'schools',os.path.getsize(OUT)//1024,'KB',len(d['demo']),'demo cards')
 asyncio.run(main())
+import vb_sched;vb_sched.main()   # adds each school's real schedule (VB_DATA.sched)

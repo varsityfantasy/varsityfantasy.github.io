@@ -634,7 +634,8 @@ function fgMaxR(){return (44+24*kq('rng'))*(1-kTire())}
 /* kicking (owner, Nov 25, from his reference video): on the field with the kick team lined up. Tap 1 stops the POWER bar at the top
    (red = too short for this distance, green = long enough). Tap 2 stops the AIM line that sweeps from the ball toward the posts;
    the ball flies along that line, so it must point between the uprights. Used for field goals and extra points (doFG(true)). */
-function doFG(xp){const sp=1.12-.3*kq('spd');G.xpk=!!xp;const kx=xp?GOAL-3*YD:G.los,ky=xp?CY:(G.spotY==null?CY:G.spotY),hx=kx-7*YD;
+function doFG(xp){const sp=1.12-.3*kq('spd');G.xpk=!!xp;P=null;G.pl=null;fx=[];   /* clear the last play's players: only the kick unit is on the field */
+ const kx=xp?GOAL-3*YD:G.los,ky=xp?CY:(G.spotY==null?CY:G.spotY),hx=kx-7*YD;
  /* field-goal unit (owner, Nov 25): a tight wall of 9 blockers on the line (7 linemen + 2 wings a step back), the holder 7 yards deep
     and the kicker behind him; 9 rushers lined up across from the wall */
  const K=G.kf=[];for(let i=-3;i<=3;i++)K.push(mkP('ol',0,kx-2,ky+i*9,60,'OL'));K.push(mkP('te',0,kx-6,ky-33,60,''),mkP('te',0,kx-6,ky+33,60,''));

@@ -40,7 +40,7 @@ NAMES:Army-Navy|Bayfront Charter|Bishop's|Bonita Vista|Bonsall|Borrego Springs|B
 1118 1900 94 ~Rancho Christian 56-90
 1118 1930 28 22 61-37
 1119 0000 112 83 79-55
-1119 0000 96 107
+1119 0000 96 107 42-26
 1119 0000 62 71 73-15
 1119 0000 ~Desert Mirage 125 58-16
 1119 0000 122 ~Tahquitz 56-82

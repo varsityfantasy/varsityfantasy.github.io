@@ -1499,3 +1499,7 @@ Merged the 8 other Nov 20 games that have MaxPreps stats (`collect_week.js` `__R
 - games.js: University City 57, Steele Canyon 56 (Nov 20, MaxPreps scoreboard). Added the five week-15 finals from the MaxPreps scoreboard (away @ home): Fri Nov 27 Maranatha Christian @ Valley Center (D-IV, 3p), Torrey Pines @ Oceanside (D-I, 7p); Sat Nov 28 Hoover @ Morse (D-V, 12p), University City @ San Diego High (D-III, 3:30p), Poway @ St. Augustine (D-II, 7:30p). Props now cover exactly those 5 games (31-47 lines each).
 - Standing rule: whenever a round ends, add the score AND the next round's games so props move to the upcoming games.
 - UC/Steele Canyon player box score not merged: MaxPreps game pages return 406 from the browser right now.
+
+## v712 (Nov 24, evening scheduled update)
+- Football: no played games without a score. Basketball: added San Diego Academy 42, Southern California Yeshiva 26 (Nov 19, SI scoreboard). 72 other past basketball games still have no score found (Nov 18 Borrego Springs/King-Chavez was not final on SI; most Nov 20-24 games not posted yet).
+- Triggered "Collect section players" for basketball (`players-bb`) for Nov 22-24 box scores. Football skipped (last run read every game already). Last football roster run STOPPED: first 30 MaxPreps roster pages had no player rows (page format changed?).

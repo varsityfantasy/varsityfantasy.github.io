@@ -1523,3 +1523,10 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 ## v714 (Nov 25, scheduled score update)
 - Basketball: Nov 23-24 finals from High School On SI, the LA Times daily list and East County Sports. Left out SI's Nov 24 Mira Mesa/Rancho Bernardo, Bonsall/Liberty Charter, Horizon Prep/Liberty Charter, Classical Academy/Bonsall and Bayfront/Crossroads lines (unscheduled and doubtful: same-day double listings or a repeat of Monday's score).
 - Added the San Diego box scores from data/players/san-diego.bb.json (collected Nov 25 11:41 UTC) that bb_2627_box.txt did not have yet (26 team-games). No collector run triggered: the scheduled runs today had already read every game.
+
+## v715 (Nov 25): card rarity follows OVR
+- Owner: a player card's rarity is set by his OVR. `OVR_BANDS`: Common ≤64, Uncommon 65-72, Rare 73-79, Epic 80-86, Legendary 87-93, Mythical 94-98, Immortal 99 (`ovrR`, `pcBand(id)`; players with no OVR keep the rolled rarity).
+- Packs still roll a rarity (same odds), then `bandPick(ids,r)` picks a player in that band (a Mythical roll includes the 99s, so Immortals come out of Mythical rolls; empty band → nearest band, lower first). Used by `rollCard`, `rollTeamCard(t,r)`, the Welcome pack (`spGo`), old welcome `wpRoll`, God Picks (`pkpRoll`). Writes go through `cardPut(cards,cid,r)` (player card: dup if any version owned; saved at its band).
+- Existing lockers: `cardsOf` shows each player card once at his band (memo `_cof`), `cardVers` includes 'x' for player cards; `pcSync()` (runs with the other account checks) rewrites the account's own saved `inv.cards` to `{band:1}` (other versions set to 0) whenever they differ, so OVR changes later re-sync too. Extra versions of the same player collapse into one card (no tokens back).
+- `CARD_PCT.x=125`; locker sort/filter know 'x'. Team, duo, special (sc:) and achievement (ac:) cards unchanged.
+- Varsity Bowl: `VB_BUMP` emptied (no rarity bonus). The game also now has 9-active-player lineups (tools/gridiron).

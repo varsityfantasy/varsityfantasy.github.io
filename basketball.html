@@ -3976,7 +3976,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v714 · Nov 25';
+const APP_BUILD='v715 · Nov 25';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -5406,7 +5406,7 @@ function rollRarity(odds,floor){const ord=RAR_ORD,tot=ord.reduce((a,k)=>a+(+odds
    The best version you own sets the boost.
    Owning a team's card boosts a winning Pick 'em pick on that team; a player's card boosts his winning props.
    The boost is saved on the pick when you lock it in (bets/props[id].cb, percent), so it can't change afterwards. */
-const CARD_PCT={c:10,u:15,r:25,e:50,l:75,m:100},CARD_CHANCE=30;
+const CARD_PCT={c:10,u:15,r:25,e:50,l:75,m:100,x:125},CARD_CHANCE=30;
 let _cp=null;
 function cardPools(){
   if(_cp&&_cp.rev===_rev)return _cp;
@@ -5414,8 +5414,33 @@ function cardPools(){
   const tm=SD_SCHOOLS.map(t=>'tc:'+t);
   _cp={rev:_rev,pl,tm,nP:pl.length,nT:tm.length};return _cp}
 /* inv.cards = {id: {rarity:1,...}}: every player and team comes in all six versions; the best one you own sets the boost */
-const cardsOf=u=>{const c=invOf(u).cards||{},o={};for(const [id,v] of Object.entries(c))o[id]=typeof v==='string'?{[v]:1}:(v||{});return o};
-const cardVers=(u,id)=>RAR_ORD.filter(r=>(cardsOf(u)[id]||{})[r]);
+/* v715 (owner, Nov 25): a player card's rarity is set by his OVR, not rolled. Common up to 64, Uncommon 65-72, Rare 73-79, Epic 80-86,
+   Legendary 87-93, Mythical 94-98, Immortal 99. Packs still roll a rarity, then pick a player from that band (a Mythical roll can be an
+   Immortal). Every locker shows each player card once, at his band (cardsOf), and pcSync() rewrites the account's own saved cards to match.
+   Team, duo, special and achievement cards keep their rolled rarity. */
+const OVR_BANDS=[[99,'x'],[94,'m'],[87,'l'],[80,'e'],[73,'r'],[65,'u'],[0,'c']],RAR_ALL=['c','u','r','e','l','m','x'];
+const ovrR=o=>(OVR_BANDS.find(b=>o>=b[0])||[0,'c'])[1];
+const pcBand=id=>{if(typeof id!=='string'||!id.startsWith('pc:'))return '';const o=ovrOf(id.slice(3));return o>0?ovrR(o):''};
+const bandGrp=r=>r==='m'?['m','x']:[r];
+/* pick a player card id from ids in rarity r's band; none there: the nearest band (lower first) */
+function bandPick(ids,r){if(!ids.length)return '';const by={};ids.forEach(id=>{const b=pcBand(id)||'c';(by[b]=by[b]||[]).push(id)});
+  const want=bandGrp(r).flatMap(b=>by[b]||[]);if(want.length)return want[fcRnd(want.length)];
+  const i0=Math.max(0,RAR_ALL.indexOf(r));for(let d=1;d<7;d++)for(const j of [i0-d,i0+d]){const a=by[RAR_ALL[j]];if(a&&a.length)return a[fcRnd(a.length)]}return ids[fcRnd(ids.length)]}
+/* add a card to a cards map being saved; player cards go in at their band, and owning any version of him makes it a duplicate */
+function cardPut(cards,cid,r){const b=pcBand(cid),cur=typeof cards[cid]==='string'?{[cards[cid]]:1}:Object.assign({},cards[cid]);
+  if(b){const d=Object.keys(cur).some(k=>cur[k]);if(!d){cur[b]=1;cards[cid]=cur}return {r:b,dup:d}}
+  const d=!!cur[r];if(!d){cur[r]=1;cards[cid]=cur}return {r,dup:d}}
+const _cof=new WeakMap();
+const cardsOf=u=>{const c=invOf(u).cards||{},ok=!!((window.OVR_ALL||{})[FG_SPORT]),m=_cof.get(c);if(m&&m.ok===ok)return m.o;const o={};
+  for(const [id,v] of Object.entries(c)){let x=typeof v==='string'?{[v]:1}:(v||{});const b=ok&&pcBand(id);if(b)x=Object.keys(x).some(k=>x[k])?{[b]:1}:{};o[id]=x}
+  _cof.set(c,{ok,o});return o};
+const cardVers=(u,id)=>(id&&id.startsWith('pc:')?RAR_ALL:RAR_ORD).filter(r=>(cardsOf(u)[id]||{})[r]);
+function pcSync(){const u=ME.uid;if(!u||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!S.loaded.picks||!((window.OVR_ALL||{})[FG_SPORT]))return;
+  const old=invOf(u),raw=old.cards||{},cards=Object.assign({},raw);let n=0;
+  for(const [id,v] of Object.entries(raw)){const b=pcBand(id);if(!b)continue;const x=typeof v==='string'?{[v]:1}:(v||{});
+    const ks=Object.keys(x).filter(k=>x[k]);if(!ks.length||(ks.length===1&&ks[0]===b))continue;const y={};Object.keys(x).forEach(k=>y[k]=0);y[b]=1;cards[id]=y;n++}
+  if(!n)return;S.picks[u]=Object.assign({},S.picks[u],{inv:Object.assign({},old,{cards})});
+  upsert('picks/'+u,{inv:{cards}}).catch(()=>{S.picks[u]=Object.assign({},S.picks[u],{inv:old})})}
 const cardR=(u,id)=>{const v=cardVers(u,id);return v.length?v[v.length-1]:''};
 const cardPct=(u,id,ctx)=>{const r=cardR(u,id),sc=id.startsWith('tc:')?id.slice(3):((pByKey(id.slice(3))||{}).school||'');return Math.max(r?CARD_PCT[r]:0,id.startsWith('pc:')?achBest(u,id.slice(3)):0)+(sc?bndBoost(u,sc):0)+(id.startsWith('pc:')?specProp(u,id.slice(3),ctx):id.startsWith('tc:')?specTeam(u,id.slice(3)):0)};
 /* v420 (owner): nine special player cards (ids sc:<style>:<playerKey>, Epic / Legendary / Mythical only). Each style has its own look and its own boost rule.
@@ -5576,7 +5601,7 @@ async function parlGo(id){
   if(await act(()=>upsert('picks/'+ME.uid,{parl:{[key]:rec}}),'Parlay locked in')){delete UI.pl[id]}else S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{parl:cur});
   render()}
 /* v380: a card from one team: its team card 20% of the time, otherwise one of its players */
-function rollTeamCard(t){const pl=players().filter(p=>!p.sample&&!/x$/.test(p.key)&&p.school===t).map(p=>'pc:'+p.key);return(!pl.length||fcRnd(100)<20)?'tc:'+t:pl[fcRnd(pl.length)]}
+function rollTeamCard(t,r){const pl=players().filter(p=>!p.sample&&!/x$/.test(p.key)&&p.school===t).map(p=>'pc:'+p.key);return(!pl.length||fcRnd(100)<20)?'tc:'+t:bandPick(pl,r)}
 /* v396 (owner): small ⓘ buttons next to game words; tap one for a one-line definition (INFO) */
 const INFO={
   pickem:['Pick ’em','Pick the winner of each game. You score for every game you call right.'],
@@ -5600,7 +5625,7 @@ function ptSheet(k,h,d){Object.assign(PT,{k:k||'team',h:h||'tok',d:d==null?null:
     <div class="gbtns"><button class="btn" data-act="ptGo" ${PT.t?'':'disabled'}>${ptLabel()}</button></div></div>`;
   c.hidden=false}
 const ptLabel=()=>{if(PT.k==='sp')return PT.t?'Open '+esc(PT.t):'Pick a team';const P=PACKS[PT.k];return (PT.t?'Open '+esc(PT.t):'Pick a team')+(PT.h==='tok'?' · '+P.tok.toLocaleString()+' tokens':'')};
-function rollCard(r){const P=cardPools(),team=fcRnd(100)<35,pool=team?P.tm:P.pl;return pool.length?pool[fcRnd(pool.length)]:''}
+function rollCard(r){const P=cardPools(),team=fcRnd(100)<35;if(team)return P.tm.length?P.tm[fcRnd(P.tm.length)]:'';return bandPick(P.pl,r)}
 /* ---------- Immortal achievement cards (v342) ----------
    A tier above Mythical, only for players who earned it: Top 25 at his position in a week, Top 50 of all players in a week,
    Player of the Week (top 3 of a week), or Top 10 of the season right now. Id = 'ac:<type>:<player key>:<week>' (week 0 for the season card).
@@ -5889,9 +5914,9 @@ async function packOpen(type,how,day,team){
   for(let i=0;i<P.c;i++){const r=rollRarity(P.odds,i===P.c-1?P.g:'');
     if(P.spc||(!P.cos&&!P.gear&&!P.duo&&!P.team&&SPC_R.includes(r)&&fcRnd(100)<SPC_CHANCE)){const cid=rollSpec(P.each?Object.keys(SPEC)[i%9]:'');if(cid){const cur=typeof cards[cid]==='string'?{[cards[cid]]:1}:Object.assign({},cards[cid]),isDup=!!cur[r];if(isDup)dup+=RAR[r].dup;else{cur[r]=1;cards[cid]=cur;gotCard=true}got.push({card:cid,r,dup:isDup});continue}}
     if(P.duo){const cid=team?rollDuoTeam(team):rollDuo();if(cid){const cur=Object.assign({},cards[cid]),isDup=!!cur[r];if(isDup)dup+=RAR[r].dup;else{cur[r]=1;cards[cid]=cur;gotCard=true}got.push({card:cid,r,dup:isDup});continue}}
-    if(P.team){const cid=rollTeamCard(team);if(cid){const cur=typeof cards[cid]==='string'?{[cards[cid]]:1}:Object.assign({},cards[cid]),isDup=!!cur[r];if(isDup)dup+=RAR[r].dup;else{cur[r]=1;cards[cid]=cur;gotCard=true}got.push({card:cid,r,dup:isDup});continue}}
+    if(P.team){const cid=rollTeamCard(team,r);if(cid){const z=cardPut(cards,cid,r);if(z.dup)dup+=RAR[z.r].dup;else gotCard=true;got.push({card:cid,r:z.r,dup:z.dup});continue}}
     if(fcRnd(10000)<(ACH_CHANCE[type]||0)*100){const aid=rollAch();if(aid){const cur=Object.assign({},cards[aid]),isDup=!!cur.x;if(isDup)dup+=RAR.x.dup;else{cur.x=1;cards[aid]=cur;gotCard=true}got.push({card:aid,r:'x',dup:isDup});continue}}
-    if(!P.cos&&!P.gear&&(P.cards||fcRnd(100)<CARD_CHANCE)){let cid=rollCard(r);if(P.cards)for(let k=0;!cid&&k<5;k++)cid=rollCard(r);if(cid){const cur=typeof cards[cid]==='string'?{[cards[cid]]:1}:Object.assign({},cards[cid]),isDup=!!cur[r];if(isDup)dup+=RAR[r].dup;else{cur[r]=1;cards[cid]=cur;gotCard=true}got.push({card:cid,r,dup:isDup});continue}}
+    if(!P.cos&&!P.gear&&(P.cards||fcRnd(100)<CARD_CHANCE)){let cid=rollCard(r);if(P.cards)for(let k=0;!cid&&k<5;k++)cid=rollCard(r);if(cid){const z=cardPut(cards,cid,r);if(z.dup)dup+=RAR[z.r].dup;else gotCard=true;got.push({card:cid,r:z.r,dup:z.dup});continue}}
     const id=P.gear?rollGear(r):rollItem(r,!!P.cos);
     const was=Math.max(+it[id]||0,invHas(ME.uid,id)),isDup=isCos(id)&&was>0;if(isDup)dup+=RAR[r].dup;else it[id]=(+it[id]||0)+1;got.push({id,r,dup:isDup})}
   const patch=Object.assign({it,n:(+v.n||0)+1},pkTrack(v,type,how));if(gotCard)patch.cards=cards;
@@ -5943,9 +5968,9 @@ function pkpRoll(u,all){
   const D=achData(),own=cardsOf(u),ids=D.pool.t10.filter(id=>pByKey(achParse(id).key));if(!ids.length)return null;
   const fresh=ids.filter(id=>!(own[id]||{}).x),src=fresh.length?fresh:ids,god=src[fcRnd(src.length)],gk=achParse(god).key;
   const pl=cardPools().pl.filter(id=>id.slice(3)!==gk),pick=[];
-  while(pick.length<4&&pl.length)pick.push(pl.splice(fcRnd(pl.length),1)[0]);
+  while(pick.length<4&&pl.length){const id=bandPick(pl,rollRarity(PACKS.pick.odds));pl.splice(pl.indexOf(id),1);pick.push(id)}
   if(pick.length<4)return null;
-  const o=pick.map(id=>id+'|'+rollRarity(PACKS.pick.odds)),g=fcRnd(5);o.splice(g,0,god+'|x');return {o,g}}
+  const o=pick.map(id=>id+'|'+(pcBand(id)||'c')),g=fcRnd(5);o.splice(g,0,god+'|x');return {o,g}}
 /* his best stat for the walkout: the stat that earned him the most fantasy points this season (a season total); before any real stats
    (basketball preseason) it shows his rank in the Top 10 instead */
 function pkStat(key,rank){const p=pByKey(key),a=p?agg(p,'season'):null;
@@ -6317,7 +6342,7 @@ function wpRoll(){const by=wpTeams(),ts=Object.keys(by).filter(t=>by[t].length);
   /* 1%: an Immortal achievement card; its player's school is the team and he is the player (basketball has none until games are played) */
   if(fcRnd(10000)<WP_ACH*100){const aid=rollAch(),a=aid&&achInfo(aid),q=a&&pByKey(a.key);
     if(q&&by[q.school]){const pool=wpTop(by[q.school]);if(!pool.some(x=>x.key===q.key))pool[pool.length-1]=q;return {team:q.school,r:'x',key:q.key,ach:aid,teams:ts,pool}}}
-  const team=ts[fcRnd(ts.length)],r=rollRarity(WP_ODDS),pool=wpTop(by[team]),p=pool[fcRnd(pool.length)];return {team,r,key:p.key,teams:ts,pool}}
+  const team=ts[fcRnd(ts.length)],r=rollRarity(WP_ODDS),pool=wpTop(by[team]),p=pool[fcRnd(pool.length)];return {team,r:pcBand('pc:'+p.key)||r,key:p.key,teams:ts,pool}}
 /* the invite: shown once per app session after you have a profile. v553: no Later; the only way on is Open */
 function wpMaybe(){if(_wpAsked||!wpCan())return;const c=$('#cfm');if(!c||!c.hidden||document.querySelector('.pko,.wpk'))return;_wpAsked=true;
   c.innerHTML=`<div class="gcard tok-sheet wp-ask" role="dialog" aria-modal="true" aria-labelledby="wp-t"><div class="wp-ask-art" aria-hidden="true"><span>1</span><small>player</small></div><h2 id="wp-t">Welcome to Varsity!</h2>
@@ -6335,23 +6360,23 @@ let _spAsked=false,_spBusy=false;
 function spSheet(){if(!spCan())return;PT.k='sp';PT.t='';const c=$('#cfm');if(!c)return;
   const ts=Object.keys(wpTeams()).sort((a,b)=>a.localeCompare(b));
   c.innerHTML=`<div class="gcard tok-sheet pt-sheet sp-must" role="dialog" aria-modal="true" aria-labelledby="pt-t">
-    <h2 id="pt-t">Choose your team</h2><p class="muted">Your Welcome pack has one random player from this team (Epic or better) plus 10 more cards.</p>
+    <h2 id="pt-t">Choose your team</h2><p class="muted">Your Welcome pack has one random player from this team (Epic or better when the team has one: rarity follows his overall) plus 10 more cards.</p>
     <input id="pt-q" class="pt-q" type="search" placeholder="Search schools" autocomplete="off" aria-label="Search schools">
     <div class="pt-list" role="listbox" aria-label="Teams">${ts.map(t=>`<button type="button" class="pt-t" data-act="ptPick" data-v="${esc(t)}" aria-pressed="false">${slogo(t,26)}<span>${esc(t)}</span></button>`).join('')}</div>
     <div class="gbtns"><button class="btn wp-go" data-act="spGo" disabled><span>${ptLabel()}</span></button></div></div>`;c.hidden=false}
 function spMaybe(){if(_spAsked||!spCan())return;const c=$('#cfm');if(!c||!c.hidden||document.querySelector('.pko,.wpk,.wko'))return;_spAsked=true;
   c.innerHTML=`<div class="gcard tok-sheet wp-ask" role="dialog" aria-modal="true" aria-labelledby="sp-t"><div class="wp-ask-art" aria-hidden="true"><span>11</span><small>cards</small></div><h2 id="sp-t">Welcome to Varsity!</h2>
-    <p>Your free <b>Welcome pack</b>: pick <b>any team</b> and walk out a random player from it, <b>Epic or better</b>, plus <b>10 more cards</b>.</p>
+    <p>Your free <b>Welcome pack</b>: pick <b>any team</b> and walk out a random player from it, <b>Epic or better</b> when the team has one, plus <b>10 more cards</b>.</p>
     <p class="wp-odds">${Object.entries(SPO).map(([r,n])=>`<span style="color:${RAR[r].c}">${RAR[r].n} ${n}%</span>`).join('')}</p>
     <div class="gbtns"><button class="btn wp-go" data-act="spOpen"><span>Open my free pack</span></button></div><p class="wp-tap muted">Pick your team, then meet your player</p></div>`;c.hidden=false}
 function spShopCard(){return spCan()?`<section class="card lk-free wp-shop"><div><b>Welcome pack · free</b><small class="muted">Choose a team: one random player from it (${Object.entries(SPO).map(([r,n])=>RAR[r].n+' '+n+'%').join(' · ')}) plus 10 more cards.</small></div><button class="btn wp-go sm" data-act="spOpen"><span>Open</span></button></section>`:''}
 async function spGo(){if(_spBusy||!spCan()||!PT.t)return;_spBusy=true;const team=PT.t;
   try{const pool=players().filter(p=>!p.sample&&!/x$/.test(p.key)&&p.school===team);if(!pool.length){say('No players on that team yet. Pick another.');return}
     try{closeConfirm()}catch(_){}
-    const p=pool[fcRnd(pool.length)],r=rollRarity(SPO),P=PACKS.welcome,v=invOf(ME.uid),cards=Object.assign({},v.cards);let dup=0;
-    const add=(cid,rr)=>{const cur=typeof cards[cid]==='string'?{[cards[cid]]:1}:Object.assign({},cards[cid]),d=!!cur[rr];if(d)dup+=RAR[rr].dup;else{cur[rr]=1;cards[cid]=cur}return d};
-    const wdup=add('pc:'+p.key,r),got=[];
-    for(let i=0;i<P.c;i++){const rr=rollRarity(P.odds);let cid=rollCard(rr);for(let k=0;!cid&&k<5;k++)cid=rollCard(rr);if(cid)got.push({card:cid,r:rr,dup:add(cid,rr)})}
+    const r0=rollRarity(SPO),pid=bandPick(pool.map(x=>'pc:'+x.key),r0),p=pByKey(pid.slice(3))||pool[0],P=PACKS.welcome,v=invOf(ME.uid),cards=Object.assign({},v.cards);let dup=0;
+    const add=(cid,rr)=>{const z=cardPut(cards,cid,rr);if(z.dup)dup+=RAR[z.r].dup;return z};
+    const wz=add('pc:'+p.key,r0),r=wz.r,wdup=wz.dup,got=[];
+    for(let i=0;i<P.c;i++){const rr=rollRarity(P.odds);let cid=rollCard(rr);for(let k=0;!cid&&k<5;k++)cid=rollCard(rr);if(cid){const z=add(cid,rr);got.push({card:cid,r:z.r,dup:z.dup})}}
     const patch={sp2:NOW(),spc:'pc:'+p.key+':'+r,cards,n:(+v.n||0)+1};if(dup)patch.dup=(+v.dup||0)+dup;
     S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:Object.assign({},v,patch)});
     try{await upsert('picks/'+ME.uid,{inv:patch})}catch(_){S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{inv:v});say('That did not save. Try again.');return}
@@ -6643,14 +6668,14 @@ function viewLocker(){
   let body='';
   if(tab==='av'){
     /* v400: your bobblehead + its gear slots (arm sleeves, back plate). Gear comes from the Accessories pack. */
-    const ord={m:0,l:1,e:2,r:3,u:4,c:5},slots=[['bhSleeve','Arm sleeves','No sleeves',{k:'bhSleeve',bh:{c:'#f0bc8c'}}],['bhPlate','Back plate','Grey plate',{k:'bhPlate',bh:{c:'#b9c1cd'}}]];
+    const ord={x:-1,m:0,l:1,e:2,r:3,u:4,c:5},slots=[['bhSleeve','Arm sleeves','No sleeves',{k:'bhSleeve',bh:{c:'#f0bc8c'}}],['bhPlate','Back plate','Grey plate',{k:'bhPlate',bh:{c:'#b9c1cd'}}]];
     body=`<section class="card bh-card"><div id="bh-host" class="bh-host"><div class="bh-load">Loading your bobblehead…</div></div><small class="muted">Drag to spin it. Tap it for a bobble. Dress it with gear from the <a href="#shop">Accessories pack</a>.</small></section>`+
       slots.map(([k,l,dn,dx])=>{const cur=eq[k],list=ITEMS.filter(x=>x.k===k&&invHas(ME.uid,x.id)).sort((p,q)=>ord[p.r]-ord[q.r]),on=cur&&invHas(ME.uid,cur);
         return `<section class="card lk-items"><div class="qh"><h3>${l}</h3><span class="muted">${list.length} of ${ITEMS.filter(x=>x.k===k).length}</span></div>
           <div class="lk-grid"><button class="lk-it ${on?'':'on'}" data-act="lkEq" data-k="${k}" data-v="">${bhArt(dx,48)}<b>${dn}</b><small class="muted">Default</small></button>
           ${list.map(x=>`<button class="lk-it r-${x.r} ${cur===x.id?'on':''}" style="--rc:${RAR[x.r].c}" data-act="lkEq" data-k="${k}" data-v="${x.id}" title="${esc(x.d)}">${itemArt(x.id,48)}<b>${esc(x.n)}</b><small style="color:${RAR[x.r].c}">${RAR[x.r].n}</small></button>`).join('')}</div></section>`}).join('');
   }else if(tab==='cards'){
-    const P=cardPools(),mine=cardsOf(ME.uid),ord={m:0,l:1,e:2,r:3,u:4,c:5},T=['p','t','d','s'].includes(UI.lkC)?UI.lkC:'a',N=UI.lkN||30;
+    const P=cardPools(),mine=cardsOf(ME.uid),ord={x:-1,m:0,l:1,e:2,r:3,u:4,c:5},T=['p','t','d','s'].includes(UI.lkC)?UI.lkC:'a',N=UI.lkN||30;
     const best=id=>cardR(ME.uid,id);
     /* v433 (owner): cards in the Locker are shown big, like the card view, with the holo shine and a slow tilt always on */
     /* v444 (owner: "more fluid"): the grid fills the row. Columns = as many ~200 px cards as fit (2 on phones), and the card size follows the column width, so
@@ -6672,7 +6697,7 @@ function viewLocker(){
        Duo = DUO_PCT, player and team = CARD_PCT of the best version you own); ties go to the higher overall. The other type chips stay highest overall first. */
     const bV=id=>{const r=best(id);return id.startsWith('sc:')?((SPEC[id.split(':')[1]]||{pc:{}}).pc[r]||0):id.startsWith('dc:')?(DUO_PCT[r]||0):(CARD_PCT[r]||0)};
     /* v450 (owner): a Sort dropdown on the Cards tab (UI.lkSo); with nothing chosen it keeps the order above (All = best boost first, other chips = highest overall first) */
-    const LK_SO=[['','Default'],['boost','Best boost first'],['ovr','Overall, high to low'],['ovrl','Overall, low to high'],['rar','Rarity, best to worst'],['rarl','Rarity, worst to best'],['name','Name, A to Z'],['sch','School, A to Z']],so=LK_SO.some(x=>x[0]===UI.lkSo)?UI.lkSo:'',sk=so||(T==='a'?'boost':'ovr'),ro={m:0,l:1,e:2,r:3,u:4,c:5},nmOf=id=>cardInfo(id).name,schOf=id=>(infos[id].sch[0]||'');
+    const LK_SO=[['','Default'],['boost','Best boost first'],['ovr','Overall, high to low'],['ovrl','Overall, low to high'],['rar','Rarity, best to worst'],['rarl','Rarity, worst to best'],['name','Name, A to Z'],['sch','School, A to Z']],so=LK_SO.some(x=>x[0]===UI.lkSo)?UI.lkSo:'',sk=so||(T==='a'?'boost':'ovr'),ro={x:-1,m:0,l:1,e:2,r:3,u:4,c:5},nmOf=id=>cardInfo(id).name,schOf=id=>(infos[id].sch[0]||'');
     const byN=(x,y)=>nmOf(x).localeCompare(nmOf(y));
     ids.sort({boost:(x,y)=>bV(y)-bV(x)||cOvr(y)-cOvr(x)||byN(x,y),ovr:(x,y)=>cOvr(y)-cOvr(x)||bV(y)-bV(x)||byN(x,y),ovrl:(x,y)=>cOvr(x)-cOvr(y)||byN(x,y),rar:(x,y)=>(ro[best(x)]??9)-(ro[best(y)]??9)||cOvr(y)-cOvr(x)||byN(x,y),rarl:(x,y)=>(ro[best(y)]??9)-(ro[best(x)]??9)||cOvr(x)-cOvr(y)||byN(x,y),name:byN,sch:(x,y)=>schOf(x).localeCompare(schOf(y))||cOvr(y)-cOvr(x)||byN(x,y)}[sk]);
     const vers=Object.keys(mine).reduce((n,id)=>n+cardVers(ME.uid,id).length,0),nP=Object.keys(mine).filter(i=>i.startsWith('pc:')&&cardVers(ME.uid,i).length).length,nT=Object.keys(mine).filter(i=>i.startsWith('tc:')&&cardVers(ME.uid,i).length).length;
@@ -6693,7 +6718,7 @@ function viewLocker(){
       ${fOpen?`<div class="lk-flt">
         <select id="lk-sc" aria-label="Team"><option value="">All teams</option>${lkSch.map(x=>`<option value="${esc(x)}" ${UI.lkSc===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
         <select id="lk-ps" aria-label="Position"><option value="">All positions</option>${lkPos.map(x=>`<option value="${esc(x)}" ${UI.lkPs===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
-        <select id="lk-r" aria-label="Rarity"><option value="">All rarities</option>${RAR_ORD.filter(r=>ids0.some(id=>cardVers(ME.uid,id).includes(r))).reverse().map(r=>`<option value="${r}" ${UI.lkR===r?'selected':''}>${RAR[r].n}</option>`).join('')}</select>
+        <select id="lk-r" aria-label="Rarity"><option value="">All rarities</option>${RAR_ALL.filter(r=>ids0.some(id=>cardVers(ME.uid,id).includes(r))).reverse().map(r=>`<option value="${r}" ${UI.lkR===r?'selected':''}>${RAR[r].n}</option>`).join('')}</select>
         ${lkSts.length?`<select id="lk-st" aria-label="Special style"><option value="">All special styles</option>${lkSts.map(x=>`<option value="${x}" ${UI.lkSt===x?'selected':''}>${esc(SPEC[x].n)}</option>`).join('')}</select>`:''}
         ${UI.lkQ||fN?'<button type="button" class="btn sm ghost" data-act="lkFClr">Clear filters</button>':''}</div>`:''}
       ${UI.lkQ||fN?`<small class="muted">${ids.length} of ${ids0.length} cards</small>`:''}
@@ -6722,7 +6747,7 @@ function viewLocker(){
       <div class="lk-sets">${sets.map(t=>`<div class="lk-set"><span class="lk-sw" style="background:linear-gradient(135deg,${t.a} 50%,${t.b} 50%)"></span><span style="min-width:120px">${esc(t.pn)}</span><span class="lk-bar"><i style="width:${(t.have/t.tot*100).toFixed(0)}%"></i></span><small class="muted">${t.have}/${t.tot}</small>${invHas(ME.uid,'bd_set_'+t.pk)?bdgHTML('bd_set_'+t.pk,18):'<span class="lk-mys sm">?</span>'}</div>`).join('')}</div>
       <small class="muted">Collect every item in a team’s colours (${(SET_IDS[PALS[0][0]]||[]).length} items) to earn a secret reward.</small></details>`;
     const kinds=`<div class="lk-catrow" role="group" aria-label="Cosmetic type">${KINDS.map(([x,l])=>{const n=ITEMS.filter(i=>i.k===x&&itemSp(i)&&invHas(ME.uid,i.id)).length;return `<button class="chip ${n?'has':''}" data-act="lkK" data-v="${x}" aria-pressed="${x===k}">${l}${n?` <small>${n}</small>`:''}</button>`}).join('')}</div>`;
-    const ord={m:0,l:1,e:2,r:3,u:4,c:5};
+    const ord={x:-1,m:0,l:1,e:2,r:3,u:4,c:5};
     let list=ITEMS.filter(x=>x.k===k&&itemSp(x)).sort((p,q)=>(invHas(ME.uid,q.id)-invHas(ME.uid,p.id))||(ord[p.r]-ord[q.r]));
     if(onlyOwn)list=list.filter(x=>invHas(ME.uid,x.id));
     const shown=list.slice(0,N);
@@ -7222,7 +7247,7 @@ async function slipGo(){
   if(await act(()=>upsert('picks/'+ME.uid,{parl:{[key]:rec}}),'Parlay locked in')){UI.sl={legs:{},stake:UI.sl.stake}}else S.picks[ME.uid]=Object.assign({},S.picks[ME.uid],{parl:cur});
   render()}
 /* v445 (owner): Top Cards on the Props tab: your cards ranked by the advantage they give on bets (no bet suggestions, just what each card adds). */
-function topCardsList(){const u=ME.uid,m=cardsOf(u),out=[],ro={m:0,l:1,e:2,r:3,u:4,c:5};
+function topCardsList(){const u=ME.uid,m=cardsOf(u),out=[],ro={x:-1,m:0,l:1,e:2,r:3,u:4,c:5};
   Object.keys(m).forEach(id=>{
     if(id.startsWith('ac:')){if(!m[id].x)return;const a=achParse(id);if(!a)return;out.push({id,r:'x',v:ACH[a.t].pct,t:'+'+ACH[a.t].pct+'%',w:'on his props · '+ACH[a.t].n+' Immortal'});return}
     const r=cardR(u,id);if(!r)return;
@@ -8666,7 +8691,7 @@ async function hbOpen(m){
   addEventListener('message',on);el.querySelector('.fgx-x').addEventListener('click',close)}
 /* v617 (owner): Varsity Bowl (tools/gridiron/varsity-bowl.html), a bird's-eye pixel football game in the style of Retro Bowl, in football's Minigames.
    Your cards set the starters (best OVR per spot, plus a bonus for the card's rarity); the game window is an iframe and gets the roster by postMessage. */
-const VB_BUMP={c:0,u:2,r:4,e:6,l:8,m:10};
+const VB_BUMP={};   /* v715: no rarity bonus any more: rarity now follows OVR */
 const vbRec=()=>{try{return JSON.parse(localStorage.getItem('vs-vb')||'{}')||{}}catch(_){return {}}};
 function vbRoster(){
   /* v665: the game gets every card you own as {slot, name, OVR (+ rarity bump), games, season stats}; it picks the starters and turns OVR into attributes itself (varsity-bowl.html: Team screen) */
@@ -11249,7 +11274,7 @@ const browsing=()=>{try{return localStorage.getItem('gf-browse')==='1'}catch(_){
 function needJoin(what){if(myProfile())return false;openGate();return true}
 function touch(){
   _rev++;
-  maybeInitSeen();stWatchNew();rwClaim();try{refClaim()}catch(_){}try{pushSync()}catch(_){}try{lbTokClaim()}catch(_){}try{banCheck()}catch(_){}try{if(ME.admin&&AD.rows===null&&!AD.loading)adLoad();if(ME.admin&&DASH.use===null&&!DASH.loading)dashLoad()}catch(_){}try{secLand()}catch(_){}try{profileFix()}catch(_){}if(window.__pfx===1&&!(myProfile()||{}).fx)return;try{redoCheck()}catch(_){}if(window.__redo)return;try{landCheck()}catch(_){}try{setupCheck()}catch(_){}if(!window.__landGo&&!mustSetup()){try{tutMaybe()}catch(_){}if(!window.__tutOpen){try{giftPopup()}catch(_){}try{anPopup()}catch(_){}try{annPopup()}catch(_){}try{tpPromoMaybe()}catch(_){}try{spRevoke()}catch(_){}try{cardFix()}catch(_){}try{wpMaybe()}catch(_){}try{spMaybe()}catch(_){}}}if(!window.__tutOpen){try{pushAskMaybe()}catch(_){}}try{bndClaim()}catch(_){}
+  maybeInitSeen();stWatchNew();rwClaim();try{refClaim()}catch(_){}try{pushSync()}catch(_){}try{lbTokClaim()}catch(_){}try{banCheck()}catch(_){}try{pcSync()}catch(_){}try{if(ME.admin&&AD.rows===null&&!AD.loading)adLoad();if(ME.admin&&DASH.use===null&&!DASH.loading)dashLoad()}catch(_){}try{secLand()}catch(_){}try{profileFix()}catch(_){}if(window.__pfx===1&&!(myProfile()||{}).fx)return;try{redoCheck()}catch(_){}if(window.__redo)return;try{landCheck()}catch(_){}try{setupCheck()}catch(_){}if(!window.__landGo&&!mustSetup()){try{tutMaybe()}catch(_){}if(!window.__tutOpen){try{giftPopup()}catch(_){}try{anPopup()}catch(_){}try{annPopup()}catch(_){}try{tpPromoMaybe()}catch(_){}try{spRevoke()}catch(_){}try{cardFix()}catch(_){}try{wpMaybe()}catch(_){}try{spMaybe()}catch(_){}}}if(!window.__tutOpen){try{pushAskMaybe()}catch(_){}}try{bndClaim()}catch(_){}
   if(ME.mode==='guest'){if(AUTH.mode==='admin'&&!AUTH.step)AUTH.mode='in';guestGate()}
   if(!gateChecked&&S.loaded.profiles){gateChecked=true;if((ME.mode==='demo'&&!browsing()||ME.mode==='live')&&!myProfile())openGate()}
   if(rq)return;rq=true;

@@ -98,12 +98,30 @@ function getAt(e){const tot=4*clamp(e.o,AMIN,AMAX),ks=AT[grp(e.slot)],c=e.key&&C
  return natAt(e.slot,e.o,e.g,e.s)}
 const scAb=n=>String(n||'').replace(' Country Day',' CD').replace(' Academy','').replace(' Catholic',' Cath.').replace('Rancho ','Rch ').replace('Ranch','Rnch').replace(' Canyon',' Cyn').replace(' Christian',' Chr.').slice(0,12);
 function mkEnt(r){const e={slot:r.slot,n:r.n,o:Math.round(r.o),key:r.key||null,g:r.g||0,s:r.s||{},sc:r.sc||''};e.at=getAt(e);return e}
-function buildRoster(list){const by={};list.forEach(r=>(by[r.slot]=by[r.slot]||[]).push(r));
- const get=(sl,k,i0)=>{const a=(by[sl]||[]).slice().sort((x,y)=>y.o-x.o).slice(0,k).map(mkEnt);while(a.length<k)a.push(mkEnt({slot:sl,n:FILLN[(i0+a.length)%FILLN.length],o:55,key:'f:'+sl+a.length}));return a};
- const ros={qb:get('QB',1,0)[0],rb:get('RB',1,1)[0],wr:get('WR',3,2),te:get('TE',1,5)[0],k:get('K',1,6)[0],dl:get('DL',4,1),lb:get('LB',3,3),db:get('DB',4,5)};
+/* lineup (owner, Nov 25): you pick who plays. My Team = up to 9 active cards, any positions; School = up to 18 from the whole roster.
+   Each spot on the field takes an active player of that position; extra active players fill other spots on the same side of the ball
+   (out of position: -6 OVR, -15 at QB); any spot still open is a walk-on (OVR 50, kicker 45). Stack the defense and it gets better, and so on. */
+const NEED={QB:1,RB:1,WR:3,TE:1,K:1,DL:4,LB:3,DB:4},SORD=['QB','RB','WR','TE','K','DL','LB','DB'],WALK=50;
+const sideOf=sl=>sl==='K'?'K':(sl==='DL'||sl==='LB'||sl==='DB')?'D':'O';
+function autoKeys(list){const by={};list.forEach(r=>(by[r.slot]=by[r.slot]||[]).push(r));const out=[];SORD.forEach(sl=>(by[sl]||[]).slice().sort((x,y)=>y.o-x.o).slice(0,NEED[sl]).forEach(r=>out.push(r.key)));return out}
+function buildRoster(list,keys){
+ if(!keys)keys=autoKeys(list);const act=[];keys.forEach(k=>{const r=list.find(x=>x.key===k);if(r&&!act.includes(r))act.push(r)});
+ const by={},left=[];act.forEach(r=>(by[r.slot]=by[r.slot]||[]).push(r));
+ const pick={};SORD.forEach(sl=>{const a=(by[sl]||[]).slice().sort((x,y)=>y.o-x.o);pick[sl]=a.slice(0,NEED[sl]);left.push(...a.slice(NEED[sl]))});left.sort((x,y)=>y.o-x.o);
+ ['DB','LB','DL','WR','TE','RB','QB'].forEach(sl=>{while(pick[sl].length<NEED[sl]){const i=left.findIndex(r=>sideOf(r.slot)===sideOf(sl));if(i<0)break;const r=left.splice(i,1)[0];pick[sl].push(Object.assign({},r,{slot:sl,o:Math.max(AMIN,r.o-(sl==='QB'?15:6)),oop:r.slot}))}});
+ const get=(sl,i0)=>{const a=pick[sl].map(mkEnt);while(a.length<NEED[sl])a.push(mkEnt({slot:sl,n:FILLN[(i0+a.length)%FILLN.length],o:sl==='K'?45:WALK,key:'f:'+sl+a.length,walk:1}));a.forEach((e,i)=>{if(pick[sl][i]&&pick[sl][i].oop)e.oop=pick[sl][i].oop});return a};
+ const ros={qb:get('QB',0)[0],rb:get('RB',1)[0],wr:get('WR',2),te:get('TE',5)[0],k:get('K',6)[0],dl:get('DL',1),lb:get('LB',3),db:get('DB',5)};
  const av=(a,w)=>a.reduce((t,e)=>t+AT.DF.reduce((x,k,i)=>x+(w[k]||0)*e.at[k],0),0)/a.length;
  ros.dsub={dl:av(ros.dl,{str:.4,tkl:.35,spd:.25}),lb:av(ros.lb,{tkl:.5,str:.2,spd:.15,sta:.15}),db:av(ros.db,{spd:.45,tkl:.3,sta:.15,str:.1})};
  ros.df=Math.round(ros.dsub.dl*.3+ros.dsub.lb*.3+ros.dsub.db*.4);return ros}
+const LKEY='vs-vb-lineup';CFG.lu=loadJ(LKEY);
+const luCap=()=>CFG.mode==='cards'?9:18,luId=()=>CFG.mode==='cards'?'cards':'s:'+CFG.school;
+const fullPool=()=>CFG.mode==='cards'?(CFG.pool.length?CFG.pool:demoPool()):schoolPool(CFG.school);
+function defKeys(list){if(CFG.mode!=='cards')return autoKeys(list).slice(0,18);const used=new Set(),out=[];
+ ['QB','RB','WR','WR','DL','LB','DB','DB','K'].forEach(sl=>{const r=list.filter(x=>x.slot===sl&&!used.has(x.key)).sort((x,y)=>y.o-x.o)[0];if(r){used.add(r.key);out.push(r.key)}});
+ list.slice().sort((x,y)=>y.o-x.o).forEach(r=>{if(out.length<9&&!used.has(r.key)){used.add(r.key);out.push(r.key)}});return out}
+function curLineup(){const list=fullPool(),id=luId();let k=CFG.lu[id];if(Array.isArray(k)){k=k.filter(x=>list.some(r=>r.key===x)).slice(0,luCap());CFG.lu[id]=k;return k}return defKeys(list)}
+function setLineup(k){CFG.lu[luId()]=k.slice(0,luCap());saveJ(LKEY,CFG.lu);applyTeam()}
 const schoolList=()=>VBD?Object.keys(VBD.schools):[];
 const schoolPool=sc=>{const d=VBD&&VBD.schools[sc];return d?d.r.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],sc,key:'s:'+sc+'|'+x[0]+'|'+x[1]})):[]};
 /* sample team (owner, Nov 19): Zed Hornby's real cards, read from his signed-in account (OVR already includes the rarity bump). Used when the game is opened without the app's cards. */
@@ -112,8 +130,7 @@ const demoPool=()=>SAMPLE_POOL.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],sc
 const schOv=sc=>{const a=schoolPool(sc).map(x=>x.o).sort((x,y)=>y-x).slice(0,11);return a.length?a.reduce((x,y)=>x+y,0)/a.length:0};
 function applyTeam(){
  if(CFG.mode==='school'&&!(VBD&&VBD.schools[CFG.school]))CFG.mode='cards';
- const list=CFG.mode==='cards'?(CFG.pool.length?CFG.pool:demoPool()):schoolPool(CFG.school);
- CFG.ros=buildRoster(list);
+ CFG.ros=buildRoster(fullPool(),curLineup());
  if(CFG.mode==='school'){const d=VBD.schools[CFG.school];CFG.team={n:nmS(CFG.school),s:CFG.school,c1:d.c[0],c2:d.c[1]}}
  else if(CFG.cardTeam)CFG.team=CFG.cardTeam;
  else CFG.team=SAMPLE_TEAM;
@@ -962,7 +979,7 @@ function drawV1(){bgHero();rect(0,92,W,H-92,'rgba(0,0,0,.18)');teamBanner('ONLIN
  txt('PLAY A FRIEND',px+7,py+4,'#f2c230',1,'l');txt('TAKE TURNS ON OFFENSE',px+pw-7,py+4,'#7d8aa3',1,'r',true);
  tile(px+20,py+28,150,74,'#5fd38a',()=>{const c=String(Math.floor(1000+Math.random()*9000));SCR='v1host';vOpen('host',c)},[[PX.plus,'#fff7c8']],'CREATE GAME','GET A CODE');
  tile(px+pw-170,py+28,150,74,'#5fb4ff',()=>{NETV.code='';NETV.err='';SCR='v1join'},[[PX.key,'#fff7c8']],'JOIN GAME','ENTER A CODE');
- btn(px+pw/2-50,py+116,100,16,'EDIT LINEUP',()=>{TS.back='v1';SCR='team';TS.sel=0},{c:'#3d4b3f',tc:'#e8f0e8'})}
+ btn(px+pw/2-50,py+116,100,16,'EDIT ROSTER',()=>{TS.back='v1';SCR='team';TS.sel=0},{c:'#3d4b3f',tc:'#e8f0e8'})}
 function drawV1Host(){bgV();btn(4,4,36,14,'BACK',()=>{vClose();SCR='v1'},{c:'#4a5a4c',tc:'#cfe8cf'});txt('CREATE GAME',W/2,8,'#f2c230',1,'c');
  txt('YOUR GAME CODE',W/2,50,'#9fb7a0',1,'c');txt(NETV.code,W/2,70,'#ffd23f',5,'c');
  if(NETV.st==='error')txt(NETV.err,W/2,130,'#ff8b5a',1,'c');else txt('WAITING FOR YOUR FRIEND'+'...'.slice(0,Math.floor(tNow*2)%4),W/2,130,'#cfe8cf',1,'c');
@@ -1012,17 +1029,18 @@ function drawTitle(){
  bgHero();rect(0,92,W,H-92,'rgba(0,0,0,.18)');
  const sch=CFG.mode==='school';teamBanner(sch?'MY SCHOOL / REAL ROSTER':CFG.real?'MY TEAM / YOUR CARDS':'MY TEAM / SAMPLE CARDS');
  const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
- const R=CFG.ros,rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
+ const R=CFG.ros;let rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
+ if(!sch){const L=fullPool(),A=curLineup().map(k=>L.find(r=>r.key===k)).filter(Boolean).sort((x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o);rows=A.map(r=>[r.slot,r]);while(rows.length<9)rows.push(['--',{n:'OPEN SPOT (WALK-ON)',o:WALK,sc:'',open:1}])}
  const c1=CFG.team.c1||'#1d4ed8',hc=lum(c1)<40?sh(c1,.25):c1,hk=lum(hc)>150?'#111':'#fff';
  /* starters */
  const px=8,py=98,pw=252,ph=146;
  panel(px,py,pw,ph,'rgba(8,13,24,.94)');rect(px,py,pw,15,hc);rect(px,py,pw,1,sh(hc,.4));rect(px,py+15,pw,1,'#000');rect(px,py+16,pw,1,'#f2c230');
- txt('STARTERS',px+7,py+4,hk,1,'l');btn(px+pw-78,py+2,74,11,'EDIT PLAYERS',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#f2c230'});
- rows.forEach((r,i)=>{const e=r[1],y=py+21+i*12.4,p=r[0],dfn=['DL','LB','DB'].includes(p),pc=p==='K'?'#5fb4ff':dfn?'#ff6b5e':'#f2c230';
+ txt(sch?'STARTERS':'ACTIVE CARDS '+curLineup().length+'/9',px+7,py+4,hk,1,'l');btn(px+pw-74,py+2,70,11,'EDIT ROSTER',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#f2c230'});
+ rows.forEach((r,i)=>{const e=r[1],y=py+21+i*12.4*(sch?1:10/9),p=r[0],dfn=['DL','LB','DB'].includes(p),pc=p==='K'?'#5fb4ff':dfn?'#ff6b5e':'#f2c230';
   if(i%2===0)rect(px+3,y-2,pw-6,12,'rgba(255,255,255,.045)');
   rect(px+6,y-1,17,9,'#000');rect(px+7,y-1,15,8,pc);rect(px+7,y-1,15,1,sh(pc,.4));txt(p,px+14.5,y,'#14110a',1,'c',true);
   if(sch){txt(String(e.n).slice(0,28),px+29,y,'#fff',1,'l')}else{if(lgKey(e.sc)){rect(px+27,y-2,11,11,'#000');lgo(e.sc,px+28,y-1,9)}else rect(px+28,y-1,9,9,'#26324a');
-  txt(String(e.n).slice(0,16),px+43,y,'#fff',1,'l');txt(scAb(e.sc),px+150,y,'#7d8aa3',1,'l',true)}
+  txt(String(e.n).slice(0,e.open?20:16),px+43,y,e.open?'#7d8aa3':'#fff',1,'l');txt(scAb(e.sc),px+150,y,'#7d8aa3',1,'l',true)}
   const oc=e.o>=85?'#ffd23f':e.o>=72?'#6ee36e':'#c9d1de';rect(px+pw-27,y-2,22,11,'#000');rect(px+pw-26,y-1,20,9,oc);rect(px+pw-26,y-1,20,1,sh(oc,.5));txt(String(e.o),px+pw-16,y,'#14110a',1,'c',true)});
  /* game */
  const qx=268,qw=204;
@@ -1084,28 +1102,46 @@ function bgHero(){menuBg(92);const t=performance.now()/1000;
 function logo(y,sc){[['VARSITY','#f2c230',0],['BOWL','#fff',1]].forEach(([w,c,i])=>{const yy=y+i*Math.round(sc*7.5);txt(w,W/2,yy+sc,i?'#8a93a6':'#a8741a',sc,'c',true);txt(w,W/2,yy,c,sc,'c')})}
 function bgPlain(){menuBg(22);rect(0,22,W,1,'#000')}
 function drawTeam(){
- bgPlain();const cards=CFG.mode==='cards',has=schoolList().length>0;
- btn(4,4,36,14,'BACK',()=>{SCR=TS.back||'title';TS.back=null},{c:'#4a5a4c',tc:'#cfe8cf'});
- if(has)btn(46,4,58,14,'SCHOOL',()=>setMode('school'),{c:!cards?'#f2c230':'#4a5a4c',tc:!cards?'#14110a':'#cfe8cf'});
- btn(has?108:46,4,64,14,'MY TEAM',()=>setMode('cards'),{c:cards?'#f2c230':'#4a5a4c',tc:cards?'#14110a':'#cfe8cf'});
- if(!cards)btn(178,4,200,14,CFG.school.slice(0,32),()=>{SCR='pick'},{c:'#9fd8ff'});
- else txt(CFG.real?'FROM YOUR CARDS':'SAMPLE: ZED HORNBY\'S CARDS',180,8,'#9fb7a0',1);
- const L=entList();TS.sel=clamp(TS.sel,0,L.length-1);
- panel(4,26,236,192,'rgba(0,0,0,.55)');
- L.forEach((e,i)=>{const y=29+i*10.5,sel=i===TS.sel;btns.push({x:4,y:y-1,w:236,h:10,fn:()=>{TS.sel=i}});if(sel)rect(5,y-1,234,10,'rgba(242,194,48,.3)');
-  txt(e.slot,9,y,grp(e.slot)==='DF'?'#ff9a8a':'#f2c230',1);lgo(e.sc,30,y-1,9);txt(String(e.n).slice(0,15),42,y,'#fff',1);txt(scAb(e.sc),140,y,'#8fa592',1,'l',true);txt(String(e.o),234,y,e.o>=85?'#ffd23f':e.o>=72?'#7dff7d':'#fff',1,'r')});
- const e=L[TS.sel];panel(246,26,230,192,'rgba(0,0,0,.55)');
- txt(String(e.n).slice(0,24),254,31,'#fff',1);txt(e.slot+' · OVR '+e.o,254,42,'#f2c230',1);if(e.sc){lgo(e.sc,W-34-4,31,26,1);txt(scAb(e.sc),254+tw((e.slot+' · OVR '+e.o).toUpperCase(),1)+10,42,'#8fa592',1,'l',true)}
+ bgPlain();const cards=CFG.mode==='cards',cap=luCap(),L=fullPool(),act=curLineup(),on=new Set(act);
+ btn(4,4,36,14,'BACK',()=>{SCR=TS.back||'title';TS.back=null;TS.sw=null},{c:'#4a5a4c',tc:'#cfe8cf'});
+ txt('EDIT ROSTER',48,8,'#f2c230',1);
+ if(!cards)btn(130,4,150,14,CFG.school.slice(0,22),()=>{TS.sw=null;SCR='pick'},{c:'#9fd8ff'});
+ else txt(CFG.real?'YOUR CARDS':'SAMPLE: ZED HORNBY\'S CARDS',130,8,'#9fb7a0',1);
+ txt('ACTIVE '+act.length+'/'+cap,W-8,8,act.length<cap?'#ffd23f':'#7dff7d',1,'r');
+ /* everyone: active first, then the bench */
+ const so=(x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o,A=L.filter(r=>on.has(r.key)).sort(so),B=L.filter(r=>!on.has(r.key)).sort(so);
+ const rows=[{hd:'ACTIVE'},...A,{hd:'BENCH · TAP A PLAYER, THEN SUB IN'},...B],RH=10.5,top=29,vh=186,max=Math.max(0,rows.length*RH-vh);TS.ts=clamp(TS.ts||0,0,max);
+ if(!TS.cur||!L.some(r=>r.key===TS.cur))TS.cur=(A[0]||B[0]||{}).key;
+ panel(4,26,236,192,'rgba(0,0,0,.55)');TS.tl={x:4,y:26,w:236,h:192};
+ rows.forEach((r,i)=>{const y=top+i*RH-TS.ts;if(y<top-1||y>top+vh-RH)return;
+  if(r.hd){rect(6,y-1,232,9,'rgba(242,194,48,.14)');txt(r.hd,10,y,'#f2c230',1,'l',true);return}
+  const sel=r.key===TS.cur,isOn=on.has(r.key);
+  btns.push({x:4,y:y-1,w:236,h:10,fn:()=>{if(TS.sw&&isOn){const k=act.slice(),ix=k.indexOf(r.key);k[ix]=TS.sw;TS.cur=TS.sw;TS.sw=null;setLineup(k)}else{TS.sw=null;TS.cur=r.key}}});
+  if(sel)rect(5,y-1,234,10,'rgba(242,194,48,.3)');else if(TS.sw&&isOn)rect(5,y-1,234,10,'rgba(159,216,255,.16)');
+  rect(7,y+1,4,4,isOn?'#7dff7d':'#3a463c');
+  txt(r.slot,14,y,grp(r.slot)==='DF'?'#ff9a8a':r.slot==='K'?'#5fb4ff':'#f2c230',1);if(cards)lgo(r.sc,34,y-1,9);txt(String(r.n).slice(0,cards?15:22),cards?46:34,y,isOn?'#fff':'#b9c4ba',1);if(cards)txt(scAb(r.sc),144,y,'#8fa592',1,'l',true);txt(String(r.o),234,y,r.o>=85?'#ffd23f':r.o>=72?'#7dff7d':'#fff',1,'r')});
+ if(max>0){const h=Math.max(14,vh*vh/(rows.length*RH)),yy=top+(vh-h)*TS.ts/max;rect(236,top,2,vh,'#0b0f18');rect(236,yy,2,h,'#9fd8ff')}
+ const e0=L.find(r=>r.key===TS.cur);panel(246,26,230,192,'rgba(0,0,0,.55)');if(!e0)return;
+ const e=mkEnt(e0),isOn=on.has(e.key);
+ txt(String(e.n).slice(0,24),254,31,'#fff',1);txt(e.slot+' · OVR '+e.o,254,42,'#f2c230',1);if(e.sc){lgo(e.sc,W-34-4,31,26,1);if(cards)txt(scAb(e.sc),254+tw((e.slot+' · OVR '+e.o).toUpperCase(),1)+10,42,'#8fa592',1,'l',true)}
  const ks=AT[grp(e.slot)],b=rawAt(e),tot=4*clamp(e.o,AMIN,AMAX),left=tot-ks.reduce((a,k)=>a+b[k],0);
- ks.forEach((k,i)=>{const y=56+i*22;txt(ALAB[k],254,y,'#cfe8cf',1);rect(254,y+10,140,6,'#0b0f18');const w=Math.round(140*(b[k]-AMIN)/(AMAX-AMIN));rect(254,y+10,w,6,b[k]>=85?'#ffd23f':b[k]>=70?'#7dff7d':b[k]>=55?'#9fd8ff':'#ff9a8a');
+ ks.forEach((k,i)=>{const y=54+i*20;txt(ALAB[k],254,y,'#cfe8cf',1);rect(254,y+10,140,6,'#0b0f18');const w=Math.round(140*(b[k]-AMIN)/(AMAX-AMIN));rect(254,y+10,w,6,b[k]>=85?'#ffd23f':b[k]>=70?'#7dff7d':b[k]>=55?'#9fd8ff':'#ff9a8a');
   txt(String(b[k]),414,y+9,'#fff',1,'r');
-  {btn(420,y+5,18,13,'-',()=>trainAdj(e,k,-3),{c:'#4a5a4c',tc:'#fff'});btn(442,y+5,18,13,'+',()=>trainAdj(e,k,3),{c:left>0&&b[k]<AMAX?'#7dff7d':'#4a5a4c'})}});
- {txt('POINTS LEFT '+left,254,148,left>0?'#ffd23f':'#9fb7a0',1);
-  const P3=Object.keys(PRE[grp(e.slot)]);P3.forEach((nme,i)=>btn(254+i*72,162,68,14,nme,()=>trainPre(e,PRE[grp(e.slot)][nme]),{c:'#9fd8ff'}));
-  btn(254,182,68,14,'RESET',()=>trainReset(e),{c:'#4a5a4c',tc:'#cfe8cf'});
-  txt('ALL FOUR AVERAGE HIS OVR',254,203,'#7f9a80',1,0,true)}
- txt('EACH ATTRIBUTE: MIN '+AMIN+' · MAX '+AMAX,10,228,'#7f9a80',1,0,true);
- btn(380,224,90,20,'DONE',()=>{SCR=TS.back||'title';TS.back=null},{c:'#f2c230'})}
+  btn(420,y+5,18,13,'-',()=>trainAdj(e,k,-1),{c:'#4a5a4c',tc:'#fff'});btn(442,y+5,18,13,'+',()=>trainAdj(e,k,1),{c:left>0&&b[k]<AMAX?'#7dff7d':'#4a5a4c'})});
+ txt('POINTS LEFT '+left,254,136,left>0?'#ffd23f':'#9fb7a0',1);
+ const P3=Object.keys(PRE[grp(e.slot)]);P3.forEach((nme,i)=>btn(254+i*72,148,68,13,nme,()=>trainPre(e,PRE[grp(e.slot)][nme]),{c:'#9fd8ff'}));
+ btn(254,167,52,13,'RESET',()=>trainReset(e),{c:'#4a5a4c',tc:'#cfe8cf'});
+ if(isOn)btn(312,167,154,13,'TAKE OUT OF LINEUP',()=>{TS.sw=null;setLineup(act.filter(k=>k!==e.key))},{c:'#ff8b5a'});
+ else if(act.length<cap)btn(312,167,154,13,'ADD TO LINEUP',()=>{TS.sw=null;setLineup(act.concat([e.key]))},{c:'#7dff7d'});
+ else btn(312,167,154,13,TS.sw===e.key?'CANCEL':'SUB IN',()=>{TS.sw=TS.sw===e.key?null:e.key},{c:TS.sw===e.key?'#4a5a4c':'#7dff7d',tc:TS.sw===e.key?'#fff':'#14110a'});
+ if(TS.sw)txt('TAP A BLUE ACTIVE PLAYER TO SWAP OUT',254,188,'#9fd8ff',1,'l',true);
+ else txt(isOn?'ACTIVE':'ON THE BENCH',254,188,isOn?'#7dff7d':'#9fb7a0',1,'l',true);
+ txt('ALL FOUR AVERAGE HIS OVR',254,203,'#7f9a80',1,0,true);
+ txt('EMPTY SPOTS = WALK-ONS (OVR '+WALK+')',8,224,'#7f9a80',1,0,true);
+ btn(400,232,70,14,'DONE',()=>{SCR=TS.back||'title';TS.back=null;TS.sw=null},{c:'#f2c230'})}
+addEventListener('pointermove',e=>{if(G||SCR!=='team'||!ptr.down||!TS.tl)return;const p=toC(e);if(ptr.sx<TS.tl.x||ptr.sx>TS.tl.x+TS.tl.w||ptr.sy<TS.tl.y||ptr.sy>TS.tl.y+TS.tl.h)return;if(TS.ty!=null)TS.ts=(TS.ts||0)-(p.y-TS.ty);TS.ty=p.y});
+addEventListener('pointerup',()=>{TS.ty=null});addEventListener('pointercancel',()=>{TS.ty=null});
+addEventListener('wheel',e=>{if(!G&&SCR==='team'){TS.ts=(TS.ts||0)+e.deltaY*.5;e.preventDefault()}},{passive:false});
 function drawPick(){
  bgPlain();const L=schoolList(),RH=22,vis=8,max=Math.max(0,L.length*RH-vis*RH);TS.pk=clamp(TS.pk,0,max);
  btn(4,4,36,14,'BACK',()=>{SCR=TS.pf?'home':'team';TS.pf=false},{c:'#4a5a4c',tc:'#cfe8cf'});txt('PICK YOUR SCHOOL',W/2,8,'#f2c230',1,'c');txt(L.length+' SCHOOLS · DRAG TO SCROLL',W-8,8,'#7f9a80',1,'r',true);

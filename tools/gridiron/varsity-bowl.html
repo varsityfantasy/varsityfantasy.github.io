@@ -98,7 +98,7 @@ function getAt(e){const tot=4*clamp(e.o,AMIN,AMAX),ks=AT[grp(e.slot)],c=e.key&&C
  return natAt(e.slot,e.o,e.g,e.s)}
 const scAb=n=>String(n||'').replace(' Country Day',' CD').replace(' Academy','').replace(' Catholic',' Cath.').replace('Rancho ','Rch ').replace('Ranch','Rnch').replace(' Canyon',' Cyn').replace(' Christian',' Chr.').slice(0,12);
 function mkEnt(r){const e={slot:r.slot,n:r.n,o:Math.round(r.o),key:r.key||null,g:r.g||0,s:r.s||{},sc:r.sc||''};e.at=getAt(e);return e}
-/* lineup (owner, Nov 25): you pick who plays. My Team = up to 9 active cards, any positions; School = up to 18 from the whole roster.
+/* lineup (owner, Nov 25): you pick who plays. My Team and School: up to 9 active players, any positions (owner Nov 25: same rule for both).
    Each spot on the field takes an active player of that position; extra active players fill other spots on the same side of the ball
    (out of position: -6 OVR, -15 at QB); any spot still open is a walk-on (OVR 50, kicker 45). Stack the defense and it gets better, and so on. */
 const NEED={QB:1,RB:1,WR:3,TE:1,K:1,DL:4,LB:3,DB:4},SORD=['QB','RB','WR','TE','K','DL','LB','DB'],WALK=50;
@@ -115,9 +115,9 @@ function buildRoster(list,keys){
  ros.dsub={dl:av(ros.dl,{str:.4,tkl:.35,spd:.25}),lb:av(ros.lb,{tkl:.5,str:.2,spd:.15,sta:.15}),db:av(ros.db,{spd:.45,tkl:.3,sta:.15,str:.1})};
  ros.df=Math.round(ros.dsub.dl*.3+ros.dsub.lb*.3+ros.dsub.db*.4);return ros}
 const LKEY='vs-vb-lineup';CFG.lu=loadJ(LKEY);
-const luCap=()=>CFG.mode==='cards'?9:18,luId=()=>CFG.mode==='cards'?'cards':'s:'+CFG.school;
+const luCap=()=>9,luId=()=>CFG.mode==='cards'?'cards':'s:'+CFG.school;
 const fullPool=()=>CFG.mode==='cards'?(CFG.pool.length?CFG.pool:demoPool()):schoolPool(CFG.school);
-function defKeys(list){if(CFG.mode!=='cards')return autoKeys(list).slice(0,18);const used=new Set(),out=[];
+function defKeys(list){const used=new Set(),out=[];
  ['QB','RB','WR','WR','DL','LB','DB','DB','K'].forEach(sl=>{const r=list.filter(x=>x.slot===sl&&!used.has(x.key)).sort((x,y)=>y.o-x.o)[0];if(r){used.add(r.key);out.push(r.key)}});
  list.slice().sort((x,y)=>y.o-x.o).forEach(r=>{if(out.length<9&&!used.has(r.key)){used.add(r.key);out.push(r.key)}});return out}
 function curLineup(){const list=fullPool(),id=luId();let k=CFG.lu[id];if(Array.isArray(k)){k=k.filter(x=>list.some(r=>r.key===x)).slice(0,luCap());CFG.lu[id]=k;return k}return defKeys(list)}
@@ -203,7 +203,7 @@ function simScore(my,op,drives){let a=0,b=0;const pd=clamp(.3+(my-op)*.009,.08,.
 /* simulated games (owner asked how sims are decided, Nov 25): both teams are rated the SAME way, the average OVR of their 18 starters
    (your TEAM OVR vs the opponent's real roster built with buildRoster), and the level only nudges the opponent (ROOKIE -5, PRO 0, VARSITY +5).
    Teams outside the game's 86 schools rate 62. Played games still use the level's opponent strength. */
-const _ro={};function realOvr(o){const k=o&&o.s;if(!k||!VBD||!VBD.schools[k])return 62;if(_ro[k]==null){const R=buildRoster(schoolPool(k)),L=[R.qb,R.rb,...R.wr,R.te,R.k,...R.dl,...R.lb,...R.db];_ro[k]=Math.round(L.reduce((a,e)=>a+e.o,0)/L.length)}return _ro[k]}
+const _ro={};function realOvr(o){const k=o&&o.s;if(!k||!VBD||!VBD.schools[k])return 62;if(_ro[k]==null){const sp=schoolPool(k),R=buildRoster(sp,defKeys(sp)),L=[R.qb,R.rb,...R.wr,R.te,R.k,...R.dl,...R.lb,...R.db];_ro[k]=Math.round(L.reduce((a,e)=>a+e.o,0)/L.length)}return _ro[k]}
 const simOppO=(o,lvl)=>realOvr(o)+[-5,0,5][lvl==null?1:lvl];
 function ssOppO(i){const op=ssOpp(i);return Math.min(99,LVL[SS.lvl].o+i*1.3+(op.ov?clamp((op.ov-66)*.45,-6,8):0))}
 /* box score for a simulated game or the simulated rest of a game (owner, Nov 24: stats after every game): the offense gets lines that add up
@@ -1030,16 +1030,16 @@ function drawTitle(){
  const sch=CFG.mode==='school';teamBanner(sch?'MY SCHOOL / REAL ROSTER':CFG.real?'MY TEAM / YOUR CARDS':'MY TEAM / SAMPLE CARDS');
  const topOf=l=>(l||[]).reduce((m,e)=>!m||e.o>m.o?e:m,null)||{n:'-',o:0};
  const R=CFG.ros;let rows=[['QB',R.qb],['RB',R.rb],['WR',R.wr[0]],['WR',R.wr[1]],['WR',R.wr[2]],['TE',R.te],['DL',topOf(R.dl)],['LB',topOf(R.lb)],['DB',topOf(R.db)],['K',R.k]];
- if(!sch){const L=fullPool(),A=curLineup().map(k=>L.find(r=>r.key===k)).filter(Boolean).sort((x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o);rows=A.map(r=>[r.slot,r]);while(rows.length<9)rows.push(['--',{n:'OPEN SPOT (WALK-ON)',o:WALK,sc:'',open:1}])}
+ {const L=fullPool(),A=curLineup().map(k=>L.find(r=>r.key===k)).filter(Boolean).sort((x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o);rows=A.map(r=>[r.slot,r]);while(rows.length<9)rows.push(['--',{n:'OPEN SPOT (WALK-ON)',o:WALK,sc:'',open:1}])}
  const c1=CFG.team.c1||'#1d4ed8',hc=lum(c1)<40?sh(c1,.25):c1,hk=lum(hc)>150?'#111':'#fff';
  /* starters */
  const px=8,py=98,pw=252,ph=146;
  panel(px,py,pw,ph,'rgba(8,13,24,.94)');rect(px,py,pw,15,hc);rect(px,py,pw,1,sh(hc,.4));rect(px,py+15,pw,1,'#000');rect(px,py+16,pw,1,'#f2c230');
- txt(sch?'STARTERS':'ACTIVE CARDS '+curLineup().length+'/9',px+7,py+4,hk,1,'l');btn(px+pw-74,py+2,70,11,'EDIT ROSTER',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#f2c230'});
- rows.forEach((r,i)=>{const e=r[1],y=py+21+i*12.4*(sch?1:10/9),p=r[0],dfn=['DL','LB','DB'].includes(p),pc=p==='K'?'#5fb4ff':dfn?'#ff6b5e':'#f2c230';
+ txt((sch?'ACTIVE ':'ACTIVE CARDS ')+curLineup().length+'/9',px+7,py+4,hk,1,'l');btn(px+pw-74,py+2,70,11,'EDIT ROSTER',()=>{SCR='team';TS.sel=0;TS.back='title'},{c:'#f2c230'});
+ rows.forEach((r,i)=>{const e=r[1],y=py+21+i*12.4*10/9,p=r[0],dfn=['DL','LB','DB'].includes(p),pc=p==='K'?'#5fb4ff':dfn?'#ff6b5e':'#f2c230';
   if(i%2===0)rect(px+3,y-2,pw-6,12,'rgba(255,255,255,.045)');
   rect(px+6,y-1,17,9,'#000');rect(px+7,y-1,15,8,pc);rect(px+7,y-1,15,1,sh(pc,.4));txt(p,px+14.5,y,'#14110a',1,'c',true);
-  if(sch){txt(String(e.n).slice(0,28),px+29,y,'#fff',1,'l')}else{if(lgKey(e.sc)){rect(px+27,y-2,11,11,'#000');lgo(e.sc,px+28,y-1,9)}else rect(px+28,y-1,9,9,'#26324a');
+  if(sch){txt(String(e.n).slice(0,28),px+29,y,e.open?'#7d8aa3':'#fff',1,'l')}else{if(lgKey(e.sc)){rect(px+27,y-2,11,11,'#000');lgo(e.sc,px+28,y-1,9)}else rect(px+28,y-1,9,9,'#26324a');
   txt(String(e.n).slice(0,e.open?20:16),px+43,y,e.open?'#7d8aa3':'#fff',1,'l');txt(scAb(e.sc),px+150,y,'#7d8aa3',1,'l',true)}
   const oc=e.o>=85?'#ffd23f':e.o>=72?'#6ee36e':'#c9d1de';rect(px+pw-27,y-2,22,11,'#000');rect(px+pw-26,y-1,20,9,oc);rect(px+pw-26,y-1,20,1,sh(oc,.5));txt(String(e.o),px+pw-16,y,'#14110a',1,'c',true)});
  /* game */

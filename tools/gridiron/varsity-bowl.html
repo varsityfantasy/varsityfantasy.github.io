@@ -147,6 +147,7 @@ const demoPool=()=>SAMPLE_POOL.map(x=>({slot:x[0],n:x[1],o:x[2],g:x[3],s:x[4],sc
 const schOv=sc=>{const a=schoolPool(sc).map(x=>x.o).sort((x,y)=>y-x).slice(0,11);return a.length?a.reduce((x,y)=>x+y,0)/a.length:0};
 function applyTeam(){
  if(CFG.mode==='school'&&!(VBD&&VBD.schools[CFG.school]))CFG.mode='cards';
+ try{ssLoad()}catch(_){}
  CFG.ros=buildRoster(fullPool(),curLineup().filter(k=>!injOf(k)),carMod);
  if(CFG.mode==='school'){const d=VBD.schools[CFG.school];CFG.team={n:nmS(CFG.school),s:CFG.school,c1:d.c[0],c2:d.c[1]}}
  else if(CFG.cardTeam)CFG.team=CFG.cardTeam;
@@ -193,9 +194,13 @@ const TEAMS=[null,null];
 /* season (owner, Nov 24): the team's REAL 2026 schedule from VB_DATA.sched (every regular-season game in order, real bye weeks, then its real
    playoff opponents; rounds are added up to the championship with the best remaining teams). Teams without a schedule get the old random
    season: 10 games + 1 bye, QUARTER/SEMI/FINAL. Win about 60% of the regular-season games to make the playoffs. */
-const SSK='vs-vb-ssn3';
-let SS=null;try{SS=JSON.parse(localStorage.getItem(SSK)||'null')}catch(_){}
-const ssSave=()=>{try{localStorage.setItem(SSK,JSON.stringify(SS))}catch(_){}};
+/* owner Nov 25: one saved season per team (My Team, and each school), so you can switch teams and come back to where you were */
+const SSK='vs-vb-ssn4';let SSALL={};try{SSALL=JSON.parse(localStorage.getItem(SSK)||'{}')||{}}catch(_){}
+try{const o=JSON.parse(localStorage.getItem('vs-vb-ssn3')||'null');if(o&&!Object.keys(SSALL).length)SSALL[o.real?'s:'+o.real:'cards']=o}catch(_){}
+let SS=null;
+function ssLoad(){SS=SSALL[tid()]||null}
+const ssSave=()=>{if(SS)SSALL[tid()]=SS;try{localStorage.setItem(SSK,JSON.stringify(SSALL))}catch(_){}};
+ssLoad();
 function oppObj(n){const d=VBD&&VBD.schools[n];return d?{n:nmS(n),s:n,c1:d.c[0],c2:d.c[1],ov:schOv(n)}:{n:String(n).toUpperCase().slice(0,16),c1:'#4a4f5c',c2:'#ffffff',ov:64}}
 function ssNew(){const me=CFG.team&&CFG.team.s,sc=me&&VBD&&VBD.sched&&VBD.sched[me];let sl=[],real='';
  if(sc&&sc.filter(x=>!x[4]).length>=4){real=me;const rg=sc.filter(x=>!x[4]),po=sc.filter(x=>x[4]);
@@ -220,7 +225,7 @@ function simScore(my,op,drives){let a=0,b=0;const pd=clamp(.3+(my-op)*.009,.08,.
 /* simulated games (owner asked how sims are decided, Nov 25): both teams are rated the SAME way, the average OVR of their 18 starters
    (your TEAM OVR vs the opponent's real roster built with buildRoster), and the level only nudges the opponent (ROOKIE -5, PRO 0, VARSITY +5).
    Teams outside the game's 86 schools rate 62. Played games still use the level's opponent strength. */
-const _ro={};function realOvr(o){const k=o&&o.s;if(!k||!VBD||!VBD.schools[k])return 62;if(_ro[k]==null){const sp=schoolPool(k),ks=defKeys(sp),L=sp.filter(r=>ks.includes(r.key));if(!L.length)return _ro[k]=WALK;_ro[k]=Math.round(L.reduce((a,e)=>a+e.o,0)/L.length)}return _ro[k]}
+const _ro={};function realOvr(o){const k=o&&o.s;if(!k||!VBD||!VBD.schools[k])return 62;if(_ro[k]==null){_ro[k]=top18(schoolPool(k))}return _ro[k]}
 const simOppO=(o,lvl)=>realOvr(o)+[-5,0,5][lvl==null?1:lvl];
 function ssOppO(i){const op=ssOpp(i);return Math.min(99,LVL[SS.lvl].o+i*1.3+(op.ov?clamp((op.ov-66)*.45,-6,8):0))}
 /* box score for a simulated game or the simulated rest of a game (owner, Nov 24: stats after every game): the offense gets lines that add up
@@ -570,7 +575,7 @@ function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i
 function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.length){const w=r.rt[i],d=Math.hypot(w.x-x,w.y-y);if(d<=left){x=w.x;y=w.y;left-=d;i++}else{x+=(w.x-x)/d*left;y+=(w.y-y)/d*left;left=0}}if(left>0&&r.ext){const lim=r.dx<-.25?46:r.dx<.45?64:1e9,go=Math.min(left,Math.max(0,lim-(r.eu||0)));x=Math.min(FL-8,x+r.dx*go);y=clamp(y+r.dy*go,5,FH-5)}return{x,y}}
 function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;
- let r=null,dT=26;P.rc.forEach(o=>{const d=Math.hypot(o.x-b.tx,o.y-b.ty);if(d<dT){dT=d;r=o}});
+ let r=null,dT=18;P.rc.forEach(o=>{const d=Math.hypot(o.x-b.tx,o.y-b.ty);if(d<dT){dT=d;r=o}});
  const cands=P.def.filter(d=>d.imm<=0&&Math.hypot(d.x-b.tx,d.y-b.ty)<24);cands.forEach(c=>{c.sc=34+c.a*28+rnd(0,26)-Math.max(0,Math.hypot(c.x-b.tx,c.y-b.ty)-8)*1.3});
  let who=null,kind='inc';
  if(r){const rs=50+r.q.cat*28+rnd(0,26)-dT*.5;
@@ -607,8 +612,8 @@ function stepPlay(dt){
  if(sn){P.rc.forEach(r=>{if(r===C||r.dcT>0||r.down)return;
    if(S.pl.k==='run'&&r.key==='rb'&&!S.handed){const w=r.rt[Math.min(r.ri,r.rt.length-1)];if(w){moveTo(r,w.x,w.y,r.spd,dt);if(dst(r,w)<4&&r.ri<r.rt.length-1)r.ri++}return}
    const bl=S.ball&&!S.ball.done&&!S.ball.drop;
-   if(bl&&S.tgt===undefined){let bd=80,bt=null;P.rc.forEach(o=>{const d=Math.hypot(o.x-S.land.x,o.y-S.land.y);if(d<bd){bd=d;bt=o}});S.tgt=bt}
-   if(bl&&S.tgt===r){/* the target reads the ball and goes to get it */moveTo(r,S.land.x,S.land.y,r.spd*1.12,dt);r.ph+=.05;return}
+   if(bl&&S.tgt===undefined){/* owner Nov 25: the receiver who can get there soonest reads the ball (a bad throw included), at his normal speed */const left=Math.max(.05,S.ball.T-S.ball.t);let bd=1e9,bt=null;P.rc.forEach(o=>{if(o.key==='rb'&&o.blk)return;const d=Math.hypot(o.x-S.land.x,o.y-S.land.y),need=d/Math.max(1,o.spd)-left;if(d<90&&need<bd){bd=need;bt=o}});S.tgt=bt}
+   if(bl&&S.tgt===r){moveTo(r,S.land.x,S.land.y,r.spd,dt);r.ph+=.05;return}
    /* owner Nov 24: once the ball is thrown (or caught) everyone else turns into a blocker for the catch / the carrier */
    if(S.thrown&&(bl||(C&&C!==P.qb))){blockStep(r,C&&C!==P.qb?C:{x:S.land.x,y:S.land.y},dt);r.ph+=.05;return}
    runRoute(r,dt)})}
@@ -1158,8 +1163,9 @@ function drawTitle(){
 /* ---------- team screen (School / My Team) and the school picker ---------- */
 const TS={sel:0,pk:0,ly:null,back:null,pf:false};
 const entList=()=>{const R=CFG.ros;return [R.qb,R.rb,...R.wr,R.te,R.k,...R.dl,...R.lb,...R.db]};
-/* team OVR (owner Nov 25) = average of the active players only, not the walk-ons */
-const teamOvr=()=>{const P0=fullPool(),L=curLineup().map(k=>P0.find(r=>r.key===k)).filter(Boolean);if(!L.length)return WALK;return L.length?Math.round(L.reduce((a,e)=>a+e.o,0)/L.length):0};
+/* team OVR (owner Nov 25, second ask) = average of the 18 best players you own / on the roster (not just the active 9) */
+const top18=L=>{const a=L.map(r=>r.o).sort((x,y)=>y-x).slice(0,18);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):WALK};
+const teamOvr=()=>top18(fullPool());
 function setMode(m){CFG.mode=m;CFG.chosen=true;applyTeam()}
 /* the numbers the screen shows and edits: your own draft (it may have points left over) or the natural spread */
 function rawAt(e){const ks=AT[grp(e.slot)],c=e.key&&CFG.build[e.key];if(c&&ks.every(k=>c[k]>=AMIN&&c[k]<=AMAX)&&ks.reduce((a,k)=>a+c[k],0)<=atTot(e))return c;return natAt(e.slot,e.o,e.g,e.s)}
@@ -1367,10 +1373,12 @@ function drawFinal(){
  [0,1].forEach(i=>{const t=TEAMS[i].n.slice(0,12)+'  '+G.score[i],y=64+i*34;txt(t,W/2+18,y+8,'#fff',2,'c');lgo(TEAMS[i].lg,W/2+18-tw(t.toUpperCase(),2)/2-38,y-2,32,1)});
  const st=G.st;txt('PASS YDS '+st.py+'   RUSH YDS '+st.ry+'   TDS '+st.td,W/2,136,'#9fb7a0',1,'c');txt('COMP '+st.cmp+'/'+st.att+'   INT '+st.it+'   SACKS '+st.sk,W/2,148,'#9fb7a0',1,'c');if(G.rew)txt('+'+G.rew.cp+' COACH POINTS'+(G.rew.ch?' - CHALLENGE DONE!':' - CHALLENGE MISSED'),W/2,159,G.rew.ch?'#7dff7d':'#ffd23f',1,'c',true);
  if(G.box)return drawBox();
- G.fin+=0;btn(W/2-150,170,140,24,'BOX SCORE',()=>{G.box=true},{sc:1,c:'#9fd8ff'});btn(W/2+10,170,140,24,G.ssn?'CONTINUE SEASON':'PLAY AGAIN',()=>{vClose();SCR=G.ssn?'season':G.vs?'home':'title';G=null},{sc:1,c:'#f2c230'})}
+ /* owner Nov 25: every game ends on its box score (it opens by itself after 2.5 s), and CONTINUE is on the box score */
+ G.fin=(G.fin||0)+1/60;if(G.fin>2.5){G.box=true;return}btn(W/2-70,172,140,24,'BOX SCORE  >',()=>{G.box=true},{sc:1,c:'#f2c230'})}
+function finCont(){vClose();SCR=G.ssn?'season':G.vs?'home':'title';G=null}
 /* box score: every player who recorded a stat, offense left, defense right */
-function drawBox(B){B=B||{ps:G.ps,score:G.score,n0:TEAMS[0].n,n1:TEAMS[1].n,back:()=>{G.box=false}};
- rect(0,B.top||14,W,H-(B.top||14),'#04080e');txt('BOX SCORE',W/2,18,'#f2c230',2,'c');txt(String(B.n0).slice(0,12)+' '+B.score[0]+' - '+B.score[1]+' '+String(B.n1).slice(0,12)+(B.sim?'  (SIMULATED)':''),W/2,36,'#cfe8cf',1,'c');
+function drawBox(B){B=B||{ps:G.ps,score:G.score,n0:TEAMS[0].n,n1:TEAMS[1].n,backL:'CONTINUE',back:finCont,res:G.win?'W':G.tie?'T':'L'};
+ rect(0,B.top||14,W,H-(B.top||14),'#04080e');txt('BOX SCORE',W/2,18,'#f2c230',2,'c');{const rs=B.res||(B.score[0]>B.score[1]?'W':B.score[0]<B.score[1]?'L':'T');txt(rs==='W'?'WIN':rs==='L'?'LOSS':'TIE',W-12,20,rs==='W'?'#7dff7d':rs==='L'?'#ff6a6a':'#fff',2,'r');if(B.sim)txt('SIM',12,20,'#9fd8ff',2,'l')}txt(String(B.n0).slice(0,12)+' '+B.score[0]+' - '+B.score[1]+' '+String(B.n1).slice(0,12)+(B.sim?'  (SIMULATED)':''),W/2,36,'#cfe8cf',1,'c');
  const L=Object.values(B.ps||{}),v=(e,k)=>e.s[k]||0,nm=(e,m)=>shortN(e.n).slice(0,m);
  /* a section = title, column headers with their right edges, rows of [name, cells] */
  const col=(x,w,sections)=>{let y=50;sections.forEach(([title,cols,rows])=>{if(!rows.length)return;rect(x,y-2,w,10,'#22314a');txt(title,x+3,y,'#f2c230',1);cols.forEach(([h,cx])=>txt(h,x+cx,y,'#9fb7a0',1,'r'));y+=11;
@@ -1384,7 +1392,7 @@ function drawBox(B){B=B||{ps:G.ps,score:G.score,n0:TEAMS[0].n,n1:TEAMS[1].n,back
  col(244,228,[['DEFENSE',[['TKL',112],['TFL',134],['SK',152],['INT',176],['PD',196],['FF',220]],by(e=>['DL','LB','DB'].includes(e.p),e=>v(e,'tkl')*10+v(e,'sack')*5+v(e,'dInt')*8).map(e=>[nm(e,11)+' '+e.p,[v(e,'tkl'),v(e,'tfl'),v(e,'sack'),v(e,'dInt'),v(e,'pbu'),v(e,'ff')]])]]);
  if(!L.length)txt('NO PLAYER STATS FOR THIS GAME',W/2,110,'#9fb7a0',1,'c');
  btn(W/2-60,H-24,120,18,B.backL||'BACK',B.back,{c:'#f2c230'})}
-function drawSBox(){bgPlain();drawBox({ps:SBOX.ps,score:SBOX.score,n0:SBOX.n0,n1:SBOX.n1,sim:SBOX.sim,top:0,backL:'SEASON',back:()=>{SBOX=null;SCR='season'}})}
+function drawSBox(){bgPlain();drawBox({ps:SBOX.ps,score:SBOX.score,n0:SBOX.n0,n1:SBOX.n1,sim:SBOX.sim,top:0,backL:'CONTINUE',back:()=>{SBOX=null;SCR='season'}})}
 function drawPause(){rect(0,0,W,H,'rgba(0,0,0,.7)');txt('PAUSED',W/2,70,'#fff',3,'c');txt('TAP TO RESUME',W/2,106,'#cfe8cf',1,'c');btns=[];if(G&&!G.vs&&!G.prac&&!G.over)btn(W/2-60,126,120,20,'SIMULATE REST',simRest,{c:'#9fd8ff'});btn(W/2-50,G&&!G.vs&&!G.prac?154:130,100,20,'QUIT GAME',()=>{paused=false;const vs=G&&G.vs;if(vs)vTx({k:'bye'});vClose();SCR=G&&G.ssn?'season':vs?'home':'title';G=null},{c:'#ff8b5a'})}
 
 /* ---------- main loop ---------- */

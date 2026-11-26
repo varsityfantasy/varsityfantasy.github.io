@@ -521,11 +521,11 @@ function koStep(dt){const S=G.pl,K=S.ko,rb=P.rb,kt=.8;K.t+=dt;S.t=0;
   if(v>=1){S.ball=null;S.ko=null;rb.ball=true;S.t=S.snapT;sfx.catch();fx.push({t:'FIELDED!',x:rb.x,y:rb.y-28,l:.7,c:'#fff'})}}
  camT=K.t<kt?K.kx-330:Math.max(0,(S.ball?S.ball.x:rb.x)-220);stepAnim(dt)}
 /* a blocker picks the defender closest to his path who threatens the ball carrier (or the catch spot) and engages him; strong defenders shed blocks */
-function blockStep(b,T,dt,reach){b.dead=Math.max(0,(b.dead||0)-dt);
+function blockStep(b,T,dt,reach,behind){b.dead=Math.max(0,(b.dead||0)-dt);
  if(b.eng){const d=b.eng;b.et+=dt;b.x+=(d.x-9-b.x)*Math.min(1,6*dt);b.y+=(d.y-b.y)*Math.min(1,6*dt);b.vx=b.vy=0;b.ph+=.04;
-  if(b.et>.7&&Math.random()<dt*(.9+2*(d.a-.5))){d.blk=null;b.eng=null;b.tg=null;b.dead=1.1;b.et=0}return}
+  if(b.et>.7&&Math.random()<dt*(.9+2*(d.a-.5))*(Math.hypot(d.x-T.x,d.y-T.y)<30?2.2:1)){d.blk=null;b.eng=null;b.tg=null;b.dead=1.1;b.et=0}return}
  if(b.dead>0){moveTo(b,T.x,b.y,b.spd*.5,dt);return}
- if(!b.tg||b.tg.blk||b.tg.imm>0){let best=null,bd=1e9;P.def.forEach(d=>{if(d.blk||(d.tgBy&&d.tgBy!==b&&d.tgBy.tg===d&&!d.tgBy.eng)||d.x<T.x-30||Math.hypot(d.x-T.x,d.y-T.y)>(reach||140))return;const q=Math.hypot(d.x-b.x,d.y-b.y)+Math.hypot(d.x-T.x,d.y-T.y)*.6;if(q<bd){bd=q;best=d}});b.tg=best;if(best)best.tgBy=b}
+ if(!b.tg||b.tg.blk||b.tg.imm>0){let best=null,bd=1e9;P.def.forEach(d=>{if(d.blk||(d.tgBy&&d.tgBy!==b&&d.tgBy.tg===d&&!d.tgBy.eng)||(!behind&&d.x<T.x-30)||Math.hypot(d.x-T.x,d.y-T.y)>(reach||140)||(behind&&Math.hypot(d.x-b.x,d.y-b.y)>60&&d.x<T.x-30))return;const q=Math.hypot(d.x-b.x,d.y-b.y)+Math.hypot(d.x-T.x,d.y-T.y)*.6;if(q<bd){bd=q;best=d}});b.tg=best;if(best)best.tgBy=b}
  if(b.tg){moveTo(b,b.tg.x-8,b.tg.y+(T.y-b.tg.y)*.15,b.spd,dt);b.f=b.vx>=0?1:-1;if(Math.hypot(b.tg.x-b.x,b.tg.y-b.y)<13&&!b.tg.blk){b.eng=b.tg;b.tg.blk=b;b.et=0}}
  else moveTo(b,T.x+20,T.y+(b.y>T.y?24:-24),b.spd*.8,dt)}
 function retStep(dt){const S=G.pl;if(S.ko)return koStep(dt);if(S.done){S.end-=dt;stepAnim(dt);return}
@@ -657,7 +657,10 @@ function stepPlay(dt){
  if(S.carrier&&!S.done&&!(S.carrier.dcT>0))carrierMove(S.carrier,dt);
  /* OL: hold the line, shuffle a little */
  const OLP=[0,1,-1,2,3];
- P.ol.forEach((o,i)=>{const d=P.dl[OLP[i]];if(S.pl.k==='pass'&&sn&&d){const px=o.x,py=o.y;if(d.fr>t&&!S.carrier){o.x+=(d.x-9-o.x)*Math.min(1,7*dt);o.y+=(d.y-o.y)*Math.min(1,5*dt)}else{o.x+=(o.x0-3-o.x)*0;}o.vx=(o.x-px)/dt;o.vy=(o.y-py)/dt;o.f=1;return}
+ /* owner Nov 25: once someone other than the QB has the ball past the line (a catch, or a run that broke through), the linemen let go and go find someone to block */
+ const olFree=C&&C!==P.qb&&(S.catchX!==undefined||C.x>G.los+2*YD);
+ if(olFree&&!S.olRel){S.olRel=1;P.dl.forEach(d=>{if(d.fr>t)d.fr=t+.25})}
+ P.ol.forEach((o,i)=>{if(olFree){if(!o.spd||o.spd<40*SPD)o.spd=(54+16*(o.q&&o.q.spd||.4))*SPD;blockStep(o,C,dt,170,true);o.ph+=.05;return}const d=P.dl[OLP[i]];if(S.pl.k==='pass'&&sn&&d){const px=o.x,py=o.y;if(d.fr>t&&!S.carrier){o.x+=(d.x-9-o.x)*Math.min(1,7*dt);o.y+=(d.y-o.y)*Math.min(1,5*dt)}else{o.x+=(o.x0-3-o.x)*0;}o.vx=(o.x-px)/dt;o.vy=(o.y-py)/dt;o.f=1;return}
   o.vx=0;o.vy=0;const adv=S.pl.k==='run'&&sn?Math.min(14,(t-S.snapT)*14):Math.min(2,(t-S.snapT)*3);o.x=o.x0+(sn?adv:0)})
  stepDef(dt);
  /* the ball in the air */
@@ -702,7 +705,7 @@ function stepDef(dt){
    if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:P.rb.x;ty=S.carrier?S.carrier.y:P.rb.y}}
   else{tx=d.x;ty=d.y}
   if(d.role==='lb'||d.role==='s'||d.role==='cb'){if(!C&&S.pl.k==='run'&&d.fr>t){/* read the run */}}
-  if(C||ballIn){P.def.forEach(o=>{if(o===d)return;const ox=d.x-o.x,oy=d.y-o.y,dd=Math.hypot(ox,oy);if(dd>0&&dd<16&&(!C||dst(d,C)>14)){tx+=ox/dd*(16-dd)*1.6;ty+=oy/dd*(16-dd)*1.6}})}
+  if((C||ballIn)&&!d.blk){/* spread out a little, without stalling: the push is capped and only bends the path */let px=0,py=0;P.def.forEach(o=>{if(o===d)return;const ox=d.x-o.x,oy=d.y-o.y,dd=Math.hypot(ox,oy);if(dd>0&&dd<16){px+=ox/dd*(16-dd);py+=oy/dd*(16-dd)}});const pl=Math.hypot(px,py);if(pl>0&&(!C||dst(d,C)>16)){const tl=Math.max(1,Math.hypot(tx-d.x,ty-d.y)),k=Math.min(pl,10)/pl;tx=d.x+(tx-d.x)/tl*30+px*k;ty=d.y+(ty-d.y)/tl*30+py*k}}
   moveTo(d,tx,ty,sp,dt);d.f=d.vx>=0?1:-1})
 }
 function stepAnim(dt){fx.forEach(f=>f.l-=dt);fx=fx.filter(f=>f.l>0);

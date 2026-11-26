@@ -1535,3 +1535,7 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 - Lineups: 9 active players in both modes (`luCap`, `curLineup`, `setLineup`, walk-ons OVR 50 fill open spots, `buildRoster(list,keys,mod)`); team OVR = average of the 9.
 - Career per team (`car()`, localStorage `vs-vb-career`): coach points (CP), facilities `FAC` (Weight Room, Track, Film Room +2 attrs/level; Training Room fewer injuries), training (+1 attribute point for 6 CP, `atTot`), morale per player (`morOf`, `carMod` applies facilities + morale to your roster), injuries per season (`SS.inj`), postgame screen with CP breakdown + press conference (`ssCareer`, `pressQ`, `pressAns`, `drawPress`), weekly challenges (`CHAL`, `ssChal`, +15 CP), rivalry week = last regular-season game (`ssRiv`, opponent +4, double CP), trophy case (`drawFac`).
 - Menus: lineup shown as player cards (`pcard`, rarity colour by OVR, big school logo), difficulty chosen in the season bar or season screen before week 1 and locked.
+
+## v716 (Nov 25): name matching + Abdul Abdallah
+- `mpMatch`: when edit distance fails, a profile also matches a box-score player with the same last name (1 typo allowed for 7+ letters) whose first name starts with the other one (3+ letters, e.g. Abdulhalam / Abdul), only when exactly one player fits.
+- `PROFILE_FIX` aa-p1: Abdulhalam Abdallah (Hoover) -> Abdul Abdallah (WR/DB), runs when he next opens the app.

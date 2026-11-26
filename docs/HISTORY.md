@@ -1544,3 +1544,8 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 ## v718 (Nov 25 night, scheduled score update)
 - Basketball: 14 Nov 25 finals from High School On SI's San Diego Section scoreboard (9 scheduled, 5 added: El Camino 77-51 Mira Mesa, Murrieta Valley 76-66 Mater Dei Catholic, Del Norte 68-43 Tri-City Christian, La Costa Canyon 99-62 Bonita Vista, San Marcos 73-52 Sage Creek).
 - Unresolved conflict: East County Sports has Nov 21 Bonita Vista 63-44 Christian; the app keeps 64-44. No collector run triggered (0 box scores left to fetch); no football games pending.
+
+## v719 (Nov 26 morning, scheduled update)
+- Basketball: added 7 team-games (50 player lines, Nov 24-25) from data/players/san-diego.bb.json (collected Nov 26 11:37 UTC) to bb_2627_box.txt. No collector run triggered: today's scheduled runs had read every game.
+- No new scores: news sources checked (High School On SI, East County Sports, LA Times daily lists) had nothing the app was missing. Left out again SI's doubtful unscheduled Nov 24 lines (see v714). Conflict kept as in app: SI has Nov 19 Tri-City Christian 109-103 Mission Bay, app 44-62.
+- data/sections/san-diego.json (the score collector) has finals for about 30 of the pending games; not used, the scheduled update takes scores from news sources.

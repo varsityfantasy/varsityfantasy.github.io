@@ -391,3 +391,60 @@ jose-sainz||19409229-676|4|0|0|0|0|0|0
 leo-holguin||19409229-676|8|0|0|0|0|0|0
 marco-armenta||19409229-676|2|0|0|0|0|0|0
 sergio-alvarez||19409229-676|2|0|0|0|0|0|0
+#2026-11-24|Liberty Charter|Horizon Prep
+adam-byrd||ast51gr7i1jl5|4|0|0|0|0|0|0
+henry-appelquist||j8doi0ao9lp00|10|0|0|0|0|0|0
+iden-naami||v0cm1l8tt1c99|22|0|0|0|0|0|0
+joseph-hyler||50145tcijmf22|2|0|0|0|0|0|0
+reilly-burr||bvuqdt4sartsc|4|0|0|0|0|0|0
+wesley-ramirez||29gngflb3soaa|2|0|0|0|0|0|0
+#2026-11-24|Mission Bay|Otay Ranch
+alijah-cheeks||jjsfv0cfk8crb|4|1|0|1|1|0|0
+aydin-lundstrom||tqbdn3dkhdn55|4|7|0|3|1|0|0
+brady-hood||v8r56143bp788|15|8|1|1|2|0|0
+lucky-davis||4mov4n11efs66|26|3|3|1|0|0|0
+mykel-gray||hhs0di616j011|2|1|3|1|0|0|0
+romeo-flores||h9d83i76raqdd|14|10|2|0|0|0|0
+#2026-11-25|Chula Vista|El Cajon Valley
+aaron-marucut||1ljpi7l56a4h1|6|1|0|2|0|0|0
+drake-verdida||ql556bqhrfsl5|8|1|0|0|0|0|0
+emilio-reynoso||as0emg71i0dqa|14|1|0|1|0|0|0
+isiah-orta||hemedne2bh7o8|10|4|3|1|0|0|0
+jaylen-clark||6vogp4qmiirk4|0|2|2|2|0|0|0
+michael-culhane||51fi4nnh7k533|2|0|0|0|0|0|0
+myshawn-mitchell||s8fu176p2o3i2|4|0|0|0|0|0|0
+#2026-11-25|Maranatha Christian|Fountain Valley
+axel-erlendsen||5l4v8f0chkq99|2|0|0|0|0|0|0
+ethan-ekwueme||84ev81ooan4qa|2|0|0|0|0|0|0
+john-beals||po2diek407tk4|12|0|0|0|0|0|0
+zeek-ozeruga||umddar339o1bb|18|0|0|0|0|0|0
+#2026-11-25|Sage Creek|San Marcos
+cole-creighton||cfc5iq40qcjj3|5|2|2|2|1|0|0
+jacob-nguyen||q55dgcmg9b9l5|6|1|1|0|0|0|0
+jayden-bringas||jubasen15bm44|2|2|1|0|1|0|0
+jaylon-davis||edmhip5qggqsc|16|3|2|1|1|0|0
+josh-liguori||lcms4oi2fejcc|6|1|1|1|0|0|0
+lincoln-swisher||4dhii6ca7d766|0|0|1|0|0|0|0
+parsa-sohrabi||5omv2mnkb44dd|0|1|0|0|0|0|0
+robert-ghazaryan||4039oa90gdkm6|0|3|1|0|1|0|0
+samuel-jahries||tbi13tc372dp9|17|4|0|1|1|0|0
+#2026-11-25|San Marcos|Sage Creek
+aarav-sobti||4344ou8dimoue|0|2|1|0|0|1|0
+brody-barnhart||jc4mf31ua5300|4|2|2|0|0|0|0
+caleb-peters||rtukg54jg5q88|2|0|0|0|0|0|0
+cj-johnson||oh2tl3s69f200|17|11|8|2|0|1|0
+jordan-martinez||ipkjnm8e1br44|0|0|0|0|0|1|0
+kyle-jacobs||i40mdq3la2fbb|0|2|1|0|0|0|0
+marcus-tuason||bp5sls8uvuaqa|5|0|1|2|0|1|0
+nico-mott||mn6tba22tpdsc|24|4|6|4|0|1|0
+ryan-jacobs||ac6m0gm1rhgn7|8|1|0|0|0|2|0
+sebastian-singh||14nlhqbnjm833|9|5|1|0|7|1|0
+stephen-stagnaro||upe9lh3dt14o8|4|2|1|0|0|1|0
+#2026-11-25|Southwest SD|Valhalla
+alex-cardoso||fb0ptv4v83211|16|0|0|0|0|0|0
+christian-borja||53l9r12rabeee|4|0|0|0|0|0|0
+jeffrey-tolberg||g2r3np5c9kc99|6|0|0|0|0|0|0
+jose-sainz||hahlad63he4g0|4|0|0|0|0|0|0
+leo-holguin||q2b13fpcn22i2|16|0|0|0|0|0|0
+marco-armenta||hnjuj35oiq2p9|8|0|0|0|0|0|0
+sergio-alvarez||gdh42ih2gfavf|6|0|0|0|0|0|0

@@ -1,9 +1,8 @@
-# Varsity phone notifications: every 5 minutes work out which alerts are due and send them (tools/push/send.mjs).
+# Varsity phone notifications (tools/push/send.mjs). TURNED OFF Nov 26 (owner): no schedule, and the workflow is disabled in GitHub.
+# It failed every run because the secrets were never added, and each failure emailed the owner.
 # Needs three repository secrets (Settings > Secrets and variables > Actions): SUPABASE_URL, SUPABASE_SERVICE_KEY, VAPID_PRIVATE_KEY.
 name: Send phone notifications
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
       dry:

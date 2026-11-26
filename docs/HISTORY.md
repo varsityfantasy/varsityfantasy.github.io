@@ -1549,3 +1549,7 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 - Basketball: added 7 team-games (50 player lines, Nov 24-25) from data/players/san-diego.bb.json (collected Nov 26 11:37 UTC) to bb_2627_box.txt. No collector run triggered: today's scheduled runs had read every game.
 - No new scores: news sources checked (High School On SI, East County Sports, LA Times daily lists) had nothing the app was missing. Left out again SI's doubtful unscheduled Nov 24 lines (see v714). Conflict kept as in app: SI has Nov 19 Tri-City Christian 109-103 Mission Bay, app 44-62.
 - data/sections/san-diego.json (the score collector) has finals for about 30 of the pending games; not used, the scheduled update takes scores from news sources.
+
+## v720 (Nov 26): phone notifications removed
+- Owner was getting a GitHub failure email every few minutes: "Send phone notifications" (push.yml, every 5 min) failed every run because its secrets were never added. Workflow disabled in GitHub and its schedule removed.
+- `PUSH_OFF=true` in the app: no phone-alert controls, no permission prompt (`pushAskMaybe`), no local alerts (`ntPhoneOK` false), and devices that had turned them on are unsubscribed once (`pushSync`, localStorage vs-pushgone).

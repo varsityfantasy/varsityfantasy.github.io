@@ -3978,7 +3978,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v719 · Nov 26';
+const APP_BUILD='v720 · Nov 26';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -10254,14 +10254,17 @@ const NT_KINDS=[
 ];
 /* v294 phone notifications: shows each new note as a system notification (lock screen / notification centre) while Varsity is open
    or running in the background. Fully closed apps need a push server (not set up yet). On iPhone it needs Varsity on the Home Screen. */
-const ntPhoneOK=()=>'Notification' in window&&Notification.permission==='granted'&&localStorage.getItem('vs-push')!=='off';
+/* v720 (owner, Nov 26): phone notifications removed. PUSH_OFF hides every phone-alert control, stops local alerts and the prompt,
+   and unsubscribes devices that had turned them on. The sender workflow (.github/workflows/push.yml) is off too. */
+const PUSH_OFF=true;
+const ntPhoneOK=()=>!PUSH_OFF&&'Notification' in window&&Notification.permission==='granted'&&localStorage.getItem('vs-push')!=='off';
 /* v320: closed-app push. This phone subscribes to Web Push (VAPID_PUB is the public key; the private key lives in the GitHub secret VAPID_PRIVATE_KEY),
    saves the subscription with your alert choices through the push_save function (tools/sql/push.sql), and tools/push/send.mjs sends what is due every 5 minutes.
    push_save returns when the sender last ran: only if that is recent does this app stop showing its own system notifications (pushSrv), so nothing doubles. */
 const VAPID_PUB='BF4iv6DaX_MbN-6lVO_3PfyuZCt-phrU7E5SpyZZQna89rWg_mlFCD2G_pUxOpndLixM8iQYzGBT5lYesrGKnXU';
 const b64u=s=>{const b=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))};
 const pushSrv=()=>{try{return NOW()-(+localStorage.getItem('vs-pushsrv')||0)<36*36e5}catch(_){return false}};
-async function pushSync(force){
+async function pushSync(force){if(PUSH_OFF){try{if(!localStorage.getItem('vs-pushgone')){localStorage.setItem('vs-pushgone','1');localStorage.setItem('vs-push','off');pushOff()}}catch(_){}return}
   try{
     if(!SB||!ME.uid||ME.mode!=='live'||!ntPhoneOK()||!('serviceWorker' in navigator)||!('PushManager' in window)||location.protocol!=='https:')return;
     if(!force&&NOW()-(+localStorage.getItem('vs-pushsync')||0)<6*36e5)return;
@@ -10281,7 +10284,7 @@ async function pushOff(){
     if(sub){const ep=sub.endpoint;if(SB&&ME.uid)try{await SB.rpc('push_remove',{p_endpoint:ep})}catch(_){}try{await sub.unsubscribe()}catch(_){}}}}catch(_){}
   try{localStorage.removeItem('vs-pushsrv');localStorage.removeItem('vs-pushsync')}catch(_){}
 }
-async function ntPhoneAsk(){if(!('Notification' in window)){say('This browser can’t show notifications. On iPhone, add Varsity to your Home Screen first.');return}
+async function ntPhoneAsk(){if(PUSH_OFF)return;if(!('Notification' in window)){say('This browser can’t show notifications. On iPhone, add Varsity to your Home Screen first.');return}
   if(Notification.permission==='denied'){say('Notifications are blocked. Allow them for Varsity in your phone or browser settings.');return}
   if(localStorage.getItem('vs-push')==='off'&&Notification.permission==='granted'){localStorage.removeItem('vs-push')}
   else{const r=await Notification.requestPermission();if(r!=='granted'){say('Notifications stay off.');return}}
@@ -10295,7 +10298,7 @@ function inQuiet(){const q=quietOf();if(!q.on||q.from===q.to)return false;const 
 const hr12=h=>(h%12||12)+(h<12?' AM':' PM');
 function firstWin(u){try{if((+((rcRec(u).on||{}).w)||0)>0||(+rcRec(u).w||0)>0)return true;const gm=gameMap();
   return Object.entries(betsOf(u)).some(([id,b])=>{const g=gm[id];return g&&gDone(g)&&g.hs!==g.as&&(g.hs>g.as?'h':'a')===b.s})}catch(_){return false}}
-function pushAskMaybe(){if(!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!('Notification' in window)||Notification.permission!=='default')return;
+function pushAskMaybe(){if(PUSH_OFF||!ME.uid||ME.mode==='guest'||ME.mode==='readonly'||ME.mode==='offline'||!('Notification' in window)||Notification.permission!=='default')return;
   try{if(localStorage.getItem('vs-pushasked'))return}catch(_){return}
   if(!S.loaded.picks||!firstWin(ME.uid)||!$('#cfm').hidden||!$('#gate').hidden)return;
   try{localStorage.setItem('vs-pushasked',String(NOW()))}catch(_){}
@@ -10314,7 +10317,7 @@ function ntPrefs(){let o={};try{o=JSON.parse(localStorage.getItem('vs-notif')||'
 function ntSave(p){const o={};NT_KINDS.forEach(([k])=>{if(k!=='sound')o[k]=!!p[k]});try{localStorage.setItem('vs-notif',JSON.stringify(o));localStorage.setItem('vs-snd',p.sound?'on':'off')}catch(_){}}
 function ntSettingsHTML(){const p=ntPrefs();
   return `<div class="dh"><h2>Notification settings</h2><button class="btn ghost sm" data-act="ntBack">Back</button></div>
-    <div class="nt-phone"><div><b>Phone notifications</b><small class="muted">${ntPhoneOK()?(pushSrv()?'On. Alerts reach your lock screen even when Varsity is closed.':'On. New alerts show on your lock screen while Varsity is open or in the background.'):'Get these on your lock screen. On iPhone, add Varsity to your Home Screen first.'}</small></div>${ntPhoneOK()?`<button class="btn ghost sm" data-act="ntPhoneOff">Turn off</button>`:`<button class="btn sm" data-act="ntPhone">Turn on</button>`}</div>
+    ${PUSH_OFF?'':`<div class="nt-phone"><div><b>Phone notifications</b><small class="muted">${ntPhoneOK()?(pushSrv()?'On. Alerts reach your lock screen even when Varsity is closed.':'On. New alerts show on your lock screen while Varsity is open or in the background.'):'Get these on your lock screen. On iPhone, add Varsity to your Home Screen first.'}</small></div>${ntPhoneOK()?`<button class="btn ghost sm" data-act="ntPhoneOff">Turn off</button>`:`<button class="btn sm" data-act="ntPhone">Turn on</button>`}</div>`}
     ${ntPhoneOK()?`<div class="nt-pc"><h3>Phone alerts</h3><ul class="nt-set">${PUSH_CATS.map(([k,label,hint])=>`<li><span><b>${esc(label)}</b><small class="muted">${esc(hint)}</small></span><button class="nt-sw" role="switch" aria-checked="${pushCats()[k]}" data-act="ptToggle" data-v="${k}"><i></i><span class="sr">${esc(label)}</span></button></li>`).join('')}
       <li><span><b>Quiet hours</b><small class="muted">No phone alerts from ${hr12(quietOf().from)} to ${hr12(quietOf().to)}.</small></span><button class="nt-sw" role="switch" aria-checked="${quietOf().on}" data-act="ptQuiet"><i></i><span class="sr">Quiet hours</span></button></li></ul>
       ${quietOf().on?`<div class="nt-q"><label class="fld"><span>From</span><select data-act="ptQ" data-w="from">${Array.from({length:24},(_,h)=>`<option value="${h}" ${h===quietOf().from?'selected':''}>${hr12(h)}</option>`).join('')}</select></label><label class="fld"><span>To</span><select data-act="ptQ" data-w="to">${Array.from({length:24},(_,h)=>`<option value="${h}" ${h===quietOf().to?'selected':''}>${hr12(h)}</option>`).join('')}</select></label></div>`:''}</div>`:''}
@@ -10328,7 +10331,7 @@ function openNotes(){
   d.innerHTML=`<aside class="dp narrow" role="dialog" aria-modal="true" aria-label="Notifications">
     <div class="dh"><h2>Notifications</h2><div class="btns" style="margin:0"><button class="btn ghost sm" data-act="ntSettings">Settings</button><button class="btn ghost sm" data-act="closeNotes" id="nclose">Close</button></div></div>
     ${n.length?`<ul class="nt">${n.map(x=>`<li><span class="ic ${x.k}">${x.k==='up'||x.k==='ok'?'▲':x.k==='dn'||x.k==='rejected'?'▼':'+'}</span><span>${esc(x.text)}</span></li>`).join('')}</ul><button class="btn" data-act="markRead">Mark all as read</button>`:'<p class="empty">Nothing new since you last looked.</p>'}
-    ${ntPhoneOK()?'':`<button class="btn ghost sm nt-on" data-act="ntPhone">Get these on your phone</button>`}
+    ${ntPhoneOK()||PUSH_OFF?'':`<button class="btn ghost sm nt-on" data-act="ntPhone">Get these on your phone</button>`}
   </aside>`;
   d.hidden=false;const c=$('#nclose');if(c)c.focus();
   sheetPush();

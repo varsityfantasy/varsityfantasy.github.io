@@ -434,7 +434,6 @@ function drawPlayer0(p,opt,x,y){
   [-5+ln,-15+by,10,3,T.j],[-5+ln,-15+by,10,1,K],                           /* shoulder pads */
   [-1+ln,-12+by,2,3,T.a],                                                  /* number */
   ...(p.pose==='up'||p.pose==='blk'?[[-4+ln,-25+by,2,10,SK],[-4+ln,-15+by,2,2,T.j],[3+ln,-26+by,2,11,SK],[3+ln,-15+by,2,2,T.j]]   /* both arms straight up */
-   :p.pose==='oh'?[[-5+ln+aB,-12+by,2,5,SK],[-5+ln+aB,-13+by,2,2,T.j],[3+ln,-15+by,2,2,T.j],[4+ln,-18+by,2,4,SK],[6+ln,-21+by,2,4,SK],[8+ln,-24+by,2,3,SK]]   /* one arm up and out */
    :p.pose==='reach'?[[3+ln,-14+by,7,2,SK],[2+ln,-11+by,7,2,SK],[-1+ln,-13+by,3,2,T.j]]   /* hands out in front */
    :[[-5+ln+aB,-12+by+(mv?(aB>0?-1:1):0),2,5,SK],[-5+ln+aB,-13+by+(mv?(aB>0?-1:1):0),2,2,T.j],[3+ln+aA,-12+by+(mv?(aA>0?-1:1):0),2,5,SK],[3+ln+aA,-13+by+(mv?(aA>0?-1:1):0),2,2,T.j]]),  /* arms */
   [-2+ln,-16+by,4,2,SKD],                                                  /* neck */
@@ -442,7 +441,7 @@ function drawPlayer0(p,opt,x,y){
  ];
  parts(x,y,f,ps);
  helmetR(x+f*ln,y-21+by,f,T,HL,HD,SK);
- if(p.ball){if(p.pose==='up')fball(x+f*1,y-28,0,1);else if(p.pose==='oh')fball(x+f*11,y-27,f>0?-.6:.6,1);else if(p.pose==='reach')fball(x+f*11,y-13,0,1);else fball(x+f*7,y-12,f>0?-.35:.35,1)}
+ if(p.ball){if(p.pose==='up')fball(x+f*1,y-28,0,1);else if(p.pose==='reach')fball(x+f*11,y-13,0,1);else fball(x+f*7,y-12,f>0?-.35:.35,1)}
  if(opt&&opt.ring){g.strokeStyle='#4aa0ff';g.lineWidth=1;g.beginPath();g.ellipse(x+.5,y+.5,11,5,0,0,7);g.stroke()}}
 
 function fball(x,y,ang,sc){sc=sc||1;g.save();g.translate(Math.round(x)+.5,Math.round(y)+.5);g.rotate(ang||0);g.scale(sc,sc);
@@ -632,8 +631,8 @@ function resolveCatch(){
   /* diving catch (owner, Nov 25): a ball just out of reach is caught at full stretch; he lands with it and the play is over there */
   if(dT>10){who.dcT=.5;who.dcF={x:who.x,y:who.y};who.dcB={x:b.tx,y:b.ty};who.f=b.tx>=who.x?1:-1;S.dcatch=who;fx.push({t:'DIVING CATCH!',x:who.x,y:who.y-26,l:.9,c:'#ffe14a'});return}
   /* owner Nov 25: catch animations: one-handed (stretching for an off throw, or a sure-handed catcher showing off), high-point leap on deep/lofted balls, else hands out */
-  {const hi=b.lob||b.h>26,oh=dT>5.5||(who.q.cat>.75&&Math.random()<.18);who.pose=oh?'oh':hi?'up':'reach';who.poseT=oh?.55:hi?.5:.32;who.poseT0=who.poseT;who.f=b.tx>=who.x-2?1:-1;
-   if(oh)fx.push({t:'ONE-HANDED!',x:who.x,y:who.y-30,l:.9,c:'#ffe14a'});else if(hi&&cands.length)fx.push({t:'HIGH-POINTED!',x:who.x,y:who.y-30,l:.8,c:'#9fd8ff'})}
+  /* owner Nov 25: hands out for a normal catch; a jump catch is started before the ball arrives (stepPlay) so he catches it at the top */
+  if(who.jmpT>0){if(cands.length)fx.push({t:'HIGH-POINTED!',x:who.x,y:who.y-34,l:.8,c:'#9fd8ff'})}else{who.pose='reach';who.poseT=.26;who.poseT0=.26}
   fx.push({t:'CAUGHT',x:who.x,y:who.y-24,l:.6,c:'#7dff7d'});
   /* a defender already on him gets him down right away */
   const cl=P.def.filter(d=>d.imm<=0&&dst(d,who)<13);if(cl.length&&Math.random()<.88){who.down=1;endPlay('tackle',who.x,null);sfx.hit()}}
@@ -683,6 +682,8 @@ function stepPlay(dt){
   o.vx=0;o.vy=0;const adv=S.pl.k==='run'&&sn?Math.min(14,(t-S.snapT)*14):Math.min(2,(t-S.snapT)*3);o.x=o.x0+(sn?adv:0)})
  stepDef(dt);
  /* the ball in the air */
+ if(S.ball&&!S.ball.done&&!S.ball.drop&&S.tgt&&!S.tgt.jmpT){const b=S.ball,r=S.tgt,left=b.T-b.t,high=b.lob||b.h>40||(S.jd==null?(S.jd=Math.random()<.35):S.jd)&&P.def.some(d=>dst(d,{x:b.tx,y:b.ty})<9);
+  if(high&&left<=.27&&left>0&&dst(r,{x:b.tx,y:b.ty})<16){r.jmpT=.54;r.jmp0=.54}}
  if(S.ball&&!S.ball.done&&!S.ball.drop){const b=S.ball;b.t+=dt;const u=Math.min(1,b.t/b.T);b.x=b.fx+(b.tx-b.fx)*u;b.y=b.fy+(b.ty-b.fy)*u;b.z=8+Math.sin(u*Math.PI)*b.h;if(u>=1)resolveCatch()}
  /* sacks and tackles */
  if(!S.done){
@@ -1478,7 +1479,7 @@ let last=performance.now();
 function update(dt){
   if(G&&!paused){
    if(G.phase==='play'&&G.pl&&!G.pl.done&&!G.ot&&!G.prac&&!G.over&&!G.vs){const S=G.pl;if(!S.ko&&(S.t>=S.snapT||S.pick)&&G.clock>0){const d=Math.min(dt,G.clock);G.clock-=d;G.live=(G.live||0)+d}}
-   if(P&&P.all)P.all.forEach(p=>{if(p.poseT>0){p.poseT-=dt;if(p.pose==='up'||p.pose==='blk')p.air=Math.max(0,Math.sin((1-p.poseT/p.poseT0)*Math.PI))*(p.pose==='blk'?9:7);if(p.poseT<=0){p.pose=null;p.air=0}}});
+   if(P&&P.all)P.all.forEach(p=>{if(p.jmpT>0){p.jmpT-=dt;const u=1-p.jmpT/p.jmp0;p.air=Math.max(0,Math.sin(Math.min(1,u)*Math.PI))*11;p.pose='up';if(p.jmpT<=0){p.jmpT=0;p.air=0;p.pose=null}return}if(p.poseT>0){p.poseT-=dt;if(p.pose==='blk')p.air=Math.max(0,Math.sin((1-p.poseT/p.poseT0)*Math.PI))*(p.pose==='blk'?9:7);if(p.poseT<=0){p.pose=null;p.air=0}}});
    if(G.phase==='play'&&G.pl)stepPlay(dt);
    else if(G.phase==='presnap'&&P){P.all.forEach(p=>{p.vx=0;p.vy=0})}
    else if(G.phase==='result'){G.rt+=dt;if(G.pl)stepAnim(dt);if(G.pl&&G.pl.res)stepDef2(dt)}

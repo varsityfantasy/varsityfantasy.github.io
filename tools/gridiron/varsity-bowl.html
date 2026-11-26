@@ -18,7 +18,7 @@ const YD=12,EZ=10*YD,GOAL=EZ+100*YD,FL=GOAL+EZ,FT=40,FH=188,CY=FH/2;
 const HL=Math.round(FH/3),HR=FH-HL,hashY=y=>clamp(Math.round(y),HL,HR);
 const rnd=(a,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,dst=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const A=o=>clamp((o-45)/50,0,1);
-const SPD=.616;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
+const SPD=.647;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 
 /* ---------- bitmap font (5x7) ---------- */
@@ -621,9 +621,9 @@ function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;
  let r=null,dT=18;P.rc.forEach(o=>{const d=Math.hypot(o.x-b.tx,o.y-b.ty);if(d<dT){dT=d;r=o}});
  const mi=Math.max(0,(S.miss||0)-((r0=>r0&&r0.jmpT>0)(S.tgt)?10:0)),un=Math.min(30,S.under||0),sd=Math.sqrt(Math.max(0,mi*mi-un*un)),onT=mi<9,dR=24+Math.min(12,un*.45);
- const cands=P.def.filter(d=>d.imm<=0&&Math.hypot(d.x-b.tx,d.y-b.ty)<dR);cands.forEach(c=>{c.sc=34+c.a*28+rnd(0,26)-Math.max(0,Math.hypot(c.x-b.tx,c.y-b.ty)-8)*1.3+un*.55-sd*.35});
+ const cands=P.def.filter(d=>d.imm<=0&&Math.hypot(d.x-b.tx,d.y-b.ty)<dR);cands.forEach(c=>{c.sc=25+c.a*28+rnd(0,26)-Math.max(0,Math.hypot(c.x-b.tx,c.y-b.ty)-8)*1.3+un*.45-sd*.35});
  let who=null,kind='inc';
- if(r){const rs=(onT?62:50)+r.q.cat*28+rnd(0,22)-dT*.5-Math.max(0,mi-9)*.55;
+ if(r){const rs=(onT?67:50)+r.q.cat*28+rnd(0,22)-dT*.5-Math.max(0,mi-9)*.55;
   if(cands.length){const best=cands.reduce((a,c)=>(!a||c.sc>a.sc)?c:a,null),ds=best.sc;
    if(ds>rs+6){who=best;kind='int'}else if(ds>rs-8){kind='pbu'}else{who=r;kind='catch'}}
   else{const pc=onT&&dT<9?clamp(.93+.06*r.q.cat,0,.99):clamp(.8+.15*r.q.cat-dT*.03-Math.max(0,mi-9)*.024,.1,.95);if(Math.random()<pc){who=r;kind='catch'}else kind='drop'}}
@@ -665,6 +665,8 @@ function stepPlay(dt){
    if(bl&&S.tgt===r){moveTo(r,S.land.x,S.land.y,r.spd,dt);r.ph+=.05;return}
    /* owner Nov 24: once the ball is thrown (or caught) everyone else turns into a blocker for the catch / the carrier */
    if(S.thrown&&(bl||(C&&C!==P.qb))){blockStep(r,C&&C!==P.qb?C:{x:S.land.x,y:S.land.y},dt);r.ph+=.05;return}
+   /* owner Nov 26: when the QB scrambles everyone turns to block for him */
+   if(C===P.qb&&S.qbRan){blockStep(r,C,dt,160,true);r.ph+=.05;return}
    runRoute(r,dt)})}
  /* handoff */
  if(S.pl.k==='run'&&!S.handed&&t>=S.snapT+S.hoT&&!S.thrown){S.handed=true;ptr.sx=ptr.x;ptr.sy=ptr.y;const rb=P.rb;S.carrier=rb;rb.ball=true;rb.manual=false;rb.spd=(64+32*rb.q.spd)*SPD*1.0;G.pl.runF=true;P.def.forEach(d=>{if(d.role!=='dl')d.fr=Math.min(d.fr,t+rnd(.1,.5))});fx.push({t:'HANDOFF',x:rb.x,y:rb.y-24,l:.5,c:'#fff'})}
@@ -679,7 +681,7 @@ function stepPlay(dt){
  /* OL: hold the line, shuffle a little */
  const OLP=[0,1,-1,2,3];
  /* owner Nov 25: once someone other than the QB has the ball past the line (a catch, or a run that broke through), the linemen let go and go find someone to block */
- const olFree=C&&C!==P.qb&&(S.catchX!==undefined||C.x>G.los+2*YD);
+ const olFree=C&&((C!==P.qb&&(S.catchX!==undefined||C.x>G.los+2*YD))||(C===P.qb&&S.qbRan));
  if(olFree&&!S.olRel){S.olRel=1;P.dl.forEach(d=>{if(d.fr>t)d.fr=t+.25})}
  P.ol.forEach((o,i)=>{if(olFree){if(!o.spd||o.spd<40*SPD)o.spd=(54+16*(o.q&&o.q.spd||.4))*SPD;blockStep(o,C,dt,170,true);o.ph+=.05;return}const d=P.dl[OLP[i]];if(S.pl.k==='pass'&&sn&&d){const px=o.x,py=o.y;if(d.fr>t&&!S.carrier){o.x+=(d.x-9-o.x)*Math.min(1,7*dt);o.y+=(d.y-o.y)*Math.min(1,5*dt)}else{o.x+=(o.x0-3-o.x)*0;}o.vx=(o.x-px)/dt;o.vy=(o.y-py)/dt;o.f=1;return}
   o.vx=0;o.vy=0;const adv=S.pl.k==='run'&&sn?Math.min(14,(t-S.snapT)*14):Math.min(2,(t-S.snapT)*3);o.x=o.x0+(sn?adv:0)})
@@ -741,7 +743,12 @@ function stepDef(dt){
   else if(ballIn&&S.ball.t>.15&&d.fr<=t+3&&Math.hypot(d.x-S.land.x,d.y-S.land.y)<30){tx=S.land.x;ty=S.land.y;sp*=1.05}
   else if(d.role==='dl'||(d.blitz)){tx=Q.x;ty=Q.y+(d.fr>t?((d.y0||CY)-CY)*.75:0);if(d.fr>t){const u=clamp((t-S.snapT)/Math.max(.5,d.fr-S.snapT),0,1);sp*=.28+.6*u*u;tx=Math.max(Q.x+15,Q.x+(d.fr-t)*10)}}
   else if(d.man){if(d.tt<=0){d.tx=d.man.x+(d.cush||13);d.ty=d.man.y+(d.late?rnd(-9,9):0);d.tt=(d.late?.7:.28)+rnd(0,.2)}tx=d.tx;ty=d.ty;if(S.pl.k==='run'&&!S.handed){tx=d.x;ty=d.y}if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:(P.rb.x+20);ty=S.carrier?S.carrier.y:P.rb.y}}
-  else if(d.zone){let best=null,bd=46;P.rc.forEach(r=>{const dd=Math.hypot(r.x-d.zone.x,r.y-d.zone.y);if(dd<bd){bd=dd;best=r}});if(best){if(d.tt<=0){d.tx=best.x+12;d.ty=best.y;d.tt=.42}tx=d.tx;ty=d.ty}else{tx=d.zone.x;ty=d.zone.y}
+  else if(d.zone){/* owner Nov 26: drop to the zone, then pick up the closest receiver coming through it (one not already covered) and stay on him */
+   const taken=new Set();P.def.forEach(o=>{if(o!==d){if(o.man)taken.add(o.man);if(o.zm)taken.add(o.zm)}});
+   if(d.zm&&(Math.hypot(d.zm.x-d.zone.x,d.zm.y-d.zone.y)>120||taken.has(d.zm)))d.zm=null;
+   if(!d.zm){let bd=95;P.rc.forEach(r=>{if(taken.has(r)||(r.key==='rb'&&r.blk))return;const dd=Math.hypot(r.x-d.zone.x,r.y-d.zone.y)+Math.hypot(r.x-d.x,r.y-d.y)*.4;if(dd<bd){bd=dd;d.zm=r}})}
+   const m=d.zm;if(m){if(d.tt<=0){d.tx=m.x+(m.vx||0)*.3+8;d.ty=m.y+(m.vy||0)*.3;d.tt=.22+(1-d.a)*.15}tx=d.tx;ty=d.ty}
+   else{/* nobody near: drift toward the closest receiver but keep the zone's depth */let nr=null,nd=1e9;P.rc.forEach(r=>{const dd=dst(d,r);if(dd<nd){nd=dd;nr=r}});tx=d.zone.x;ty=nr?d.zone.y+(nr.y-d.zone.y)*.35:d.zone.y}
    if(S.pl.k==='run'&&d.fr<=t){tx=S.carrier?S.carrier.x:P.rb.x;ty=S.carrier?S.carrier.y:P.rb.y}}
   else{tx=d.x;ty=d.y}
   if(d.role==='lb'||d.role==='s'||d.role==='cb'){if(!C&&S.pl.k==='run'&&d.fr>t){/* read the run */}}
@@ -755,7 +762,7 @@ function stepAnim(dt){fx.forEach(f=>f.l-=dt);fx=fx.filter(f=>f.l>0);
 /* ---------- ending a play ---------- */
 /* owner Nov 25: the clock runs live during the play (update); the time already run comes off what the play would burn afterwards.
    If it hit 0:00 during the play the quarter ends when the play is over. */
-const RUNOFF=12;
+const RUNOFF=10;
 function burn(s){if(G.ot||G.prac)return;const lv=G.live||0;G.live=0;s=Math.max(0,s-lv);if(G.clock<=0&&!G.over)s=Math.max(s,.001);let left=s;while(left>0&&!G.over){if(left<G.clock){G.clock-=left;left=0}else{left-=G.clock;G.clock=0;qtrEnd();if(G.q===3&&G.half){break}}}}
 function qtrEnd(){if(G.q>=4){G.over=true;G.clock=0;return}G.q++;G.clock=CFG.ql;if(G.q===3){G.half=true;G.aud=3}}
 const ordn=n=>['','1ST','2ND','3RD','4TH'][n]||'';

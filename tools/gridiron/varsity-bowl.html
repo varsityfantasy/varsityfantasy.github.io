@@ -317,7 +317,7 @@ function ssAfter(r){const i0=SS.res.length;SS.res.push(r);while(SS.sl[SS.res.len
 function teamCols(){const me=CFG.team,op=G.opp;let c1=me.c1,c2=me.c2,d1=op.c1,d2=op.c2;if(Math.abs(lum(c1)-lum(d1))<55){d1=lum(d2)>140&&Math.abs(lum(c1)-lum(d2))>55?d2:'#f4f4f4';if(Math.abs(lum(c1)-lum(d1))<55)d1='#1a1a1a'}
  TEAMS[0]={e:me.c1,j:c1,p:lum(c2)>130?c2:'#e8e8e8',h:sh(c1,-.15),a:c2,n:me.n,lg:me.s||me.n};TEAMS[1]={e:op.c1,j:d1,p:lum(d2)>130?d2:'#e8e8e8',h:sh(d1,-.15),a:d2,n:op.n,lg:op.s||op.n}}
 const SKIN=['#f1c27d','#c68642','#8d5524','#e0ac69','#6f4a2b'];
-function setQ(p,e){p.real=!!(e&&e.key&&!String(e.key).startsWith('f:')&&!e.walk);const ks=AT[grp(e.slot||(p.role==='qb'?'QB':'WR'))],q={};ks.forEach(k=>{q[k]=clamp(((e.at&&e.at[k]!=null?e.at[k]:e.o)-AMIN)/(AMAX-AMIN),0,1)});p.q=q}
+function setQ(p,e){p.ekey=e&&e.key;p.real=!!(e&&e.key&&!String(e.key).startsWith('f:')&&!e.walk);const ks=AT[grp(e.slot||(p.role==='qb'?'QB':'WR'))],q={};ks.forEach(k=>{q[k]=clamp(((e.at&&e.at[k]!=null?e.at[k]:e.o)-AMIN)/(AMAX-AMIN),0,1)});p.q=q}
 function mkP(role,side,x,y,o,name){return{role,side,x,y,x0:x,y0:y,vx:0,vy:0,o,a:A(o),name:name||'',ph:Math.random()*6,f:side?-1:1,fr:0,rt:[],ri:0,imm:0,slow:0,tk:0,man:null,zone:null,skin:pick(SKIN),spd:60}}
 
 function resetGame(o){o=o||{};
@@ -496,6 +496,8 @@ function setupPlay(pl){
 /* ---------- kick returns: after their score or punt, your returner takes it back (drag to steer, flick to juke, tap to dive) ---------- */
 function startReturn(r){
  setupPlay({k:'ret',n:'RETURN',r:{}});const S=G.pl,cx=EZ+r.yl*YD;S.ret=r;S.snapT=.6;S.t=0;G.camOpp=0;
+ /* owner Nov 26: your chosen kick returner (an RB, TE or WR in the lineup) takes the kick; whoever it is swaps places with the RB */
+ {const kr=car().kr,t=kr&&P.rb.ekey!==kr&&[P.te,P.wr0,P.wr1,P.wr2].find(p=>p&&p.ekey===kr);if(t)['name','o','a','q','ekey','real','skin'].forEach(f=>{const v=P.rb[f];P.rb[f]=t[f];t[f]=v})}
  const rb=P.rb;rb.x=rb.x0=cx;rb.y=rb.y0=CY;rb.f=1;rb.vx=rb.vy=0;rb.ball=true;rb.manual=false;rb.rt=[];rb.ri=0;rb.spd=(64+32*rb.q.spd)*SPD;S.carrier=rb;S.catchX=undefined;
  const bl=[...P.ol,P.qb,P.te,P.wr0,P.wr1,P.wr2];S.bl=bl;
  bl.forEach((b,i)=>{const front=i<5,k=front?i:i-5;b.x=b.x0=cx+(front?150:96)+rnd(-8,8);b.y=b.y0=clamp(FH*(k+.5)/5+rnd(-10,10),10,FH-10);b.f=1;b.vx=b.vy=0;b.eng=null;b.tg=null;b.dead=0;b.et=0;b.spd=72*SPD});
@@ -1011,9 +1013,10 @@ function drawWorld(){
  const list=[...P.all];list.sort((a,b)=>a.y-b.y);
  const S=G.pl,C=S&&S.carrier;
 
+ /* owner Nov 26: before the snap, a gold star on the ground under each of YOUR lineup players on the field (not walk-ons), Retro Bowl style */
+ if(P&&(G.phase==='select'||G.phase==='presnap'||(G.phase==='play'&&S&&S.pl&&S.pl.k!=='ret'&&!S.done&&S.t<S.snapT))){const tt=performance.now()/1000;[P.qb,P.rb,P.te,P.wr0,P.wr1,P.wr2].forEach((p,i)=>{if(!p||!p.real)return;const sx=Math.round(p.x-camX),sy=Math.round(p.y+FT),a=.8+.2*Math.sin(tt*4+i*1.7);
+  g.save();g.globalAlpha=a;g.beginPath();for(let k=0;k<10;k++){const an=-Math.PI/2+k*Math.PI/5,rr=k%2?5.6:13;g.lineTo(sx+Math.cos(an)*rr,sy+Math.sin(an)*rr*.45)}g.closePath();g.fillStyle='#ffd23f';g.fill();g.strokeStyle='#8a5a00';g.lineWidth=1;g.stroke();g.restore()})}
  list.forEach(p=>drawPlayer(p,{ring:G.phase==='play'&&S&&!S.done&&((C&&p===C)||(!C&&!S.thrown&&p===P.qb))}));
- /* owner Nov 26: before the snap, a soft twinkling star over each of YOUR lineup players on the field (not walk-ons) */
- if(P&&(G.phase==='select'||G.phase==='presnap'||(G.phase==='play'&&S&&S.pl&&S.pl.k!=='ret'&&!S.done&&S.t<S.snapT))){const tt=performance.now()/1000;[P.qb,P.rb,P.te,P.wr0,P.wr1,P.wr2].forEach((p,i)=>{if(!p||!p.real)return;const sx=Math.round(p.x-camX),sy=Math.round(p.y+FT-31+Math.sin(tt*3+i)*1.5),a=.8+.2*Math.sin(tt*4+i*1.7);g.save();g.globalAlpha=a*.35;g.fillStyle='#fff3b0';g.beginPath();g.arc(sx,sy,8,0,7);g.fill();g.globalAlpha=a;star(sx,sy,6,'#ffe14a','#7a5200');g.restore()})}
  /* labels */
  /* the ball */
  if(S&&S.ball&&!S.ball.done){const b=S.ball,x=Math.round(b.x-camX),y=Math.round(FT+b.y);rect(x-4,y-1,8,3,'rgba(0,0,0,.35)');const yy=y-Math.round(b.z);fball(x,yy,Math.atan2(b.ty-b.fy,b.tx-b.fx)*.6)}
@@ -1309,7 +1312,7 @@ function drawTeam(){
   btns.push({x:4,y:y-1,w:236,h:10,fn:()=>{if(TS.sw&&isOn){const k=act.slice(),ix=k.indexOf(r.key);k[ix]=TS.sw;TS.cur=TS.sw;TS.sw=null;setLineup(k)}else{TS.sw=null;TS.cur=r.key}}});
   if(sel){rect(5,y-1,234,10,'rgba(242,194,48,.3)');rect(5,y-1,1,10,'#f2c230')}else if(TS.sw&&isOn)rect(5,y-1,234,10,'rgba(159,216,255,.16)');
   rect(7,y+1,4,4,isOn?'#7dff7d':'#3a463c');
-  txt(r.slot,14,y,grp(r.slot)==='DF'?'#ff9a8a':r.slot==='K'?'#5fb4ff':'#f2c230',1);if(cards)lgo(r.sc,34,y-1,9);txt(String(r.n).slice(0,cards?15:22),cards?46:34,y,isOn?'#fff':'#b9c4ba',1);if(cards)txt(scAb(r.sc),144,y,'#8fa592',1,'l',true);txt(String(r.o),234,y,r.o>=85?'#ffd23f':r.o>=72?'#7dff7d':'#fff',1,'r')});
+  if(car().kr===r.key&&isOn){rect(196,y-1,18,9,'#ffd23f');txt('KR',205,y,'#14110a',1,'c',true)}txt(r.slot,14,y,grp(r.slot)==='DF'?'#ff9a8a':r.slot==='K'?'#5fb4ff':'#f2c230',1);if(cards)lgo(r.sc,34,y-1,9);txt(String(r.n).slice(0,cards?15:22),cards?46:34,y,isOn?'#fff':'#b9c4ba',1);if(cards)txt(scAb(r.sc),144,y,'#8fa592',1,'l',true);txt(String(r.o),234,y,r.o>=85?'#ffd23f':r.o>=72?'#7dff7d':'#fff',1,'r')});
  if(max>0){const h=Math.max(14,vh*vh/(rows.length*RH)),yy=top+(vh-h)*TS.ts/max;rect(236,top,2,vh,'#0b0f18');rect(236,yy,2,h,'#9fd8ff')}
  const e0=L.find(r=>r.key===TS.cur);panel(246,26,230,192,'rgba(8,13,24,.94)');if(!e0)return;
  const e=mkEnt(e0),isOn=on.has(e.key);
@@ -1326,6 +1329,7 @@ function drawTeam(){
  if(isOn)btn(312,167,154,13,'TAKE OUT OF LINEUP',()=>{TS.sw=null;setLineup(act.filter(k=>k!==e.key))},{c:'#ff8b5a'});
  else if(act.length<cap)btn(312,167,154,13,'ADD TO LINEUP',()=>{TS.sw=null;setLineup(act.concat([e.key]))},{c:'#7dff7d'});
  else btn(312,167,154,13,TS.sw===e.key?'CANCEL':'SUB IN',()=>{TS.sw=TS.sw===e.key?null:e.key},{c:TS.sw===e.key?'#4a5a4c':'#7dff7d',tc:TS.sw===e.key?'#fff':'#14110a'});
+ if(isOn&&['RB','TE','WR'].includes(e.slot)){const kr=car().kr===e.key;btn(386,184,80,13,kr?'KICK RETURNER':'SET AS KR',()=>{const c=car();c.kr=kr?null:e.key;carSave()},{c:kr?'#ffd23f':'#9fd8ff'})}
  if(TS.sw)txt('TAP A BLUE ACTIVE PLAYER TO SWAP OUT',254,188,'#9fd8ff',1,'l',true);
  else txt(isOn?'ACTIVE':'ON THE BENCH',254,188,isOn?'#7dff7d':'#9fb7a0',1,'l',true);
  txt('EMPTY SPOTS ARE WALK-ONS, OVR '+WALK,8,224,'#7f9a80',1,0,true);

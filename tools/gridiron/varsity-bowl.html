@@ -619,7 +619,7 @@ function resolveCatch(){
   fx.push({t:'CAUGHT',x:who.x,y:who.y-24,l:.6,c:'#7dff7d'});
   /* a defender already on him gets him down right away */
   const cl=P.def.filter(d=>d.imm<=0&&dst(d,who)<13);if(cl.length&&Math.random()<.88){who.down=1;endPlay('tackle',who.x,null);sfx.hit()}}
- else if(kind==='int'){S.carrier=who;who.ball=true;G.st.it++;psAdd(P.qb.name,'QB','int');endPlay('int',who.x,'INTERCEPTED!');sfx.bad()}
+ else if(kind==='int'){who.ball=true;G.st.it++;psAdd(P.qb.name,'QB','int');sfx.bad();S.pick={p:who,t:0};who.imm=0;who.slow=0;fx.push({t:'INTERCEPTED!',x:who.x,y:who.y-28,l:1.2,c:'#ff5a5a'});P.def.forEach(d=>{d.blk=null});P.off.forEach(o=>{o.eng=null;o.tg=null;o.down=0;o.dcT=0;o.pose=null})}
  else{S.ball.drop=true;endPlay('inc',G.los,kind==='pbu'?'BROKEN UP':'INCOMPLETE')}}
 
 /* a receiver runs his route at one steady speed, then keeps going the way he was headed until the ball is thrown */
@@ -634,6 +634,7 @@ function stepPlay(dt){
  const S=G.pl;if(!S||S.done&&!S.ball)return;
  if(S.pl.k==='ret')return retStep(dt);
  if(S.done){S.end-=dt;stepAnim(dt);return}
+ if(S.pick)return pickStep(dt);
  S.t+=dt;const t=S.t,Q=P.qb,sn=t>=S.snapT,pass=S.pl.k==='pass'||S.pl.draw;
  const C=S.carrier;
  /* offense: routes */
@@ -680,6 +681,22 @@ function tackles(dt){const S=G.pl,C=S.carrier;if(C.imm>0)return;
   if(Math.random()<p){C.down=1;endPlay(Math.random()<.02+(near.length>1?.03:0)?'fumble':'tackle',C.x,null);sfx.hit();return}
   else{C.imm=.4;C.slow=.35;d.imm=.6;d.slow=.5;fx.push({t:'BROKE IT!',x:C.x,y:C.y-24,l:.7,c:'#ffb84a'});sfx.tap();return}}}
 
+/* owner Nov 25: after an interception you watch the return. The defender runs for your end zone, his teammates block,
+   your whole team (QB too) chases him. Tackled: their ball there. Reaches the end zone: pick six (+7). Out of bounds: their ball there. */
+function pickStep(dt){const S=G.pl,K=S.pick,I=K.p;K.t+=dt;S.t+=dt;
+ let ay=0;P.off.forEach(o=>{if(o.blkd>0)return;const dd=dst(o,I);if(dd<70&&o.x<I.x+20){ay+=(I.y-o.y)/Math.max(8,dd)*(70-dd)/35}});
+ if(I.y<30)ay+=1.4*(30-I.y)/30;if(I.y>FH-30)ay-=1.4*(I.y-FH+30)/30;
+ const L=Math.hypot(1,ay),isp=I.spd*1.05*(I.slow>0?.55:1);I.vx=-isp/L;I.vy=isp*ay/L;I.x+=I.vx*dt;I.y+=I.vy*dt;I.f=-1;I.ph+=.14;if(I.slow>0)I.slow-=dt;
+ P.def.forEach(d=>{if(d===I)return;if(d.imm>0)d.imm-=dt;let best=null,bd=1e9;P.off.forEach(o=>{if(o.blkd>0&&o.blkBy!==d)return;const q=dst(o,I)+dst(o,d)*.8;if(dst(o,I)<150&&q<bd){bd=q;best=o}});
+  if(best){moveTo(d,best.x+(best.x<I.x?6:-6),best.y,d.spd*1.05,dt);d.f=d.vx>=0?1:-1;if(dst(d,best)<11&&!(best.blkd>0)&&Math.random()<dt*3){best.blkd=.8;best.blkBy=d}}
+  else moveTo(d,I.x+18,I.y+(d.y>I.y?22:-22),d.spd,dt)});
+ P.off.forEach(o=>{if(!S.pick)return;if(K.t<.6){o.vx*=.85;o.vy*=.85;return}/* a beat to react to the pick */if(o.blkd>0){o.blkd-=dt;o.vx*=.5;o.vy*=.5;return}const sp=(o.spd||40*SPD)*(o.role==='ol'?1.15:1.35),lt=clamp(dst(o,I)/Math.max(1,sp),0,.7);
+  moveTo(o,I.x+I.vx*lt,I.y+I.vy*lt,sp,dt);o.f=o.vx>=0?1:-1;o.ph+=.05;
+  if(dst(o,I)<10&&(o.tk=(o.tk||0)-dt)<=0){o.tk=.45;if(Math.random()<(o.role==='ol'?.3:.45)){I.down=1;sfx.hit();S.pick=null;S.carrier=null;endPlay('int',I.x,'INTERCEPTED!')}else{I.slow=.3;fx.push({t:'MISSED!',x:I.x,y:I.y-24,l:.6,c:'#ffb84a'})}}});
+ if(!S.pick)return;
+ if(I.x<=EZ){S.pick=null;endPlay('pick6',EZ+4,'PICK SIX!');return}
+ I.y=clamp(I.y,4,FH-4);
+ camT=I.x-300;stepAnim(dt)}
 function stepDef(dt){
  const S=G.pl,t=S.t,C=S.carrier,Q=P.qb,sn=t>=S.snapT;
  P.def.forEach(d=>{
@@ -723,6 +740,7 @@ function endPlay(kind,x,label){
  let txt='',col='#fff',sub='',tdone=false,cl=0;
  const gainTo=xx=>Math.round((xx-los0)/YD);
  if(kind==='td'){const yd=gainTo(GOAL);txt='TOUCHDOWN!';col='#ffe14a';sub=yd+' YARD SCORE';G.score[0]+=6;G.st.td++;if(S.catchX!==undefined&&C&&C.key)G.st.py+=Math.max(0,Math.round((GOAL-los0)/YD));else G.st.ry+=Math.max(0,yd);sfx.td();G.afterTd=true;cl=6;fx.push({t:'TD!',x:GOAL-20,y:C?C.y-24:60,l:1.4,c:'#ffe14a'})}
+ else if(kind==='pick6'){txt='PICK SIX!';col='#ff5a5a';sub='RETURNED FOR A TOUCHDOWN';G.score[1]+=7;G.pick6=true;cl=4}
  else if(kind==='int'||kind==='fumble'){txt=kind==='int'?'INTERCEPTED!':'FUMBLE!';col='#ff5a5a';G.turnover=x;cl=3;if(kind==='fumble')sfx.bad()}
  else if(kind==='inc'){txt=label;col='#ffffff';G.down++;S.stopClock=true;cl=2;x=los0}
  else if(kind==='sack'){const yd=gainTo(x);txt='SACKED! '+yd+' YD';col='#ff8b5a';G.los=x;G.down++;cl=7}
@@ -736,7 +754,7 @@ function endPlay(kind,x,label){
   else{psAdd(C.name,posL(C),'car');psAdd(C.name,posL(C),'rushYd',yd);if(kind==='td')psAdd(C.name,posL(C),'rushTD')}}
  if(kind!=='inc'&&kind!=='td'){const yy=kind==='sack'?Q0y(S):(C?C.y:null);if(yy!=null)G.spotY=hashY(yy)}
  let fd=false;
- if(kind!=='td'&&kind!=='int'&&kind!=='fumble'){
+ if(kind!=='td'&&kind!=='int'&&kind!=='fumble'&&kind!=='pick6'){
   if(G.los>=G.fd){fd=true;txt+=' · FIRST DOWN';col='#7dff7d';G.fd=Math.min(GOAL,G.los+10*YD);G.down=1}
   else if(G.down>4){G.turnover=G.los;G.downs=true;txt='TURNOVER ON DOWNS';col='#ff5a5a'}}
  G.msg={t:txt,c:col,s:sub};G.rt=0;
@@ -746,6 +764,7 @@ function endPlay(kind,x,label){
  G.next=()=>{
   if(G.over)return toFinal();
   if(kind==='td')return afterTd();
+  if(G.pick6){G.pick6=false;if(G.half){G.half=false;return halftime()}if(Math.random()<.14){G.los=EZ+25*YD;setFD();return toSelect()}return startReturn({k:'kick',yl:Math.round(rnd(0,9))})}
   if(G.turnover!==undefined&&G.turnover!==null){const sp=G.turnover;G.turnover=null;G.downs=false;return startOpp(clamp(100-Math.round((sp-EZ)/YD),3,97),kind==='int'?'INTERCEPTION':kind==='fumble'?'FUMBLE':'TURNOVER ON DOWNS')}
   if(G.half){G.half=false;return halftime()}
   toSelect()}}

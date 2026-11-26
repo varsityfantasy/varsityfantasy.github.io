@@ -1540,3 +1540,7 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 - `mpMatch`: when edit distance fails, a profile also matches a box-score player with the same last name (1 typo allowed for 7+ letters) whose first name starts with the other one (3+ letters, e.g. Abdulhalam / Abdul), only when exactly one player fits.
 - `PROFILE_FIX` aa-p1: Abdulhalam Abdallah (Hoover) -> Abdul Abdallah (WR/DB), runs when he next opens the app.
 - v717: `PROFILE_FIX` entries can carry `msg`: sent once as an admin message (picks/<uid>.an["pf-<id>"], the "Message from Varsity" pop-up), also when the fix already ran earlier. aa-p1 tells Abdul Abdallah to refresh to see his Me tab.
+
+## v718 (Nov 25 night, scheduled score update)
+- Basketball: 14 Nov 25 finals from High School On SI's San Diego Section scoreboard (9 scheduled, 5 added: El Camino 77-51 Mira Mesa, Murrieta Valley 76-66 Mater Dei Catholic, Del Norte 68-43 Tri-City Christian, La Costa Canyon 99-62 Bonita Vista, San Marcos 73-52 Sage Creek).
+- Unresolved conflict: East County Sports has Nov 21 Bonita Vista 63-44 Christian; the app keeps 64-44. No collector run triggered (0 box scores left to fetch); no football games pending.

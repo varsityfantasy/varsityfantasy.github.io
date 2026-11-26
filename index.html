@@ -3856,13 +3856,14 @@ const REDO=[{id:'is-1',who:/^\s*isaac\s+smedra\s*$/i}];
    within 2 letters; the profile is set (and marked done, so no forced redo/setup) once per account (fx[id]). */
 const PROFILE_FIX=[{id:'is-p1',em:/smedra/i,nm:'isaac smedra',set:{name:'Isaac Smedra',school:"Bishop's",role:'player',sport:'fb',pos:'DEF',posLabel:'DL'},redo:'is-1'},
   {id:'jp-p1',em:/peacock/i,nm:'justin peacock',sn:'peacock',sch:/san diego/i,set:{name:'Justin Peacock',school:'San Diego',role:'player',sport:'fb',pos:'DEF',posLabel:'DL'}},
-  {id:'aa-p1',em:/abdallah/i,nm:'abdulhalam abdallah',sn:'abdallah',sch:/hoover/i,set:{name:'Abdul Abdallah',school:'Hoover',role:'player',sport:'fb'}}];   /* v716 owner: Abdulhalam Abdallah (Hoover) is the box-score player Abdul Abdallah */   /* v702 owner: put this account on Justin Peacock's player profile */
+  {id:'aa-p1',em:/abdallah/i,nm:'abdulhalam abdallah',sn:'abdallah',sch:/hoover/i,set:{name:'Abdul Abdallah',school:'Hoover',role:'player',sport:'fb'},msg:'You are now linked to your player profile, Abdul Abdallah (Hoover). Refresh the site to see your profile and stats in the Me tab.'}];   /* v716 owner: Abdulhalam Abdallah (Hoover) is the box-score player Abdul Abdallah */   /* v702 owner: put this account on Justin Peacock's player profile */
 function profileFix(){if(ME.mode!=='live'||!ME.uid||VA||!S.loaded.profiles||window.__pfx)return;const p=myProfile()||{};
-  for(const f of PROFILE_FIX){if((p.fx||{})[f.id])continue;
+  for(const f of PROFILE_FIX){if((p.fx||{})[f.id]){/* already linked before the message existed: still send it once */if(f.msg&&S.loaded.picks&&!window.__pfm&&!((S.picks[ME.uid]||{}).an||{})['pf-'+f.id]&&nmNorm(p.name||'')===nmNorm(f.set.name)){window.__pfm=1;const pk=S.picks[ME.uid]||{},an=Object.assign({},pk.an,{['pf-'+f.id]:{m:f.msg,t:'Player profile linked',at:NOW()}});S.picks[ME.uid]=Object.assign({},pk,{an});upsert('picks/'+ME.uid,{an}).catch(()=>{})}continue}
     const hit=f.em.test(String(ME.email||''))||(p.name&&nmLev(nmNorm(p.name),f.nm)<=2)||(f.sn&&p.name&&nmNorm(p.name).includes(f.sn)&&f.sch&&f.sch.test(String(p.school||'')));if(!hit)continue;window.__pfx=1;
     const np=Object.assign({},p,f.set,{v:2,ob:OB_V,joinedAt:p.joinedAt||NOW(),fx:Object.assign({},p.fx,{[f.id]:1})});
     if(f.redo)np.redo=Object.assign({},p.redo,{[f.redo]:1});
-    setDoc('profiles/'+ME.uid,np).then(()=>{if(!$('#gate').hidden&&$('#nm-form'))closeGate();say('Signed in as '+f.set.name+', '+f.set.school);render()}).catch(()=>{window.__pfx=0});return}}
+    setDoc('profiles/'+ME.uid,np).then(()=>{/* v717: optional admin message, shown as the 'Message from Varsity' pop-up */if(f.msg){const pk=S.picks[ME.uid]||{},nt={m:f.msg,t:'Player profile linked',at:NOW()},an=Object.assign({},pk.an,{['pf-'+f.id]:nt});S.picks[ME.uid]=Object.assign({},pk,{an});upsert('picks/'+ME.uid,{an}).catch(()=>{})}
+      if(!$('#gate').hidden&&$('#nm-form'))closeGate();say('Signed in as '+f.set.name+', '+f.set.school);render()}).catch(()=>{window.__pfx=0});return}}
 function redoCheck(){if(ME.mode!=='live'||!ME.uid||VA||!S.loaded.profiles||window.__redo)return;const p=myProfile();if(!p)return;
   for(const r of REDO){if(!r.who.test(String(p.name||''))||(p.redo||{})[r.id])continue;window.__redo=1;
     upsert('profiles/'+ME.uid,{ob:0,redo:Object.assign({},p.redo,{[r.id]:1})}).then(()=>{try{sessionStorage.setItem('vs-reauth','1')}catch(_){}return SB.auth.signOut({scope:'local'})}).catch(()=>{}).finally(()=>location.reload());return}}
@@ -3966,7 +3967,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v716 · Nov 25';
+const APP_BUILD='v717 · Nov 25';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;

@@ -1539,3 +1539,4 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 ## v716 (Nov 25): name matching + Abdul Abdallah
 - `mpMatch`: when edit distance fails, a profile also matches a box-score player with the same last name (1 typo allowed for 7+ letters) whose first name starts with the other one (3+ letters, e.g. Abdulhalam / Abdul), only when exactly one player fits.
 - `PROFILE_FIX` aa-p1: Abdulhalam Abdallah (Hoover) -> Abdul Abdallah (WR/DB), runs when he next opens the app.
+- v717: `PROFILE_FIX` entries can carry `msg`: sent once as an admin message (picks/<uid>.an["pf-<id>"], the "Message from Varsity" pop-up), also when the fix already ran earlier. aa-p1 tells Abdul Abdallah to refresh to see his Me tab.

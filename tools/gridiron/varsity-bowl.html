@@ -601,7 +601,7 @@ function juke(C,dx,dy,back){if(G&&G.pl&&G.pl.ko)return;if(C.dive>0||(C.jcd||0)>0
 function dive(C){if(G&&G.pl&&G.pl.ko)return;if(G&&G.pl&&G.pl.pl.k==='ret'&&C.ball&&C.x<EZ&&!G.pl.done){C.vx=C.vy=0;C.down=1;fx.push({t:'TAKE A KNEE',x:C.x,y:C.y-24,l:1,c:'#fff'});retEnd(G.pl,'tb',C.x);return}if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}
 
 /* throw it backwards and the QB tucks it and runs */
-function scramble(keep){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.1)return;S.carrier=Q;Q.ball=true;Q.manual=false;Q.rt=[];Q.ri=0;Q.spd=(60+32*Q.q.spd)*SPD*1.0;Q.f=1;S.qbRan=true;if(!keep){ptr.sx=ptr.x;ptr.sy=ptr.y}ptr.t0=performance.now();Q.vx=Math.max(Q.vx||0,Q.spd*.25);fx.push({t:'SCRAMBLE!',x:Q.x,y:Q.y-26,l:.7,c:'#fff'});P.def.forEach(d=>d.fr=Math.min(d.fr,S.t))}
+function scramble(keep){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT)return;S.carrier=Q;Q.ball=true;Q.manual=false;Q.rt=[];Q.ri=0;Q.spd=(60+32*Q.q.spd)*SPD*1.0;Q.f=1;S.qbRan=true;if(!keep){ptr.sx=ptr.x;ptr.sy=ptr.y}ptr.t0=performance.now();/* owner Nov 26: he takes off right away, even mid-drop from under center (no backpedal first) */Q.vx=Q.spd*.45;Q.vy=0;Q.cs=.2;fx.push({t:'SCRAMBLE!',x:Q.x,y:Q.y-26,l:.7,c:'#fff'});P.def.forEach(d=>d.fr=Math.min(d.fr,S.t))}
 /* the throw: you aim. The ball flies to the spot you tap (or drag to and release); whoever is there when it lands can catch it */
 function throwAt(wx,wy,lob){
  const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.15)return;
@@ -930,7 +930,7 @@ function hitBtn(p){for(let i=btns.length-1;i>=0;i--){const b=btns[i];if(p.x>=b.x
 addEventListener('pointerdown',e=>{e.preventDefault();try{window.focus()}catch(_){}const p=toC(e);ptr.down=true;ptr.id=e.pointerId;ptr.x=ptr.sx=p.x;ptr.y=ptr.sy=p.y;ptr.t0=performance.now();ptr.moved=0;ptr.scr=false;ptr.hitb=hitBtn(p);ptr.still=performance.now();ptr.lx=p.x;ptr.ly=p.y;ptr.pdn=true;try{cv.setPointerCapture&&0}catch(_){}},{passive:false});
 addEventListener('pointermove',e=>{if(!ptr.down)return;const p=toC(e);ptr.x=p.x;ptr.y=p.y;ptr.moved=Math.max(ptr.moved,Math.hypot(p.x-ptr.sx,p.y-ptr.sy));if(G&&G.phase==='presnap'&&G.pl&&G.pl.pl.k==='pass'&&!ptr.hitb&&ptr.moved>10)snap();
  /* owner Nov 25: drag forward (toward the end zone) after the snap and the QB takes off right away; keep holding to steer him */
- {const S=G&&G.phase==='play'&&G.pl;if(S&&!S.thrown&&!S.carrier&&!S.done&&S.pl.k==='pass'&&!ptr.hitb&&S.t>=S.snapT+.1){const ddx=p.x-ptr.sx,ddy=p.y-ptr.sy;if(ddx>18&&ddx>Math.abs(ddy)*.7){ptr.scr=true;scramble(true)}}}if(Math.hypot(p.x-ptr.lx,p.y-ptr.ly)>2){ptr.still=performance.now();ptr.lx=p.x;ptr.ly=p.y}},{passive:false});
+ {const S=G&&G.phase==='play'&&G.pl;if(S&&!S.thrown&&!S.carrier&&!S.done&&S.pl.k==='pass'&&!ptr.hitb&&S.t>=S.snapT){const ddx=p.x-ptr.sx,ddy=p.y-ptr.sy;if(ddx>14&&ddx>Math.abs(ddy)*.6){ptr.scr=true;scramble(true)}}}if(Math.hypot(p.x-ptr.lx,p.y-ptr.ly)>2){ptr.still=performance.now();ptr.lx=p.x;ptr.ly=p.y}},{passive:false});
 const up=e=>{if(!ptr.down)return;const p=toC(e);ptr.x=p.x;ptr.y=p.y;ptr.aim=aimInfo();ptr.down=false;const dt=performance.now()-ptr.t0,dx=p.x-ptr.sx,dy=p.y-ptr.sy,l=Math.hypot(dx,dy);
  const b=ptr.hitb,b2=hitBtn(p);ptr.hitb=null;if(b&&b2&&b.x===b2.x&&b.y===b2.y&&b.w===b2.w&&b.h===b2.h&&l<14){sfx.tap();b2.fn();return}
  if(ptr.scr){ptr.scr=false;return}/* the drag that started a scramble is not a juke or dive */
@@ -1009,13 +1009,13 @@ function drawWorld(){
  if(G.fd<GOAL||true){rect(fx2-1,FT,2,FH,'#ffe600')}
  rect(lx-1,FT,2,FH,'#2f6bff');
  if(!P)return;
- if((G.phase==='presnap'||G.phase==='play')&&G.pl&&!G.pl.thrown&&!G.pl.carrier&&!G.pl.done)P.rc.forEach(r=>{const x=Math.round(r.x-camX)+.5,y=Math.round(FT+r.y+2)+.5;g.lineWidth=2;g.strokeStyle='rgba(0,0,0,.5)';g.beginPath();g.ellipse(x,y+1,8,3.5,0,0,7);g.stroke();g.strokeStyle=r.rcol||'#fff';g.beginPath();g.ellipse(x,y,8,3.5,0,0,7);g.stroke()});
+ if((G.phase==='presnap'||G.phase==='play')&&G.pl&&!G.pl.thrown&&!G.pl.carrier&&!G.pl.done)P.rc.forEach(r=>{if(r.real&&G.phase==='presnap')return;const x=Math.round(r.x-camX)+.5,y=Math.round(FT+r.y+2)+.5;g.lineWidth=2;g.strokeStyle='rgba(0,0,0,.5)';g.beginPath();g.ellipse(x,y+1,8,3.5,0,0,7);g.stroke();g.strokeStyle=r.rcol||'#fff';g.beginPath();g.ellipse(x,y,8,3.5,0,0,7);g.stroke()});
  const list=[...P.all];list.sort((a,b)=>a.y-b.y);
  const S=G.pl,C=S&&S.carrier;
 
- /* owner Nov 26: before the snap, a gold star on the ground under each of YOUR lineup players on the field (not walk-ons), Retro Bowl style */
- if(P&&(G.phase==='select'||G.phase==='presnap'||(G.phase==='play'&&S&&S.pl&&S.pl.k!=='ret'&&!S.done&&S.t<S.snapT))){const tt=performance.now()/1000;[P.qb,P.rb,P.te,P.wr0,P.wr1,P.wr2].forEach((p,i)=>{if(!p||!p.real)return;const sx=Math.round(p.x-camX),sy=Math.round(p.y+FT),a=.8+.2*Math.sin(tt*4+i*1.7);
-  g.save();g.globalAlpha=a;g.beginPath();for(let k=0;k<10;k++){const an=-Math.PI/2+k*Math.PI/5,rr=k%2?5.6:13;g.lineTo(sx+Math.cos(an)*rr,sy+Math.sin(an)*rr*.45)}g.closePath();g.fillStyle='#ffd23f';g.fill();g.strokeStyle='#8a5a00';g.lineWidth=1;g.stroke();g.restore()})}
+ /* owner Nov 26: Retro Bowl style star on the ground under each of YOUR lineup players on the field (not walk-ons), before the snap: a crisp pixel star, dark outline, gold fill, light top */
+ if(P&&(G.phase==='select'||G.phase==='presnap'||(G.phase==='play'&&S&&S.pl&&S.pl.k!=='ret'&&!S.done&&S.t<S.snapT))){[P.qb,P.rb,P.te,P.wr0,P.wr1,P.wr2].forEach(p=>{if(!p||!p.real)return;const sx=Math.round(p.x-camX)-8,sy=Math.round(p.y+FT)-4;
+  [[-1,0],[1,0],[0,-1],[0,1]].forEach(([a,b])=>pxi(GSTAR,sx+a,sy+b,1,'#3a2400'));pxi(GSTAR,sx,sy,1,'#ffc400');pxi(GSTAR_HI,sx,sy,1,'#fff09a')})}
  list.forEach(p=>drawPlayer(p,{ring:G.phase==='play'&&S&&!S.done&&((C&&p===C)||(!C&&!S.thrown&&p===P.qb))}));
  /* labels */
  /* the ball */
@@ -1169,6 +1169,8 @@ const PX={bolt:['...###','..###.','.###..','######','..###.','.###..','###...','
  star:['...#...','...#...','#######','.#####.','..###..','.##.##.','#.....#'],
  plus:['..##..','..##..','######','######','..##..','..##..'],
  key:['.###......','#...#.....','#...######','#...#.#.#.','.###......']};
+const GSTAR=['........#........','.......###.......','......#####......','#################','.###############.','...###########...','....#########....','...#####.#####...','..####.....####..','..##.........##..'],
+ GSTAR_HI=['........#........','.......#.#.......','.................','.######...######.'];
 function pxi(m,x,y,s,c){g.fillStyle=c;m.forEach((r,j)=>{for(let i=0;i<r.length;i++)if(r[i]==='#')g.fillRect(Math.round(x+i*s),Math.round(y+j*s),s,s)})}
 function pxw(m,s){return m[0].length*s}
 /* chunky 3D tile button with a pixel icon; sinks while pressed */
@@ -1396,7 +1398,7 @@ function drawPresnap(){
  const S=G.pl,pl=G.curPlay;
  /* routes on the field */
  const run=pl.k==='run';
- P.rc.forEach(r=>{const rt=r.rt;if(!rt.length)return;routeDraw([[r.x-camX,FT+r.y]].concat(rt.map(q=>[q.x-camX,FT+q.y])),r.rcol||'#fff')});
+ P.rc.forEach(r=>{const rt=r.rt;if(!rt.length)return;routeDraw([[r.x-camX+(r.real?9:0),FT+r.y]].concat(rt.map(q=>[q.x-camX,FT+q.y])),r.rcol||'#fff')});
  const au=G.prac?99:G.aud,to=G.prac?99:G.to[0];
  btn(W-112,22,104,16,au>0?'AUDIBLE'+(G.prac?'':' ('+au+')'):'NO AUDIBLES LEFT',()=>{if(au>0){if(!G.prac)G.aud--;choosePlay(randPass(G.curPlay))}},{c:au>0?'#0a0d08':'#3a3a3a',tc:au>0?'#fff':'#999'});
  const can=to>0&&G.gap>0&&!G.prac;

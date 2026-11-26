@@ -18,7 +18,7 @@ const YD=12,EZ=10*YD,GOAL=EZ+100*YD,FL=GOAL+EZ,FT=40,FH=188,CY=FH/2;
 const HL=Math.round(FH/3),HR=FH-HL,hashY=y=>clamp(Math.round(y),HL,HR);
 const rnd=(a,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,dst=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const A=o=>clamp((o-45)/50,0,1);
-const SPD=.56;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
+const SPD=.616;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 
 /* ---------- bitmap font (5x7) ---------- */
@@ -505,23 +505,38 @@ function startReturn(r){
  G.los=cx;G.fd=Math.min(GOAL,cx+10*YD);G.down=1;camT=cx-150;camX=camT;ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();fx=[];
  /* owner Nov 25: a full return. Their kicker runs up and kicks it from their 35 (punter: about 40 yards away), the coverage runs down, your blockers set up,
     and the ball hangs in the air until your returner fields it; then it is your run */
- {const kick=r.k==='kick',kx=kick?GOAL-35*YD:Math.min(GOAL-5*YD,cx+rnd(38,46)*YD),ky=CY,n=P.def.length;
-  rb.ball=false;rb.y=rb.y0=clamp(CY+rnd(-30,30),30,FH-30);
-  S.ko={t:0,kx,ky,T:kick?2.5:2.3,h:kick?120:150,kk:P.def[0]};
-  P.def.forEach((d,i)=>{d.kxs=i===0?kx:kx-6;d.kys=i===0?ky:clamp(FH*(i+.5)/n,8,FH-8);d.x=i===0?kx+30:d.kxs;d.y=d.kys;d.f=-1});
-  bl.forEach((b,i)=>{b.kxs=kx-(i<5?11:22)*YD+rnd(-6,6);b.kys=b.y0;b.x=b.kxs;b.y=b.kys;b.f=-1});
+ {const kick=r.k==='kick',kx=kick?GOAL-35*YD:Math.min(GOAL-5*YD,cx+rnd(36,48)*YD),ky=CY+rnd(-10,10);
+  /* where it comes down: kicks anywhere from 8 yards deep in the end zone to the 12, and anywhere across the field; punts around the given spot */
+  const lx=kick?EZ+rnd(-8,12)*YD:clamp(cx+rnd(-5,5)*YD,EZ+3*YD,GOAL-10*YD),ly=clamp(CY+rnd(-62,62),22,FH-22),T=kick?2.9+rnd(-.25,.3):2.5+rnd(-.2,.3);
+  r.yl=Math.round((lx-EZ)/YD);
+  /* your returner starts deep and drifts under it */
+  rb.ball=false;rb.x=rb.x0=kick?EZ+3*YD:lx-4*YD;rb.y=rb.y0=clamp(CY+(ly-CY)*.3,24,FH-24);rb.f=1;
+  S.ko={t:0,kx,ky,lx,ly,T,h:kick?115:140,kk:P.def[0]};
+  /* their kick team: kicker behind the ball, five a side spread across the field */
+  const cov=P.def.slice(1);cov.forEach((d,i)=>{const k=i<5?i:i+1;d.x=kx-5+rnd(-2,2);d.y=clamp(FH*(k+.5)/11,8,FH-8);d.lane=d.y;d.f=-1;d.vx=d.vy=0});
+  const kk=P.def[0];kk.x=kx+30;kk.y=ky;kk.f=-1;
+  /* your return team: front five, a second level, and two up back */
+  bl.forEach((b,i)=>{const row=i<5?0:i<8?1:2,k=row===0?i:row===1?i-5:i-8,n=row===0?5:row===1?3:2;
+   b.x=row===0?kx-11*YD:row===1?kx-24*YD:Math.max(lx,EZ)+14*YD;b.y=clamp(FH*(k+.5)/n+rnd(-6,6),10,FH-10);b.f=-1;b.vx=b.vy=0;b.eng=null;b.tg=null;b.wall=row});
   camT=kx-330;camX=camT}
  G.phase='play';sfx.whistle()}
-function koStep(dt){const S=G.pl,K=S.ko,rb=P.rb,kt=.8;K.t+=dt;S.t=0;
- const u=clamp((K.t-kt)/K.T,0,1),e=u<1?u*(2-u):1,kk=K.kk;
- if(K.t<kt){const v=K.t/kt;kk.x=K.kx+30*(1-v);kk.y=K.ky;kk.vx=-60;kk.vy=0;kk.f=-1;kk.ph+=.16}
- const glide=(p,flip)=>{if(p===kk&&K.t<kt)return;const nx=p.kxs+(p.x0-p.kxs)*e,ny=p.kys+(p.y0-p.kys)*e;p.vx=(nx-p.x)/dt;p.vy=(ny-p.y)/dt;p.x=nx;p.y=ny;p.f=flip;if(u>0&&u<1)p.ph+=.13};
- P.def.forEach(d=>glide(d,-1));S.bl.forEach(b=>glide(b,b.x0<b.x?-1:1));
- if(K.t>=kt&&!K.kicked){K.kicked=1;sfx.throw();kk.vx=0;S.ball={x:K.kx,y:K.ky,z:2,fx:K.kx,fy:K.ky,tx:rb.x,ty:rb.y,T:K.T,t:0,h:K.h};S.land={x:rb.x,y:rb.y}}
- if(S.ball){const b=S.ball;b.t+=dt;const v=Math.min(1,b.t/b.T);b.x=b.fx+(b.tx-b.fx)*v;b.y=b.fy+(b.ty-b.fy)*v;b.z=2+Math.sin(v*Math.PI)*b.h*(1-v*.15);
-  rb.vx=rb.vy=0;rb.f=1;if(v>.82&&!rb.pose){rb.pose='reach';rb.poseT=.45;rb.poseT0=.45}
-  if(v>=1){S.ball=null;S.ko=null;rb.ball=true;S.t=S.snapT;sfx.catch();fx.push({t:'FIELDED!',x:rb.x,y:rb.y-28,l:.7,c:'#fff'})}}
- camT=K.t<kt?K.kx-330:Math.max(0,(S.ball?S.ball.x:rb.x)-220);stepAnim(dt)}
+function koStep(dt){const S=G.pl,K=S.ko,rb=P.rb,kt=.85,kk=K.kk;K.t+=dt;S.t=0;
+ if(K.t<kt){moveTo(kk,K.kx+2,K.ky,40/kt,dt);kk.f=-1;kk.ph+=.15}
+ else if(!K.kicked){K.kicked=1;sfx.throw();S.ball={x:K.kx,y:K.ky,z:2,fx:K.kx,fy:K.ky,tx:K.lx,ty:K.ly,T:K.T,t:0,h:K.h};S.land={x:K.lx,y:K.ly}}
+ const b=S.ball,left=b?Math.max(.05,b.T-b.t):9;
+ /* coverage sprints down in their lanes, squeezing toward the ball as it comes down; the kicker trails as a safety */
+ P.def.forEach(d=>{if(!K.kicked&&K.t<kt*.45)return;if(d===kk){moveTo(d,Math.max(K.lx+30*YD,d.x-200),d.y+(K.ly-d.y)*.02,d.spd*.7,dt);d.f=-1;return}
+  const sq=clamp(1-left/K.T,0,1)*.55,ty=d.lane+(K.ly-d.lane)*sq;moveTo(d,K.lx-20,ty,d.spd*1.3,dt);d.f=-1});
+ /* your return team drops back and sets a wall in front of the catch, then turns to face the coverage */
+ S.bl.forEach(p=>{if(!K.kicked)return;const fx0=Math.max(K.lx,EZ)+(p.wall===0?22:p.wall===1?14:7)*YD,ty=p.wall===2?K.ly+(p.y>K.ly?14:-14):p.y+(K.ly-p.y)*.25;
+  moveTo(p,fx0,ty,p.spd*1.05,dt);p.f=dst(p,{x:fx0,y:ty})<6?1:-1});
+ if(b){b.t+=dt;const v=Math.min(1,b.t/b.T);b.x=b.fx+(b.tx-b.fx)*v;b.y=b.fy+(b.ty-b.fy)*v;b.z=2+Math.sin(v*Math.PI)*b.h*(1-v*.15);
+  /* the returner reads it and gets under it */
+  const need=dst(rb,{x:K.lx,y:K.ly});if(need>2)moveTo(rb,K.lx,K.ly,rb.spd*Math.min(1,need/(rb.spd*left)+.35),dt);else{rb.vx=rb.vy=0}rb.f=1;
+  if(v>.86&&!rb.pose){rb.pose='reach';rb.poseT=.5;rb.poseT0=.5}
+  if(v>=1){S.ball=null;S.ko=null;rb.x=K.lx;rb.y=K.ly;rb.ball=true;S.t=S.snapT;S.ezCatch=rb.x<EZ;sfx.catch();
+   fx.push({t:S.ezCatch?'IN THE END ZONE: SWIPE FORWARD TO KNEEL':'FIELDED!',x:rb.x+(S.ezCatch?60:0),y:rb.y-28,l:S.ezCatch?2.2:.7,c:S.ezCatch?'#ffd23f':'#fff'})}}
+ camT=K.t<kt?K.kx-330:Math.max(0,b?Math.min(b.x-230,Math.max(K.lx-140,b.x-330)):rb.x-190);stepAnim(dt)}
 /* a blocker picks the defender closest to his path who threatens the ball carrier (or the catch spot) and engages him; strong defenders shed blocks */
 function blockStep(b,T,dt,reach,behind){b.dead=Math.max(0,(b.dead||0)-dt);
  if(b.eng){const d=b.eng;b.et+=dt;b.x+=(d.x-9-b.x)*Math.min(1,6*dt);b.y+=(d.y-b.y)*Math.min(1,6*dt);b.vx=b.vy=0;b.ph+=.04;
@@ -545,6 +560,7 @@ function retEnd(S,kind,x){if(S.done)return;S.done=true;S.end=1.2;S.res=kind;cons
  const t=Math.round(S.t+3);let txt1,col='#fff',sub='';
  if(kind==='td'){G.score[0]+=6;G.st.td++;sfx.td();txt1=(r.k==='kick'?'KICKOFF':'PUNT')+' RETURN TD!';col='#ffe14a';sub='YOU TOOK IT ALL THE WAY';G.afterTd=true;G.turnover=null}
  else if(kind==='fumble'){const yl=clamp(Math.round((x-EZ)/YD),1,99);txt1='FUMBLE ON THE RETURN!';col='#ff5a5a';G.turnover=x;sfx.bad();G.los=x}
+ else if(kind==='tb'||(S.ezCatch&&x<EZ&&kind!=='fair')){G.los=EZ+25*YD;G.turnover=null;G.spotY=CY;txt1='TOUCHBACK';sub='BALL AT YOUR 25';kind='tb';S.res='tb'}
  else{x=Math.max(EZ+YD,x);const yl=clamp(Math.round((x-EZ)/YD),1,99);G.los=x;G.turnover=null;G.spotY=C?hashY(C.y):CY;
   txt1=kind==='fair'?'FAIR CATCH · OWN '+yl:'RETURNED TO THE '+(yl>50?'OPP '+(100-yl):'OWN '+yl);sub=kind==='fair'?'':(yl-r.yl>=0?'+':'')+(yl-r.yl)+' YARDS ON THE RETURN';if(kind!=='fair'){sfx.hit()}
   if(kind==='oob'){txt1='OUT OF BOUNDS · OWN '+yl}}
@@ -581,7 +597,7 @@ function juke(C,dx,dy,back){if(G&&G.pl&&G.pl.ko)return;if(C.dive>0||(C.jcd||0)>0
   if(Math.random()<p){d.imm=.6;d.slow=.7;d.vx*=.2;d.vy*=.2;fooled++}}
  if(fooled)fx.push({t:fooled>1?'DOUBLE JUKE!':'JUKED HIM!',x:C.x,y:C.y-24,l:.6,c:'#9fd8ff'});else C.slow=Math.max(C.slow,.3);
  sfx.tap()}
-function dive(C){if(G&&G.pl&&G.pl.ko)return;if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}
+function dive(C){if(G&&G.pl&&G.pl.ko)return;if(G&&G.pl&&G.pl.pl.k==='ret'&&C.ball&&C.x<EZ&&!G.pl.done){C.vx=C.vy=0;C.down=1;fx.push({t:'TAKE A KNEE',x:C.x,y:C.y-24,l:1,c:'#fff'});retEnd(G.pl,'tb',C.x);return}if(C.dive>0||C.jk>0)return;C.dive=.26;C.manual=true;fx.push({t:'DIVE',x:C.x,y:C.y-24,l:.6,c:'#fff'})}
 
 /* throw it backwards and the QB tucks it and runs */
 function scramble(){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.1)return;S.carrier=Q;Q.ball=true;Q.manual=false;Q.rt=[];Q.ri=0;Q.spd=(60+32*Q.q.spd)*SPD*1.0;Q.f=1;S.qbRan=true;ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();P.def.forEach(d=>d.fr=Math.min(d.fr,S.t))}

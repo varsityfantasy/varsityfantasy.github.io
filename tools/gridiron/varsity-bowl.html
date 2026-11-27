@@ -18,6 +18,7 @@ const YD=12,EZ=10*YD,GOAL=EZ+100*YD,FL=GOAL+EZ,FT=40,FH=188,CY=FH/2;
 const HL=Math.round(FH/3),HR=FH-HL,hashY=y=>clamp(Math.round(y),HL,HR);
 const rnd=(a,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a),clamp=(v,a,b)=>v<a?a:v>b?b:v,dst=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const A=o=>clamp((o-45)/50,0,1);
+const RUN_PUR=.94;/* defender pursuit speed on runs and scrambles */
 const SPD=.647;   /* everyone runs at this share of the first version's speed (owner: players moved way too fast) */
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 
@@ -957,9 +958,9 @@ function stepPlay(dt){
  stepAnim(dt)}
 
 function tackles(dt){const S=G.pl,C=S.carrier;if(C.imm>0)return;
- let near=P.def.filter(d=>dst(d,C)<11&&d.imm<=0&&!d.blk&&d.fr<=S.t);if(!near.length)return;
+ let near=P.def.filter(d=>dst(d,C)<((S.pl.k==='run'||S.qbRan)?9.5:11)&&d.imm<=0&&!d.blk&&d.fr<=S.t);if(!near.length)return;
  for(const d of near){d.tk-=dt;if(d.tk>0)continue;d.tk=.5;
-  const p=clamp(.5+(d.a-(C.q&&C.q.str!=null?C.q.str*.8+C.q.spd*.2:C.a))*.3+(near.length-1)*.12+(C.dive>0?.2:0)+(C.exp>0?.25:0),.1,.9);
+  const p=clamp(((S.pl.k==='run'||S.qbRan)?.43:.5)+(d.a-(C.q&&C.q.str!=null?C.q.str*.8+C.q.spd*.2:C.a))*.3+(near.length-1)*.12+(C.dive>0?.2:0)+(C.exp>0?.25:0),.1,.9);
   if(Math.random()<p){C.down=1;endPlay(Math.random()<.02+(near.length>1?.03:0)?'fumble':'tackle',C.x,null);sfx.hit();return}
   else{C.imm=.4;C.slow=.35;d.imm=.6;d.slow=.5;fx.push({t:'BROKE IT!',x:C.x,y:C.y-24,l:.7,c:'#ffb84a'});sfx.tap();return}}}
 
@@ -991,7 +992,7 @@ function stepDef(dt){
   d.tt-=dt;
   let tx,ty;
   const ballIn=S.ball&&!S.ball.done&&!S.ball.drop;
-  if(C){/* owner Nov 25: pursue hard and take angles (aim where he will be, lead up to 0.8 s) */const ms=sp*(d.role==='dl'?1.5:d.role==='lb'?1.68:1.9),dc=dst(d,C),ah=d.x>C.x-6,lt=clamp(dc/ms,0,.8)*(ah?1:.35);sp=ms;tx=C.x+C.vx*lt;ty=C.y+C.vy*lt;
+  if(C){/* owner Nov 25: pursue hard and take angles (aim where he will be, lead up to 0.8 s) */const rs=S.pl.k==='run'||S.qbRan,/* owner Nov 27: runs and scrambles were too fast to get anywhere: defenders pursue at 78% of before and need a beat to read the ball carrier */ms=sp*(d.role==='dl'?1.5:d.role==='lb'?1.68:1.9)*(rs?RUN_PUR*(C.cs<.4?.6+C.cs:1):1),dc=dst(d,C),ah=d.x>C.x-6,lt=clamp(dc/ms,0,.8)*(ah?1:.35);sp=ms;tx=C.x+C.vx*lt;ty=C.y+C.vy*lt;
    /* owner Nov 25: keep leverage and spread out: defenders in front hold part of their own lane until they are close, so they do not all pile into one spot */
    if(ah&&dc>34){const k=clamp((dc-34)/90,0,.45);ty=ty*(1-k)+d.y*k;tx=Math.max(tx,C.x+Math.min(40,dc*.35))}if(d.fr>t){sp*=.2;if(d.role==='dl'||d.role==='lb'){/* still blocked */}}}
   else if(ballIn&&d.role!=='dl'&&!d.blitz&&S.ball.t>(d.rd==null?(d.rd=.03+(1-d.a)*.14):d.rd)){

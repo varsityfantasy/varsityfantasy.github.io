@@ -101,12 +101,12 @@ Object.assign(CFG,{mode:'school',school:'',pool:[],cardTeam:null,cardSchool:'',b
    weekly challenges, rivalry week and a trophy case. Saved per team (My Team, or each school) in localStorage 'vs-vb-career'. ---------- */
 const CRK='vs-vb-career',CAR0=(()=>{try{return JSON.parse(localStorage.getItem('vs-vb-career')||'{}')||{}}catch(_){return {}}})();
 const tid=()=>CFG.mode==='cards'?'cards':'s:'+CFG.school;
-function car(){const k=tid();const c=CAR0[k]=CAR0[k]||{cp:25};c.fac=c.fac||{wt:0,tr:0,fl:0,md:0};c.bo=c.bo||{};c.mor=c.mor||{};c.tro=c.tro||{t:0,rv:0,pw:0,sn:0};return c}
+function car(){const k=tid();const c=CAR0[k]=CAR0[k]||{cp:25};c.fac=c.fac||{wt:0,tr:0,fl:0,md:0};c.bo=c.bo||{};c.db=c.db||{};c.mor=c.mor||{};c.tro=c.tro||{t:0,rv:0,pw:0,sn:0};return c}
 function carSave(){try{localStorage.setItem(CRK,JSON.stringify(CAR0))}catch(_){}}
 const FAC=[{k:'wt',n:'WEIGHT ROOM',d:'+2 STRENGTH, TACKLE, ARM',a:['str','tkl','arm'],c:'#ff8b5a'},{k:'tr',n:'TRACK',d:'+2 SPEED, STAMINA',a:['spd','sta'],c:'#7dff7d'},
  {k:'fl',n:'FILM ROOM',d:'+2 CATCH, ACCURACY, RANGE',a:['cat','acc','rng'],c:'#9fd8ff'},{k:'md',n:'TRAINING ROOM',d:'FEWER, SHORTER INJURIES',a:[],c:'#ff6b9a'}];
 const FMAX=5,facCost=l=>30+l*20,TRAIN_CP=6,TRAIN_MAX=24;
-const atTot=e=>4*clamp(e.o,AMIN,AMAX)+((e.key&&car().bo[e.key])||0);
+const atTot=e=>4*clamp(e.o,AMIN,AMAX)+((e.key&&car().bo[e.key])||0)+((e.key&&car().db[e.key])||0);/* bo = CP training, db = daily drill points */
 const morOf=k=>{const m=car().mor[k];return m==null?70:m};
 function morAdd(k,d){if(!k)return;car().mor[k]=clamp(Math.round(morOf(k)+d),20,99)}
 function injOf(k){try{return (SS&&SS.inj&&SS.inj[k])||0}catch(_){return 0}}
@@ -1176,7 +1176,7 @@ function btn(x,y,w,h,label,fn,o){o=o||{};btns.push({x,y,w,h,fn});const c=o.c||'#
 function panel(x,y,w,h,c){rect(x-2,y-2,w+4,h+4,'#000');rect(x-1,y-1,w+2,h+2,'#4b5d4d');rect(x,y,w,h,c||'rgba(6,12,20,.9)');rect(x,y,w,1,'rgba(255,255,255,.18)');rect(x-2,y-2,2,2,'rgba(0,0,0,0)');}
 function draw(){
  btns=[];
- if(!G){SCR==='sbox'&&SBOX?drawSBox():SCR==='season'&&SS?(SS.press?drawPress():drawSeason()):SCR==='fac'?drawFac():SCR==='team'?drawTeam():SCR==='lineup'?drawLineup():SCR==='lcmp'?drawLcmp():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
+ if(!G){SCR==='sbox'&&SBOX?drawSBox():SCR==='season'&&SS?(SS.press?drawPress():drawSeason()):SCR==='fac'?drawFac():SCR==='team'?drawTeam():SCR==='lineup'?drawLineup():SCR==='lcmp'?drawLcmp():SCR==='drill'?drawDrill():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
  const ph=G.phase;
  camX+=(clamp(camT,0,FL-W)-camX)*.14;camX=clamp(camX,0,FL-W);
  const shk=G.shk>0?Math.min(3,Math.round(G.shk*12)):0;if(shk){g.save();g.translate(Math.round(rnd(-shk,shk)),Math.round(rnd(-shk,shk)))}
@@ -1662,8 +1662,81 @@ function drawTrain(){
  ks.forEach((k,i)=>{const y=62+i*19,v=b[k],can=ok&&v<AMAX;txt(ALAB[k],318,y,'#cfe8cf',1,'l',true);rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff9a8a');
   txt(String(v),402,y+7,'#fff',1,'r');btn(408,y+2,62,13,v>=AMAX?'MAX':'+1  '+TRAIN_CP+' CP',()=>trainBoost(e,k),{c:can?'#7dff7d':'#2a3346',tc:can?'#14110a':'#6b7280'})});
  if(sk){const y=62+ks.length*19;txt(ALAB[sk[0]],318,y,'#cfe8cf',1,'l',true);const v=Math.round(specVal(sk[0],b,e.o));rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,'#9fd8ff');txt(String(v),402,y+7,'#fff',1,'r');txt('BUILT FROM HIS RATINGS',318,y+16,'#7d8aa3',1,'l',true)}
+ {const used=drUsed();btn(252,182,104,16,used?'DRILL DONE':'DAILY DRILL',()=>{if(!drUsed())drOpen(e.key)},{c:used?'#2a3346':'#ffd23f',tc:used?'#6b7280':'#14110a'});txt(used?'BACK TOMORROW':'1 FREE PLAY A DAY: +1 TO +4',362,187,used?'#9fb7a0':'#ffd23f',1,'l',true)}
  const m=LU.msg&&performance.now()-LU.mt<4000?LU.msg:c.cp<TRAIN_CP?'NOT ENOUGH CP. WIN GAMES IN SEASON MODE TO EARN MORE':'TAP A PLAYER, THEN +1 ON THE RATING TO RAISE';
  txt(m.slice(0,56),252,206,c.cp<TRAIN_CP?'#ff9a8a':'#9fb7a0',1,'l',true)}
+/* owner Nov 27: DAILY DRILL, one free play a day (per device, local date) from the TRAIN tab. Pick a player and the rating to work on, then 20 seconds of
+   target practice: footballs-on-a-target pop up, shrink and vanish. Tap them: closer to the middle scores more (BULLSEYE), a streak multiplies points,
+   tapping empty grass or letting one vanish breaks the streak. More targets, faster and moving as the clock runs down. Score sets the reward (+1 to +4
+   on that rating, free, does not count against TRAIN_MAX). Best score kept in 'vs-vb-drill'. */
+const DRK='vs-vb-drill',DR_T=20,DR_TIER=[[0,1,'BRONZE','#d08a4a'],[6000,2,'SILVER','#cfd6e0'],[11000,3,'GOLD','#ffd23f'],[16000,4,'ELITE','#7dff7d']];
+let DR=null;
+const drToday=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const drSave=()=>{try{return JSON.parse(localStorage.getItem(DRK)||'{}')||{}}catch(_){return {}}};
+const drUsed=()=>drSave().d===drToday();
+const drTier=sc=>DR_TIER.reduce((a,t)=>sc>=t[0]?t:a,DR_TIER[0]);
+function drOpen(key){DR={key,st:'pick',k:null};SCR='drill'}
+function drStart(k){const sv=drSave();sv.d=drToday();try{localStorage.setItem(DRK,JSON.stringify(sv))}catch(_){}
+ DR.k=k;DR.st='count';DR.c=3;DR.t=0;DR.sc=0;DR.cb=0;DR.mcb=0;DR.hit=0;DR.miss=0;DR.bull=0;DR.tg=[];DR.fx=[];DR.sp=0;DR.lt=performance.now();DR.shk=0}
+function drSpawn(){const T=DR.t,u=T/DR_T,L=Math.max(.85,2.1-1.25*u),r0=17-5*u,mv=T>7,an=Math.random()*6.283,v=mv?18+28*u:0;
+ let x,y,n=0;do{x=40+Math.random()*(W-80);y=48+Math.random()*(H-80);n++}while(n<12&&DR.tg.some(q=>Math.hypot(q.x-x,q.y-y)<44));
+ DR.tg.push({x,y,r0,L,a:0,vx:Math.cos(an)*v,vy:Math.sin(an)*v})}
+function drStep(dt){if(DR.st==='count'){DR.c-=dt;if(DR.c<=0){DR.st='play';DR.c=0}return}
+ if(DR.st!=='play')return;DR.t+=dt;DR.shk=Math.max(0,DR.shk-dt);
+ const u=DR.t/DR_T,want=DR.t<5?1:DR.t<11?2:3,gap=Math.max(.28,.75-.45*u);DR.sp-=dt;
+ if(!DR.tg.length)DR.sp=Math.min(DR.sp,.22);if(DR.tg.length<want&&DR.sp<=0){drSpawn();DR.sp=gap}
+ for(let i=DR.tg.length-1;i>=0;i--){const q=DR.tg[i];q.a+=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;if(q.x<24||q.x>W-24)q.vx*=-1;if(q.y<40||q.y>H-16)q.vy*=-1;
+  if(q.a>=q.L){DR.tg.splice(i,1);DR.miss++;if(DR.cb>=3)DR.fx.push({t:'STREAK LOST',x:q.x,y:q.y,l:.8,c:'#ff6b6b'});else DR.fx.push({t:'X',x:q.x,y:q.y,l:.6,c:'#ff6b6b'});DR.cb=0}}
+ DR.fx.forEach(f=>{f.l-=dt;f.y-=dt*18});DR.fx=DR.fx.filter(f=>f.l>0);
+ if(DR.t>=DR_T){DR.st='res';DR.tg=[];drFinish()}}
+function drTap(p){if(!DR||DR.st!=='play')return;let best=null,bd=1e9;
+ DR.tg.forEach(q=>{const r=q.r0*(1-q.a/q.L)+3,d=Math.hypot(p.x-q.x,p.y-q.y);if(d<=r&&d/r<bd){bd=d/r;best=q}});
+ if(!best){DR.cb=0;DR.fx.push({t:'MISS',x:p.x,y:p.y,l:.5,c:'#ff9a8a'});DR.shk=.12;sfx.tap();return}
+ DR.tg.splice(DR.tg.indexOf(best),1);DR.cb++;DR.mcb=Math.max(DR.mcb,DR.cb);DR.hit++;
+ const fast=1-best.a/best.L,bull=bd<.32,mul=1+Math.min(DR.cb-1,20)*.1,pts=Math.round((60+60*fast+(bull?60:0))*mul);DR.sc+=pts;if(bull)DR.bull++;
+ DR.fx.push({t:(bull?'BULLSEYE ':'')+'+'+pts,x:best.x,y:best.y-6,l:.7,c:bull?'#ffd23f':'#fff'});
+ if(DR.cb>0&&DR.cb%5===0)DR.fx.push({t:DR.cb+' STREAK!',x:W/2,y:60,l:.9,c:'#7dff7d'});
+ if(bull)sfx.catch();else sfx.tap()}
+function drFinish(){const sv=drSave(),tr=drTier(DR.sc);DR.best=sv.b||0;DR.nb=DR.sc>DR.best;if(DR.nb){sv.b=DR.sc;try{localStorage.setItem(DRK,JSON.stringify(sv))}catch(_){}}
+ const r0=fullPool().find(r=>r.key===DR.key);DR.got=0;if(!r0)return;const e=mkEnt(r0),cc=car();
+ for(let i=0;i<tr[1];i++){const b=Object.assign({},rawAt(e));if(b[DR.k]>=AMAX)break;cc.db[e.key]=(cc.db[e.key]||0)+1;b[DR.k]+=1;CFG.build[e.key]=b;DR.got++}
+ saveJ(BKEY,CFG.build);carSave();applyTeam();sfx.td()}
+function drawDrill(){
+ const now=performance.now(),dt=Math.min(.05,(now-(DR&&DR.lt||now))/1000);if(DR)DR.lt=now;
+ if(!DR){SCR='lineup';return}
+ const r0=fullPool().find(r=>r.key===DR.key);if(!r0&&DR.st==='pick'){SCR='lineup';return}
+ const e=r0?mkEnt(r0):null;
+ if(DR.st==='pick'){bgPlain();btn(4,4,36,14,'BACK',()=>{SCR='lineup';DR=null},{c:'#4a5a4c',tc:'#cfe8cf'});txt('DAILY DRILL',W/2,8,'#7dff7d',1,'c');
+  panel(8,28,140,190,'rgba(8,13,24,.94)');pcard(36,36,84,138,r0,{i:0});txt(lastNm(e.n),78,182,'#fff',1,'c');txt(e.slot+'  OVR '+e.o,78,194,ovC(e.o),1,'c',true);
+  panel(156,28,316,190,'rgba(8,13,24,.94)');txt('PICK THE RATING TO WORK ON',314,34,'#f2c230',1,'c');
+  const ks=AT[grp(e.slot)],b=rawAt(e);ks.forEach((k,i)=>{const y=50+i*24,full=b[k]>=AMAX;btn(170,y,288,19,ALAB[k]+'  '+b[k]+(full?'  (MAX)':''),()=>{if(!full)drStart(k)},{c:full?'#2a3346':'#9fd8ff',tc:full?'#6b7280':'#14110a'})});
+  const y2=50+ks.length*24+6;txt('20 SECONDS. TAP THE TARGETS BEFORE THEY VANISH.',314,y2,'#cfe8cf',1,'c',true);txt('HIT THE MIDDLE FOR A BULLSEYE. STREAKS MULTIPLY.',314,y2+10,'#cfe8cf',1,'c',true);
+  txt('BRONZE +1  SILVER +2  GOLD +3  ELITE +4',314,y2+24,'#ffd23f',1,'c',true);const bs=drSave().b;if(bs)txt('YOUR BEST '+bs,314,y2+36,'#9fb7a0',1,'c',true);
+  txt('ONE TRY A DAY. IT STARTS WHEN YOU PICK.',314,206,'#ff9a8a',1,'c',true);return}
+ drStep(dt);
+ /* the practice field */
+ g.save();if(DR.shk>0)g.translate(Math.round((Math.random()-.5)*4),Math.round((Math.random()-.5)*3));
+ rect(-4,0,W+8,H,'#1f5a28');for(let i=0;i<W+40;i+=40)rect(i-4,0,20,H,'rgba(255,255,255,.035)');for(let x=20;x<W;x+=48){rect(x,24,1,H-24,'rgba(255,255,255,.18)')}
+ DR.tg.forEach(q=>{const f=1-q.a/q.L,r=Math.max(2,q.r0*f+3),sx=Math.round(q.x),sy=Math.round(q.y),warn=f<.3&&Math.sin(now/40)>0;
+  g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(sx+2,sy+3,r,r*.9,0,0,7);g.fill();
+  [[1,warn?'#ff6b6b':'#fff'],[.72,'#d33b3b'],[.46,'#fff'],[.32,'#ffd23f']].forEach(([m,c])=>{g.fillStyle=c;g.beginPath();g.arc(sx,sy,r*m,0,7);g.fill()});
+  g.strokeStyle='#000';g.lineWidth=1;g.beginPath();g.arc(sx+.5,sy+.5,r,0,7);g.stroke();
+  g.strokeStyle='rgba(0,0,0,.5)';g.beginPath();g.arc(sx,sy,q.r0+4,-1.571,-1.571+6.283*f);g.stroke()});
+ DR.fx.forEach(f=>txt(f.t,f.x,f.y,f.c,1,'c'));g.restore();
+ /* HUD */
+ rect(0,0,W,22,'rgba(0,0,0,.65)');rect(0,22,W,1,'#7dff7d');
+ txt(lastNm(e?e.n:'')+'  '+ALAB[DR.k],8,7,'#cfe8cf',1,'l',true);txt(String(DR.sc),W/2,4,'#fff',2,'c');
+ const left=Math.max(0,DR_T-DR.t);txt(left.toFixed(1)+'S',W-8,7,left<5?'#ff6b6b':'#fff',1,'r');
+ if(DR.cb>=2)txt('STREAK '+DR.cb+'  X'+(1+Math.min(DR.cb-1,20)*.1).toFixed(1),W/2,26,'#7dff7d',1,'c',true);
+ rect(0,H-3,W,3,'#000');rect(0,H-3,Math.round(W*left/DR_T),3,left<5?'#ff6b6b':'#7dff7d');
+ const tr=drTier(DR.sc),nx=DR_TIER[DR_TIER.indexOf(tr)+1];txt(tr[2]+(nx?'  · '+nx[2]+' AT '+nx[0]:''),8,H-14,tr[3],1,'l',true);
+ if(DR.st==='count'){rect(0,23,W,H-23,'rgba(0,0,0,.45)');txt(String(Math.ceil(DR.c)),W/2,H/2-12,'#fff',4,'c');txt('GET READY',W/2,H/2+22,'#7dff7d',1,'c')}
+ if(DR.st==='res'){rect(0,0,W,H,'rgba(4,8,14,.82)');const t2=drTier(DR.sc);panel(W/2-150,30,300,190,'rgba(8,13,24,.96)');
+  txt('DRILL COMPLETE',W/2,38,'#7dff7d',1,'c');txt(String(DR.sc),W/2,52,'#fff',3,'c');txt(t2[2],W/2,80,t2[3],2,'c');if(DR.nb)txt('NEW BEST!',W/2,98,'#ffd23f',1,'c');
+  txt('HITS '+DR.hit+'   BULLSEYES '+DR.bull,W/2,108,'#cfe8cf',1,'c',true);txt('BEST STREAK '+DR.mcb+'   MISSED '+DR.miss,W/2,117,'#cfe8cf',1,'c',true);
+  txt(DR.got?lastNm(e?e.n:'')+'  +'+DR.got+' '+ALAB[DR.k]:'THAT RATING IS MAXED',W/2,130,'#7dff7d',1,'c');if(e)txt('NOW '+rawAt(e)[DR.k]+' · OVR '+e.o,W/2,144,'#9fb7a0',1,'c',true);
+  txt('NEXT DRILL TOMORROW',W/2,166,'#9fb7a0',1,'c',true);btn(W/2-50,186,100,20,'DONE',()=>{SCR='lineup';DR=null},{c:'#f2c230'})}}
+addEventListener('pointerdown',e=>{if(!G&&SCR==='drill'&&DR&&DR.st==='play')drTap(toC(e))});
 function drawLineup(){
  if(LU.tab==='T'){drawTrain();return}
  LU.bf=null;LU.bfRect=null;

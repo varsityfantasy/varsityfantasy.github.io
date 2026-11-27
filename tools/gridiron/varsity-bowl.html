@@ -6,7 +6,8 @@
 html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #c{position:absolute;left:50%;top:50%;image-rendering:pixelated;image-rendering:crisp-edges;transform:translate(-50%,-50%)}
 </style></head><body><canvas id="c"></canvas>
-<script src="vb-data.js"></script>
+<script>/* v755: the rosters file carries the app build (?b=) so a phone never keeps an old copy (v753 added every San Diego player) */
+document.write('<script src="vb-data.js?b='+encodeURIComponent(new URLSearchParams(location.search).get('b')||'v755')+'"><\/script>')</script>
 <script>
 'use strict';
 /* Varsity Bowl: a bird's-eye pixel football game in the style of Retro Bowl. You run the offense: pick a play, tap a receiver

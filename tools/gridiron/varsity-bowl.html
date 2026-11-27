@@ -1679,78 +1679,161 @@ function drawTrain(){
  {const used=drUsed();btn(252,182,104,16,used?'DRILL DONE':'DAILY DRILL',()=>{if(!drUsed())drOpen(e.key)},{c:used?'#2a3346':'#ffd23f',tc:used?'#6b7280':'#14110a'});txt(used?'BACK TOMORROW':'1 FREE PLAY A DAY: +1 TO +4',362,187,used?'#9fb7a0':'#ffd23f',1,'l',true)}
  const m=LU.msg&&performance.now()-LU.mt<4000?LU.msg:c.cp<TRAIN_CP?'NOT ENOUGH CP. WIN GAMES IN SEASON MODE TO EARN MORE':'TAP A PLAYER, THEN +1 ON THE RATING TO RAISE';
  txt(m.slice(0,56),252,206,c.cp<TRAIN_CP?'#ff9a8a':'#9fb7a0',1,'l',true)}
-/* owner Nov 27: DAILY DRILL, one free play a day (per device, local date) from the TRAIN tab. Pick a player and the rating to work on, then 20 seconds of
-   target practice: footballs-on-a-target pop up, shrink and vanish. Tap them: closer to the middle scores more (BULLSEYE), a streak multiplies points,
-   tapping empty grass or letting one vanish breaks the streak. More targets, faster and moving as the clock runs down. Score sets the reward (+1 to +4
-   on that rating, free, does not count against TRAIN_MAX). Best score kept in 'vs-vb-drill'. */
-const DRK='vs-vb-drill',DR_T=20,DR_TIER=[[0,1,'BRONZE','#d08a4a'],[6000,2,'SILVER','#cfd6e0'],[11000,3,'GOLD','#ffd23f'],[16000,4,'ELITE','#7dff7d']];
+/* owner Nov 27: DAILY DRILL v2, one free play a day (per device, local date) from the TRAIN tab. Each position has its OWN drill:
+   QB THREAD THE NEEDLE (lead a moving receiver), RB BREAK THE LINE (dodge waves of tacklers), WR CATCH TIMING (tap as the ring closes),
+   TE POWER HIT (hold, release in the gold), K FIELD GOAL (power then aim, with wind), DL SWIM MOVE (swipe the prompted way fast),
+   LB READ THE GAP (ignore the fake, hit the gap he commits to), DB MIRROR (drag to stay on the receiver). Score is 0-100%;
+   the tier sets the free reward on the rating you picked (+1 to +4, stored in car().db, not counted against TRAIN_MAX). Best per position kept in 'vs-vb-drill'. */
+const DRK='vs-vb-drill',DR_TIER=[[0,1,'BRONZE','#d08a4a'],[45,2,'SILVER','#cfd6e0'],[70,3,'GOLD','#ffd23f'],[90,4,'ELITE','#7dff7d']];
 let DR=null;
 const drToday=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const drSave=()=>{try{return JSON.parse(localStorage.getItem(DRK)||'{}')||{}}catch(_){return {}}};
+const drPut=sv=>{try{localStorage.setItem(DRK,JSON.stringify(sv))}catch(_){}};
 const drUsed=()=>drSave().d===drToday();
 const drTier=sc=>DR_TIER.reduce((a,t)=>sc>=t[0]?t:a,DR_TIER[0]);
-function drOpen(key){DR={key,st:'pick',k:null};SCR='drill'}
-function drStart(k){const sv=drSave();sv.d=drToday();try{localStorage.setItem(DRK,JSON.stringify(sv))}catch(_){}
- DR.k=k;DR.st='count';DR.c=3;DR.t=0;DR.sc=0;DR.cb=0;DR.mcb=0;DR.hit=0;DR.miss=0;DR.bull=0;DR.tg=[];DR.fx=[];DR.sp=0;DR.lt=performance.now();DR.shk=0}
-function drSpawn(){const T=DR.t,u=T/DR_T,L=Math.max(.85,2.1-1.25*u),r0=17-5*u,mv=T>7,an=Math.random()*6.283,v=mv?18+28*u:0;
- let x,y,n=0;do{x=40+Math.random()*(W-80);y=48+Math.random()*(H-80);n++}while(n<12&&DR.tg.some(q=>Math.hypot(q.x-x,q.y-y)<44));
- DR.tg.push({x,y,r0,L,a:0,vx:Math.cos(an)*v,vy:Math.sin(an)*v})}
-function drStep(dt){if(DR.st==='count'){DR.c-=dt;if(DR.c<=0){DR.st='play';DR.c=0}return}
- if(DR.st!=='play')return;DR.t+=dt;DR.shk=Math.max(0,DR.shk-dt);
- const u=DR.t/DR_T,want=DR.t<5?1:DR.t<11?2:3,gap=Math.max(.28,.75-.45*u);DR.sp-=dt;
- if(!DR.tg.length)DR.sp=Math.min(DR.sp,.22);if(DR.tg.length<want&&DR.sp<=0){drSpawn();DR.sp=gap}
- for(let i=DR.tg.length-1;i>=0;i--){const q=DR.tg[i];q.a+=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;if(q.x<24||q.x>W-24)q.vx*=-1;if(q.y<40||q.y>H-16)q.vy*=-1;
-  if(q.a>=q.L){DR.tg.splice(i,1);DR.miss++;if(DR.cb>=3)DR.fx.push({t:'STREAK LOST',x:q.x,y:q.y,l:.8,c:'#ff6b6b'});else DR.fx.push({t:'X',x:q.x,y:q.y,l:.6,c:'#ff6b6b'});DR.cb=0}}
- DR.fx.forEach(f=>{f.l-=dt;f.y-=dt*18});DR.fx=DR.fx.filter(f=>f.l>0);
- if(DR.t>=DR_T){DR.st='res';DR.tg=[];drFinish()}}
-function drTap(p){if(!DR||DR.st!=='play')return;let best=null,bd=1e9;
- DR.tg.forEach(q=>{const r=q.r0*(1-q.a/q.L)+3,d=Math.hypot(p.x-q.x,p.y-q.y);if(d<=r&&d/r<bd){bd=d/r;best=q}});
- if(!best){DR.cb=0;DR.fx.push({t:'MISS',x:p.x,y:p.y,l:.5,c:'#ff9a8a'});DR.shk=.12;sfx.tap();return}
- DR.tg.splice(DR.tg.indexOf(best),1);DR.cb++;DR.mcb=Math.max(DR.mcb,DR.cb);DR.hit++;
- const fast=1-best.a/best.L,bull=bd<.32,mul=1+Math.min(DR.cb-1,20)*.1,pts=Math.round((60+60*fast+(bull?60:0))*mul);DR.sc+=pts;if(bull)DR.bull++;
- DR.fx.push({t:(bull?'BULLSEYE ':'')+'+'+pts,x:best.x,y:best.y-6,l:.7,c:bull?'#ffd23f':'#fff'});
- if(DR.cb>0&&DR.cb%5===0)DR.fx.push({t:DR.cb+' STREAK!',x:W/2,y:60,l:.9,c:'#7dff7d'});
- if(bull)sfx.catch();else sfx.tap()}
-function drFinish(){const sv=drSave(),tr=drTier(DR.sc);DR.best=sv.b||0;DR.nb=DR.sc>DR.best;if(DR.nb){sv.b=DR.sc;try{localStorage.setItem(DRK,JSON.stringify(sv))}catch(_){}}
+const drPos=s=>s==='SLOT'?'WR':s;
+const dc=(x,y,r,c)=>{g.fillStyle=c;g.beginPath();g.arc(Math.round(x),Math.round(y),r,0,7);g.fill()};
+const dpl=(x,y,c,lab,sc)=>{sc=sc||1;dc(x+1,y+2,7*sc,'rgba(0,0,0,.35)');dc(x,y,7*sc,'#000');dc(x,y,6*sc,c);dc(x,y-2*sc,3*sc,'#f0cfa8');if(lab)txt(lab,x,y+9*sc,'#fff',1,'c',true)};
+function drField(){rect(0,0,W,H,'#1f5a28');for(let i=0;i<W+40;i+=40)rect(i-4,0,20,H,'rgba(255,255,255,.035)');for(let y=48;y<H;y+=48)rect(0,y,W,1,'rgba(255,255,255,.12)')}
+function drRep(pts,msg,col){DR.res.push(Math.round(clamp(pts,0,100)));DR.msg={t:msg,c:col,l:1};DR.pause=.95;if(pts>=70)sfx.catch();else sfx.tap()}
+function drEnd(pct,msg){DR.pct=Math.round(clamp(pct,0,100));DR.msg=null;DR.st='res';DR.endMsg=msg||'';drFinish()}
+const DRL={
+ QB:{n:'THREAD THE NEEDLE',i:['TAP WHERE THE BALL SHOULD LAND.','THE RECEIVER KEEPS RUNNING, SO LEAD HIM.'],
+  init(){const k=DR.res.length;DR.s={t:0,x0:70,cy:70+Math.random()*120,vx:80+Math.random()*35+k*7,ph:Math.random()*6,amp:14+Math.random()*(22+k*3),fq:1.1+Math.random()*1.3,ball:null,frz:null}},
+  pos(s,t){return{x:s.x0+s.vx*t,y:clamp(s.cy+s.amp*Math.sin(s.fq*t+s.ph),44,H-16)}},
+  step(dt){const s=DR.s;if(s.frz)return;s.t+=dt;if(s.ball){s.ball.t+=dt;if(s.ball.t>=s.ball.T){const r=this.pos(s,s.t),e=Math.hypot(r.x-s.ball.ax,r.y-s.ball.ay);s.frz=r;drRep(e<7?100:100-(e-7)*3.4,e<10?'PERFECT':e<22?'COMPLETE':e<40?'OFF TARGET':'MISSED',e<22?'#7dff7d':'#ff9a8a')}}
+   else if(this.pos(s,s.t).x>W-16){s.frz=this.pos(s,s.t);drRep(0,'TOO LATE','#ff6b6b')}},
+  down(p){const s=DR.s;if(s.ball||s.frz||p.y<26)return;s.ball={ax:p.x,ay:p.y,T:Math.max(.35,Math.hypot(p.x-24,p.y-135)/235),t:0};sfx.throw()},
+  draw(){const s=DR.s,r=s.frz||this.pos(s,s.t);dpl(24,135,'#3b6fd8','QB');dpl(Math.min(W-14,r.x+14),r.y+(s.cy>130?-12:12),'#d33b3b','');dpl(r.x,r.y,'#f2c230','WR');
+   if(s.ball){const b=s.ball,u=Math.min(1,b.t/b.T);g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=1;g.beginPath();g.arc(b.ax,b.ay,5,0,7);g.stroke();dc(24+(b.ax-24)*u,135+(b.ay-135)*u-Math.sin(u*3.14)*16,3,'#c27a3a')}}},
+ RB:{n:'BREAK THE LINE',i:['TAP A LANE TO CUT INTO IT. DODGE EVERY WAVE.','CUT LATE FOR CLOSE CALLS: THEY ARE WORTH 20% EXTRA.'],single:1,NW:24,
+  start(){DR.s={t:0,lane:2,y:134,ws:[],nw:0,nx:.7,surv:0,cl:0,sw:-9,dead:false,pas:0}},
+  lanes:[50,92,134,176,218],
+  step(dt){const s=DR.s;if(s.dead){s.dt=(s.dt||0)+dt;if(s.dt>.9)drEnd(this.pct(),'TACKLED');return}
+   s.t+=dt;s.y+=(this.lanes[s.lane]-s.y)*Math.min(1,dt*18);
+   if(s.nw<this.NW&&s.t>=s.nx){const open=Math.floor(Math.random()*5),sp=190+6*s.nw;for(let l=0;l<5;l++)if(l!==open)s.ws.push({x:W+14,l,sp,w:s.nw,p:false});s.nw++;s.nx=s.t+Math.max(.46,.95-.03*s.nw)}
+   for(const d of s.ws){d.x-=d.sp*dt;if(Math.abs(d.x-80)<13&&Math.abs(this.lanes[d.l]-s.y)<17){s.dead=true;sfx.hit();DR.shk=.3;return}
+    if(!d.p&&d.x<66)d.p=true}
+   const done=new Set();s.ws.forEach(d=>{if(d.p)done.add(d.w)});
+   for(const w of done){if(!s.cnt)s.cnt={};if(!s.cnt[w]){s.cnt[w]=1;s.surv++;if(s.t-s.sw<.45){s.cl++;DR.fx.push({t:'CLOSE!',x:80,y:s.y-18,l:.6,c:'#ffd23f'})}}}
+   s.ws=s.ws.filter(d=>d.x>-20);
+   if(s.nw>=this.NW&&s.surv>=this.NW)drEnd(this.pct(),'NOBODY TOUCHED YOU')},
+  pct(){const s=DR.s;return 80*s.surv/this.NW+20*Math.min(1,s.cl/12)},
+  down(p){const s=DR.s;if(s.dead)return;const l=clamp(Math.floor((p.y-26)/45),0,4);if(l!==s.lane){s.lane=l;s.sw=s.t}},
+  draw(){const s=DR.s;this.lanes.forEach(y=>rect(0,y+24,W,1,'rgba(255,255,255,.18)'));
+   s.ws.forEach(d=>dpl(d.x,this.lanes[d.l],'#d33b3b','',1));
+   dpl(80,s.y,s.dead?'#8a8a8a':'#f2c230','RB');
+   txt('WAVES '+s.surv+'/'+this.NW+'   CLOSE CALLS '+s.cl,W-8,26,'#cfe8cf',1,'r',true)}},
+ WR:{n:'CATCH TIMING',i:['THE BALL IS COMING. A RING SHRINKS AROUND YOUR HANDS.','TAP THE MOMENT IT CLOSES. TOO EARLY IS A DROP.'],
+  init(){const k=DR.res.length;DR.s={t:0,delay:.5+Math.random()*.9,T:clamp(1.2-.07*k+rnd(-.1,.1),.55,1.3),x:230+Math.random()*150,y:80+Math.random()*110,tap:false}},
+  step(dt){const s=DR.s;s.t+=dt;if(!s.tap&&s.t>s.delay+s.T+.28){s.tap=true;drRep(0,'DROPPED IT','#ff6b6b')}},
+  down(){const s=DR.s;if(s.tap)return;s.tap=true;if(s.t<s.delay){drRep(0,'TOO EARLY','#ff6b6b');return}const e=Math.abs(s.t-s.delay-s.T);s.ter=e;
+   drRep(e<.04?100:100-(e-.04)*420,e<.05?'PERFECT':e<.11?'GOOD HANDS':e<.2?'LATE/EARLY':'MISTIMED',e<.11?'#7dff7d':'#ff9a8a')},
+  draw(){const s=DR.s;dpl(26,135,'#3b6fd8','QB');dpl(s.x,s.y,'#f2c230','WR');
+   if(s.t<s.delay)txt('WATCH THE QB',W/2,34,'#9fb7a0',1,'c',true);
+   else{const u=Math.min(1.2,(s.t-s.delay)/s.T);if(u<=1){dc(26+(s.x-26)*u,135+(s.y-135)*u-Math.sin(u*3.14)*34,3,'#c27a3a')}
+    const r=44*(1-Math.min(1,u))+9;g.strokeStyle=u>.88&&u<1.08?'#7dff7d':'#fff';g.lineWidth=2;g.beginPath();g.arc(s.x,s.y,r,0,7);g.stroke();g.strokeStyle='rgba(255,225,74,.9)';g.lineWidth=1;g.beginPath();g.arc(s.x,s.y,9,0,7);g.stroke()}}},
+ TE:{n:'POWER HIT',i:['PRESS AND HOLD TO CHARGE.','RELEASE WHEN THE METER IS IN THE GOLD.'],
+  init(){const k=DR.res.length;DR.s={t:0,ch:0,hold:false,done:false,ctr:.55+Math.random()*.35,w:Math.max(.08,.22-.016*k)}},
+  step(dt){const s=DR.s;if(s.done)return;s.t+=dt;if(s.hold){s.ch+=dt/1.3;if(s.ch>=1.15){s.done=true;drRep(0,'OVERCHARGED','#ff6b6b')}}else if(s.t>6){s.done=true;drRep(0,'TOO SLOW','#ff6b6b')}},
+  down(){const s=DR.s;if(!s.done)s.hold=true},
+  up(){const s=DR.s;if(s.done||!s.hold)return;s.done=true;s.hold=false;const e=Math.abs(s.ch-s.ctr),h=s.w/2;
+   drRep(e<=h?60+40*(1-e/h):Math.max(0,45-(e-h)*180),e<=h*.5?'PERFECT HIT':e<=h?'SOLID HIT':s.ch<s.ctr?'TOO WEAK':'TOO EARLY',e<=h?'#7dff7d':'#ff9a8a')},
+  draw(){const s=DR.s,bx=150,bw=180,by=206;dpl(110,110,'#f2c230','TE',1.3);const dx=s.done?150:s.hold?340-190*Math.min(1,s.ch):350;dpl(dx,110,'#d33b3b','',1.3);
+   rect(bx-1,by-1,bw+2,12,'#000');rect(bx,by,bw,10,'#14110a');rect(bx+Math.round((s.ctr-s.w/2)*bw/1.15),by,Math.round(s.w*bw/1.15),10,'#ffd23f');
+   rect(bx,by,Math.round(Math.min(1.15,s.ch)*bw/1.15),10,s.ch>1?'rgba(255,107,107,.8)':'rgba(125,255,125,.75)');txt('HOLD TO CHARGE, RELEASE IN THE GOLD',W/2,by+14,'#9fb7a0',1,'c',true)}},
+ K:{n:'FIELD GOAL',reps:6,i:['TWO TAPS PER KICK: STOP THE POWER IN THE GREEN,','THEN STOP THE AIM. THE WIND PUSHES THE BALL.'],
+  init(){const k=DR.res.length;DR.s={ph:0,p:0,pd:1,a:.5,ad:1,wind:rnd(-.3,.3),sp:1.3+.14*k,asp:1.5+.18*k,pw:Math.max(.08,.14-.008*k),aw:Math.max(.07,.14-.01*k),pq:0,aq:0,kt:0,ko:null}},
+  step(dt){const s=DR.s;if(s.ph===0){s.p+=s.pd*s.sp*dt;if(s.p>=1){s.p=1;s.pd=-1}if(s.p<=0){s.p=0;s.pd=1}}
+   else if(s.ph===1){s.a+=s.ad*s.asp*dt;if(s.a>=1){s.a=1;s.ad=-1}if(s.a<=0){s.a=0;s.ad=1}}
+   else if(s.ph===2){s.kt+=dt;if(s.kt>=.9&&!s.ko){s.ko=1;const pts=50*s.pq+50*s.aq;drRep(pts,pts>=85?'GOOD! RIGHT DOWN THE MIDDLE':pts>=55?'GOOD, BARELY':s.pq<.5?'SHORT':'WIDE','#'+(pts>=55?'7dff7d':'ff9a8a'))}}},
+  ac(s){return .5-s.wind},
+  down(){const s=DR.s;if(s.ph===0){const e=Math.abs(s.p-.9);s.pq=e<s.pw/2?1:Math.max(0,1-(e-s.pw/2)*3.5);s.ph=1;sfx.tap()}else if(s.ph===1){const e=Math.abs(s.a-this.ac(s));s.aq=e<s.aw/2?1:Math.max(0,1-(e-s.aw/2)*3);s.ph=2;sfx.hit()}},
+  draw(){const s=DR.s;rect(W/2-2,40,4,70,'#ffd23f');rect(W/2-44,40,4,70,'#ffd23f');rect(W/2+40,40,4,70,'#ffd23f');rect(W/2-44,100,88,3,'#ffd23f');
+   const u=Math.min(1,s.kt/.9),drift=(s.a-this.ac(s))*-90,hgt=s.pq;if(s.ph===2)dc(W/2+drift*u+(s.wind*40)*u,200-(200-60)*u*(.5+.5*hgt),3,'#c27a3a');else dc(W/2,200,3,'#c27a3a');
+   const bx=60,bw=360;rect(bx-1,150,bw+2,10,'#000');rect(bx,151,bw,8,'#14110a');rect(bx+Math.round((.9-s.pw/2)*bw),151,Math.round(s.pw*bw),8,'#3ddc5a');
+   rect(bx+Math.round(s.p*bw)-2,147,4,16,s.ph===0?'#fff':'#9fb7a0');
+   rect(bx-1,175,bw+2,10,'#000');rect(bx,176,bw,8,'#14110a');const ac=this.ac(s);rect(bx+Math.round((ac-s.aw/2)*bw),176,Math.round(s.aw*bw),8,s.ph>=1?'#3ddc5a':'#1c4a28');rect(bx+Math.round(s.a*bw)-2,172,4,16,s.ph===1?'#fff':'#9fb7a0');
+   txt('POWER',bx,141,'#cfe8cf',1,'l',true);txt(s.ph>=1?'AIM  (WIND '+(s.wind<0?'<':'>')+' '+Math.round(Math.abs(s.wind)*30)+' MPH)':'AIM',bx,166,'#cfe8cf',1,'l',true)}},
+ DL:{n:'SWIM MOVE',i:['WAIT FOR THE ARROW, THEN SWIPE THAT WAY FAST.','SWIPE BEFORE IT SHOWS AND YOU JUMP OFFSIDE.'],
+  init(){const k=DR.res.length;DR.s={t:0,delay:.5+Math.random()*1,dir:Math.floor(Math.random()*3),win:Math.max(.45,.95-.07*k),done:false,dn:0}},
+  step(dt){const s=DR.s;if(s.done)return;s.t+=dt;if(s.t>s.delay+s.win){s.done=true;drRep(0,'TOO SLOW, BLOCKED','#ff6b6b')}},
+  down(){DR.s.dn=DR.s.t},
+  up(p){const s=DR.s;if(s.done)return;const dx=p.x-DR.sx,dy=p.y-DR.sy;if(Math.hypot(dx,dy)<26)return;const dir=Math.abs(dx)>Math.abs(dy)?(dx<0?0:1):(dy<0?2:3);s.done=true;
+   if(s.dn<s.delay){drRep(0,'OFFSIDE','#ff6b6b');return}const rt=s.dn-s.delay;if(dir!==s.dir){drRep(0,'WRONG WAY','#ff6b6b');return}
+   drRep(100*(1-(rt-.2)/(s.win-.2)),rt<.35?'BEAT HIM CLEAN':rt<.6?'GOT BY':'BARELY','#7dff7d')},
+  draw(){const s=DR.s;for(let i=0;i<5;i++)dpl(150+i*45,60,'#8a93a6','',.9);dpl(240,120,'#d33b3b','OL',1.3);dpl(240,170,'#3b6fd8','DL',1.3);dpl(240,225,'#e6e6e6','QB',.9);
+   if(s.t>=s.delay&&!s.done){const a=[[-1,0],[1,0],[0,-1]][s.dir],cx=240+a[0]*70,cy=120+a[1]*40+40;g.strokeStyle='#ffe14a';g.lineWidth=4;g.beginPath();g.moveTo(240,150);g.lineTo(cx,cy);g.stroke();
+    g.fillStyle='#ffe14a';g.beginPath();const nx=a[0],ny=a[1];g.moveTo(cx+nx*10,cy+ny*10);g.lineTo(cx-ny*9-nx*4,cy+nx*9-ny*4);g.lineTo(cx+ny*9-nx*4,cy-nx*9-ny*4);g.fill();
+    rect(120,H-8,Math.round(240*(1-(s.t-s.delay)/s.win)),4,'#ffe14a')}
+   else if(!s.done)txt('SET...',W/2,34,'#9fb7a0',1,'c',true)}},
+ LB:{n:'READ THE GAP',i:['THE RUNNER HEADS FOR A GAP. TAP THAT GAP.','HE WILL FAKE ONE WAY FIRST. DO NOT BITE.'],
+  init(){const k=DR.res.length,t=Math.floor(Math.random()*3);DR.s={t:0,delay:.7+Math.random()*.6,tgt:t,fake:k>=3?(t+1+Math.floor(Math.random()*2))%3:-1,win:Math.max(.5,1-.07*k),done:false}},
+  gx:[80,240,400],
+  step(dt){const s=DR.s;if(s.done)return;s.t+=dt;if(s.t>s.delay+s.win){s.done=true;drRep(0,'TOO SLOW','#ff6b6b')}},
+  down(p){const s=DR.s;if(s.done)return;const z=p.x<160?0:p.x<320?1:2;s.done=true;s.z=z;
+   if(s.t<s.delay){drRep(0,z===s.fake?'FELL FOR THE FAKE':'GUESSED EARLY','#ff6b6b');return}
+   if(z!==s.tgt){drRep(0,'WRONG GAP','#ff6b6b');return}const rt=s.t-s.delay;drRep(100*(1-(rt-.18)/(s.win-.18)),rt<.35?'TACKLE FOR LOSS':rt<.6?'STOPPED HIM':'BARELY','#7dff7d')},
+  draw(){const s=DR.s;for(let i=0;i<4;i++)dpl(40+i*134,62,'#8a93a6','',.9);for(let z=0;z<3;z++){rect(z*160+4,40,152,H-46,z===s.z&&s.done?'rgba(255,255,255,.1)':'rgba(255,255,255,.04)');txt('GAP '+(z+1),z*160+80,H-14,'#7d8aa3',1,'c',true)}
+   dpl(240,150,'#3b6fd8','LB',1.2);let rx=240,ry=205;
+   if(s.fake>=0&&s.t>s.delay-.55&&s.t<s.delay){rx=240+(this.gx[s.fake]-240)*.22}
+   if(s.t>=s.delay){const u=Math.min(1,(s.t-s.delay)/.5);rx=240+(this.gx[s.tgt]-240)*u;ry=205-70*u}
+   dpl(rx,ry,'#f2c230','RB',1.1)}},
+ DB:{n:'MIRROR',i:['DRAG YOUR FINGER LEFT AND RIGHT.','STAY ON THE RECEIVER. HE WILL CUT AWAY.'],single:1,T:20,
+  start(){DR.s={t:0,wx:240,tx:240,nt:.5,db:240,inn:0,tot:0}},
+  step(dt){const s=DR.s;s.t+=dt;const u=s.t/this.T,v=110+130*u,r=28-9*u;s.nt-=dt;if(s.nt<=0){s.tx=40+Math.random()*400;s.nt=rnd(.45,1.1)-.3*u}
+   const d=s.tx-s.wx,m=Math.min(Math.abs(d),v*dt);s.wx+=Math.sign(d)*m;if(DR.pd)s.db+=(DR.px-s.db)*Math.min(1,dt*14);
+   s.tot+=dt;if(Math.abs(s.db-s.wx)<r)s.inn+=dt;s.r=r;if(s.t>=this.T)drEnd(100*s.inn/s.tot,'')},
+  draw(){const s=DR.s,ok=Math.abs(s.db-s.wx)<(s.r||28);g.strokeStyle=ok?'#7dff7d':'#ff6b6b';g.lineWidth=2;g.beginPath();g.arc(s.wx,128,s.r||28,0,7);g.stroke();
+   dpl(s.wx,128,'#d33b3b','WR');dpl(s.db,160,'#3b6fd8','DB');txt(ok?'ON HIM':'BEATEN',W/2,200,ok?'#7dff7d':'#ff6b6b',1,'c');
+   txt('COVERED '+Math.round(100*s.inn/Math.max(.01,s.tot))+'%',8,26,'#cfe8cf',1,'l',true)}}
+};
+const drD=()=>DRL[drPos(DR.pos)]||DRL.WR;
+function drOpen(key){const r=fullPool().find(x=>x.key===key);DR={key,st:'pick',k:null,pos:r?r.slot:'WR'};SCR='drill'}
+function drStart(k){const sv=drSave();sv.d=drToday();drPut(sv);
+ DR.k=k;DR.st='count';DR.c=3;DR.res=[];DR.pause=0;DR.msg=null;DR.fx=[];DR.pd=false;DR.shk=0;DR.lt=performance.now();DR.reps=drD().reps||8;DR.s=null}
+function drStep(dt){const D=drD();
+ if(DR.st==='count'){DR.c-=dt;if(DR.c<=0){DR.st='play';DR.c=0;if(D.single)D.start();else D.init()}return}
+ if(DR.st!=='play')return;DR.shk=Math.max(0,DR.shk-dt);DR.fx.forEach(f=>{f.l-=dt;f.y-=dt*16});DR.fx=DR.fx.filter(f=>f.l>0);
+ if(DR.msg)DR.msg.l-=dt;
+ if(D.single){D.step(dt);return}
+ if(DR.pause>0){DR.pause-=dt;if(DR.pause<=0){if(DR.res.length>=DR.reps){const a=DR.res.reduce((x,y)=>x+y,0)/DR.reps;drEnd(a,'')}else D.init()}return}
+ D.step(dt)}
+function drFinish(){const sv=drSave(),tr=drTier(DR.pct);sv.bp=sv.bp||{};const pos=drPos(DR.pos);DR.best=sv.bp[pos]||0;DR.nb=DR.pct>DR.best;if(DR.nb){sv.bp[pos]=DR.pct;drPut(sv)}
  const r0=fullPool().find(r=>r.key===DR.key);DR.got=0;if(!r0)return;const e=mkEnt(r0),cc=car();
  for(let i=0;i<tr[1];i++){const b=Object.assign({},rawAt(e));if(b[DR.k]>=AMAX)break;cc.db[e.key]=(cc.db[e.key]||0)+1;b[DR.k]+=1;CFG.build[e.key]=b;DR.got++}
  saveJ(BKEY,CFG.build);carSave();applyTeam();sfx.td()}
 function drawDrill(){
  const now=performance.now(),dt=Math.min(.05,(now-(DR&&DR.lt||now))/1000);if(DR)DR.lt=now;
  if(!DR){SCR='lineup';return}
- const r0=fullPool().find(r=>r.key===DR.key);if(!r0&&DR.st==='pick'){SCR='lineup';return}
- const e=r0?mkEnt(r0):null;
- if(DR.st==='pick'){bgPlain();btn(4,4,36,14,'BACK',()=>{SCR='lineup';DR=null},{c:'#4a5a4c',tc:'#cfe8cf'});txt('DAILY DRILL',W/2,8,'#7dff7d',1,'c');
+ const r0=fullPool().find(r=>r.key===DR.key);if(!r0){SCR='lineup';DR=null;return}
+ const e=mkEnt(r0),D=drD();
+ if(DR.st==='pick'){bgPlain();btn(4,4,36,14,'BACK',()=>{SCR='lineup';DR=null},{c:'#4a5a4c',tc:'#cfe8cf'});txt('DAILY DRILL  ·  '+D.n,W/2,8,'#7dff7d',1,'c');
   panel(8,28,140,190,'rgba(8,13,24,.94)');pcard(36,36,84,138,r0,{i:0});txt(lastNm(e.n),78,182,'#fff',1,'c');txt(e.slot+'  OVR '+e.o,78,194,ovC(e.o),1,'c',true);
-  panel(156,28,316,190,'rgba(8,13,24,.94)');txt('PICK THE RATING TO WORK ON',314,34,'#f2c230',1,'c');
-  const ks=AT[grp(e.slot)],b=rawAt(e);ks.forEach((k,i)=>{const y=50+i*24,full=b[k]>=AMAX;btn(170,y,288,19,ALAB[k]+'  '+b[k]+(full?'  (MAX)':''),()=>{if(!full)drStart(k)},{c:full?'#2a3346':'#9fd8ff',tc:full?'#6b7280':'#14110a'})});
-  const y2=50+ks.length*24+6;txt('20 SECONDS. TAP THE TARGETS BEFORE THEY VANISH.',314,y2,'#cfe8cf',1,'c',true);txt('HIT THE MIDDLE FOR A BULLSEYE. STREAKS MULTIPLY.',314,y2+10,'#cfe8cf',1,'c',true);
-  txt('BRONZE +1  SILVER +2  GOLD +3  ELITE +4',314,y2+24,'#ffd23f',1,'c',true);const bs=drSave().b;if(bs)txt('YOUR BEST '+bs,314,y2+36,'#9fb7a0',1,'c',true);
-  txt('ONE TRY A DAY. IT STARTS WHEN YOU PICK.',314,206,'#ff9a8a',1,'c',true);return}
+  panel(156,28,316,190,'rgba(8,13,24,.94)');txt(D.n,314,34,'#ffd23f',1,'c');D.i.forEach((l,i)=>txt(l,314,46+i*10,'#cfe8cf',1,'c',true));
+  txt('PICK THE RATING THIS DRILL WILL RAISE',314,74,'#f2c230',1,'c',true);
+  const ks=AT[grp(e.slot)],b=rawAt(e);ks.forEach((k,i)=>{const y=86+i*22,full=b[k]>=AMAX;btn(170,y,288,17,ALAB[k]+'  '+b[k]+(full?'  (MAX)':''),()=>{if(!full)drStart(k)},{c:full?'#2a3346':'#9fd8ff',tc:full?'#6b7280':'#14110a'})});
+  const y2=86+ks.length*22+4;txt('BRONZE +1  SILVER 45% +2  GOLD 70% +3  ELITE 90% +4',314,y2,'#ffd23f',1,'c',true);const bs=(drSave().bp||{})[drPos(e.slot)];if(bs)txt('YOUR BEST AT '+drPos(e.slot)+': '+bs+'%',314,y2+10,'#9fb7a0',1,'c',true);
+  txt('ONE TRY A DAY. IT STARTS WHEN YOU PICK.',314,206,'#ff9a9a',1,'c',true);return}
  drStep(dt);
- /* the practice field */
  g.save();if(DR.shk>0)g.translate(Math.round((Math.random()-.5)*4),Math.round((Math.random()-.5)*3));
- rect(-4,0,W+8,H,'#1f5a28');for(let i=0;i<W+40;i+=40)rect(i-4,0,20,H,'rgba(255,255,255,.035)');for(let x=20;x<W;x+=48){rect(x,24,1,H-24,'rgba(255,255,255,.18)')}
- DR.tg.forEach(q=>{const f=1-q.a/q.L,r=Math.max(2,q.r0*f+3),sx=Math.round(q.x),sy=Math.round(q.y),warn=f<.3&&Math.sin(now/40)>0;
-  g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(sx+2,sy+3,r,r*.9,0,0,7);g.fill();
-  [[1,warn?'#ff6b6b':'#fff'],[.72,'#d33b3b'],[.46,'#fff'],[.32,'#ffd23f']].forEach(([m,c])=>{g.fillStyle=c;g.beginPath();g.arc(sx,sy,r*m,0,7);g.fill()});
-  g.strokeStyle='#000';g.lineWidth=1;g.beginPath();g.arc(sx+.5,sy+.5,r,0,7);g.stroke();
-  g.strokeStyle='rgba(0,0,0,.5)';g.beginPath();g.arc(sx,sy,q.r0+4,-1.571,-1.571+6.283*f);g.stroke()});
+ drField();if(DR.st==='play'||DR.st==='res'){if(DR.s)D.draw()}
  DR.fx.forEach(f=>txt(f.t,f.x,f.y,f.c,1,'c'));g.restore();
- /* HUD */
  rect(0,0,W,22,'rgba(0,0,0,.65)');rect(0,22,W,1,'#7dff7d');
- txt(lastNm(e?e.n:'')+'  '+ALAB[DR.k],8,7,'#cfe8cf',1,'l',true);txt(String(DR.sc),W/2,4,'#fff',2,'c');
- const left=Math.max(0,DR_T-DR.t);txt(left.toFixed(1)+'S',W-8,7,left<5?'#ff6b6b':'#fff',1,'r');
- if(DR.cb>=2)txt('STREAK '+DR.cb+'  X'+(1+Math.min(DR.cb-1,20)*.1).toFixed(1),W/2,26,'#7dff7d',1,'c',true);
- rect(0,H-3,W,3,'#000');rect(0,H-3,Math.round(W*left/DR_T),3,left<5?'#ff6b6b':'#7dff7d');
- const tr=drTier(DR.sc),nx=DR_TIER[DR_TIER.indexOf(tr)+1];txt(tr[2]+(nx?'  · '+nx[2]+' AT '+nx[0]:''),8,H-14,tr[3],1,'l',true);
- if(DR.st==='count'){rect(0,23,W,H-23,'rgba(0,0,0,.45)');txt(String(Math.ceil(DR.c)),W/2,H/2-12,'#fff',4,'c');txt('GET READY',W/2,H/2+22,'#7dff7d',1,'c')}
- if(DR.st==='res'){rect(0,0,W,H,'rgba(4,8,14,.82)');const t2=drTier(DR.sc);panel(W/2-150,30,300,190,'rgba(8,13,24,.96)');
-  txt('DRILL COMPLETE',W/2,38,'#7dff7d',1,'c');txt(String(DR.sc),W/2,52,'#fff',3,'c');txt(t2[2],W/2,80,t2[3],2,'c');if(DR.nb)txt('NEW BEST!',W/2,98,'#ffd23f',1,'c');
-  txt('HITS '+DR.hit+'   BULLSEYES '+DR.bull,W/2,108,'#cfe8cf',1,'c',true);txt('BEST STREAK '+DR.mcb+'   MISSED '+DR.miss,W/2,117,'#cfe8cf',1,'c',true);
-  txt(DR.got?lastNm(e?e.n:'')+'  +'+DR.got+' '+ALAB[DR.k]:'THAT RATING IS MAXED',W/2,130,'#7dff7d',1,'c');if(e)txt('NOW '+rawAt(e)[DR.k]+' · OVR '+e.o,W/2,144,'#9fb7a0',1,'c',true);
+ txt(lastNm(e.n)+'  '+ALAB[DR.k],8,7,'#cfe8cf',1,'l',true);txt(D.n,W/2,7,'#7dff7d',1,'c',true);
+ if(D.single&&D.T&&DR.s)txt(Math.max(0,D.T-DR.s.t).toFixed(1)+'S',W-8,7,'#fff',1,'r');else if(!D.single)txt('REP '+Math.min(DR.reps,DR.res.length+(DR.pause>0?0:1))+'/'+DR.reps,W-8,7,'#fff',1,'r');
+ if(!D.single&&DR.res.length){const a=Math.round(DR.res.reduce((x,y)=>x+y,0)/DR.res.length);txt('AVG '+a+'%',W-8,26,drTier(a)[3],1,'r',true)}
+ if(DR.msg&&DR.msg.l>0&&DR.st==='play')txt(DR.msg.t,W/2,H/2-6,DR.msg.c,2,'c');
+ if(DR.st==='count'){rect(0,23,W,H-23,'rgba(0,0,0,.55)');txt(String(Math.ceil(DR.c)),W/2,H/2-30,'#fff',4,'c');D.i.forEach((l,i)=>txt(l,W/2,H/2+8+i*10,'#cfe8cf',1,'c',true))}
+ if(DR.st==='res'){rect(0,0,W,H,'rgba(4,8,14,.84)');const t2=drTier(DR.pct);panel(W/2-150,30,300,190,'rgba(8,13,24,.96)');
+  txt('DRILL COMPLETE',W/2,38,'#7dff7d',1,'c');txt(DR.pct+'%',W/2,52,'#fff',3,'c');txt(t2[2],W/2,80,t2[3],2,'c');if(DR.nb)txt('NEW BEST!',W/2,98,'#ffd23f',1,'c');
+  if(DR.endMsg)txt(DR.endMsg,W/2,110,'#9fb7a0',1,'c',true);
+  txt(DR.got?lastNm(e.n)+'  +'+DR.got+' '+ALAB[DR.k]:'THAT RATING IS MAXED',W/2,130,'#7dff7d',1,'c');txt('NOW '+rawAt(e)[DR.k]+' · OVR '+e.o,W/2,144,'#9fb7a0',1,'c',true);
   txt('NEXT DRILL TOMORROW',W/2,166,'#9fb7a0',1,'c',true);btn(W/2-50,186,100,20,'DONE',()=>{SCR='lineup';DR=null},{c:'#f2c230'})}}
-addEventListener('pointerdown',e=>{if(!G&&SCR==='drill'&&DR&&DR.st==='play')drTap(toC(e))});
+addEventListener('pointerdown',e=>{if(G||SCR!=='drill'||!DR||DR.st!=='play')return;const D=drD();if(!D.single&&DR.pause>0)return;const p=toC(e);DR.pd=true;DR.px=p.x;DR.py=p.y;DR.sx=p.x;DR.sy=p.y;if(D.down&&DR.s)D.down(p)});
+addEventListener('pointermove',e=>{if(G||SCR!=='drill'||!DR||!DR.pd)return;const p=toC(e);DR.px=p.x;DR.py=p.y;const D=drD();if(D.move&&DR.s)D.move(p)});
+const drUp=e=>{if(G||SCR!=='drill'||!DR||!DR.pd)return;DR.pd=false;const p=toC(e),D=drD();if(DR.st==='play'&&D.up&&DR.s&&(D.single||DR.pause<=0))D.up(p)};
+addEventListener('pointerup',drUp);addEventListener('pointercancel',drUp);
 function drawLineup(){
  if(LU.tab==='T'){drawTrain();return}
  LU.bf=null;LU.bfRect=null;

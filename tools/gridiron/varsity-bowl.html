@@ -1429,7 +1429,7 @@ function chip(x,y,e,o){o=o||{};const walk=!e||e.walk,ov=walk?(e&&e.o)||WALK:e.o,
    a bench player to swap them. Dragging a bench player up off the bench starts it; sideways still slides the bench. Dropping on an empty spot
    fills it from the bench. A tap still flips the card. */
 function luMove(e){if(G||SCR!=='lineup'||!ptr.down||!ptr.hitb||!ptr.hitb.dk)return;const p=toC(e),dx=p.x-ptr.sx,dy=p.y-ptr.sy;
- if(!LU.drag){if(Math.hypot(dx,dy)<8)return;if(ptr.hitb.kd==='bench'&&!(dy<-8&&Math.abs(dy)>Math.abs(dx)))return;LU.drag={k:ptr.hitb.dk,kd:ptr.hitb.kd};LU.flip=null;LU.sel=null}
+ if(!LU.drag){if(Math.hypot(dx,dy)<12)return;if(ptr.hitb.kd==='bench'&&!(dy<-8&&Math.abs(dy)>Math.abs(dx)))return;LU.drag={k:ptr.hitb.dk,kd:ptr.hitb.kd};LU.flip=null;LU.sel=null}
  LU.drag.x=p.x;LU.drag.y=p.y}
 function luDrop(d,t){const act=curLineup(),cap=luCap(),L=fullPool(),nm=k=>{const r=L.find(x=>x.key===k);return r?lastNm(r.n):'PLAYER'};
  if(d.kd==='bench'){
@@ -1504,7 +1504,7 @@ function drawLineup(){
  const benchSpot=b=>{if(selS&&luSlot(selS.f)===b.slot)return selS;const own=spots.filter(q=>luSlot(q.f)===b.slot);return own.find(q=>!q.e||q.e.walk)||own[0]||spots.find(q=>!q.e||q.e.walk)||spots[0]};
  spots.forEach(q=>{const hit=!!LU.sw&&q.e&&!q.e.walk,sel=!!flipE&&!!q.e&&q.e.key===flipE.key;chip(q.x,q.y,q.e,{pos:q.lab,sel,back:sel,hint:hit});
   if(q.e&&!q.e.walk&&car().kr===q.e.key){rect(q.x+CW-14,q.y+CH-20,12,7,'#ffd23f');txt3('KR',q.x+CW-12,q.y+CH-19,'#14110a')}
-  btns.push({dk:(q.e&&!q.e.walk&&q.e.key)||('spot:'+q.f+q.i),kd:'spot',sq:q,x:q.x-2,y:q.y-2,w:CW+4,h:CH+4,fn:()=>{
+  btns.push({dk:(q.e&&!q.e.walk&&q.e.key)||('spot:'+q.f+q.i),kd:'spot',sq:q,x:q.x-4,y:q.y-4,w:CW+8,h:CH+8,fn:()=>{
    if(LU.sw){if(q.e&&!q.e.walk&&q.e.key&&on.has(q.e.key)){const b=L.find(r=>r.key===LU.sw),k=act.slice();k[k.indexOf(q.e.key)]=LU.sw;setLineup(k);luSay((b?lastNm(b.n):'PLAYER')+' IN, '+lastNm(q.e.n)+' TO THE BENCH');LU.sw=null;LU.sel=null;LU.flip=null}else luSay('PICK A REAL STARTER, NOT A WALK-ON');return}
    LU.msg='';
    if(q.e&&!q.e.walk&&q.e.key){LU.flip=LU.flip===q.e.key?null:q.e.key;LU.sel=LU.flip?q.f+q.i:null;return}

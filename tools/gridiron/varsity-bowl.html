@@ -1757,7 +1757,9 @@ function drawPresnap(){
  const au=G.prac?99:G.aud,to=G.prac?99:G.to[0];
  btn(W-112,22,104,16,au>0?'AUDIBLE'+(G.prac?'':' ('+au+')'):'NO AUDIBLES LEFT',()=>{if(au>0){if(!G.prac)G.aud--;choosePlay(randPass(G.curPlay))}},{c:au>0?'#0a0d08':'#3a3a3a',tc:au>0?'#fff':'#999'});
  const can=to>0&&G.gap>0&&!G.prac;
- btn(W-112,42,104,16,to<=0?'NO TIMEOUTS LEFT':G.gap>0?'TIMEOUT ('+to+')':'CLOCK STOPPED',()=>{if(can){G.to[0]--;G.clock=Math.min(CFG.ql,G.clock+G.gap);G.gap=0;fx.push({t:'TIMEOUT',x:G.los+10,y:20,l:1,c:'#ffd23f'});sfx.whistle()}},{c:can?'#8a1c1c':'#3a3a3a',tc:can?'#fff':'#999'})}
+ btn(W-112,42,104,16,to<=0?'NO TIMEOUTS LEFT':G.gap>0?'TIMEOUT ('+to+')':'CLOCK STOPPED',()=>{if(can){G.to[0]--;G.clock=Math.min(CFG.ql,G.clock+G.gap);G.gap=0;fx.push({t:'TIMEOUT',x:G.los+10,y:20,l:1,c:'#ffd23f'});sfx.whistle()}},{c:can?'#8a1c1c':'#3a3a3a',tc:can?'#fff':'#999'})
+ /* owner Nov 27: under a minute left in the 2nd or 4th quarter and inside their 50, you can kick a field goal on any down */
+ if(!G.prac&&!G.twoPt&&!G.vs&&(G.q===2||G.q===4)&&G.clock<60&&G.los>=EZ+50*YD){const fd=fgDist();btn(W-112,62,104,18,'KICK FG '+fd+' YD',()=>{doFG()},{c:fd<=45?'#7dff7d':fd<=52?'#ffd23f':'#ff9a5a'})}}
 function drawPlayUI(){const S=G.pl;
  if(S&&S.pl.k==='ret'&&S.ret.k==='punt'&&!S.done&&S.t<S.snapT+1.4&&S.carrier&&!ptr.down)btn(W/2-45,H-26,90,16,'FAIR CATCH',()=>retEnd(S,'fair',S.carrier.x),{c:'#9fd8ff'});
  if(S.done)return;

@@ -1568,3 +1568,6 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
 - Lineup screen (`drawLineup`, `LU.flip`): tapping any player (starter or bench) flips him: a big card over the field with OVR, name, position, games played and his season stats (up to 6 non-zero lines). Tap the card to flip back. Bench players now flip instead of going in directly.
 - PUT IN (bench card, at the spot you picked if it is his position, else his own position) and BENCH HIM (starter) are on the bottom bar; DETAILS opens the old roster/training screen. A full 18/18 lineup still asks for a starter tap to swap (`LU.sw`).
 - `luOpen(back,key)` flips straight to the card you tapped on the title screen.
+
+## v725 (Nov 26): the flip happens on the player's own card
+- v724's big card over the field is gone. `chip(...,{back:true})` draws the back face on the player's own small card: last name, up to 3 season stats (REC/YD/TD, PYD/PTD, CAR/RYD/RTD, TKL/SK/INT/PBU) and GP. Tap the card again to flip back. PUT IN / BENCH HIM / DETAILS stay on the bottom bar.

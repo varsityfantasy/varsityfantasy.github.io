@@ -1408,6 +1408,13 @@ const luEnt=(f,i)=>{const R=CFG.ros,v=R&&R[f],e=Array.isArray(v)?v[i]:v;if(e&&!e
 const luSlot=f=>({qb:'QB',rb:'RB',wr:'WR',te:'TE',k:'K',dl:'DL',lb:'LB',db:'DB'})[f];
 /* a small player chip: rarity frame, OVR, position, school logo, last name */
 function chip(x,y,e,o){o=o||{};const walk=!e||e.walk,ov=walk?(e&&e.o)||WALK:e.o,rr=walk?'c':rOf(ov),rc=walk?'#4a5568':RARC[rr],lift=o.sel?-2:0;y+=lift;
+ if(o.back&&!walk){/* owner Nov 26: the card turns over on its own spot and shows his season stats on the back */
+  rect(x-1,y-1,CW+2,CH+2,'#000');rect(x,y,CW,CH,rc);rect(x+2,y+2,CW-4,CH-4,'#0b1220');rect(x+2,y+2,CW-4,1,'rgba(255,255,255,.12)');
+  const nm=lastNm(e.n).slice(0,9);txt3(nm,x+CW/2-Math.floor(tw3(nm)/2),y+4,'#fff');
+  const ST=[['rec','REC'],['recYd','YD'],['recTD','TD'],['passYd','PYD'],['passTD','PTD'],['car','CAR'],['rushYd','RYD'],['rushTD','RTD'],['tkl','TKL'],['sack','SK'],['dInt','INT'],['pbu','PBU']],st=ST.filter(([k])=>e.s&&e.s[k]).slice(0,3);
+  if(!st.length)txt3('NO STATS',x+CW/2-14,y+17,'#8a93a6');
+  st.forEach(([k,l],i)=>txt3(l+' '+(Math.round(e.s[k]*10)/10),x+4,y+14+i*6,'#fff'));
+  txt3('GP '+(e.g||0),x+4,y+CH-8,'#9fd8ff');return}
  const sc=walk?'':e.sc||(CFG.mode==='school'?CFG.school:''),tc=sc&&VBD&&VBD.schools[sc]?VBD.schools[sc].c[0]:(CFG.team.c1||'#1d4ed8');
  rect(x+2,y+CH+1-lift,CW-2,2,'rgba(0,0,0,.45)');rect(x-1,y-1,CW+2,CH+2,'#000');rect(x,y,CW,CH,rc);rect(x,y,CW,1,sh(rc,.5));
  rect(x+2,y+2,CW-4,CH-4,walk?'#20262f':sh(lum(tc)<30?sh(tc,.25):tc,-.55));rect(x+2,y+2,CW-4,1,'rgba(255,255,255,.12)');
@@ -1440,7 +1447,7 @@ function drawLineup(){
  const flipE=LU.flip?L.find(r=>r.key===LU.flip)||null:null,flipOn=!!flipE&&on.has(flipE.key),selS=LU.sel?spots.find(q=>q.f+q.i===LU.sel)||null:null;
  /* a spot to put a bench player into: the spot you picked if it is his position, else his own position */
  const benchSpot=b=>{if(selS&&luSlot(selS.f)===b.slot)return selS;const own=spots.filter(q=>luSlot(q.f)===b.slot);return own.find(q=>!q.e||q.e.walk)||own[0]||spots.find(q=>!q.e||q.e.walk)||spots[0]};
- spots.forEach(q=>{const hit=!!LU.sw&&q.e&&!q.e.walk,sel=!!flipE&&!!q.e&&q.e.key===flipE.key;chip(q.x,q.y,q.e,{pos:q.lab,sel,hint:hit});
+ spots.forEach(q=>{const hit=!!LU.sw&&q.e&&!q.e.walk,sel=!!flipE&&!!q.e&&q.e.key===flipE.key;chip(q.x,q.y,q.e,{pos:q.lab,sel,back:sel,hint:hit});
   if(q.e&&!q.e.walk&&car().kr===q.e.key){rect(q.x+CW-14,q.y+CH-20,12,7,'#ffd23f');txt3('KR',q.x+CW-12,q.y+CH-19,'#14110a')}
   btns.push({x:q.x-2,y:q.y-2,w:CW+4,h:CH+4,fn:()=>{
    if(LU.sw){if(q.e&&!q.e.walk&&q.e.key&&on.has(q.e.key)){const b=L.find(r=>r.key===LU.sw),k=act.slice();k[k.indexOf(q.e.key)]=LU.sw;setLineup(k);luSay((b?lastNm(b.n):'PLAYER')+' IN, '+lastNm(q.e.n)+' TO THE BENCH');LU.sw=null;LU.sel=null;LU.flip=null}else luSay('PICK A REAL STARTER, NOT A WALK-ON');return}
@@ -1453,25 +1460,13 @@ function drawLineup(){
  txt('BENCH',8,by0+1,'#f2c230',1,'l');txt('SLIDE TO SEE EVERYONE · TAP A PLAYER TO SEE HIS CARD',48,by0+1,'#9fb7a0',1,'l',true);
  const gap=6,bw=B.length*(CW+gap),vx0=6,vw=W-12,max=Math.max(0,bw-vw);LU.bx=clamp(LU.bx,0,max);LU.bl={x:0,y:by0+10,w:W,h:CH+6};
  g.save();g.beginPath();g.rect(vx0-3,by0+9,vw+6,CH+8);g.clip();
- B.forEach((b,i)=>{const x=Math.round(vx0+i*(CW+gap)-LU.bx);if(x<-CW||x>W)return;const inj=on.has(b.key),e=mkEnt(b);chip(x,by0+12,e,{inj,sel:!!flipE&&flipE.key===b.key});
+ B.forEach((b,i)=>{const x=Math.round(vx0+i*(CW+gap)-LU.bx);if(x<-CW||x>W)return;const inj=on.has(b.key),e=mkEnt(b);chip(x,by0+12,e,{inj,sel:!!flipE&&flipE.key===b.key,back:!!flipE&&flipE.key===b.key});
   if(x>=vx0-CW/2&&x<=vx0+vw-CW/2)btns.push({x,y:by0+12,w:CW,h:CH,fn:()=>{
    if(LU.sw===b.key){LU.sw=null;luSay('');return}
    LU.msg='';LU.flip=LU.flip===b.key?null:b.key;
    LU.sel=LU.flip&&selS&&luSlot(selS.f)===b.slot?selS.f+selS.i:null}})});
  g.restore();
  if(max>0){const w=Math.max(20,vw*vw/bw),xx=vx0+(vw-w)*LU.bx/max;rect(vx0,by0+55,vw,2,'#0b0f18');rect(xx,by0+55,w,2,'#9fd8ff');if(LU.bx<max)txt('>',W-8,by0+26,'#fff',1,'r');if(LU.bx>0)txt('<',4,by0+26,'#fff',1,'l')}
- /* the card flip: a big card over the field with his stats on the back (tap it to flip back) */
- if(flipE&&!flipE.walk){const e=flipE,ov=e.o,rr=rOf(ov),rc=RARC[rr],x0=Math.round(W/2-82),y0=30,w=164,h=100;
-  const LBL=[['passYd','PASS YD'],['passTD','PASS TD'],['int','INT THROWN'],['rec','REC'],['recYd','REC YD'],['recTD','REC TD'],['car','CAR'],['rushYd','RUSH YD'],['rushTD','RUSH TD'],['tkl','TACKLES'],['tfl','TFL'],['sack','SACKS'],['dInt','INT'],['pbu','PBU'],['ff','FORCED FUM'],['fr','FUM REC']];
-  const lines=LBL.filter(([k])=>e.s&&e.s[k]).map(([k,l])=>l+' '+(Math.round(e.s[k]*10)/10)).slice(0,6);
-  rect(x0-2,y0-2,w+4,h+4,'#000');rect(x0,y0,w,h,rc);rect(x0+3,y0+3,w-6,h-6,'rgba(8,13,24,.98)');rect(x0+3,y0+3,w-6,1,sh(rc,.4));
-  txt(String(ov),x0+8,y0+7,ovC(ov),2,'l');txt(String(e.n).slice(0,15),x0+42,y0+7,'#fff',1,'l');
-  txt(String(e.slot)+'  '+(e.g||0)+' GAMES',x0+42,y0+18,'#9fb7a0',1,'l',true);
-  rect(x0+6,y0+29,w-12,1,'rgba(255,255,255,.18)');
-  if(!lines.length)txt('NO STATS YET',x0+8,y0+38,'#8a93a6',1,'l',true);
-  lines.forEach((t,i)=>txt(t.slice(0,13),x0+8+(i%2)*76,y0+36+Math.floor(i/2)*11,'#fff',1,'l',true));
-  txt('TAP TO FLIP BACK',x0+w/2,y0+h-11,'#9fd8ff',1,'c',true);
-  btns.push({x:x0,y:y0,w,h,fn:()=>{LU.flip=null;LU.sel=null}})}
  /* bottom bar: what you can do with the player you flipped */
  const yb=222;
  if(flipE){const e=flipE;

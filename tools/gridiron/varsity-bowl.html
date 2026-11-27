@@ -940,6 +940,8 @@ const ordn=n=>['','1ST','2ND','3RD','4TH'][n]||'';
 function endPlay(kind,x,label){
  const S=G.pl;if(S.done)return;if(S.pl.k==='ret')return retEnd(S,kind,x);S.done=true;S.end=1.5;S.res=kind;
  const los0=G.los,C=S.carrier;x=Math.max(EZ+4,x);
+ /* owner Nov 27: a ball carrier who is down (or steps out) past the goal line has scored: a catch in the end zone with a defender on him, a diving catch there, a dive across */
+ if(C&&C.ball&&(kind==='tackle'||kind==='oob')&&x>=GOAL){kind='td';S.res='td'}
  if(G.twoPt){G.twoPt=false;const ok=kind==='td';if(ok){G.score[0]+=2;sfx.td()}else sfx.bad();G.msg={t:ok?'2-POINT GOOD!':'2-POINT FAILED',c:ok?'#ffe14a':'#ff8b5a',s:''};G.rt=0;G.phase='result';G.next=()=>{if(G.over)return toFinal();startOpp(25,'KICKOFF')};return}
  let txt='',col='#fff',sub='',tdone=false,cl=0;
  const gainTo=xx=>Math.round((xx-los0)/YD);

@@ -92,6 +92,7 @@ function natAt(sl,o,gm,st){o=clamp(o,AMIN,AMAX);const s=st||{},n=Math.max(1,gm||
  else if(sl==='DL')w=[1+clamp(q('tkl')/30,0,.1),.92,1.1+clamp((q('sack')+q('tfl'))/6,0,.12),1];
  else if(sl==='LB')w=[1.12+clamp(q('tkl')/25,0,.1),1,1.02,1.04];
  else if(sl==='K')w=[1.04,1.04,.96,.96];
+ else if(sl==='OL')w=[.86,.88,1.04,1.22];
  else w=[.94,1.1+clamp((q('dInt')+q('pbu'))/4,0,.08),.9,1.02];
  const v=fit(w.map(x=>x*o),4*o),r={};AT[grp(sl)].forEach((k,i)=>r[k]=v[i]);return r}
 const BKEY='vs-vb-build',CKEY='vs-vb-cfg';
@@ -127,7 +128,9 @@ function mkEnt(r){const e={slot:r.slot,n:r.n,o:Math.round(r.o),key:r.key||null,g
 /* lineup (owner, Nov 25): you pick who plays. My Team and School: up to 9 active players, any positions (owner Nov 25: same rule for both).
    Each spot on the field takes an active player of that position; extra active players fill other spots on the same side of the ball
    (out of position: -6 OVR, -15 at QB); any spot still open is a walk-on (OVR 50, kicker 45). Stack the defense and it gets better, and so on. */
-const NEED={QB:1,RB:1,WR:3,TE:1,K:1,DL:4,LB:3,DB:4},SORD=['QB','RB','WR','TE','K','DL','LB','DB'],WALK=50;
+/* owner Nov 27: every rostered player is in the school pools, so linemen (OL) and players whose roster lists no position (ATH) sit on the bench too;
+   nothing needs them, but either can sub in and play out of position */
+const NEED={QB:1,RB:1,WR:3,TE:1,K:1,DL:4,LB:3,DB:4,OL:0,ATH:0},SORD=['QB','RB','WR','TE','K','DL','LB','DB','OL','ATH'],WALK=50;
 const sideOf=sl=>sl==='K'?'K':(sl==='DL'||sl==='LB'||sl==='DB')?'D':'O';
 function autoKeys(list){const by={};list.forEach(r=>(by[r.slot]=by[r.slot]||[]).push(r));const out=[];SORD.forEach(sl=>(by[sl]||[]).slice().sort((x,y)=>y.o-x.o).slice(0,NEED[sl]).forEach(r=>out.push(r.key)));return out}
 function buildRoster(list,keys,mod){

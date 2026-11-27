@@ -1597,5 +1597,5 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
 <<<<<<< Updated upstream
 - v736 (Nov 27): Varsity Bowl jump ball: green smaller (`w=.04+.08*jb`), yellow takes over the freed space so the whole target stays the same width as in v735.
 =======
-- v736 (Nov 27, owner): Varsity Bowl: more space between players on the field. OL 22 px apart (was 16), DL 22 (was 16), LBs 56 off center (was 40), TE moved out to CY+60 and RB to CY+32, WR2 to y 34; the lineup screen's formation (`base`) matches.
+- v737 (Nov 27, owner): Varsity Bowl: more space between players on the field. OL 22 px apart (was 16), DL 22 (was 16), LBs 56 off center (was 40), TE moved out to CY+60 and RB to CY+32, WR2 to y 34; the lineup screen's formation (`base`) matches.
 >>>>>>> Stashed changes

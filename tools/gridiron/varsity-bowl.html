@@ -181,15 +181,15 @@ function psLine(n,pos){const e=G&&G.ps&&G.ps[n+'|'+pos];if(!e)return '';const s=
    (owner: "don't make it look bunched up"): no tags on linemen or defenders, plain text on a soft shadow, above the player only if the space below is taken.
    Only players with 85+ OVR show one by default; tap any other player before the snap to show (or hide) his (G.tags, kept for the game; the RB tap is still the handoff) */
 function nameTags(){const S=G.pl;let al=1;if(G.phase==='play'&&S)al=clamp((S.snapT+.25-S.t)/.25,0,1);if(al<=0)return;
- const tg=G.tags||{},me=[P.qb,P.rb,P.te,P.wr0,P.wr1,P.wr2].filter(p=>p&&(tg[p.name]!=null?tg[p.name]:Math.round(p.o)>=85)),placed=[];
+ const tg=G.tags||{},me=[P.qb,P.rb,P.te,P.wr0,P.wr1,P.wr2].filter(p=>p&&(tg[p.name]!=null?tg[p.name]:true)),placed=[];
  g.save();g.globalAlpha=al;
  const one=(p,mine)=>{const x=Math.round(p.x-camX),y=Math.round(FT+p.y);if(x<-30||x>W+30)return;
-  const nm=lastNm(p.name),o=Math.round(p.o),ov=String(o),w=tw3(nm+' '+ov)+4,h=7;
+  const nm=lastNm(p.name),o=Math.round(p.o),star=o>=85,ov=star?String(o):'',w=tw3(star?nm+' '+ov:nm)+4,h=7;
   const hit=(a,t)=>placed.some(r=>a<r.x+r.w+1&&a+w+1>r.x&&t<r.y+r.h+1&&t+h+1>r.y),xs=[x-Math.floor(w/2),x+4-w,x-w-8],ys=[y+3,y-22,y+11];
   let tx=clamp(xs[0],1,W-w-1),ty=ys[0];found:for(const t of ys)for(const a0 of xs){const a=clamp(a0,1,W-w-1);if(!hit(a,t)){tx=a;ty=t;break found}}
   ty=clamp(ty,FT-3,H-h-1);placed.push({x:tx,y:ty,w,h});
-  rect(tx,ty,w,h,'rgba(0,0,0,.45)');
-  txt3(nm,tx+2,ty+1,'#fff');txt3(ov,tx+2+(nm.length+1)*4,ty+1,ovC(o))};
+  if(star){rect(tx,ty,w,h,'rgba(0,0,0,.55)');rect(tx,ty+h-1,w,1,'#ffc400');txt3(nm,tx+2,ty+1,'#fff');txt3(ov,tx+2+(nm.length+1)*4,ty+1,ovC(o))}
+  else{rect(tx,ty,w,h,'rgba(0,0,0,.28)');txt3(nm,tx+2,ty+1,'rgba(255,255,255,.78)')}};
  me.forEach(p=>one(p,true));g.restore()}
 /* ---------- plays (route points are offsets in px from the start spot, x forward, y down) ---------- */
 const PS=.78;
@@ -539,13 +539,13 @@ function setupPlay(pl){
  const los=G.los,R=CFG.ros,dO=G.oppO,S={pl,t:0,thrown:false,carrier:null,ball:null,done:false,qbRan:false,rush:false,blitz:!pl.k||pl.k!=='pass'?false:Math.random()<.17,hoT:pl.draw?1.1:.5,handed:false,pressure:0,land:null,res:null,end:0,flo:0};
  const olo=rosOl();
  P={ol:[],dl:[],lb:[],cb:[],s:[],rc:[],all:[]};
- for(let i=0;i<5;i++)P.ol.push(mkP('ol',0,los-7,CY-44+i*22,olo,'OL'));
+ for(let i=0;i<5;i++)P.ol.push(mkP('ol',0,los-7,CY-48+i*24,olo,'OL'));
  S.sg=Math.random()<.5;P.qb=mkP('qb',0,los-(S.sg?46:15),CY,R.qb.o,R.qb.n);setQ(P.qb,R.qb);P.qb.spd=(44+24*P.qb.q.spd)*SPD;
- P.rb=mkP('rb',0,los-17,CY+32,R.rb.o,R.rb.n);P.te=mkP('te',0,los-4,CY+60,R.te.o,R.te.n);
- P.wr0=mkP('wr',0,los-3,14,R.wr[0].o,R.wr[0].n);P.wr1=mkP('wr',0,los-3,FH-14,R.wr[1].o,R.wr[1].n);P.wr2=mkP('wr',0,los-9,34,R.wr[2].o,R.wr[2].n);setQ(P.rb,R.rb);setQ(P.te,R.te);setQ(P.wr0,R.wr[0]);setQ(P.wr1,R.wr[1]);setQ(P.wr2,R.wr[2]);
+ /* owner Nov 27: RB right beside the QB in the gun, a step behind him under center */P.rb=mkP('rb',0,S.sg?los-46:los-34,S.sg?CY+16:CY+18,R.rb.o,R.rb.n);P.te=mkP('te',0,los-4,CY+62,R.te.o,R.te.n);
+ P.wr0=mkP('wr',0,los-3,14,R.wr[0].o,R.wr[0].n);P.wr1=mkP('wr',0,los-3,FH-14,R.wr[1].o,R.wr[1].n);P.wr2=mkP('wr',0,los-12,30,R.wr[2].o,R.wr[2].n);setQ(P.rb,R.rb);setQ(P.te,R.te);setQ(P.wr0,R.wr[0]);setQ(P.wr1,R.wr[1]);setQ(P.wr2,R.wr[2]);
  P.rc=[P.wr0,P.wr1,P.wr2,P.te,P.rb];P.rc.forEach((r,i)=>r.rcol=RCOL[i]);
  P.rc.forEach((r,i)=>{r.key=RK[i];r.spd=(r.key==='rb'?62+32*r.q.spd:r.key==='te'?58+30*r.q.spd:62+32*r.q.spd)*SPD;r.rt=(pl.r[r.key]||[]).map(q=>({x:r.x0+q[0]*.95,y:clamp(r.y0+q[1]*.95,8,FH-8)}));r.ext=!(pl.k==='run'&&r.key!=='rb')&&!(pl.hold&&pl.hold.includes(r.key))&&r.key!=='rb'||(r.key==='rb'&&pl.k==='pass'&&!(pl.hold&&pl.hold.includes('rb')));{const a=r.rt.length>=2?r.rt[r.rt.length-2]:{x:r.x0,y:r.y0},b=r.rt.length?r.rt[r.rt.length-1]:{x:r.x0+1,y:r.y0},n=Math.hypot(b.x-a.x,b.y-a.y)||1;r.dx=(b.x-a.x)/n;r.dy=(b.y-a.y)/n}});
- const dl=[-33,-11,11,33],lbY=[-56,0,56];
+ const dl=[-39,-13,13,39],lbY=[-66,0,66];
  const dm=()=>dO+rnd(-6,6);
  dl.forEach(d=>{const p=mkP('dl',1,los+10,CY+d,dm(),'DL');p.spd=(54+26*p.a)*SPD;P.dl.push(p)});
  lbY.forEach(d=>{const p=mkP('lb',1,los+24,CY+d,dm(),'LB');p.spd=(56+26*p.a)*SPD;P.lb.push(p)});
@@ -1143,7 +1143,7 @@ function gesture(p,dx,dy,l,dt){
  const ph=G&&G.phase;
  if(ph==='presnap'){const R=P&&P.rb;
   /* owner Nov 26: tap a player (not the RB, his tap is the handoff) to show or hide his name tag */
-  if(P&&l<14){const hit=[P.qb,P.te,P.wr0,P.wr1,P.wr2].filter(Boolean).map(q=>({q,d:Math.hypot(p.x+camX-q.x,p.y-FT-q.y+5)})).filter(o=>o.d<14).sort((a,b)=>a.d-b.d)[0];if(hit&&!(R&&Math.hypot(p.x+camX-R.x,p.y-FT-R.y)<hit.d)){const q=hit.q;G.tags=G.tags||{};const cur=G.tags[q.name]!=null?G.tags[q.name]:Math.round(q.o)>=85;G.tags[q.name]=!cur;return}}
+  if(P&&l<14){const hit=[P.qb,P.te,P.wr0,P.wr1,P.wr2].filter(Boolean).map(q=>({q,d:Math.hypot(p.x+camX-q.x,p.y-FT-q.y+5)})).filter(o=>o.d<14).sort((a,b)=>a.d-b.d)[0];if(hit&&!(R&&Math.hypot(p.x+camX-R.x,p.y-FT-R.y)<hit.d)){const q=hit.q;G.tags=G.tags||{};const cur=G.tags[q.name]!=null?G.tags[q.name]:true;G.tags[q.name]=!cur;return}}
   if(R&&l<14&&Math.hypot(p.x+camX-R.x,p.y-FT-R.y)<22){const run=pick(RUNS);setupPlay(run);G.curPlay=run;snap()}return}
  if(ph==='play'){const S=G.pl;
   if(S.done)return;

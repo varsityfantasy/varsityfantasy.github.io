@@ -743,10 +743,10 @@ function drawPT(){for(const q of PT){const sx=Math.round(q.x-camX),sy=Math.round
 function jbCheck(S){const b=S.ball;if(!b||b.done||b.drop||S.jb||S.jbNo||G.vs)return;const left=b.T-b.t;if(b.T<.9||left>.62||left<.3)return;S.jbNo=1;
  let r=null,rd=30;P.rc.forEach(o=>{if(o.down||o.dcT>0)return;const pp=predict(o,left),d=Math.min(Math.hypot(o.x-b.tx,o.y-b.ty),Math.hypot(pp.x-b.tx,pp.y-b.ty));if(d<rd){rd=d;r=o}});if(!r)return;
  let d=null,dd=40;P.def.forEach(o=>{if(o.imm>0||o.blk||o.trip>0||o.flyT>0)return;const q=Math.hypot(o.x-b.tx,o.y-b.ty);if(q<dd){dd=q;d=o}});if(!d)return;
- const jb=r.q&&r.q.jb!=null?r.q.jb:.5,w=.12+.2*jb,c=rnd(.25+w/2,.75-w/2);
- S.jb={r,d,pos:0,dir:1,g0:c-w/2,g1:c+w/2,res:null,sp:1.7,jb:Math.round(AMIN+jb*(AMAX-AMIN))};G.slow=.2;sfx.whistle()}
+ const jb=r.q&&r.q.jb!=null?r.q.jb:.5,w=.07+.13*jb,ym=.06,c=rnd(.25+w/2+ym,.75-w/2-ym);
+ S.jb={r,d,pos:0,dir:1,g0:c-w/2,g1:c+w/2,y0:c-w/2-ym,y1:c+w/2+ym,res:null,sp:1.7,jb:Math.round(AMIN+jb*(AMAX-AMIN))};G.slow=.2;sfx.whistle()}
 function jbStep(rdt){const J=G&&G.phase==='play'&&G.pl&&G.pl.jb;if(!J)return;if(!J.res){J.pos+=J.dir*J.sp*rdt;if(J.pos>=1){J.pos=1;J.dir=-1}if(J.pos<=0){J.pos=0;J.dir=1}}else J.rt=(J.rt||0)+rdt}
-function jbTap(){const J=G.pl.jb;if(!J||J.res)return;J.res=J.pos>=J.g0&&J.pos<=J.g1?'hit':'miss';J.rt=0;G.slow=.4;if(J.res==='hit')sfx.catch();else sfx.tap()}
+function jbTap(){const J=G.pl.jb;if(!J||J.res)return;J.res=J.pos>=J.g0&&J.pos<=J.g1?'hit':J.pos>=J.y0&&J.pos<=J.y1?'near':'miss';J.rt=0;G.slow=.4;if(J.res==='hit')sfx.catch();else sfx.tap()}
 function drawJB(){const S=G.pl,J=S&&S.jb;if(!J||!S.ball)return;if(S.ball.done&&(J.rt||0)>.7)return;
  const live=!S.ball.done;
  if(live){g.save();const gr=g.createRadialGradient(W/2,H/2,H*.22,W/2,H/2,H*.95);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(4,10,26,.78)');g.fillStyle=gr;g.fillRect(0,0,W,H);g.restore();
@@ -754,16 +754,17 @@ function drawJB(){const S=G.pl,J=S&&S.jb;if(!J||!S.ball)return;if(S.ball.done&&(
   g.strokeStyle='rgba(255,225,74,'+(.55+.35*pu).toFixed(2)+')';g.lineWidth=1.5;g.beginPath();g.ellipse(tx+.5,ty+.5,13+2*pu,5+pu*.8,0,0,7);g.stroke();
   g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=1;g.beginPath();g.ellipse(tx+.5,ty+.5,7,2.6,0,0,7);g.stroke();
   txt('SLOW-MO',W-8,26,'rgba(255,255,255,'+(.6+.3*pu).toFixed(2)+')',1,'r',true)}
- const bw=190,bh=10,bx=Math.round(W/2-bw/2),by=H-42;
+ const bw=190,bh=10,bx=Math.round(W/2-bw/2),by=(FT+S.ball.ty>H/2)?34:H-42;/* owner Nov 27: ball lands low on the screen = bar at the top, high = bar at the bottom, so it never covers the play */
  panel(bx-8,by-20,bw+16,bh+30,'rgba(8,13,24,.92)');
- const t=!J.res?'JUMP BALL!  TAP IN THE GREEN':J.res==='hit'?'PERFECT TIMING!':'MISTIMED';
- txt(t,W/2,by-15,!J.res?'#ffe14a':J.res==='hit'?'#7dff7d':'#ff6b6b',1,'c');
+ const t=!J.res?'JUMP BALL!  TAP IN THE GREEN':J.res==='hit'?'PERFECT TIMING!':J.res==='near'?'CLOSE!':'MISTIMED';
+ txt(t,W/2,by-15,!J.res?'#ffe14a':J.res==='hit'?'#7dff7d':J.res==='near'?'#ffd23a':'#ff6b6b',1,'c');
  txt(String(J.r.name).toUpperCase().slice(0,16)+'  JUMP BALL '+J.jb,W/2,by+bh+3,'#9fb7a0',1,'c',true);
  rect(bx-1,by-1,bw+2,bh+2,'#000');rect(bx,by,bw,bh,'#5a1d24');rect(bx,by,bw,2,'#7a2a33');
  const gx=Math.round(bx+J.g0*bw),gw=Math.max(3,Math.round((J.g1-J.g0)*bw)),pul=!J.res?.75+.25*Math.sin(tNow*14):1;
+ {const yx=Math.round(bx+J.y0*bw),yw=Math.round((J.y1-J.y0)*bw);rect(yx,by,yw,bh,'#e8b923');rect(yx,by,yw,2,'#ffe98a');rect(yx,by+bh-2,yw,2,'#a67c0c')}
  rect(gx,by,gw,bh,'rgba(61,220,90,'+pul.toFixed(2)+')');rect(gx,by,gw,2,'#b6ffc4');rect(gx,by+bh-2,gw,2,'#1f8a3a');
  for(let i=1;i<10;i++)rect(bx+Math.round(bw*i/10),by+bh-3,1,3,'rgba(0,0,0,.35)');
- const mx=Math.round(bx+J.pos*bw);rect(mx-2,by-5,5,bh+10,'#000');rect(mx-1,by-4,3,bh+8,J.res==='hit'?'#7dff7d':J.res==='miss'?'#ff6b6b':'#fff')}
+ const mx=Math.round(bx+J.pos*bw);rect(mx-2,by-5,5,bh+10,'#000');rect(mx-1,by-4,3,bh+8,J.res==='hit'?'#7dff7d':J.res==='near'?'#ffd23a':J.res==='miss'?'#ff6b6b':'#fff')}
 /* throw it backwards and the QB tucks it and runs */
 function scramble(keep){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT)return;S.carrier=Q;Q.ball=true;Q.manual=false;Q.rt=[];Q.ri=0;Q.spd=(60+32*Q.q.spd)*SPD*1.0;Q.f=1;S.qbRan=true;if(!keep){ptr.sx=ptr.x;ptr.sy=ptr.y}ptr.t0=performance.now();/* owner Nov 26: he takes off right away, even mid-drop from under center (no backpedal first) */Q.vx=Q.spd*.45;Q.vy=0;Q.cs=.2;fx.push({t:'SCRAMBLE!',x:Q.x,y:Q.y-26,l:.7,c:'#fff'});P.def.forEach(d=>d.fr=Math.min(d.fr,S.t))}
 /* the throw: you aim. The ball flies to the spot you tap (or drag to and release); whoever is there when it lands can catch it */
@@ -787,9 +788,9 @@ function resolveCatch(){
  const cands=P.def.filter(d=>d.imm<=0&&Math.hypot(d.x-b.tx,d.y-b.ty)<dR);cands.forEach(c=>{c.sc=25+c.a*28+rnd(0,26)-Math.max(0,Math.hypot(c.x-b.tx,c.y-b.ty)-8)*1.3+un*.45-sd*.35});
  let who=null,kind='inc';
  if(S.jb&&S.jb.r){const J=S.jb,jr=J.r;if(!J.res)J.res='miss';J.rt=J.rt||0;G.slow=0;r=jr;dT=0;jr.x=b.tx-3;jr.y=b.ty;
-  /* owner Nov 27: green = good chance he comes down with it; anything else = 25% picked off, 75% broken up */
+  /* owner Nov 27: green = good chance he comes down with it; yellow = 50% picked off; red (or no tap) = 75% picked off; otherwise broken up */
   if(J.res==='hit'){const pc=clamp(.72+.25*(jr.q&&jr.q.jb!=null?jr.q.jb:.5),0,.96);if(Math.random()<pc){who=jr;kind='catch';if(J.d)J.d.imm=.6;fx.push({t:'MOSSED HIM!',x:jr.x,y:jr.y-40,l:1.1,c:'#ffe14a'})}else kind='pbu'}
-  else if(J.d&&Math.random()<.25){who=J.d;kind='int'}else kind='pbu'}
+  else if(J.d&&Math.random()<(J.res==='near'?.5:.75)){who=J.d;kind='int'}else kind='pbu'}
  else if(r){const rs=(onT?67:50)+r.q.cat*28+rnd(0,22)-dT*.5-Math.max(0,mi-9)*.55;
   if(cands.length){const best=cands.reduce((a,c)=>(!a||c.sc>a.sc)?c:a,null),ds=best.sc;
    if(ds>rs+6){who=best;kind='int'}else if(ds>rs-8){kind='pbu'}else{who=r;kind='catch'}}

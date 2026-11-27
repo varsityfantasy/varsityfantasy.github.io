@@ -67,6 +67,11 @@ const ALAB={rng:'RANGE',arm:'ARM',acc:'ACCURACY',spd:'SPEED',sta:'STAMINA',cat:'
 /* owner Nov 27: one signature attribute per skill position, built from his other ratings (so training them raises it too) */
 const SPEC={RB:['jk','JUKE'],WR:['jb','JUMP BALL'],SLOT:['jb','JUMP BALL'],TE:['tr','TRUCK']};
 function specVal(k,a,o){o=clamp(o,AMIN,AMAX);const v=k==='jk'?.6*a.spd+.4*o:k==='jb'?.6*a.cat+.2*a.str+.2*o:.65*a.str+.35*o;return Math.round(clamp(v,AMIN,AMAX))}
+function elusOf(a,o){return Math.round(clamp(.55*a.spd+.25*a.sta+.2*clamp(o,AMIN,AMAX),AMIN,AMAX))}
+const starsOf=v=>clamp(Math.round(((v-AMIN)/(AMAX-AMIN))*8+2)/2,1,5);
+function drawStars(x,y,n){for(let i=0;i<5;i++){const cx=x+i*9+4,cy=y+4,f=n>=i+1?1:n>=i+.5?.5:0;const pts=[];for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?1.8:4.2;pts.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r])}
+ const path=()=>{g.beginPath();pts.forEach((q,j)=>j?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.closePath()};
+ g.fillStyle='#2a3242';path();g.fill();if(f){g.save();g.beginPath();g.rect(cx-5,cy-5,f===1?10:5,10);g.clip();g.fillStyle='#ffd23f';path();g.fill();g.restore()}}}
 function specAt(e){const sp=SPEC[e.slot];return sp?[sp[1],specVal(sp[0],rawAt(e),e.o)]:null}
 const grp=sl=>sl==='QB'?'QB':sl==='K'?'KK':(sl==='DL'||sl==='LB'||sl==='DB')?'DF':'SK';
 const PRE={QB:{GUNSLINGER:[1.25,.95,.9,.9],POCKET:[1,1.22,.8,1],SCRAMBLER:[.9,.95,1.3,1.05]},SK:{BURNER:[.9,1.3,1,.8],HANDS:[1.25,.9,1,.85],POWER:[.9,.9,1.05,1.3]},KK:{BOOMER:[1.3,.9,.9,.9],PRECISE:[.9,1.3,.9,.9],ICEMAN:[.95,1.05,.85,1.15]},DF:{HITTER:[1.25,.9,1.05,.8],SPEEDSTER:[.95,1.25,.8,1],BRUISER:[.95,.85,1.3,.9]}};
@@ -688,7 +693,9 @@ function dive(C){if(G&&G.pl&&G.pl.ko)return;if(G&&G.pl&&G.pl.pl.k==='ret'&&C.bal
 
 
 /* ================= owner Nov 27: signature moves (double tap) ================= */
-const jkOf=C=>C.q&&C.q.jk!=null?C.q.jk:(C.q?C.q.spd:C.a),trOf=C=>C.q&&C.q.tr!=null?C.q.tr:(C.q?C.q.str:C.a);
+/* owner Nov 27: elusiveness counts toward every skill move (spin, hurdle): 55% JUKE + 45% ELUSIVE */
+const elOf=C=>{const q=C.q;if(!q||q.spd==null)return C.a;const on=clamp(((C.o||60)-AMIN)/(AMAX-AMIN),0,1);return clamp(.55*q.spd+.25*(q.sta!=null?q.sta:q.spd)+.2*on,0,1)};
+const jkOf=C=>.55*(C.q&&C.q.jk!=null?C.q.jk:(C.q?C.q.spd:C.a))+.45*elOf(C),trOf=C=>C.q&&C.q.tr!=null?C.q.tr:(C.q?C.q.str:C.a);
 /* owner Nov 27: any ball carrier can truck. How well it works is his TRUCK rating against the defender; a failed truck by a weak player is likely a fumble */
 function truckAny(C){const S=G.pl;if(!S||S.done||S.ko||!C||!C.ball)return;if(C.dive>0||C.hurT>0||C.spinT>0||C.trkT>0||(C.mcd||0)>0)return;truck(C)}
 function special(C){const S=G.pl;if(!S||S.done||S.ko||!C||!C.ball)return;if(C.dive>0||C.hurT>0||C.spinT>0||C.trkT>0||(C.mcd||0)>0)return;
@@ -1632,14 +1639,17 @@ function luPut(b,spot){/* put bench player b in at spot ([f,i,label]) */
 function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,p=e.slot,rc=f.rc;
  /* owner Nov 27: the back of the card shows attributes (speed, strength, catching...), not yards */
  const ks=AT[grp(p)],at=rawAt(e);
- const rows=ks.map(k=>[ALAB[k],Math.round(at[k])]);{const sp=specAt(e);if(sp)rows.push(sp)}
+ const rows=ks.map(k=>[ALAB[k],Math.round(at[k])]);
+ /* owner Nov 27: ELUSIVENESS for ball carriers; signature moves (JUKE, JUMP BALL, TRUCK) shown as 1-5 stars */
+ if(['QB','RB','WR','SLOT','TE'].includes(p))rows.push(['ELUSIVE',elusOf(at,e.o)]);
+ {const sp=specAt(e);if(sp)rows.push([sp[0],sp[1],1])}
  const BW=100,BH=34+rows.length*13,bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,24,222-BH);
  rect(bx-1,by-1,BW+2,BH+2,'#000');rect(bx,by,BW,BH,f.rc);rect(bx+2,by+2,BW-4,BH-4,'#0b1220');
  txt(String(f.ov),bx+6,by+5,ovC(f.ov),2,'l');
  txt(String(e.n).slice(0,11),bx+32,by+5,'#fff',1,'l');
  txt(p,bx+32,by+15,'#9fd8ff',1,'l',true);
  rect(bx+4,by+26,BW-8,1,'rgba(255,255,255,.2)');
- rows.forEach(([l,v],i)=>{const yy=by+30+i*13,c=v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff8b5a';txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(String(v),bx+BW-6,yy,'#fff',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,Math.round((BW-12)*(v-AMIN)/(AMAX-AMIN)),2,c)});
+ rows.forEach(([l,v,st],i)=>{const yy=by+30+i*13;if(st){txt(l,bx+6,yy,'#ffd23f',1,'l',true);drawStars(bx+BW-6-5*9,yy-1,starsOf(v));return}const c=v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff8b5a';txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(String(v),bx+BW-6,yy,'#fff',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,Math.round((BW-12)*(v-AMIN)/(AMAX-AMIN)),2,c)});
  LU.bfRect={x:bx,y:by,w:BW,h:BH}}
 /* owner Nov 27: TRAIN tab next to OFFENSE / DEFENSE. Spend coach points (CP, the same currency as My Team's TRAIN button and the facilities) to raise any one attribute of any player by 1.
    Each +1 adds 1 point to his attribute total (`car().bo[key]`, max TRAIN_MAX) and puts it straight into the attribute you picked, so his OVR rises as the total does. */

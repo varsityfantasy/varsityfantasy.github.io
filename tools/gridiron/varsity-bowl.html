@@ -1020,7 +1020,7 @@ function doFG(xp){const sp=1.12-.3*kq('spd');G.xpk=!!xp;P=null;G.pl=null;fx=[]; 
  const hd=mkP('h',0,hx+4,ky+3,60,'H'),kk=mkP('k',0,hx-20,ky-12,60,'K');hd.down=0;K.push(hd,kk);
  for(let i=-4;i<=4;i++){const d=mkP('dl',1,kx+11,ky+i*9.5,60,'');d.rush=1;K.push(d)}K.forEach(p=>{p.f=p.side?-1:1;p.ox=p.x;p.oy=p.y});
  const a0=Math.atan2(CY-ky,GPX-hx);G.phase='meter';
- G.meter={st:0,pw:0,pd:1,a:a0-.42,ad:1,a0,hx,ky,kk,psp:1.05*sp,asp:.85*sp,done:false,t0:performance.now(),kt:0};camT=clamp(Math.min(hx-40,GPX-W+80),0,FL-W);if(xp){G.los=kx;G.fd=GOAL}}
+ G.meter={st:0,pw:0,pd:1,a:a0-.42,ad:1,a0,hx,ky,kk,psp:.78*sp,asp:.6*sp,done:false,t0:performance.now(),kt:0};camT=clamp(Math.min(hx-40,GPX-W+80),0,FL-W);if(xp){G.los=kx;G.fd=GOAL}}
 /* take too long and the rush gets home: after 3 s the block chance climbs (100% at 6 s; at 6 s the kick is blocked by itself) */
 const KBLK0=3,KBLK1=6;
 function fgTap(){const M=G.meter;if(!M||M.done||performance.now()-M.t0<250)return;sfx.tap();if(M.st===0){M.st=1}else{M.done=true;M.kt=.001;const el=(performance.now()-M.t0)/1000;M.blk=Math.random()<clamp((el-KBLK0)/(KBLK1-KBLK0),0,1)*.9}}
@@ -1028,6 +1028,8 @@ function fgHalf(){const d=fgDist();return clamp((.12+.09*kq('acc'))*(1.3-d/75),.
 /* owner Nov 27: a good kick clears the posts high (a barely-there kick between the crossbar and the tops, a strong one well above them) and sails out over the stadium.
    r = power over what the distance needs (1 to 1.5): the arc's height goes 40 to 96, and its peak sits right over the uprights */
 function fgArc(k,r){k.h=40+56*clamp((r-1)/.45,0,1);const pu=clamp((GPX-k.from)/(k.to-k.from),.3,.95);k.pu=pu;k.pk=Math.log(.55)/Math.log(pu);k.pow=r>=1.28}
+/* owner Nov 27: timing help. The angles that split the uprights (same width fgResolve uses): [low, high] */
+function aimZone(M){const d=fgDist(),hw=Math.max(3,GPW*(.8+.35*kq('acc'))-Math.max(0,(d-30)*.05)),L=GPX-M.hx;return [Math.atan((CY-hw-M.ky)/L),Math.atan((CY+hw-M.ky)/L)]}
 function fgResolve(){const M=G.meter,dist=fgDist();G.kn=(G.kn||0)+1;
  if(M.blk){const kn=CFG.ros.k.n;psAdd(kn,'K',G.xpk?'xpa':'fga');const k={kind:'fg',from:M.hx,to:M.hx+3*YD,y0:M.ky,y1:M.ky+rnd(-20,20),t:0,T:.6,h:10,ok:false,lab:'BLOCKED!',dist,kf:G.kf,blkd:{cx:Math.max(M.hx+30,G.los+4),cy:M.ky,sd:Math.random()<.5?-1:1}};k.T=1.15;G.phase='kick';G.kick=k;G.kf=null;
   if(G.xpk){G.xpk=false;k.after=()=>{if(G.over)return toFinal();startOpp(25,'KICKOFF')};return}
@@ -1929,12 +1931,19 @@ function drawMeter(){
  [...G.kf].sort((a,b)=>a.y-b.y).forEach(p=>drawPlayer(p));
  const bx=Math.round(M.hx-camX),by=Math.round(FT+M.ky);fball(bx+1,by-2,-.9);
  /* aim line from the ball toward the posts */
- if(M.st>=1&&!kick){const L=150,ex=bx+Math.cos(M.a)*L,ey=by+Math.sin(M.a)*L;g.strokeStyle='rgba(0,0,0,.45)';g.lineWidth=3;g.beginPath();g.moveTo(bx,by);g.lineTo(ex,ey);g.stroke();g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.moveTo(bx,by);g.lineTo(ex,ey);g.stroke()}
+ if(M.st>=1&&!kick){const L=150,ex=bx+Math.cos(M.a)*L,ey=by+Math.sin(M.a)*L;g.strokeStyle='rgba(0,0,0,.45)';g.lineWidth=3;g.beginPath();g.moveTo(bx,by);g.lineTo(ex,ey);g.stroke();{const z=aimZone(M);g.strokeStyle=M.a>=z[0]&&M.a<=z[1]?'#7dff7d':'#fff'}g.lineWidth=1.5;g.beginPath();g.moveTo(bx,by);g.lineTo(ex,ey);g.stroke()}
  /* power bar */
  const pw=220,px=W/2-pw/2,py=20,ph=14;rect(px-2,py-2,pw+4,ph+4,'#000');rect(px,py,pw,ph,'#111');
  const rw=Math.round(pw*need),fw=Math.round(pw*M.pw);rect(px,py,Math.min(fw,rw),ph,'#ff2a2a');if(fw>rw)rect(px+rw,py,fw-rw,ph,'#21e83c');
  rect(px+rw,py-3,1,ph+6,'rgba(255,255,255,.7)');
  txt(G.xpk?'EXTRA POINT':d+' YDS',W-8,py+3,'#fff',1,'r');
+ /* timing help: the power bar shows a gold zone just past the line (full power needed + a little more) and flashes when you are in it */
+ if(!kick&&M.st===0){const gx=px+rw,gw=Math.max(8,Math.round(pw*.16)),inG=M.pw>=need&&M.pw<=need+.16,fl=Math.sin(performance.now()/70)>0;g.strokeStyle=inG&&fl?'#fff':'#ffd23f';g.lineWidth=2;g.strokeRect(gx+.5,py-1.5,Math.min(gw,px+pw-gx)+.5,ph+3);txt(inG?'NOW!':'TAP IN THE GOLD',px+pw/2,py+ph+4,inG?'#7dff7d':'#ffd23f',1,'c')}
+ /* the aim gauge: a marker sweeps left to right, tap while it is in the green */
+ if(!kick&&M.st>=1){const gw=220,gx=W/2-gw/2,gy=H-64,gh=12,z=aimZone(M),sp2=.84,mp=a=>gx+gw*clamp((a-(M.a0-.42))/sp2,0,1),zl=Math.round(mp(z[0])),zr=Math.round(mp(z[1])),inZ=M.a>=z[0]&&M.a<=z[1];
+  rect(gx-2,gy-2,gw+4,gh+4,'#000');rect(gx,gy,gw,gh,'#3a1010');rect(zl,gy,Math.max(3,zr-zl),gh,'#21e83c');rect(Math.round((zl+zr)/2),gy,1,gh,'#eaffea');
+  const mx=Math.round(mp(M.a));rect(mx-1,gy-5,3,gh+10,inZ?'#fff':'#ffd23f');rect(mx-3,gy-7,7,3,inZ?'#fff':'#ffd23f');
+  txt(inZ?'NOW! TAP!':'TAP WHEN IT IS IN THE GREEN',W/2,gy-16,inZ?'#7dff7d':'#fff',1,'c')}
  if(!kick){rect(0,H-30,W,16,'rgba(0,0,0,.6)');txt(M.st===0?'TAP TO SET THE POWER':'TAP TO KICK, AIM BETWEEN THE POSTS',W/2,H-26,'#fff',1,'c')}
  if(!M.done)btns.push({x:0,y:14,w:W,h:H-14,fn:()=>{}})}
 function drawBanner(){rect(0,70,W,70,'rgba(0,0,0,.75)');txt(G.banner,W/2,82,'#f2c230',3,'c');txt(G.sub,W/2,114,'#fff',1,'c');btn(W/2-50,150,100,20,'CONTINUE',()=>advance(),{c:'#f2c230'})}

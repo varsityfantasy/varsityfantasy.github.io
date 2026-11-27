@@ -1584,3 +1584,4 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
 - `setupPlay` clears `G.tags`, so a tag you showed or hid by tapping a player before the snap goes back to the default (85+ OVR) on the next play.
 
 - v729 (Nov 26): Varsity Bowl lineup: player targets are 4 px bigger on every side, and a press must move 12 canvas units (was 8) before it counts as a drag, so taps on offense and defense players register reliably on phones and mice. Tested with Playwright (DL and WR taps flip the card).
+- v730 (Nov 26): the Varsity Bowl close (x) button in the parent page moved from the top-left to the top-right, so it no longer covers the game's BACK button (a tap there closed the whole game). Tested inside an iframe overlay on desktop, phone landscape and portrait: DEFENSE tab, a defensive player and BACK all respond.

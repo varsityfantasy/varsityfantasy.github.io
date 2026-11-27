@@ -3978,7 +3978,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v729 · Nov 26';
+const APP_BUILD='v730 · Nov 26';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8722,7 +8722,7 @@ function vbHTML(){const r=vbRec(),can=!!ME.uid&&ME.mode!=='guest';
 function vbOpen(){
   if(!ME.admin||FG_SPORT==='bb'||document.querySelector('.vbx'))return;   /* v721 (owner): admin accounts only for now */
   const el=document.createElement('div');el.className='fgx vbx';el.setAttribute('role','dialog');el.setAttribute('aria-label','Varsity Bowl');
-  el.innerHTML=`<iframe title="Varsity Bowl" allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#000" src="tools/gridiron/varsity-bowl.html?embed=1&b=${encodeURIComponent(APP_BUILD)}"></iframe><button class="fgx-x" aria-label="Close game" style="left:12px;right:auto;top:calc(8px + env(safe-area-inset-top,0px));width:36px;height:36px;font-size:16px">✕</button>`;
+  el.innerHTML=`<iframe title="Varsity Bowl" allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#000" src="tools/gridiron/varsity-bowl.html?embed=1&b=${encodeURIComponent(APP_BUILD)}"></iframe><button class="fgx-x" aria-label="Close game" style="top:calc(8px + env(safe-area-inset-top,0px));right:8px;width:36px;height:36px;font-size:16px">✕</button>`;
   document.body.appendChild(el);document.body.classList.add('fg-on');
   const fr=el.querySelector('iframe');
   /* v688: arrow keys pressed while the parent page has focus are passed into the game (jukes) */

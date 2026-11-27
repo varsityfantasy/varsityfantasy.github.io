@@ -483,6 +483,7 @@ function labelBox(p){const x=Math.round(p.x-camX),y=Math.round(FT+p.y)-34,s=ini(
 
 /* ---------- play setup ---------- */
 function setupPlay(pl){
+ G.tags={};   /* owner Nov 26: tags you tapped on show for this play only; the next play goes back to the default (85+) */
  const los=G.los,R=CFG.ros,dO=G.oppO,S={pl,t:0,thrown:false,carrier:null,ball:null,done:false,qbRan:false,rush:false,blitz:!pl.k||pl.k!=='pass'?false:Math.random()<.17,hoT:pl.draw?1.1:.5,handed:false,pressure:0,land:null,res:null,end:0,flo:0};
  const olo=rosOl();
  P={ol:[],dl:[],lb:[],cb:[],s:[],rc:[],all:[]};

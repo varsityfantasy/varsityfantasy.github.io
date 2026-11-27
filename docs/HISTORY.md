@@ -1579,3 +1579,6 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
 ## v727 (Nov 26): goal to go, and lines on kick returns
 - Inside the 10 (`G.fd` clamped to GOAL) it is goal to go: no yellow first-down line (drawn only when `G.fd<GOAL`), the in-play distance reads GOAL TO GO, and the HUD keeps "1ST & GOAL".
 - A line that scrolls off the screen (a kick return runs away from the spot) stays on the screen edge as a tag: blue LOS, yellow 1ST (`edgeTag` in `drawWorld`), until the play ends and the spot moves.
+
+## v728 (Nov 26): name tags you tap are for one play
+- `setupPlay` clears `G.tags`, so a tag you showed or hid by tapping a player before the snap goes back to the default (85+ OVR) on the next play.

@@ -1444,7 +1444,8 @@ function luDrop(d,t){const act=curLineup(),cap=luCap(),L=fullPool(),nm=k=>{const
  return luSay('TO SWAP TWO STARTERS, DRAG ONE ONTO A BENCH PLAYER')}
 function lineUp(e){const p=toC(e),hb=ptr.hitb,l=Math.hypot(p.x-ptr.sx,p.y-ptr.sy);ptr.down=false;ptr.hitb=null;
  if(LU.drag){const d=LU.drag;LU.drag=null;const t=hitBtn(p);if(t&&t.kd&&t.dk!==d.k)luDrop(d,t);return}
- if(hb&&l<14&&hitBtn(p)===hb)hb.fn()}
+ /* the button list is rebuilt every frame, so compare the button's place and kind, not the object (a press held over a few frames never matched before) */
+ const t=hitBtn(p);if(hb&&t&&l<14&&t.x===hb.x&&t.y===hb.y&&t.w===hb.w&&t.h===hb.h&&t.kd===hb.kd&&t.dk===hb.dk)t.fn()}
 addEventListener('pointermove',luMove);
 /* owner Nov 26: stats comparison. Your player against another at his position, attribute by attribute (the same numbers that make up his OVR) */
 function drawLcmp(){

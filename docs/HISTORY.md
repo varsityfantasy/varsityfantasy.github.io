@@ -1599,3 +1599,4 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
 =======
 - v737 (Nov 27, owner): Varsity Bowl: more space between players on the field. OL 22 px apart (was 16), DL 22 (was 16), LBs 56 off center (was 40), TE moved out to CY+60 and RB to CY+32, WR2 to y 34; the lineup screen's formation (`base`) matches.
 >>>>>>> Stashed changes
+- v738 (Nov 27, owner): Varsity Bowl field goals: the kick now clears the uprights high instead of dropping in at crossbar height. `fgArc`: height 40 (barely enough) to 96 (powerful, over the tops, 'SPLIT THE UPRIGHTS!') by power over distance, peak over the posts, flies on out over the stadium. Spinning ball, fading trail (gold when powerful), turf pop and flash at contact, burst and slow motion as it goes through.

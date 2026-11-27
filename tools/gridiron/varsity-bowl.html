@@ -1025,6 +1025,9 @@ function doFG(xp){const sp=1.12-.3*kq('spd');G.xpk=!!xp;P=null;G.pl=null;fx=[]; 
 const KBLK0=3,KBLK1=6;
 function fgTap(){const M=G.meter;if(!M||M.done||performance.now()-M.t0<250)return;sfx.tap();if(M.st===0){M.st=1}else{M.done=true;M.kt=.001;const el=(performance.now()-M.t0)/1000;M.blk=Math.random()<clamp((el-KBLK0)/(KBLK1-KBLK0),0,1)*.9}}
 function fgHalf(){const d=fgDist();return clamp((.12+.09*kq('acc'))*(1.3-d/75),.045,.24)}
+/* owner Nov 27: a good kick clears the posts high (a barely-there kick between the crossbar and the tops, a strong one well above them) and sails out over the stadium.
+   r = power over what the distance needs (1 to 1.5): the arc's height goes 40 to 96, and its peak sits right over the uprights */
+function fgArc(k,r){k.h=40+56*clamp((r-1)/.45,0,1);const pu=clamp((GPX-k.from)/(k.to-k.from),.3,.95);k.pu=pu;k.pk=Math.log(.55)/Math.log(pu);k.pow=r>=1.28}
 function fgResolve(){const M=G.meter,dist=fgDist();G.kn=(G.kn||0)+1;
  if(M.blk){const kn=CFG.ros.k.n;psAdd(kn,'K',G.xpk?'xpa':'fga');const k={kind:'fg',from:M.hx,to:M.hx+3*YD,y0:M.ky,y1:M.ky+rnd(-20,20),t:0,T:.6,h:10,ok:false,lab:'BLOCKED!',dist,kf:G.kf,blkd:{cx:Math.max(M.hx+30,G.los+4),cy:M.ky,sd:Math.random()<.5?-1:1}};k.T=1.15;G.phase='kick';G.kick=k;G.kf=null;
   if(G.xpk){G.xpk=false;k.after=()=>{if(G.over)return toFinal();startOpp(25,'KICKOFF')};return}
@@ -1032,12 +1035,13 @@ function fgResolve(){const M=G.meter,dist=fgDist();G.kn=(G.kn||0)+1;
  const yAt=M.ky+Math.tan(M.a)*(GPX-M.hx),hw=GPW*(.8+.35*kq('acc'))-Math.max(0,(dist-30)*.05);const short=reach<dist,wide=Math.abs(yAt-CY)>hw,ok=!short&&!wide;
  {const kn=CFG.ros.k.n;if(G.xpk){psAdd(kn,'K','xpa');if(ok)psAdd(kn,'K','xpm')}else{psAdd(kn,'K','fga');if(ok)psAdd(kn,'K','fgm')}}
  const lab=ok?"IT'S GOOD!":short?'SHORT!':(yAt<CY?'WIDE LEFT':'WIDE RIGHT');
- const k={kind:'fg',from:M.hx,to:short?M.hx+reach*YD*.95:GPX+30,y0:M.ky,y1:short?M.ky+Math.tan(M.a)*reach*YD*.95:M.ky+Math.tan(M.a)*(GPX+30-M.hx),t:0,T:short?1.1:1.4,h:short?34:48,ok,lab,dist,kf:G.kf};
+ const k={kind:'fg',from:M.hx,to:short?M.hx+reach*YD*.95:GPX+90,y0:M.ky,y1:short?M.ky+Math.tan(M.a)*reach*YD*.95:M.ky+Math.tan(M.a)*(GPX+90-M.hx),t:0,T:short?1.1:1.9,h:short?34:48,ok,lab,dist,kf:G.kf};
+ if(!short)fgArc(k,clamp(reach/dist,1,1.5));
  G.phase='kick';G.kick=k;G.kf=null;
  if(G.xpk){G.xpk=false;k.after=()=>{if(ok)G.score[0]+=1;if(G.over)return toFinal();startOpp(25,'KICKOFF')};return}
  k.after=()=>{if(ok){G.score[0]+=3;startOpp(25,'KICKOFF')}else{startOpp(clamp(100-Math.round((G.los-EZ)/YD),3,97),'MISSED FG')}};burn(6)}
 function fgSettle(acc){const dist=fgDist();G.kn=(G.kn||0)+1;let p=.99-(.0175-.009*kq('rng'))*Math.max(0,dist-18)+(kq('acc')-.5)*.14-kTire();p*=.55+.45*acc;p=clamp(p,.04,.985);const ok=Math.random()<p;
- const from=G.los,to=FL-16;G.phase='kick';G.kick={kind:'fg',from,to,t:0,T:1.5,h:44,ok,lab:ok?'FIELD GOAL IS GOOD! +3':'NO GOOD',dist:dist};
+ const from=G.los,to=FL-16;G.phase='kick';G.kick={kind:'fg',from,to,t:0,T:1.5,h:44,ok,lab:ok?'FIELD GOAL IS GOOD! +3':'NO GOOD',dist:dist};if(ok){const k=G.kick;k.to=GPX+90;k.T=1.9;fgArc(k,1+.5*clamp(1-(dist-25)/30,0,1))}
  G.kick.after=()=>{if(ok){G.score[0]+=3;startOpp(25,'KICKOFF')}else{startOpp(clamp(100-Math.round((G.los-EZ)/YD),3,97),'MISSED FG')}};burn(6)}
 
 /* ---------- the opponent's drive (simulated) ---------- */
@@ -1790,6 +1794,11 @@ function drawOpp(){
 function drawKick(){
  const k=G.kick;
  const u=Math.min(1,k.t/k.T);let x=k.from+(k.to-k.from)*u,z=Math.sin(u*Math.PI)*k.h,yy=k.y0!=null?k.y0+(k.y1-k.y0)*u:CY,spin=u*9;
+ if(k.pk){const w=Math.pow(u,k.pk);z=k.h*4*w*(1-w);spin=u*30;
+  if(!k.fx0){k.fx0=1;burst(k.from,yy,6);grass(k.from,yy,10);dust(k.from,yy,8,'#d8c9a0');sfx.hit&&sfx.hit()}   /* contact: a pop of turf and a flash */
+  k.sl=(k.ok&&u>k.pu-.06&&u<k.pu+.08)?.4:1;   /* slow motion as it goes through */
+  if(k.ok&&!k.fx1&&u>=k.pu){k.fx1=1;burst(x,yy,z);if(k.pow)fx.push({t:'SPLIT THE UPRIGHTS!',x:x-40,y:yy-z-24,l:1.1,c:'#ffe14a'})}
+  if(u<1){(k.tr=k.tr||[]).push([x,yy,z]);if(k.tr.length>16)k.tr.shift()}}
  /* owner Nov 25: a blocked kick is actually blocked: the closest rusher leaps with his arms up, the ball smacks off his hands and bounces away */
  if(k.blkd){const B=k.blkd;if(!B.bp&&k.kf){let bd=1e9;k.kf.forEach(p=>{if(p.rush){const d=Math.abs(p.y-B.cy)+Math.abs(p.x-B.cx)*.5;if(d<bd){bd=d;B.bp=p}}});if(B.bp){B.bx=B.bp.x;B.by=B.bp.y}}
   const bp=B.bp,lt=Math.min(1,k.t/.2);if(bp){bp.x=B.bx+(B.cx+3-B.bx)*lt;bp.y=B.by+(B.cy-B.by)*lt;bp.f=-1;bp.pose='blk';bp.air=k.t<.7?Math.sin(Math.min(1,k.t/.7)*Math.PI)*9:0;if(k.t>.9)bp.pose=null}
@@ -1797,7 +1806,9 @@ function drawKick(){
  camT=k.kind==='fg'?clamp(Math.min(x-200,GPX-W+60),0,FL-W):x-190;
  if(k.kf)k.kf.forEach(p=>{if(p.side&&k.t>.2){p.x-=10*(1/60);p.ph+=.1}drawPlayer(p)});
  else{if(!k.ks){k.ks=[mkP('k',0,k.from-12,CY,70,'K'),mkP('h',0,k.from-24,CY+6,70,'H')];k.ks.forEach(p=>p.f=1)}if(k.t<.4)k.ks.forEach(p=>drawPlayer(p))}
- const sx=Math.round(x-camX),sy=Math.round(FT+yy);rect(sx-3,sy,6,3,'rgba(0,0,0,.35)');fball(sx,sy-Math.round(z)-2,spin);
+ const sx=Math.round(x-camX),sy=Math.round(FT+yy);rect(sx-3,sy,6,3,'rgba(0,0,0,.35)');
+ if(k.tr)k.tr.forEach((q,i,A)=>{const a=(i+1)/A.length*.55;rect(Math.round(q[0]-camX),Math.round(FT+q[1]-q[2]-2),2,2,(k.pow?'rgba(255,225,74,':'rgba(255,255,255,')+a+')')});
+ fball(sx,sy-Math.round(z)-2,spin);
  if(k.kind!=='fg'){rect(0,14,W,16,'rgba(0,0,0,.5)');txt(k.kind==='punt'?'PUNT':'KICK',W/2,18,'#fff',1,'c')}
  if(u>=1){rect(0,H-44,W,28,'rgba(0,0,0,.72)');txt(k.lab,W/2,H-38,k.kind==='fg'?(k.ok?'#ffe14a':'#ff5a5a'):'#fff',2,'c');if(k.t>k.T+1.3&&!k.go){k.go=true;const a=k.after;G.kick=null;if(G.over)return toFinal();a()}}}
 function drawMeter(){
@@ -1859,7 +1870,7 @@ function update(dt){
    else if(G.phase==='presnap'&&P){P.all.forEach(p=>{p.vx=0;p.vy=0})}
    else if(G.phase==='result'){G.rt+=dt;if(G.pl)stepAnim(dt);if(G.pl&&G.pl.res)stepDef2(dt)}
    else if(G.phase==='opp')G.camOpp+=dt;
-   else if(G.phase==='kick'&&G.kick)G.kick.t+=dt;
+   else if(G.phase==='kick'&&G.kick)G.kick.t+=dt*(G.kick.sl||1);
    else if(G.phase==='meter'){const M=G.meter;if(!M.done){if(M.st===0){M.pw+=M.pd*M.psp*dt;if(M.pw>=1){M.pw=1;M.pd=-1}if(M.pw<=0){M.pw=0;M.pd=1}}else{M.a+=M.ad*M.asp*dt;if(M.a>=M.a0+.42){M.a=M.a0+.42;M.ad=-1}if(M.a<=M.a0-.42){M.a=M.a0-.42;M.ad=1}}}}}}
 function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;tNow=now/1000;
  try{const sl=G&&G.phase==='play'&&G.slow?G.slow:1;update(dt*sl);if(!paused)jbStep(dt);draw()}catch(err){console.error(err);try{g.fillStyle='#f66';g.fillRect(0,0,4,4)}catch(_){}}

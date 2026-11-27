@@ -1553,3 +1553,5 @@ Varsity Bowl (owner, Nov 25): (1) Dive controls: right arrow (or D) dives on a c
 ## v720 (Nov 26): phone notifications removed
 - Owner was getting a GitHub failure email every few minutes: "Send phone notifications" (push.yml, every 5 min) failed every run because its secrets were never added. Workflow disabled in GitHub and its schedule removed.
 - `PUSH_OFF=true` in the app: no phone-alert controls, no permission prompt (`pushAskMaybe`), no local alerts (`ntPhoneOK` false), and devices that had turned them on are unsubscribed once (`pushSync`, localStorage vs-pushgone).
+
+Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football Minigames (`vb`, `viewMini`) shows only when `ME.admin` (admin account with its PIN unlocked) and FG_SPORT is not bb; `viewMini` ignores `UI.mtab==="vb"` for everyone else and `vbOpen()` returns unless `ME.admin`. Basketball has no Varsity Bowl. To open it to everyone later, drop the `ME.admin&&` checks in the T0 list, the tile list and the grid column count, and the guard in `vbOpen`.

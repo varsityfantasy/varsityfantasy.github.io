@@ -1637,13 +1637,41 @@ function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,p=e.slot,rc=f.rc;
  rect(bx+4,by+26,BW-8,1,'rgba(255,255,255,.2)');
  rows.forEach(([l,v],i)=>{const yy=by+30+i*13,c=v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff8b5a';txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(String(v),bx+BW-6,yy,'#fff',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,Math.round((BW-12)*(v-AMIN)/(AMAX-AMIN)),2,c)});
  LU.bfRect={x:bx,y:by,w:BW,h:BH}}
+/* owner Nov 27: TRAIN tab next to OFFENSE / DEFENSE. Spend coach points (CP, the same currency as My Team's TRAIN button and the facilities) to raise any one attribute of any player by 1.
+   Each +1 adds 1 point to his attribute total (`car().bo[key]`, max TRAIN_MAX) and puts it straight into the attribute you picked, so his OVR rises as the total does. */
+function luTabs(T){[['O','OFFENSE'],['D','DEFENSE'],['T','TRAIN']].forEach(([k,l],i)=>btn(44+i*76,3,72,16,l,()=>{LU.tab=k;LU.sel=null;LU.flip=null;LU.bx=0},{c:T===k?(k==='T'?'#7dff7d':'#f2c230'):'#2a3346',tc:T===k?'#14110a':'#cfd6e0'}))}
+function trainBoost(e,k){const cc=car(),bo=cc.bo[e.key]||0;if(!e.key||cc.cp<TRAIN_CP||bo>=TRAIN_MAX)return;const b=Object.assign({},rawAt(e));if(b[k]>=AMAX)return;
+ cc.cp-=TRAIN_CP;cc.bo[e.key]=bo+1;b[k]+=1;CFG.build[e.key]=b;saveJ(BKEY,CFG.build);carSave();applyTeam();luSay(lastNm(e.n)+' +1 '+ALAB[k])}
+function drawTrain(){
+ bgPlain();LU.bl=null;const c=car(),L=fullPool().filter(r=>r.key),so=(x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o,list=L.slice().sort(so);
+ btn(4,4,36,14,'BACK',()=>{SCR=LU.back||'title';LU.back=null;LU.sw=null;LU.sel=null;LU.flip=null},{c:'#4a5a4c',tc:'#cfe8cf'});luTabs('T');
+ rect(W-104,3,98,16,'#000');rect(W-103,4,96,14,'#14110a');txt(c.cp+' CP',W-55,8,'#ffd23f',1,'c');
+ const RH=11,top=30,vh=186,max=Math.max(0,list.length*RH-vh);LU.ts=clamp(LU.ts||0,0,max);LU.tl={x:4,y:26,w:236,h:192};
+ if(!LU.tc||!list.some(r=>r.key===LU.tc))LU.tc=(list[0]||{}).key;
+ panel(4,26,236,192,'rgba(8,13,24,.94)');
+ list.forEach((r,i)=>{const y=top+i*RH-LU.ts;if(y<top-2||y>top+vh-RH)return;const sel=r.key===LU.tc,bo=c.bo[r.key]||0;
+  btns.push({x:4,y:y-1,w:232,h:RH,fn:()=>{LU.tc=r.key}});
+  if(sel){rect(5,y-1,234,RH-1,'rgba(125,255,125,.25)');rect(5,y-1,1,RH-1,'#7dff7d')}
+  txt(r.slot,10,y,grp(r.slot)==='DF'?'#ff9a8a':r.slot==='K'?'#5fb4ff':'#f2c230',1);txt(String(r.n).slice(0,22),42,y,'#fff',1);if(bo)txt('+'+bo,196,y,'#7dff7d',1,'r',true);txt(String(r.o),234,y,ovC(r.o),1,'r')});
+ if(max>0){const h=Math.max(14,vh*vh/(list.length*RH)),yy=top+(vh-h)*LU.ts/max;rect(236,top,2,vh,'#0b0f18');rect(236,yy,2,h,'#9fd8ff')}
+ panel(246,26,230,192,'rgba(8,13,24,.94)');
+ const r0=list.find(r=>r.key===LU.tc);if(!r0){txt('NO PLAYERS TO TRAIN',361,110,'#9fb7a0',1,'c',true);return}
+ const e=mkEnt(r0),bo=c.bo[e.key]||0,sk=SPEC[e.slot],b=rawAt(e),ks=AT[grp(e.slot)],maxed=bo>=TRAIN_MAX,ok=c.cp>=TRAIN_CP&&!maxed;
+ pcard(252,32,58,96,r0,{i:0});txt(String(e.n).slice(0,24),318,30,'#fff',1);txt(e.slot+'  OVR '+e.o,318,40,ovC(e.o),1,'l',true);
+ txt(maxed?'MAX TRAINED':bo?'+'+bo+' / '+TRAIN_MAX+' TRAINED':'0 / '+TRAIN_MAX+' TRAINED',318,50,maxed?'#ffd23f':'#7dff7d',1,'l',true);
+ ks.forEach((k,i)=>{const y=62+i*19,v=b[k],can=ok&&v<AMAX;txt(ALAB[k],318,y,'#cfe8cf',1,'l',true);rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff9a8a');
+  txt(String(v),402,y+7,'#fff',1,'r');btn(408,y+2,62,13,v>=AMAX?'MAX':'+1  '+TRAIN_CP+' CP',()=>trainBoost(e,k),{c:can?'#7dff7d':'#2a3346',tc:can?'#14110a':'#6b7280'})});
+ if(sk){const y=62+ks.length*19;txt(ALAB[sk[0]],318,y,'#cfe8cf',1,'l',true);const v=Math.round(specVal(sk[0],b,e.o));rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,'#9fd8ff');txt(String(v),402,y+7,'#fff',1,'r');txt('BUILT FROM HIS RATINGS',318,y+16,'#7d8aa3',1,'l',true)}
+ const m=LU.msg&&performance.now()-LU.mt<4000?LU.msg:c.cp<TRAIN_CP?'NOT ENOUGH CP. WIN GAMES IN SEASON MODE TO EARN MORE':'TAP A PLAYER, THEN +1 ON THE RATING TO RAISE';
+ txt(m.slice(0,56),252,206,c.cp<TRAIN_CP?'#ff9a8a':'#9fb7a0',1,'l',true)}
 function drawLineup(){
+ if(LU.tab==='T'){drawTrain();return}
  LU.bf=null;LU.bfRect=null;
  bgPlain();const T=LU.tab,cap=luCap(),L=fullPool(),act=curLineup(),on=new Set(act),spots=LUF[T].map(q=>({f:q[0],i:q[1],lab:q[2],x:q[3],y:q[4],e:luEnt(q[0],q[1])}));
  const side=T==='O'?['QB','RB','WR','TE','K']:['DL','LB','DB'];
  btn(4,4,36,14,'BACK',()=>{SCR=LU.back||'title';LU.back=null;LU.sw=null;LU.sel=null;LU.flip=null},{c:'#4a5a4c',tc:'#cfe8cf'});
- [['O','OFFENSE'],['D','DEFENSE']].forEach(([k,l],i)=>btn(48+i*80,3,76,16,l,()=>{LU.tab=k;LU.sel=null;LU.flip=null;LU.bx=0},{c:T===k?'#f2c230':'#2a3346',tc:T===k?'#14110a':'#cfd6e0'}));
- if(CFG.mode!=='cards')btn(214,4,130,14,CFG.school.slice(0,21),()=>{LU.sw=null;LU.flip=null;TS.pf=false;TS.back='lineup';SCR='pick'},{c:'#9fd8ff'});else txt(CFG.real?'YOUR CARDS':'SAMPLE CARDS',220,8,'#9fb7a0',1,'l',true);
+ luTabs(T);
+ if(CFG.mode!=='cards')btn(274,4,122,14,CFG.school.slice(0,19),()=>{LU.sw=null;LU.flip=null;TS.pf=false;TS.back='lineup';SCR='pick'},{c:'#9fd8ff'});else txt(CFG.real?'YOUR CARDS':'SAMPLE CARDS',280,8,'#9fb7a0',1,'l',true);
  txt('ACTIVE '+act.length+'/'+cap,W-8,8,act.length<cap?'#ffd23f':'#7dff7d',1,'r');
  /* the field */
  rect(0,24,W,130,'#1d5025');for(let i=0;i<W;i+=40)rect(i,24,20,130,'rgba(255,255,255,.035)');for(let y=24;y<154;y+=22)rect(0,y,W,1,'rgba(255,255,255,.08)');
@@ -1693,7 +1721,9 @@ function drawLineup(){
  btn(400,yb-2,72,26,'DONE',()=>{SCR=LU.back||'title';LU.back=null;LU.sw=null;LU.sel=null;LU.flip=null},{c:'#f2c230'})}
 addEventListener('pointermove',e=>{if(G||SCR!=='lineup'||!ptr.down||!LU.bl||LU.drag)return;const p=toC(e);if(ptr.sy<LU.bl.y||ptr.sy>LU.bl.y+LU.bl.h){LU.bdx=null;return}if(LU.bdx!=null)LU.bx-=p.x-LU.bdx;LU.bdx=p.x});
 addEventListener('pointerup',()=>{LU.bdx=null});addEventListener('pointercancel',()=>{LU.bdx=null});
-addEventListener('wheel',e=>{if(!G&&SCR==='lineup'){LU.bx+=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*.6;e.preventDefault()}},{passive:false});
+addEventListener('pointermove',e=>{if(G||SCR!=='lineup'||LU.tab!=='T'||!ptr.down||!LU.tl)return;const p=toC(e);if(ptr.sx<LU.tl.x||ptr.sx>LU.tl.x+LU.tl.w||ptr.sy<LU.tl.y||ptr.sy>LU.tl.y+LU.tl.h)return;if(LU.ty!=null)LU.ts=(LU.ts||0)-(p.y-LU.ty);LU.ty=p.y});
+addEventListener('pointerup',()=>{LU.ty=null});addEventListener('pointercancel',()=>{LU.ty=null});
+addEventListener('wheel',e=>{if(!G&&SCR==='lineup'&&LU.tab==='T'){LU.ts=(LU.ts||0)+e.deltaY*.5;e.preventDefault();return}if(!G&&SCR==='lineup'){LU.bx+=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*.6;e.preventDefault()}},{passive:false});
 function luOpen(back,key){LU.back=back;LU.sw=null;LU.sel=null;LU.flip=null;LU.drag=null;LU.bx=0;LU.msg='';if(key){for(const t of ['O','D']){const q=LUF[t].find(q=>{const e=luEnt(q[0],q[1]);return e&&e.key===key});if(q){LU.tab=t;LU.sel=q[0]+q[1];LU.flip=key;break}}}SCR='lineup'}
 function drawPick(){
  bgPlain();const L=schoolList(),RH=22,vis=8,max=Math.max(0,L.length*RH-vis*RH);TS.pk=clamp(TS.pk,0,max);

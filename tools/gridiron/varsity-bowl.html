@@ -789,7 +789,7 @@ function resolveCatch(){
  let who=null,kind='inc';
  if(S.jb&&S.jb.r){const J=S.jb,jr=J.r;if(!J.res)J.res='miss';J.rt=J.rt||0;G.slow=0;r=jr;dT=0;jr.x=b.tx-3;jr.y=b.ty;
   /* owner Nov 27: odds by zone, all weighted by his JUMP BALL (t 0..1, average .5): green 85% catch / 15 pbu; yellow 15 catch / 35 int / 50 pbu; red (or no tap) 50 int / 50 pbu */
-  {const t=clamp(jr.q&&jr.q.jb!=null?jr.q.jb:.5,0,1),z=J.res,pc=z==='hit'?clamp(.70+.30*t,0,.98):z==='near'?.05+.20*t:0,pi=J.d?(z==='near'?.50-.30*t:z==='miss'?.65-.30*t:0):0,u=Math.random();
+  {const t=clamp(jr.q&&jr.q.jb!=null?jr.q.jb:.5,0,1),z=J.res,pc=z==='hit'?(t<.5?.70+.30*t:.80+.10*t):z==='near'?.05+.20*t:0,pi=J.d?(z==='near'?.50-.30*t:z==='miss'?.65-.30*t:0):0,u=Math.random();
    if(u<pc){who=jr;kind='catch';if(J.d)J.d.imm=.6;fx.push({t:'MOSSED HIM!',x:jr.x,y:jr.y-40,l:1.1,c:'#ffe14a'})}else if(u<pc+pi){who=J.d;kind='int'}else kind='pbu'}}
  else if(r){const rs=(onT?67:50)+r.q.cat*28+rnd(0,22)-dT*.5-Math.max(0,mi-9)*.55;
   if(cands.length){const best=cands.reduce((a,c)=>(!a||c.sc>a.sc)?c:a,null),ds=best.sc;

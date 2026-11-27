@@ -539,13 +539,13 @@ function setupPlay(pl){
  const los=G.los,R=CFG.ros,dO=G.oppO,S={pl,t:0,thrown:false,carrier:null,ball:null,done:false,qbRan:false,rush:false,blitz:!pl.k||pl.k!=='pass'?false:Math.random()<.17,hoT:pl.draw?1.1:.5,handed:false,pressure:0,land:null,res:null,end:0,flo:0};
  const olo=rosOl();
  P={ol:[],dl:[],lb:[],cb:[],s:[],rc:[],all:[]};
- for(let i=0;i<5;i++)P.ol.push(mkP('ol',0,los-7,CY-32+i*16,olo,'OL'));
+ for(let i=0;i<5;i++)P.ol.push(mkP('ol',0,los-7,CY-44+i*22,olo,'OL'));
  S.sg=Math.random()<.5;P.qb=mkP('qb',0,los-(S.sg?46:15),CY,R.qb.o,R.qb.n);setQ(P.qb,R.qb);P.qb.spd=(44+24*P.qb.q.spd)*SPD;
- P.rb=mkP('rb',0,los-17,CY+24,R.rb.o,R.rb.n);P.te=mkP('te',0,los-4,CY+31,R.te.o,R.te.n);
- P.wr0=mkP('wr',0,los-3,14,R.wr[0].o,R.wr[0].n);P.wr1=mkP('wr',0,los-3,FH-14,R.wr[1].o,R.wr[1].n);P.wr2=mkP('wr',0,los-9,38,R.wr[2].o,R.wr[2].n);setQ(P.rb,R.rb);setQ(P.te,R.te);setQ(P.wr0,R.wr[0]);setQ(P.wr1,R.wr[1]);setQ(P.wr2,R.wr[2]);
+ P.rb=mkP('rb',0,los-17,CY+32,R.rb.o,R.rb.n);P.te=mkP('te',0,los-4,CY+60,R.te.o,R.te.n);
+ P.wr0=mkP('wr',0,los-3,14,R.wr[0].o,R.wr[0].n);P.wr1=mkP('wr',0,los-3,FH-14,R.wr[1].o,R.wr[1].n);P.wr2=mkP('wr',0,los-9,34,R.wr[2].o,R.wr[2].n);setQ(P.rb,R.rb);setQ(P.te,R.te);setQ(P.wr0,R.wr[0]);setQ(P.wr1,R.wr[1]);setQ(P.wr2,R.wr[2]);
  P.rc=[P.wr0,P.wr1,P.wr2,P.te,P.rb];P.rc.forEach((r,i)=>r.rcol=RCOL[i]);
  P.rc.forEach((r,i)=>{r.key=RK[i];r.spd=(r.key==='rb'?62+32*r.q.spd:r.key==='te'?58+30*r.q.spd:62+32*r.q.spd)*SPD;r.rt=(pl.r[r.key]||[]).map(q=>({x:r.x0+q[0]*.95,y:clamp(r.y0+q[1]*.95,8,FH-8)}));r.ext=!(pl.k==='run'&&r.key!=='rb')&&!(pl.hold&&pl.hold.includes(r.key))&&r.key!=='rb'||(r.key==='rb'&&pl.k==='pass'&&!(pl.hold&&pl.hold.includes('rb')));{const a=r.rt.length>=2?r.rt[r.rt.length-2]:{x:r.x0,y:r.y0},b=r.rt.length?r.rt[r.rt.length-1]:{x:r.x0+1,y:r.y0},n=Math.hypot(b.x-a.x,b.y-a.y)||1;r.dx=(b.x-a.x)/n;r.dy=(b.y-a.y)/n}});
- const dl=[-24,-8,8,24],lbY=[-40,0,40];
+ const dl=[-33,-11,11,33],lbY=[-56,0,56];
  const dm=()=>dO+rnd(-6,6);
  dl.forEach(d=>{const p=mkP('dl',1,los+10,CY+d,dm(),'DL');p.spd=(54+26*p.a)*SPD;P.dl.push(p)});
  lbY.forEach(d=>{const p=mkP('lb',1,los+24,CY+d,dm(),'LB');p.spd=(56+26*p.a)*SPD;P.lb.push(p)});
@@ -597,7 +597,7 @@ function startReturn(r){
   rb.ball=false;rb.x=rb.x0=kick?EZ+3*YD:lx-4*YD;rb.y=rb.y0=clamp(CY+(ly-CY)*.3,24,FH-24);rb.f=1;
   S.ko={t:0,kx,ky,lx,ly,T,h:kick?115:140,kk:P.def[0]};
   /* their kick team: kicker behind the ball, five a side spread across the field */
-  const cov=P.def.slice(1);cov.forEach((d,i)=>{const k=i<5?i:i+1;d.x=kx-5+rnd(-2,2);d.y=clamp(FH*(k+.5)/11,8,FH-8);d.lane=d.y;d.f=-1;d.vx=d.vy=0});
+  const cov=P.def.slice(1);cov.forEach((d,i)=>{const k=i<5?i:i+1;d.x=kx-5+(k%2?7:-7)+rnd(-2,2);d.y=clamp(FH*(k+.5)/11,8,FH-8);d.lane=d.y;d.f=-1;d.vx=d.vy=0});
   const kk=P.def[0];kk.x=kx+30;kk.y=ky;kk.f=-1;
   /* your return team: front five, a second level, and two up back */
   bl.forEach((b,i)=>{const row=i<5?0:i<8?1:2,k=row===0?i:row===1?i-5:i-8,n=row===0?5:row===1?3:2;
@@ -1729,7 +1729,7 @@ function drawSelect(){
   btns.push({x,y,w,h,fn:()=>{G.sel=i;choosePlay(pl)}});
   rect(x-1,y-1,w+2,h+2,'#000');rect(x,y,w,h,'#143a1a');rect(x,y,w,56,'#1f6a2a');
   const sx=x+14,sy=y+28,k=.3;rect(sx+6,y+2,1,52,'#2f6bff');
-  const base={wr0:[ -3,14],wr1:[-3,FH-14],wr2:[-9,38],te:[-4,CY+31],rb:[-17,CY+24]};
+  const base={wr0:[ -3,14],wr1:[-3,FH-14],wr2:[-9,34],te:[-4,CY+60],rb:[-17,CY+32]};
   RK.forEach(kk=>{const b=base[kk],px=sx+6+b[0]*k,py=y+2+b[1]*k*.3;const rt=pl.r[kk];let lx=px,ly=py;if(rt)rt.forEach((q,j)=>{const nx=px+q[0]*k,ny=clamp(py+q[1]*k*.3,y+2,y+54);const last=j===rt.length-1;if(last)arrow(lx,ly,nx,ny,pl.k==='run'&&kk==='rb'?'#ffd23f':'#8df08d',1);else line(lx,ly,nx,ny,pl.k==='run'&&kk==='rb'?'#ffd23f':'#8df08d',1);lx=nx;ly=ny});rect(px-1,py-1,3,3,kk==='rb'&&pl.k==='run'?'#ffd23f':'#fff')});
   rect(sx+6-16*k-1,y+2+CY*k*.3-1,3,3,'#fff');
   txt(pl.n,x+w/2,y+62,pl.k==='run'?'#ffd23f':'#fff',1,'c');txt(pl.k==='run'?'RUN':'PASS',x+w/2,y+71,'#8fb39a',1,'c',true)})

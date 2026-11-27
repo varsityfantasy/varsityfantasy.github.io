@@ -1594,4 +1594,8 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
   - Particles `PT` (`dust`, `grass`, `burst`, `drawPT`).
 - v734 (Nov 27): Varsity Bowl: a ball carrier who is tackled, dives or steps out past the goal line now scores (`endPlay` turns tackle/oob at x>=GOAL into td). Before, a 2-point catch in the end zone (and the same catch on a normal down) said 2-POINT FAILED / was spotted short.
 - v735 (Nov 27): Varsity Bowl jump ball (owner). The bar sits at the top of the screen when the ball lands in the lower half and at the bottom when it lands in the upper half (`drawJB`), so it never covers the play. Green is smaller (`w=.07+.13*jb`) with a yellow band around it (`y0/y1`, 6% each side). Result by zone: green = catch chance as before; yellow (`res:'near'`) = 50% interception, else broken up; red or no tap = 75% interception, else broken up (`jbTap`, `resolveCatch`).
+<<<<<<< Updated upstream
 - v736 (Nov 27): Varsity Bowl jump ball: green smaller (`w=.04+.08*jb`), yellow takes over the freed space so the whole target stays the same width as in v735.
+=======
+- v736 (Nov 27, owner): Varsity Bowl: more space between players on the field. OL 22 px apart (was 16), DL 22 (was 16), LBs 56 off center (was 40), TE moved out to CY+60 and RB to CY+32, WR2 to y 34; the lineup screen's formation (`base`) matches.
+>>>>>>> Stashed changes

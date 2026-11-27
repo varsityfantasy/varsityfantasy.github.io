@@ -689,6 +689,8 @@ function dive(C){if(G&&G.pl&&G.pl.ko)return;if(G&&G.pl&&G.pl.pl.k==='ret'&&C.bal
 
 /* ================= owner Nov 27: signature moves (double tap) ================= */
 const jkOf=C=>C.q&&C.q.jk!=null?C.q.jk:(C.q?C.q.spd:C.a),trOf=C=>C.q&&C.q.tr!=null?C.q.tr:(C.q?C.q.str:C.a);
+/* owner Nov 27: any ball carrier can truck. How well it works is his TRUCK rating against the defender; a failed truck by a weak player is likely a fumble */
+function truckAny(C){const S=G.pl;if(!S||S.done||S.ko||!C||!C.ball)return;if(C.dive>0||C.hurT>0||C.spinT>0||C.trkT>0||(C.mcd||0)>0)return;truck(C)}
 function special(C){const S=G.pl;if(!S||S.done||S.ko||!C||!C.ball)return;if(C.dive>0||C.hurT>0||C.spinT>0||C.trkT>0||(C.mcd||0)>0)return;
  if(C.role==='te')return truck(C);
  /* somebody squared up right in front of him: go over him. Otherwise spin */
@@ -707,7 +709,7 @@ function truck(C){C.trkT=C.trk0=.46;C.mcd=1.1;C.manual=true;C.trkHit=0;C.trkR=tr
 function truckHit(C,d){const bx=(C.x+d.x)/2,by=(C.y+d.y)/2;burst(bx,by,13);
  if(Math.random()<clamp(.5+(C.trkR-d.a)*.7,.15,.9)){d.flyT=d.fly0=.62;d.fvx=(C.f||1)*135;d.fvy=clamp((d.y-C.y)*3,-60,60);d.imm=1.9;d.slow=1.9;d.blk=null;C.imm=.35;G.shk=.32;sfx.hit();
   fx.push({t:'TRUCKED HIM!',x:C.x,y:C.y-34,l:1.1,c:'#ff9a3a'})}
- else{C.trkT=0;C.slow=.6;G.shk=.14;sfx.hit();fx.push({t:'STONEWALLED',x:C.x,y:C.y-30,l:.8,c:'#ff5a5a'});if(Math.random()<.5){C.down=1;endPlay('tackle',C.x,null)}}}
+ else{C.trkT=0;C.slow=.6;G.shk=.14;sfx.hit();fx.push({t:'STONEWALLED',x:C.x,y:C.y-30,l:.8,c:'#ff5a5a'});{const fp=clamp(.9-1.3*C.trkR,.05,.85);if(Math.random()<fp){C.down=1;fx.push({t:'FUMBLE!',x:C.x,y:C.y-44,l:1,c:'#ff5a5a'});endPlay('fumble',C.x,null)}else if(Math.random()<.5){C.down=1;endPlay('tackle',C.x,null)}}}}
 /* moves that take over the carrier's motion; returns true when it moved him */
 function moveStep(C,dt,sp){const S=G.pl;
  if(C.spinT>0){C.spinT=Math.max(0,C.spinT-dt);const u=1-C.spinT/C.spin0;C.air=C.spinT>0?Math.sin(u*Math.PI)*2.5:0;
@@ -1150,7 +1152,7 @@ function gesture(p,dx,dy,l,dt){
  if(ph==='play'){const S=G.pl;
   if(S.done)return;
   if(S.jb&&!S.jb.res)return;
-  if(S.carrier){const C=S.carrier;if(l>20&&dt<320){if(dx>0&&dx>Math.abs(dy)*1.2)dive(C);else juke(C,dx,dy)}else if(l<12&&dt<300){/* owner Nov 27: double tap = signature move (a single tap still dives, a beat later) */if(C.tapT>0){C.tapT=0;special(C)}else C.tapT=.24}return}
+  if(S.carrier){const C=S.carrier;if(l>20&&dt<320){if(dx>0&&dx>Math.abs(dy)*1.2)dive(C);else juke(C,dx,dy)}else if(l<12&&dt<300){/* owner Nov 27: double tap = signature move (a single tap still dives, a beat later) */if(C.tapT>0){C.tapT=0;special(C)}else C.tapT=.24}else if(l<12&&dt>=320&&dt<2000){/* owner Nov 27: press and hold, release = TRUCK for anyone (TEs double tap) */truckAny(C)}return}
   if(!S.thrown&&S.pl.k==='pass'){const a=ptr.aim;ptr.aim=null;if(a){if(a.x<P.qb.x-3)scramble();else throwAt(a.x,a.y,a.lob)}}
   return}
  if(ph==='result'&&G.rt>.5){advance();return}
@@ -1169,7 +1171,7 @@ function onKey(e){if(G&&G.phase==='play'&&G.pl&&G.pl.jb&&!G.pl.jb.res&&!paused&&
   else if(k==='ArrowLeft'||k==='a'||k==='A'){e.preventDefault();juke(C,0,0,true)}
   else if(k==='ArrowRight'||k==='d'||k==='D'){e.preventDefault();dive(C)}
   else if(k===' '){e.preventDefault();dive(C)}
-  else if(k==='e'||k==='E'||k==='Shift'){e.preventDefault();special(C)}}}
+  else if(k==='e'||k==='E'||k==='Shift'){e.preventDefault();special(C)}else if(k==='t'||k==='T'){e.preventDefault();truckAny(C)}}}
 addEventListener('keydown',onKey);
 addEventListener('message',ev=>{const d=ev.data;if(d&&d.vb==='key'&&typeof d.k==='string')onKey({key:d.k,preventDefault(){}})});
 
@@ -1871,7 +1873,7 @@ function drawPlayUI(){const S=G.pl;
  if(S&&S.pl.k==='ret'&&S.ret.k==='punt'&&!S.done&&S.t<S.snapT+1.4&&S.carrier&&!ptr.down)btn(W/2-45,H-26,90,16,'FAIR CATCH',()=>retEnd(S,'fair',S.carrier.x),{c:'#9fd8ff'});
  if(S.done)return;
  /* owner Nov 27: remind about the double tap while an RB or TE is carrying (first few carries of a game) */
- {const C=S.carrier;if(C&&(C.role==='rb'||C.role==='te')&&!S.ko&&(C.cs||0)<1.6&&((G.dtH||0)<6||S.dtH)){if(!S.dtH){S.dtH=1;G.dtH=(G.dtH||0)+1}const t='DOUBLE TAP: '+(C.role==='te'?'TRUCK':'SPIN OR HURDLE');rect(W/2-tw(t,1)/2-4,H-16,tw(t,1)+8,11,'rgba(0,0,0,.6)');txt(t,W/2,H-14,'#ffe14a',1,'c')}}
+ {const C=S.carrier;if(C&&(C.role==='rb'||C.role==='te'||C.role==='wr')&&!S.ko&&(C.cs||0)<1.6&&((G.dtH||0)<6||S.dtH)){if(!S.dtH){S.dtH=1;G.dtH=(G.dtH||0)+1}const t=C.role==='te'?'DOUBLE TAP OR HOLD: TRUCK':'DOUBLE TAP: SPIN/HURDLE  HOLD: TRUCK (RISKY)';rect(W/2-tw(t,1)/2-4,H-16,tw(t,1)+8,11,'rgba(0,0,0,.6)');txt(t,W/2,H-14,'#ffe14a',1,'c')}}
  if(ptr.down&&ptr.moved>9&&S.carrier){}}
 function drawResult(){
  const m=G.msg;if(!m)return;G.rt+=0;

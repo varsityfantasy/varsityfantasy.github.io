@@ -1473,19 +1473,17 @@ function luPut(b,spot){/* put bench player b in at spot ([f,i,label]) */
  if(act.length<cap){setLineup(act.concat([b.key]));luSay(lastNm(b.n)+' IN AT '+spot[2]);LU.sel=null;LU.sw=null;return}
  LU.sw=b.key;luSay('LINEUP IS FULL ('+cap+'/'+cap+'). TAP A STARTER TO SEND TO THE BENCH')}
 /* owner Nov 26: a flipped card shows a full player stat card, anchored on his own spot and drawn on top (its size grows only while it is flipped) */
-function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,s=e.s||{},p=e.slot,n=x=>Math.round((x||0)*10)/10,rc=f.rc;
- let rows;
- if(p==='QB')rows=[['CMP/ATT',(s.cmp||0)+'/'+(s.att||0)],['PASS YD',n(s.passYd)],['PASS TD',n(s.passTD)],['INT THROWN',n(s.int)],['RUSH YD',n(s.rushYd)],['RUSH TD',n(s.rushTD)]];
- else if(p==='K')rows=[['FG',(s.fgm||0)+'/'+(s.fga||0)],['XP',(s.xpm||0)+'/'+(s.xpa||0)]];
- else if(['DL','LB','DB'].includes(p))rows=[['TACKLES',n(s.tkl)],['TFL',n(s.tfl)],['SACKS',n(s.sack)],['INT',n(s.dInt)],['PBU',n(s.pbu)],['FF',n(s.ff)],['FR',n(s.fr)]];
- else rows=[['REC',n(s.rec)],['REC YD',n(s.recYd)],['REC TD',n(s.recTD)],['CAR',n(s.car)],['RUSH YD',n(s.rushYd)],['RUSH TD',n(s.rushTD)]];
- const BW=100,BH=36+rows.length*9,bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,24,222-BH);
+function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,p=e.slot,rc=f.rc;
+ /* owner Nov 27: the back of the card shows attributes (speed, strength, catching...), not yards */
+ const ks=AT[grp(p)],at=rawAt(e);
+ const rows=ks.map(k=>[ALAB[k],Math.round(at[k])]);
+ const BW=100,BH=34+rows.length*13,bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,24,222-BH);
  rect(bx-1,by-1,BW+2,BH+2,'#000');rect(bx,by,BW,BH,f.rc);rect(bx+2,by+2,BW-4,BH-4,'#0b1220');
  txt(String(f.ov),bx+6,by+5,ovC(f.ov),2,'l');
  txt(String(e.n).slice(0,11),bx+32,by+5,'#fff',1,'l');
- txt(p+'  GP '+(e.g||0),bx+32,by+15,'#9fd8ff',1,'l',true);
+ txt(p,bx+32,by+15,'#9fd8ff',1,'l',true);
  rect(bx+4,by+26,BW-8,1,'rgba(255,255,255,.2)');
- rows.forEach(([l,v],i)=>{const yy=by+30+i*9;txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(v,bx+BW-6,yy,'#fff',1,'r',true)});
+ rows.forEach(([l,v],i)=>{const yy=by+30+i*13,c=v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff8b5a';txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(String(v),bx+BW-6,yy,'#fff',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,Math.round((BW-12)*(v-AMIN)/(AMAX-AMIN)),2,c)});
  LU.bfRect={x:bx,y:by,w:BW,h:BH}}
 function drawLineup(){
  LU.bf=null;LU.bfRect=null;

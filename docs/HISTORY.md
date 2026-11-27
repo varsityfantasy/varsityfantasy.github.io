@@ -1563,3 +1563,8 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
 
 ## v723 (Nov 26): lineup holds 18 players, every empty spot can be filled
 - `luCap()` is 18 (7 offense incl. K, 11 defense) instead of 9, so tapping an empty receiver, TE, lineman or defender spot, or a bench player, fills it. `defKeys` (default lineup) takes the autoKeys starters first, then the best of the rest. The title-screen card row still shows your 9 best and reads "n/18 ACTIVE".
+
+## v724 (Nov 26): lineup cards flip to show stats
+- Lineup screen (`drawLineup`, `LU.flip`): tapping any player (starter or bench) flips him: a big card over the field with OVR, name, position, games played and his season stats (up to 6 non-zero lines). Tap the card to flip back. Bench players now flip instead of going in directly.
+- PUT IN (bench card, at the spot you picked if it is his position, else his own position) and BENCH HIM (starter) are on the bottom bar; DETAILS opens the old roster/training screen. A full 18/18 lineup still asks for a starter tap to swap (`LU.sw`).
+- `luOpen(back,key)` flips straight to the card you tapped on the title screen.

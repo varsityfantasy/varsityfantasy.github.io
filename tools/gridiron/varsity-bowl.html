@@ -132,11 +132,13 @@ function buildRoster(list,keys,mod){
  ros.dsub={dl:av(ros.dl,{str:.4,tkl:.35,spd:.25}),lb:av(ros.lb,{tkl:.5,str:.2,spd:.15,sta:.15}),db:av(ros.db,{spd:.45,tkl:.3,sta:.15,str:.1})};
  ros.df=Math.round(ros.dsub.dl*.3+ros.dsub.lb*.3+ros.dsub.db*.4);return ros}
 const LKEY='vs-vb-lineup';CFG.lu=loadJ(LKEY);
-const luCap=()=>9,luId=()=>CFG.mode==='cards'?'cards':'s:'+CFG.school;
+/* owner Nov 26: every spot on the field can be filled now (7 offense incl. K + 11 defense = 18); it was 9 active players */
+const luCap=()=>18,luId=()=>CFG.mode==='cards'?'cards':'s:'+CFG.school;
 const fullPool=()=>CFG.mode==='cards'?(CFG.pool.length?CFG.pool:demoPool()):schoolPool(CFG.school);
 function defKeys(list){const used=new Set(),out=[];
  ['QB','RB','WR','WR','DL','LB','DB','DB','K'].forEach(sl=>{const r=list.filter(x=>x.slot===sl&&!used.has(x.key)).sort((x,y)=>y.o-x.o)[0];if(r){used.add(r.key);out.push(r.key)}});
- list.slice().sort((x,y)=>y.o-x.o).forEach(r=>{if(out.length<9&&!used.has(r.key)){used.add(r.key);out.push(r.key)}});return out}
+ autoKeys(list).forEach(k=>{if(!used.has(k)){used.add(k);out.push(k)}});
+ list.slice().sort((x,y)=>y.o-x.o).forEach(r=>{if(out.length<luCap()&&!used.has(r.key)){used.add(r.key);out.push(r.key)}});return out}
 function curLineup(){const list=fullPool(),id=luId();let k=CFG.lu[id];if(Array.isArray(k)){k=k.filter(x=>list.some(r=>r.key===x)).slice(0,luCap());CFG.lu[id]=k;return k}return defKeys(list)}
 function setLineup(k){CFG.lu[luId()]=k.slice(0,luCap());saveJ(LKEY,CFG.lu);applyTeam()}
 const schoolList=()=>VBD?Object.keys(VBD.schools):[];
@@ -1282,13 +1284,13 @@ function pcard(x,y,w,h,e,o){o=o||{};const t=performance.now()/1000,walk=!e,ov=wa
  /* shine sweep on Epic and up */
  if('elmx'.includes(rr)&&!walk){const per=w+h+40,off=((t*55+(o.i||0)*23)%per)-h;for(let k=0;k<h;k++){const xx=x+off+k*.6;if(xx>=x&&xx<x+w-3)rect(xx,y+h-1-k,3,1,'rgba(255,255,255,.22)')}}
  if(o.sel){rect(x-2,y-2,w+4,1,'#fff');rect(x-2,y+h+1,w+4,1,'#fff');rect(x-2,y-2,1,h+4,'#fff');rect(x+w+1,y-2,1,h+4,'#fff')}}
-function lineupRows(){const L=fullPool(),A=curLineup().map(k=>L.find(r=>r.key===k)).filter(Boolean).sort((x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o);while(A.length<9)A.push(null);return A}
+function lineupRows(){/* the title screen shows your 9 best active players */const L=fullPool(),A=curLineup().map(k=>L.find(r=>r.key===k)).filter(Boolean).sort((x,y)=>y.o-x.o).slice(0,9).sort((x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o);while(A.length<9)A.push(null);return A}
 function drawTitle(){
  bgHero();rect(0,92,W,H-92,'rgba(0,0,0,.3)');
  const sch=CFG.mode==='school';teamBanner(sch?'MY SCHOOL / REAL ROSTER':CFG.real?'MY TEAM / YOUR CARDS':'MY TEAM / SAMPLE CARDS');
- const A=lineupRows(),n=A.filter(Boolean).length;
+ const A=lineupRows(),n=curLineup().length;
  /* starting lineup: nine cards */
- rect(0,94,W,16,'rgba(0,0,0,.6)');rect(0,110,W,1,'#f2c230');txt('STARTING LINEUP',8,99,'#f2c230',1,'l');txt(n+'/9 ACTIVE',112,99,'#9fb7a0',1,'l',true);
+ rect(0,94,W,16,'rgba(0,0,0,.6)');rect(0,110,W,1,'#f2c230');txt('STARTING LINEUP',8,99,'#f2c230',1,'l');txt(n+'/'+luCap()+' ACTIVE',112,99,'#9fb7a0',1,'l',true);
  {const pu=Math.round((Math.sin(performance.now()/300)+1)*1.5);rect(W-121-pu,93-pu,116+2*pu,18+2*pu,'rgba(125,255,125,.25)')}btn(W-238,94,112,16,'FACILITIES '+car().cp+' CP',()=>{SCR='fac'},{c:'#ffd23f'});btn(W-120,94,114,16,'EDIT LINEUP  >',()=>luOpen('title'),{c:'#7dff7d'});
  const cw=49,gp=3,x0=Math.round((W-(9*cw+8*gp))/2);
  A.forEach((e,i)=>{const x=x0+i*(cw+gp);btns.push({x,y:113,w:cw,h:84,fn:()=>luOpen('title',e?e.key:null)});pcard(x,113,cw,84,e,{i});const ij=e&&injOf(e.key);if(ij){rect(x,144,cw,22,'rgba(150,10,20,.94)');rect(x,144,cw,1,'#ff6b6b');txt('INJURED',x+cw/2,147,'#fff',1,'c',true);txt('OUT '+ij,x+cw/2,156,'#ffc0c0',1,'c',true)}});

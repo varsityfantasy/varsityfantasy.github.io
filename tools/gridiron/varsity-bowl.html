@@ -1062,8 +1062,12 @@ function drawWorld(){
  goalpost(GPX,1);goalpost(FL-GPX,-1);
  /* LOS and first down lines */
  const lx=G.los-camX,fx2=G.fd-camX;
- if(G.fd<GOAL||true){rect(fx2-1,FT,2,FH,'#ffe600')}
+ if(G.fd<GOAL){rect(fx2-1,FT,2,FH,'#ffe600')}   /* owner Nov 26: inside the 10 it is goal to go: no line into the end zone */
  rect(lx-1,FT,2,FH,'#2f6bff');
+ /* owner Nov 26: when a line has scrolled off the screen (a kick return runs away from the spot) it stays on the edge as a tag until the play is over */
+ const edgeTag=(x,c,lab,by)=>{const left=x<0,w=tw3(lab)+4,bx=left?1:W-w-2;rect(bx-1,by-1,w+2,8,'#000');rect(bx,by,w,6,c);txt3(lab,bx+2,by+1,'#000')};
+ if(lx<-2||lx>W+2)edgeTag(lx,'#2f6bff','LOS',FT+26);
+ if(G.fd<GOAL&&(fx2<-2||fx2>W+2))edgeTag(fx2,'#ffe600','1ST',FT+36);
  if(!P)return;
  if((G.phase==='presnap'||G.phase==='play')&&G.pl&&!G.pl.thrown&&!G.pl.carrier&&!G.pl.done)P.rc.forEach(r=>{if(r.real&&G.phase==='presnap')return;const x=Math.round(r.x-camX)+.5,y=Math.round(FT+r.y+2)+.5;g.lineWidth=2;g.strokeStyle='rgba(0,0,0,.5)';g.beginPath();g.ellipse(x,y+1,8,3.5,0,0,7);g.stroke();g.strokeStyle=r.rcol||'#fff';g.beginPath();g.ellipse(x,y,8,3.5,0,0,7);g.stroke()});
  const list=[...P.all];list.sort((a,b)=>a.y-b.y);
@@ -1585,7 +1589,7 @@ function drawSelect(){
 function choosePlay(pl){setupPlay(pl);G.phase='presnap';G.curPlay=pl}
 function drawFourth(){
  rect(0,14,W,H-14,'rgba(0,0,0,.6)');txt('4TH DOWN',W/2,34,'#f2c230',3,'c');
- const dist=Math.max(1,Math.round((G.fd-G.los)/YD));txt(dist+' YARD'+(dist>1?'S':'')+' TO GO',W/2,64,'#fff',1,'c');
+ const dist=Math.max(1,Math.round((G.fd-G.los)/YD));if(G.fd>=GOAL)txt('GOAL TO GO',W/2,64,'#fff',1,'c');else txt(dist+' YARD'+(dist>1?'S':'')+' TO GO',W/2,64,'#fff',1,'c');
  const fd=fgDist();
  btn(W/2-150,84,90,36,'GO FOR IT',()=>{G.nofourth=true;toSelect()},{c:'#f2c230'});
  btn(W/2-45,84,90,36,'PUNT',()=>{doPunt()},{c:'#9fd8ff'});

@@ -984,7 +984,7 @@ addEventListener('pointerdown',e=>{e.preventDefault();try{window.focus()}catch(_
 addEventListener('pointermove',e=>{if(!ptr.down)return;const p=toC(e);ptr.x=p.x;ptr.y=p.y;ptr.moved=Math.max(ptr.moved,Math.hypot(p.x-ptr.sx,p.y-ptr.sy));if(G&&G.phase==='presnap'&&G.pl&&G.pl.pl.k==='pass'&&!ptr.hitb&&ptr.moved>10)snap();
  /* owner Nov 25: drag forward (toward the end zone) after the snap and the QB takes off right away; keep holding to steer him */
  {const S=G&&G.phase==='play'&&G.pl;if(S&&!S.thrown&&!S.carrier&&!S.done&&S.pl.k==='pass'&&!ptr.hitb&&S.t>=S.snapT){const ddx=p.x-ptr.sx,ddy=p.y-ptr.sy;if(ddx>14&&ddx>Math.abs(ddy)*.6){ptr.scr=true;scramble(true)}}}if(Math.hypot(p.x-ptr.lx,p.y-ptr.ly)>2){ptr.still=performance.now();ptr.lx=p.x;ptr.ly=p.y}},{passive:false});
-const up=e=>{if(!ptr.down)return;const p=toC(e);ptr.x=p.x;ptr.y=p.y;ptr.aim=aimInfo();ptr.down=false;const dt=performance.now()-ptr.t0,dx=p.x-ptr.sx,dy=p.y-ptr.sy,l=Math.hypot(dx,dy);
+const up=e=>{if(!ptr.down)return;if(!G&&(SCR==='lineup'||SCR==='lcmp')){lineUp(e);return}const p=toC(e);ptr.x=p.x;ptr.y=p.y;ptr.aim=aimInfo();ptr.down=false;const dt=performance.now()-ptr.t0,dx=p.x-ptr.sx,dy=p.y-ptr.sy,l=Math.hypot(dx,dy);
  const b=ptr.hitb,b2=hitBtn(p);ptr.hitb=null;if(b&&b2&&b.x===b2.x&&b.y===b2.y&&b.w===b2.w&&b.h===b2.h&&l<14){sfx.tap();b2.fn();return}
  if(ptr.scr){ptr.scr=false;return}/* the drag that started a scramble is not a juke or dive */
  gesture(p,dx,dy,l,dt)};
@@ -1025,7 +1025,7 @@ function btn(x,y,w,h,label,fn,o){o=o||{};btns.push({x,y,w,h,fn});const c=o.c||'#
 function panel(x,y,w,h,c){rect(x-2,y-2,w+4,h+4,'#000');rect(x-1,y-1,w+2,h+2,'#4b5d4d');rect(x,y,w,h,c||'rgba(6,12,20,.9)');rect(x,y,w,1,'rgba(255,255,255,.18)');rect(x-2,y-2,2,2,'rgba(0,0,0,0)');}
 function draw(){
  btns=[];
- if(!G){SCR==='sbox'&&SBOX?drawSBox():SCR==='season'&&SS?(SS.press?drawPress():drawSeason()):SCR==='fac'?drawFac():SCR==='team'?drawTeam():SCR==='lineup'?drawLineup():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
+ if(!G){SCR==='sbox'&&SBOX?drawSBox():SCR==='season'&&SS?(SS.press?drawPress():drawSeason()):SCR==='fac'?drawFac():SCR==='team'?drawTeam():SCR==='lineup'?drawLineup():SCR==='lcmp'?drawLcmp():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
  const ph=G.phase;
  camX+=(clamp(camT,0,FL-W)-camX)*.14;camX=clamp(camX,0,FL-W);
  drawField();
@@ -1400,7 +1400,7 @@ addEventListener('wheel',e=>{if(!G&&SCR==='team'){TS.ts=(TS.ts||0)+e.deltaY*.5;e
 /* ---------- lineup screen (owner Nov 26): looks like a real depth chart. OFFENSE / DEFENSE tabs; the starters stand in their formation
    on top (from CFG.ros, so walk-ons and out-of-position players show as they will play), the BENCH is a strip below that you slide
    sideways. Tap a bench player to put him in (at the spot you picked, else at his own position); tap a starter for his details. ---------- */
-const LU={tab:'O',sel:null,bx:0,sw:null,msg:'',back:null,flip:null};
+const LU={tab:'O',sel:null,bx:0,sw:null,msg:'',back:null,flip:null,drag:null};
 const CW=44,CH=40;
 const LUF={O:[['wr',0,'WR',6,30],['wr',2,'SLOT',58,30],['te',0,'TE',330,30],['wr',1,'WR',430,30],['qb',0,'QB',218,70],['rb',0,'RB',218,110],['k',0,'K',430,110]],
  D:[['dl',0,'DL',143,30],['dl',1,'DL',193,30],['dl',2,'DL',243,30],['dl',3,'DL',293,30],['db',0,'CB',6,70],['lb',0,'LB',168,70],['lb',1,'LB',218,70],['lb',2,'LB',268,70],['db',1,'CB',430,70],['db',2,'S',168,110],['db',3,'S',268,110]]};
@@ -1408,13 +1408,7 @@ const luEnt=(f,i)=>{const R=CFG.ros,v=R&&R[f],e=Array.isArray(v)?v[i]:v;if(e&&!e
 const luSlot=f=>({qb:'QB',rb:'RB',wr:'WR',te:'TE',k:'K',dl:'DL',lb:'LB',db:'DB'})[f];
 /* a small player chip: rarity frame, OVR, position, school logo, last name */
 function chip(x,y,e,o){o=o||{};const walk=!e||e.walk,ov=walk?(e&&e.o)||WALK:e.o,rr=walk?'c':rOf(ov),rc=walk?'#4a5568':RARC[rr],lift=o.sel?-2:0;y+=lift;
- if(o.back&&!walk){/* owner Nov 26: the card turns over on its own spot and shows his season stats on the back */
-  rect(x-1,y-1,CW+2,CH+2,'#000');rect(x,y,CW,CH,rc);rect(x+2,y+2,CW-4,CH-4,'#0b1220');rect(x+2,y+2,CW-4,1,'rgba(255,255,255,.12)');
-  const nm=lastNm(e.n).slice(0,9);txt3(nm,x+CW/2-Math.floor(tw3(nm)/2),y+4,'#fff');
-  const ST=[['rec','REC'],['recYd','YD'],['recTD','TD'],['passYd','PYD'],['passTD','PTD'],['car','CAR'],['rushYd','RYD'],['rushTD','RTD'],['tkl','TKL'],['sack','SK'],['dInt','INT'],['pbu','PBU']],st=ST.filter(([k])=>e.s&&e.s[k]).slice(0,3);
-  if(!st.length)txt3('NO STATS',x+CW/2-14,y+17,'#8a93a6');
-  st.forEach(([k,l],i)=>txt3(l+' '+(Math.round(e.s[k]*10)/10),x+4,y+14+i*6,'#fff'));
-  txt3('GP '+(e.g||0),x+4,y+CH-8,'#9fd8ff');return}
+ if(o.back&&!walk){LU.bf={x,y,e,rc,ov};return}
  const sc=walk?'':e.sc||(CFG.mode==='school'?CFG.school:''),tc=sc&&VBD&&VBD.schools[sc]?VBD.schools[sc].c[0]:(CFG.team.c1||'#1d4ed8');
  rect(x+2,y+CH+1-lift,CW-2,2,'rgba(0,0,0,.45)');rect(x-1,y-1,CW+2,CH+2,'#000');rect(x,y,CW,CH,rc);rect(x,y,CW,1,sh(rc,.5));
  rect(x+2,y+2,CW-4,CH-4,walk?'#20262f':sh(lum(tc)<30?sh(tc,.25):tc,-.55));rect(x+2,y+2,CW-4,1,'rgba(255,255,255,.12)');
@@ -1426,13 +1420,69 @@ function chip(x,y,e,o){o=o||{};const walk=!e||e.walk,ov=walk?(e&&e.o)||WALK:e.o,
  if(o.inj){rect(x+2,y+14,CW-4,10,'rgba(150,10,20,.94)');txt3('INJURED',x+CW/2-13,y+17,'#fff')}
  if(o.sel){rect(x-3,y-3,CW+6,1,'#fff');rect(x-3,y+CH+2,CW+6,1,'#fff');rect(x-3,y-3,1,CH+6,'#fff');rect(x+CW+2,y-3,1,CH+6,'#fff')}
  if(o.hint){const a=.35+.35*Math.sin(performance.now()/180);rect(x-2,y-2,CW+4,CH+4,'rgba(159,216,255,'+a.toFixed(2)+')');rect(x,y,CW,CH,'rgba(0,0,0,0)')}}
+/* owner Nov 26: drag and swap. Drag a bench player onto a starter to swap him in (the starter goes to the bench), or drag a starter onto
+   a bench player to swap them. Dragging a bench player up off the bench starts it; sideways still slides the bench. Dropping on an empty spot
+   fills it from the bench. A tap still flips the card. */
+function luMove(e){if(G||SCR!=='lineup'||!ptr.down||!ptr.hitb||!ptr.hitb.dk)return;const p=toC(e),dx=p.x-ptr.sx,dy=p.y-ptr.sy;
+ if(!LU.drag){if(Math.hypot(dx,dy)<8)return;if(ptr.hitb.kd==='bench'&&!(dy<-8&&Math.abs(dy)>Math.abs(dx)))return;LU.drag={k:ptr.hitb.dk,kd:ptr.hitb.kd};LU.flip=null;LU.sel=null}
+ LU.drag.x=p.x;LU.drag.y=p.y}
+function luDrop(d,t){const act=curLineup(),cap=luCap(),L=fullPool(),nm=k=>{const r=L.find(x=>x.key===k);return r?lastNm(r.n):'PLAYER'};
+ if(d.kd==='bench'){
+  if(t.kd==='spot'){const q=t.sq;
+   if(q.e&&!q.e.walk&&q.e.key){if(act.includes(d.k))return luSay('ALREADY IN THE LINEUP');const k=act.slice(),ix=k.indexOf(q.e.key);k[ix]=d.k;setLineup(k);luSay(nm(d.k)+' IN, '+nm(q.e.key)+' TO THE BENCH');return}
+   if(act.length<cap){setLineup(act.concat([d.k]));luSay(nm(d.k)+' IN AT '+q.lab);return}
+   return luSay('LINEUP IS FULL. DRAG A STARTER OFF FIRST')}
+  return luSay('DRAG ONTO A STARTER OR AN EMPTY SPOT')}
+ /* a starter dragged onto a bench player */
+ if(t.kd==='bench'){const k=act.slice(),ix=k.indexOf(d.k);if(ix<0)return;k[ix]=t.dk;setLineup(k);luSay(nm(t.dk)+' IN, '+nm(d.k)+' TO THE BENCH');return}
+ if(t.kd==='spot'&&(!t.sq.e||t.sq.e.walk))return luSay('TO FILL AN EMPTY SPOT, DRAG A BENCH PLAYER THERE');
+ return luSay('TO SWAP TWO STARTERS, DRAG ONE ONTO A BENCH PLAYER')}
+function lineUp(e){const p=toC(e),hb=ptr.hitb,l=Math.hypot(p.x-ptr.sx,p.y-ptr.sy);ptr.down=false;ptr.hitb=null;
+ if(LU.drag){const d=LU.drag;LU.drag=null;const t=hitBtn(p);if(t&&t.kd&&t.dk!==d.k)luDrop(d,t);return}
+ if(hb&&l<14&&hitBtn(p)===hb)hb.fn()}
+addEventListener('pointermove',luMove);
+/* owner Nov 26: stats comparison. Your player against another at his position, attribute by attribute (the same numbers that make up his OVR) */
+function drawLcmp(){
+ bgPlain();const L=fullPool(),A=L.find(r=>r.key===LU.cmpA);
+ if(!A){SCR='lineup';return}
+ const list=L.filter(r=>r.slot===A.slot&&r.key!==A.key).sort((x,y)=>y.o-x.o);
+ LU.cmpI=clamp(LU.cmpI||0,0,Math.max(0,list.length-1));const B=list[LU.cmpI]||null;
+ btn(4,4,36,14,'BACK',()=>{SCR='lineup'},{c:'#4a5a4c',tc:'#cfe8cf'});
+ txt('COMPARE  ·  '+A.slot,W/2,8,'#f2c230',1,'c');
+ const ra=rawAt(mkEnt(A)),ks=AT[grp(A.slot)],rb=B?rawAt(mkEnt(B)):null,half=W/4;
+ txt(lastNm(A.n),half,22,'#fff',1,'c',true);txt(String(A.o),half,31,ovC(A.o),2,'c');
+ if(B){txt(lastNm(B.n),W-half,22,'#fff',1,'c',true);txt(String(B.o),W-half,31,ovC(B.o),2,'c')}
+ else txt('NO OTHER '+A.slot+' ON YOUR ROSTER',W/2,40,'#9fb7a0',1,'c',true);
+ const cx=W/2,maxW=W/2-100,y0=54,RH=Math.min(24,Math.floor(160/Math.max(1,ks.length))),lx=cx-40,rx=cx+40;
+ ks.forEach((k,i)=>{const y=y0+i*RH,va=ra[k],vb=rb?rb[k]:null,fa=clamp((va-AMIN)/(AMAX-AMIN),0,1),fb=vb==null?0:clamp((vb-AMIN)/(AMAX-AMIN),0,1),aw=vb==null||va>=vb,bw=vb!=null&&vb>=va;
+  txt(ALAB[k],cx,y,'#cfe8cf',1,'c',true);
+  rect(lx-maxW,y+10,maxW,6,'#0b0f18');rect(lx-Math.round(maxW*fa),y+10,Math.round(maxW*fa),6,aw?'#ffd23f':'#6b7a6d');txt(String(Math.round(va)),lx-maxW-4,y+10,aw?'#ffd23f':'#9fb7a0',1,'r',true);
+  if(vb!=null){rect(rx,y+10,maxW,6,'#0b0f18');rect(rx,y+10,Math.round(maxW*fb),6,bw?'#9fd8ff':'#6b7a6d');txt(String(Math.round(vb)),rx+maxW+4,y+10,bw?'#9fd8ff':'#9fb7a0',1,'l',true)}});
+ if(list.length>1){btn(8,222,72,16,'< PREV',()=>{LU.cmpI=(LU.cmpI-1+list.length)%list.length},{c:'#2a3346',tc:'#fff'});btn(W-80,222,72,16,'NEXT >',()=>{LU.cmpI=(LU.cmpI+1)%list.length},{c:'#2a3346',tc:'#fff'})}
+ txt(B?'VS '+lastNm(B.n)+' '+B.slot+' '+B.o+'   '+(LU.cmpI+1)+'/'+list.length:'',W/2,229,'#9fb7a0',1,'c',true)}
 function luSay(t){LU.msg=t;LU.mt=performance.now()}
 function luPut(b,spot){/* put bench player b in at spot ([f,i,label]) */
  const act=curLineup(),cap=luCap(),e=luEnt(spot[0],spot[1]);
  if(e&&!e.walk&&e.key&&act.includes(e.key)){const k=act.slice();k[k.indexOf(e.key)]=b.key;setLineup(k);luSay(lastNm(b.n)+' IN, '+lastNm(e.n)+' TO THE BENCH');LU.sel=null;LU.sw=null;return}
  if(act.length<cap){setLineup(act.concat([b.key]));luSay(lastNm(b.n)+' IN AT '+spot[2]);LU.sel=null;LU.sw=null;return}
  LU.sw=b.key;luSay('LINEUP IS FULL ('+cap+'/'+cap+'). TAP A STARTER TO SEND TO THE BENCH')}
+/* owner Nov 26: a flipped card shows a full player stat card, anchored on his own spot and drawn on top (its size grows only while it is flipped) */
+function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,s=e.s||{},p=e.slot,n=x=>Math.round((x||0)*10)/10,rc=f.rc;
+ let rows;
+ if(p==='QB')rows=[['CMP/ATT',(s.cmp||0)+'/'+(s.att||0)],['PASS YD',n(s.passYd)],['PASS TD',n(s.passTD)],['INT THROWN',n(s.int)],['RUSH YD',n(s.rushYd)],['RUSH TD',n(s.rushTD)]];
+ else if(p==='K')rows=[['FG',(s.fgm||0)+'/'+(s.fga||0)],['XP',(s.xpm||0)+'/'+(s.xpa||0)]];
+ else if(['DL','LB','DB'].includes(p))rows=[['TACKLES',n(s.tkl)],['TFL',n(s.tfl)],['SACKS',n(s.sack)],['INT',n(s.dInt)],['PBU',n(s.pbu)],['FF',n(s.ff)],['FR',n(s.fr)]];
+ else rows=[['REC',n(s.rec)],['REC YD',n(s.recYd)],['REC TD',n(s.recTD)],['CAR',n(s.car)],['RUSH YD',n(s.rushYd)],['RUSH TD',n(s.rushTD)]];
+ const BW=100,BH=36+rows.length*9,bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,24,222-BH);
+ rect(bx-1,by-1,BW+2,BH+2,'#000');rect(bx,by,BW,BH,f.rc);rect(bx+2,by+2,BW-4,BH-4,'#0b1220');
+ txt(String(f.ov),bx+6,by+5,ovC(f.ov),2,'l');
+ txt(String(e.n).slice(0,11),bx+32,by+5,'#fff',1,'l');
+ txt(p+'  GP '+(e.g||0),bx+32,by+15,'#9fd8ff',1,'l',true);
+ rect(bx+4,by+26,BW-8,1,'rgba(255,255,255,.2)');
+ rows.forEach(([l,v],i)=>{const yy=by+30+i*9;txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(v,bx+BW-6,yy,'#fff',1,'r',true)});
+ LU.bfRect={x:bx,y:by,w:BW,h:BH}}
 function drawLineup(){
+ LU.bf=null;LU.bfRect=null;
  bgPlain();const T=LU.tab,cap=luCap(),L=fullPool(),act=curLineup(),on=new Set(act),spots=LUF[T].map(q=>({f:q[0],i:q[1],lab:q[2],x:q[3],y:q[4],e:luEnt(q[0],q[1])}));
  const side=T==='O'?['QB','RB','WR','TE','K']:['DL','LB','DB'];
  btn(4,4,36,14,'BACK',()=>{SCR=LU.back||'title';LU.back=null;LU.sw=null;LU.sel=null;LU.flip=null},{c:'#4a5a4c',tc:'#cfe8cf'});
@@ -1449,7 +1499,7 @@ function drawLineup(){
  const benchSpot=b=>{if(selS&&luSlot(selS.f)===b.slot)return selS;const own=spots.filter(q=>luSlot(q.f)===b.slot);return own.find(q=>!q.e||q.e.walk)||own[0]||spots.find(q=>!q.e||q.e.walk)||spots[0]};
  spots.forEach(q=>{const hit=!!LU.sw&&q.e&&!q.e.walk,sel=!!flipE&&!!q.e&&q.e.key===flipE.key;chip(q.x,q.y,q.e,{pos:q.lab,sel,back:sel,hint:hit});
   if(q.e&&!q.e.walk&&car().kr===q.e.key){rect(q.x+CW-14,q.y+CH-20,12,7,'#ffd23f');txt3('KR',q.x+CW-12,q.y+CH-19,'#14110a')}
-  btns.push({x:q.x-2,y:q.y-2,w:CW+4,h:CH+4,fn:()=>{
+  btns.push({dk:(q.e&&!q.e.walk&&q.e.key)||('spot:'+q.f+q.i),kd:'spot',sq:q,x:q.x-2,y:q.y-2,w:CW+4,h:CH+4,fn:()=>{
    if(LU.sw){if(q.e&&!q.e.walk&&q.e.key&&on.has(q.e.key)){const b=L.find(r=>r.key===LU.sw),k=act.slice();k[k.indexOf(q.e.key)]=LU.sw;setLineup(k);luSay((b?lastNm(b.n):'PLAYER')+' IN, '+lastNm(q.e.n)+' TO THE BENCH');LU.sw=null;LU.sel=null;LU.flip=null}else luSay('PICK A REAL STARTER, NOT A WALK-ON');return}
    LU.msg='';
    if(q.e&&!q.e.walk&&q.e.key){LU.flip=LU.flip===q.e.key?null:q.e.key;LU.sel=LU.flip?q.f+q.i:null;return}
@@ -1461,28 +1511,32 @@ function drawLineup(){
  const gap=6,bw=B.length*(CW+gap),vx0=6,vw=W-12,max=Math.max(0,bw-vw);LU.bx=clamp(LU.bx,0,max);LU.bl={x:0,y:by0+10,w:W,h:CH+6};
  g.save();g.beginPath();g.rect(vx0-3,by0+9,vw+6,CH+8);g.clip();
  B.forEach((b,i)=>{const x=Math.round(vx0+i*(CW+gap)-LU.bx);if(x<-CW||x>W)return;const inj=on.has(b.key),e=mkEnt(b);chip(x,by0+12,e,{inj,sel:!!flipE&&flipE.key===b.key,back:!!flipE&&flipE.key===b.key});
-  if(x>=vx0-CW/2&&x<=vx0+vw-CW/2)btns.push({x,y:by0+12,w:CW,h:CH,fn:()=>{
+  if(x>=vx0-CW/2&&x<=vx0+vw-CW/2)btns.push({dk:b.key,kd:'bench',x,y:by0+12,w:CW,h:CH,fn:()=>{
    if(LU.sw===b.key){LU.sw=null;luSay('');return}
    LU.msg='';LU.flip=LU.flip===b.key?null:b.key;
    LU.sel=LU.flip&&selS&&luSlot(selS.f)===b.slot?selS.f+selS.i:null}})});
  g.restore();
  if(max>0){const w=Math.max(20,vw*vw/bw),xx=vx0+(vw-w)*LU.bx/max;rect(vx0,by0+55,vw,2,'#0b0f18');rect(xx,by0+55,w,2,'#9fd8ff');if(LU.bx<max)txt('>',W-8,by0+26,'#fff',1,'r');if(LU.bx>0)txt('<',4,by0+26,'#fff',1,'l')}
+ lineBack();
+ if(LU.drag){const d=LU.drag,ge=L.find(r=>r.key===d.k);if(ge)chip(Math.round(d.x-CW/2),Math.round(d.y-CH/2),mkEnt(ge),{});}
  /* bottom bar: what you can do with the player you flipped */
  const yb=222;
  if(flipE){const e=flipE;
   txt(e.slot+'  '+String(e.n).slice(0,20)+'  OVR '+e.o+(e.oop?'  (OUT OF POSITION)':''),8,yb,'#fff',1,'l');
   if(flipOn){txt('IN THE LINEUP  ·  MORALE '+morOf(e.key),8,yb+11,'#9fb7a0',1,'l',true);
    btn(236,yb-2,82,16,'DETAILS',()=>{TS.back='lineup';TS.cur=e.key;TS.sw=null;SCR='team'},{c:'#9fd8ff'});
+   btn(236,yb+16,82,12,'COMPARE',()=>{LU.cmpA=e.key;LU.cmpI=0;SCR='lcmp'},{c:'#7dff7d',tc:'#14110a'});
    btn(322,yb-2,72,16,'BENCH HIM',()=>{setLineup(act.filter(k=>k!==e.key));luSay(lastNm(e.n)+' SENT TO THE BENCH');LU.flip=null;LU.sel=null},{c:'#ff8b5a'})}
   else{const sp=benchSpot(e);txt('ON THE BENCH  ·  FILLS '+sp.lab,8,yb+11,'#9fb7a0',1,'l',true);
+   btn(236,yb+16,82,12,'COMPARE',()=>{LU.cmpA=e.key;LU.cmpI=0;SCR='lcmp'},{c:'#7dff7d',tc:'#14110a'});
    btn(322,yb-2,72,16,'PUT IN',()=>{const s2=benchSpot(e);luPut(e,[s2.f,s2.i,s2.lab]);LU.flip=null},{c:'#7dff7d',tc:'#14110a'})}}
  else{const m=LU.msg&&performance.now()-LU.mt<6000?LU.msg:(LU.sw?LU.msg:'TAP A PLAYER TO SEE HIS CARD. GREY SPOTS ARE WALK-ONS (OVR '+WALK+')');txt(m.slice(0,64),8,yb+5,LU.sw?'#9fd8ff':'#9fb7a0',1,'l',true)}
  if(LU.sw)btn(322,yb+16,72,12,'CANCEL',()=>{LU.sw=null;luSay('')},{c:'#4a5a4c',tc:'#fff'});
  btn(400,yb-2,72,26,'DONE',()=>{SCR=LU.back||'title';LU.back=null;LU.sw=null;LU.sel=null;LU.flip=null},{c:'#f2c230'})}
-addEventListener('pointermove',e=>{if(G||SCR!=='lineup'||!ptr.down||!LU.bl)return;const p=toC(e);if(ptr.sy<LU.bl.y||ptr.sy>LU.bl.y+LU.bl.h){LU.bdx=null;return}if(LU.bdx!=null)LU.bx-=p.x-LU.bdx;LU.bdx=p.x});
+addEventListener('pointermove',e=>{if(G||SCR!=='lineup'||!ptr.down||!LU.bl||LU.drag)return;const p=toC(e);if(ptr.sy<LU.bl.y||ptr.sy>LU.bl.y+LU.bl.h){LU.bdx=null;return}if(LU.bdx!=null)LU.bx-=p.x-LU.bdx;LU.bdx=p.x});
 addEventListener('pointerup',()=>{LU.bdx=null});addEventListener('pointercancel',()=>{LU.bdx=null});
 addEventListener('wheel',e=>{if(!G&&SCR==='lineup'){LU.bx+=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*.6;e.preventDefault()}},{passive:false});
-function luOpen(back,key){LU.back=back;LU.sw=null;LU.sel=null;LU.flip=null;LU.bx=0;LU.msg='';if(key){for(const t of ['O','D']){const q=LUF[t].find(q=>{const e=luEnt(q[0],q[1]);return e&&e.key===key});if(q){LU.tab=t;LU.sel=q[0]+q[1];LU.flip=key;break}}}SCR='lineup'}
+function luOpen(back,key){LU.back=back;LU.sw=null;LU.sel=null;LU.flip=null;LU.drag=null;LU.bx=0;LU.msg='';if(key){for(const t of ['O','D']){const q=LUF[t].find(q=>{const e=luEnt(q[0],q[1]);return e&&e.key===key});if(q){LU.tab=t;LU.sel=q[0]+q[1];LU.flip=key;break}}}SCR='lineup'}
 function drawPick(){
  bgPlain();const L=schoolList(),RH=22,vis=8,max=Math.max(0,L.length*RH-vis*RH);TS.pk=clamp(TS.pk,0,max);
  btn(4,4,36,14,'BACK',()=>{SCR=TS.pf?'home':TS.back==='lineup'?'lineup':'team';TS.pf=false},{c:'#4a5a4c',tc:'#cfe8cf'});txt('PICK YOUR SCHOOL',W/2,8,'#f2c230',1,'c');txt(L.length+' SCHOOLS · DRAG TO SCROLL',W-8,8,'#7f9a80',1,'r',true);

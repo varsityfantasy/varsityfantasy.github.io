@@ -1571,3 +1571,7 @@ Varsity Bowl admin only (owner, Nov 26, v721): the Varsity Bowl tile in football
 
 ## v725 (Nov 26): the flip happens on the player's own card
 - v724's big card over the field is gone. `chip(...,{back:true})` draws the back face on the player's own small card: last name, up to 3 season stats (REC/YD/TD, PYD/PTD, CAR/RYD/RTD, TKL/SK/INT/PBU) and GP. Tap the card again to flip back. PUT IN / BENCH HIM / DETAILS stay on the bottom bar.
+
+## v726 (Nov 26): drag and swap in the lineup, stats comparison
+- Drag and swap (`luMove`, `lineUp`, `luDrop`, `LU.drag`): drag a bench player onto a starter to swap him in (the starter goes to the bench), drag a starter onto a bench player to swap them, or drop a bench player on an empty spot to fill it. A bench player is dragged by moving him up off the bench; sideways still slides the bench. Starter-to-starter swaps are not possible: each spot takes players of its own position, so use the bench.
+- COMPARE (`drawLcmp`, `SCR='lcmp'`, `LU.cmpA`/`LU.cmpI`): on a flipped player's bottom bar. His attributes (the numbers that make up his OVR, `rawAt`/`AT`/`ALAB`) side by side with another player at his position; PREV / NEXT step through the others by OVR. Gold = who leads that row.

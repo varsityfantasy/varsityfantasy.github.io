@@ -1686,7 +1686,9 @@ function drawLineup(){
   else{const sp=benchSpot(e);txt('ON THE BENCH  ·  FILLS '+sp.lab,8,yb+11,'#9fb7a0',1,'l',true);
    btn(236,yb+16,82,12,'COMPARE',()=>{LU.cmpA=e.key;LU.cmpI=0;SCR='lcmp'},{c:'#7dff7d',tc:'#14110a'});
    btn(322,yb-2,72,16,'PUT IN',()=>{const s2=benchSpot(e);luPut(e,[s2.f,s2.i,s2.lab]);LU.flip=null},{c:'#7dff7d',tc:'#14110a'})}}
- else{const m=LU.msg&&performance.now()-LU.mt<6000?LU.msg:(LU.sw?LU.msg:'TAP A PLAYER TO SEE HIS CARD. GREY SPOTS ARE WALK-ONS (OVR '+WALK+')');txt(m.slice(0,64),8,yb+5,LU.sw?'#9fd8ff':'#9fb7a0',1,'l',true)}
+ else{const m=LU.msg&&performance.now()-LU.mt<6000?LU.msg:(LU.sw?LU.msg:'TAP A PLAYER TO SEE HIS CARD. GREY SPOTS ARE WALK-ONS (OVR '+WALK+')');txt(m.slice(0,52),8,yb+5,LU.sw?'#9fd8ff':'#9fb7a0',1,'l',true);
+  /* owner Nov 27: autofill. Best OVR at every position, then the best players left fill any empty spots */
+  if(!LU.sw)btn(322,yb-2,72,26,'AUTOFILL',()=>{const L=fullPool(),k=autoKeys(L),u=new Set(k);L.slice().sort((x,y)=>y.o-x.o).forEach(r=>{if(k.length<luCap()&&!u.has(r.key)){u.add(r.key);k.push(r.key)}});setLineup(k);LU.flip=null;LU.sel=null;luSay('LINEUP AUTOFILLED: BEST PLAYER AT EVERY SPOT')},{c:'#9fd8ff',tc:'#14110a'})}
  if(LU.sw)btn(322,yb+16,72,12,'CANCEL',()=>{LU.sw=null;luSay('')},{c:'#4a5a4c',tc:'#fff'});
  btn(400,yb-2,72,26,'DONE',()=>{SCR=LU.back||'title';LU.back=null;LU.sw=null;LU.sel=null;LU.flip=null},{c:'#f2c230'})}
 addEventListener('pointermove',e=>{if(G||SCR!=='lineup'||!ptr.down||!LU.bl||LU.drag)return;const p=toC(e);if(ptr.sy<LU.bl.y||ptr.sy>LU.bl.y+LU.bl.h){LU.bdx=null;return}if(LU.bdx!=null)LU.bx-=p.x-LU.bdx;LU.bdx=p.x});

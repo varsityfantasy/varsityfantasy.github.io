@@ -743,7 +743,7 @@ function drawPT(){for(const q of PT){const sx=Math.round(q.x-camX),sy=Math.round
 function jbCheck(S){const b=S.ball;if(!b||b.done||b.drop||S.jb||S.jbNo||G.vs)return;const left=b.T-b.t;if(b.T<.9||left>.62||left<.3)return;S.jbNo=1;
  let r=null,rd=30;P.rc.forEach(o=>{if(o.down||o.dcT>0)return;const pp=predict(o,left),d=Math.min(Math.hypot(o.x-b.tx,o.y-b.ty),Math.hypot(pp.x-b.tx,pp.y-b.ty));if(d<rd){rd=d;r=o}});if(!r)return;
  let d=null,dd=40;P.def.forEach(o=>{if(o.imm>0||o.blk||o.trip>0||o.flyT>0)return;const q=Math.hypot(o.x-b.tx,o.y-b.ty);if(q<dd){dd=q;d=o}});if(!d)return;
- const jb=r.q&&r.q.jb!=null?r.q.jb:.5,w=.07+.13*jb,ym=.06,c=rnd(.25+w/2+ym,.75-w/2-ym);
+ const jb=r.q&&r.q.jb!=null?r.q.jb:.5,w=.04+.08*jb,ym=(.19+.13*jb-w)/2,c=rnd(.25+w/2+ym,.75-w/2-ym);
  S.jb={r,d,pos:0,dir:1,g0:c-w/2,g1:c+w/2,y0:c-w/2-ym,y1:c+w/2+ym,res:null,sp:1.7,jb:Math.round(AMIN+jb*(AMAX-AMIN))};G.slow=.2;sfx.whistle()}
 function jbStep(rdt){const J=G&&G.phase==='play'&&G.pl&&G.pl.jb;if(!J)return;if(!J.res){J.pos+=J.dir*J.sp*rdt;if(J.pos>=1){J.pos=1;J.dir=-1}if(J.pos<=0){J.pos=0;J.dir=1}}else J.rt=(J.rt||0)+rdt}
 function jbTap(){const J=G.pl.jb;if(!J||J.res)return;J.res=J.pos>=J.g0&&J.pos<=J.g1?'hit':J.pos>=J.y0&&J.pos<=J.y1?'near':'miss';J.rt=0;G.slow=.4;if(J.res==='hit')sfx.catch();else sfx.tap()}

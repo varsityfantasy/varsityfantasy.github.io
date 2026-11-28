@@ -146,6 +146,8 @@ function carSave(){try{localStorage.setItem(CRK,JSON.stringify(CAR0))}catch(_){}
 const FAC=[{k:'wt',n:'WEIGHT ROOM',d:'+2 STRENGTH, TACKLE, ARM',a:['str','tkl','arm'],c:'#ff8b5a'},{k:'tr',n:'TRACK',d:'+2 SPEED, STAMINA',a:['spd','sta'],c:'#7dff7d'},
  {k:'fl',n:'FILM ROOM',d:'+2 CATCH, ACCURACY, RANGE',a:['cat','acc','rng'],c:'#9fd8ff'},{k:'md',n:'TRAINING ROOM',d:'FEWER, SHORTER INJURIES',a:[],c:'#ff6b9a'}];
 const FMAX=5,facCost=l=>30+l*20,TRAIN_CP=6,TRAIN_MAX=24;
+/* v761 owner: admin accounts train free with no cap (0 CP, no TRAIN_MAX). Ratings still stop at AMAX. `ADMIN` is set from the init message. */
+const trCP=()=>ADMIN?0:TRAIN_CP,trMax=()=>ADMIN?Infinity:TRAIN_MAX;
 const atTot=e=>4*clamp(e.o,AMIN,AMAX)+((e.key&&car().bo[e.key])||0)+((e.key&&car().db[e.key])||0);/* bo = CP training, db = daily drill points */
 const morOf=k=>{const m=car().mor[k];return m==null?70:m};
 function morAdd(k,d){if(!k)return;car().mor[k]=clamp(Math.round(morOf(k)+d),20,99)}
@@ -1704,7 +1706,7 @@ function drawTeam(){
   txt(String(b[k]),414,y+8,'#fff',1,'r');
   btn(420,y+5,18,13,'-',()=>trainAdj(e,k,-1),{c:'#4a5a4c',tc:'#fff'});btn(442,y+5,18,13,'+',()=>trainAdj(e,k,1),{c:left>0&&b[k]<AMAX?'#7dff7d':'#4a5a4c'})});
  {const m=morOf(e.key),mc=m>=80?'#7dff7d':m>=60?'#ffd23f':'#ff6b6b';txt('MORALE '+m,252,134,mc,1,'l',true);rect(252,143,58,4,'#000');rect(252,143,Math.round(58*(m-20)/79),4,mc);const ij=injOf(e.key);if(ij)txt('OUT '+ij+' GM',252,151,'#ff6b6b',1,'l',true);
-  const bo=car().bo[e.key]||0,ok=car().cp>=TRAIN_CP&&bo<TRAIN_MAX;btn(392,131,74,12,bo>=TRAIN_MAX?'MAX TRAINED':'TRAIN 6 CP',()=>{const cc=car();if(cc.cp<TRAIN_CP||(cc.bo[e.key]||0)>=TRAIN_MAX)return;cc.cp-=TRAIN_CP;cc.bo[e.key]=(cc.bo[e.key]||0)+1;carSave();applyTeam()},{c:ok?'#7dff7d':'#2a3346',tc:ok?'#14110a':'#6b7280'});if(bo)txt('+'+bo+' TRAINED',318,40,'#7dff7d',1,'l',true)}
+  const bo=car().bo[e.key]||0,ok=car().cp>=trCP()&&bo<trMax();btn(392,131,74,12,bo>=trMax()?'MAX TRAINED':ADMIN?'TRAIN FREE':'TRAIN 6 CP',()=>{const cc=car();if(cc.cp<trCP()||(cc.bo[e.key]||0)>=trMax())return;cc.cp-=trCP();cc.bo[e.key]=(cc.bo[e.key]||0)+1;carSave();applyTeam()},{c:ok?'#7dff7d':'#2a3346',tc:ok?'#14110a':'#6b7280'});if(bo)txt('+'+bo+' TRAINED',318,40,'#7dff7d',1,'l',true)}
  txt('PTS LEFT '+left,318,134,left>0?'#ffd23f':'#9fb7a0',1);
  const P3=Object.keys(PRE[grp(e.slot)]);P3.forEach((nme,i)=>btn(254+i*72,148,68,13,nme,()=>trainPre(e,PRE[grp(e.slot)][nme]),{c:'#9fd8ff'}));
  btn(254,167,52,13,'RESET',()=>trainReset(e),{c:'#4a5a4c',tc:'#cfe8cf'});
@@ -1813,8 +1815,8 @@ function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,p=e.slot,rc=f.rc;
 /* owner Nov 27: TRAIN tab next to OFFENSE / DEFENSE. Spend coach points (CP, the same currency as My Team's TRAIN button and the facilities) to raise any one attribute of any player by 1.
    Each +1 adds 1 point to his attribute total (`car().bo[key]`, max TRAIN_MAX) and puts it straight into the attribute you picked, so his OVR rises as the total does. */
 function luTabs(T){[['O','OFFENSE'],['D','DEFENSE'],['T','TRAIN']].forEach(([k,l],i)=>btn(44+i*76,3,72,16,l,()=>{LU.tab=k;LU.sel=null;LU.flip=null;LU.bx=0},{c:T===k?(k==='T'?'#7dff7d':'#f2c230'):'#2a3346',tc:T===k?'#14110a':'#cfd6e0'}))}
-function trainBoost(e,k){const cc=car(),bo=cc.bo[e.key]||0;if(!e.key||cc.cp<TRAIN_CP||bo>=TRAIN_MAX)return;const b=Object.assign({},rawAt(e));if(b[k]>=AMAX)return;
- cc.cp-=TRAIN_CP;cc.bo[e.key]=bo+1;b[k]+=1;CFG.build[e.key]=b;saveJ(BKEY,CFG.build);carSave();applyTeam();luSay(lastNm(e.n)+' +1 '+ALAB[k])}
+function trainBoost(e,k){const cc=car(),bo=cc.bo[e.key]||0;if(!e.key||cc.cp<trCP()||bo>=trMax())return;const b=Object.assign({},rawAt(e));if(b[k]>=AMAX)return;
+ cc.cp-=trCP();cc.bo[e.key]=bo+1;b[k]+=1;CFG.build[e.key]=b;saveJ(BKEY,CFG.build);carSave();applyTeam();luSay(lastNm(e.n)+' +1 '+ALAB[k])}
 function drawTrain(){
  bgPlain();LU.bl=null;const c=car(),L=fullPool().filter(r=>r.key),so=(x,y)=>SORD.indexOf(x.slot)-SORD.indexOf(y.slot)||y.o-x.o,list=L.slice().sort(so);
  btn(4,4,36,14,'BACK',()=>{SCR=LU.back||'title';LU.back=null;LU.sw=null;LU.sel=null;LU.flip=null},{c:'#4a5a4c',tc:'#cfe8cf'});luTabs('T');
@@ -1829,15 +1831,15 @@ function drawTrain(){
  if(max>0){const h=Math.max(14,vh*vh/(list.length*RH)),yy=top+(vh-h)*LU.ts/max;rect(236,top,2,vh,'#0b0f18');rect(236,yy,2,h,'#9fd8ff')}
  panel(246,26,230,192,'rgba(8,13,24,.94)');
  const r0=list.find(r=>r.key===LU.tc);if(!r0){txt('NO PLAYERS TO TRAIN',361,110,'#9fb7a0',1,'c',true);return}
- const e=mkEnt(r0),bo=c.bo[e.key]||0,sk=SPEC[e.slot],b=rawAt(e),ks=AT[grp(e.slot)],maxed=bo>=TRAIN_MAX,ok=c.cp>=TRAIN_CP&&!maxed;
+ const e=mkEnt(r0),bo=c.bo[e.key]||0,sk=SPEC[e.slot],b=rawAt(e),ks=AT[grp(e.slot)],maxed=bo>=trMax(),ok=c.cp>=trCP()&&!maxed;
  pcard(252,32,58,96,r0,{i:0});txt(String(e.n).slice(0,24),318,30,'#fff',1);txt(e.slot+'  OVR '+e.o,318,40,ovC(e.o),1,'l',true);
- txt(maxed?'MAX TRAINED':bo?'+'+bo+' / '+TRAIN_MAX+' TRAINED':'0 / '+TRAIN_MAX+' TRAINED',318,50,maxed?'#ffd23f':'#7dff7d',1,'l',true);
+ txt(ADMIN?'+'+bo+' TRAINED  ADMIN: NO LIMIT':maxed?'MAX TRAINED':bo?'+'+bo+' / '+TRAIN_MAX+' TRAINED':'0 / '+TRAIN_MAX+' TRAINED',318,50,maxed?'#ffd23f':'#7dff7d',1,'l',true);
  ks.forEach((k,i)=>{const y=62+i*19,v=b[k],can=ok&&v<AMAX;txt(ALAB[k],318,y,'#cfe8cf',1,'l',true);rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff9a8a');
-  txt(String(v),402,y+7,'#fff',1,'r');btn(408,y+2,62,13,v>=AMAX?'MAX':'+1  '+TRAIN_CP+' CP',()=>trainBoost(e,k),{c:can?'#7dff7d':'#2a3346',tc:can?'#14110a':'#6b7280'})});
+  txt(String(v),402,y+7,'#fff',1,'r');btn(408,y+2,62,13,v>=AMAX?'MAX':ADMIN?'+1  FREE':'+1  '+TRAIN_CP+' CP',()=>trainBoost(e,k),{c:can?'#7dff7d':'#2a3346',tc:can?'#14110a':'#6b7280'})});
  if(sk){const y=62+ks.length*19;txt(ALAB[sk[0]],318,y,'#cfe8cf',1,'l',true);const v=Math.round(specVal(sk[0],b,e.o));rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,'#9fd8ff');txt(String(v),402,y+7,'#fff',1,'r');txt('BUILT FROM HIS RATINGS',318,y+16,'#7d8aa3',1,'l',true)}
  {const used=drUsed();btn(252,182,104,16,used?'DRILL DONE':'DAILY DRILL',()=>{if(!drUsed())drOpen(e.key)},{c:used?'#2a3346':'#ffd23f',tc:used?'#6b7280':'#14110a'});txt(used?'BACK TOMORROW':ADMIN?'ADMIN: UNLIMITED DRILLS':'1 FREE PLAY A DAY: +1 TO +4',362,187,used?'#9fb7a0':'#ffd23f',1,'l',true)}
- const m=LU.msg&&performance.now()-LU.mt<4000?LU.msg:c.cp<TRAIN_CP?'NOT ENOUGH CP. WIN GAMES IN SEASON MODE TO EARN MORE':'TAP A PLAYER, THEN +1 ON THE RATING TO RAISE';
- txt(m.slice(0,56),252,206,c.cp<TRAIN_CP?'#ff9a8a':'#9fb7a0',1,'l',true)}
+ const m=LU.msg&&performance.now()-LU.mt<4000?LU.msg:c.cp<trCP()?'NOT ENOUGH CP. WIN GAMES IN SEASON MODE TO EARN MORE':'TAP A PLAYER, THEN +1 ON THE RATING TO RAISE';
+ txt(m.slice(0,56),252,206,c.cp<trCP()?'#ff9a8a':'#9fb7a0',1,'l',true)}
 /* owner Nov 27: DAILY DRILL v2, one free play a day (per device, local date) from the TRAIN tab. Each position has its OWN drill:
    QB THREAD THE NEEDLE (lead a moving receiver), RB BREAK THE LINE (dodge waves of tacklers), WR CATCH TIMING (tap as the ring closes),
    TE POWER HIT (hold, release in the gold), K FIELD GOAL (power then aim, with wind), DL SWIM MOVE (swipe the prompted way fast),

@@ -75,6 +75,38 @@ function drawStars(x,y,n){for(let i=0;i<5;i++){const cx=x+i*9+4,cy=y+4,f=n>=i+1?
  const path=()=>{g.beginPath();pts.forEach((q,j)=>j?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.closePath()};
  g.fillStyle='#2a3242';path();g.fill();if(f){g.save();g.beginPath();g.rect(cx-5,cy-5,f===1?10:5,10);g.clip();g.fillStyle='#ffd23f';path();g.fill();g.restore()}}}
 function specAt(e){const sp=SPEC[e.slot];return sp?[sp[1],specVal(sp[0],rawAt(e),e.o)]:null}
+/* owner Nov 27: SUPERSTAR and X-FACTOR abilities, perks that kick in when certain things happen.
+   SUPERSTAR (OVR 84-91, and every X-Factor too): always on, works whenever its situation comes up.
+   X-FACTOR (OVR 92+): has to get IN THE ZONE first (zone: what he must do in this game), then the big perk is on until he is knocked out (out:).
+   One ability per position. Out-of-position players and walk-ons have none. Defense plays out in the simulated drives (startOpp / oppSim).
+   ABIL[slot] = {ss:[name, what it does], xf:[name, what it does, zone trigger, knocked out by, plays needed]} */
+const SS_OVR=84,XF_OVR=92;
+const ABIL={
+ QB:{ss:['POCKET POISE','NO MISSES UNDER PRESSURE'],xf:['LASER','THROWS HIT THE SPOT','3 STRAIGHT COMPLETIONS','INC, PICK OR SACK',3]},
+ RB:{ss:['GOAL LINE BACK','BREAKS TACKLES IN THE 20'],xf:['BULLDOZER','1ST TACKLE ALWAYS MISSES','2 PLAYS OF 10+ YARDS','LOSS OR FUMBLE',2]},
+ WR:{ss:['DEEP THREAT','WINS BALLS 20+ YDS DEEP'],xf:['SKY HIGH','WINS CONTESTED CATCHES','2 CATCHES FOR 15+','DROP, PBU OR PICK',2]},
+ TE:{ss:['SAFETY VALVE','SURE HANDS ON 3RD & 4TH'],xf:['WRECKING BALL','TACKLERS BOUNCE OFF','2 BROKEN TACKLES','LOSS, FUMBLE OR DROP',2]},
+ K:{ss:['CLUTCH LEG','WIDER POSTS IN THE 4TH'],xf:['ICE VEINS','WIDEST POSTS, NO BLOCKS','2 KICKS GOOD IN A ROW','A MISSED KICK',2]},
+ DL:{ss:['QUICK FIRST STEP','MORE SACKS'],xf:['HAVOC','MORE SACKS, FEWER TDS','A SACK','THEIR TOUCHDOWN',1]},
+ LB:{ss:['RUN STOPPER','MORE STOPS FOR LOSS'],xf:['HEAT SEEKER','FORCES FUMBLES','2 STOPS FOR LOSS','THEIR TOUCHDOWN',2]},
+ DB:{ss:['LOCKDOWN','MORE PASSES BROKEN UP'],xf:['BALL HAWK','MORE INTERCEPTIONS','A PBU OR PICK','THEIR TOUCHDOWN',1]}};
+const abSlot=sl=>sl==='SLOT'?'WR':sl;
+/* his tier: 'xf', 'ss' or '' */
+function abT(e){if(!e||e.walk||e.oop||!e.key||String(e.key).startsWith('f:')||!ABIL[abSlot(e.slot)])return '';return e.o>=XF_OVR?'xf':e.o>=SS_OVR?'ss':''}
+const abOf=e=>{const t=abT(e);return t?{t,sl:abSlot(e.slot),ss:ABIL[abSlot(e.slot)].ss,xf:t==='xf'?ABIL[abSlot(e.slot)].xf:null}:null};
+/* in-game zone state, G.zn[key] = {n: progress, on}. p is a field player (setQ gives him .ab and .ekey) or a roster entry */
+const zk=p=>p&&(p.ekey||p.key);
+const hasSS=(p,sl)=>!!(p&&p.ab&&p.ab.sl===sl);
+const zoneOn=p=>!!(p&&p.ab&&p.ab.t==='xf'&&G&&G.zn&&G.zn[zk(p)]&&G.zn[zk(p)].on);
+function zoneAdd(p,k){if(!p||!p.ab||p.ab.t!=='xf'||!G||!G.zn)return;const z=G.zn[zk(p)]=G.zn[zk(p)]||{n:0,on:false};if(z.on)return;z.n+=k||1;
+ if(z.n>=p.ab.xf[4]){z.on=true;G.zb={t:'X-FACTOR: '+String(p.name||p.n||'').toUpperCase().slice(0,22)+' IS IN THE ZONE',s:p.ab.xf[0]+' · '+p.ab.xf[1],l:2.4,c:'#ff7a2f'};try{sfx.td()}catch(_){}}}
+function zoneOut(p,why){if(!p||!p.ab||p.ab.t!=='xf'||!G||!G.zn)return;const z=G.zn[zk(p)];if(!z)return;
+ if(z.on)G.zb={t:'ZONE BROKEN: '+String(p.name||p.n||'').toUpperCase().slice(0,22),s:(why||p.ab.xf[3])+' · '+p.ab.xf[2]+' TO GET IT BACK',l:2,c:'#9fb7a0'};z.on=false;z.n=0}
+/* SUPERSTAR pop-up over the player, at most once per play per player */
+function ssPop(p,lab){const S=G.pl;if(S){S.ssp=S.ssp||{};if(S.ssp[zk(p)+lab])return;S.ssp[zk(p)+lab]=1}fx.push({t:lab+'!',x:p.x,y:p.y-34,l:1,c:'#ffd23f'})}
+/* the little badge: gold star = Superstar, orange X = X-Factor (o = lit up because he is in the zone) */
+function abBadge(x,y,t,o){if(!t)return;if(t==='ss'){rect(x,y,9,9,'#000');rect(x+1,y+1,7,7,'#3a2a00');star(x+4,y+5,4,'#ffd23f','#ffd23f')}
+ else{const c=o?'#ffb02f':'#ff7a2f';rect(x,y,9,9,'#000');rect(x+1,y+1,7,7,o?'#7a2a00':'#3a1400');for(let i=0;i<5;i++){rect(x+2+i,y+2+i,1,1,c);rect(x+6-i,y+2+i,1,1,c)}if(o){const a=.35+.35*Math.sin(performance.now()/150);rect(x-1,y-1,11,11,'rgba(255,160,40,'+a.toFixed(2)+')')}}}
 const grp=sl=>sl==='QB'?'QB':sl==='K'?'KK':(sl==='DL'||sl==='LB'||sl==='DB')?'DF':'SK';
 const PRE={QB:{GUNSLINGER:[1.25,.95,.9,.9],POCKET:[1,1.22,.8,1],SCRAMBLER:[.9,.95,1.3,1.05]},SK:{BURNER:[.9,1.3,1,.8],HANDS:[1.25,.9,1,.85],POWER:[.9,.9,1.05,1.3]},KK:{BOOMER:[1.3,.9,.9,.9],PRECISE:[.9,1.3,.9,.9],ICEMAN:[.95,1.05,.85,1.15]},DF:{HITTER:[1.25,.9,1.05,.8],SPEEDSTER:[.95,1.25,.8,1],BRUISER:[.95,.85,1.3,.9]}};
 /* scale four raw numbers so they sum to tot with every one inside 40..99 */
@@ -361,12 +393,12 @@ function ssAfter(r){const i0=SS.res.length;SS.res.push(r);while(SS.sl[SS.res.len
 function teamCols(){const me=CFG.team,op=G.opp;let c1=me.c1,c2=me.c2,d1=op.c1,d2=op.c2;if(Math.abs(lum(c1)-lum(d1))<55){d1=lum(d2)>140&&Math.abs(lum(c1)-lum(d2))>55?d2:'#f4f4f4';if(Math.abs(lum(c1)-lum(d1))<55)d1='#1a1a1a'}
  TEAMS[0]={e:me.c1,j:c1,p:lum(c2)>130?c2:'#e8e8e8',h:sh(c1,-.15),a:c2,n:me.n,lg:me.s||me.n};TEAMS[1]={e:op.c1,j:d1,p:lum(d2)>130?d2:'#e8e8e8',h:sh(d1,-.15),a:d2,n:op.n,lg:op.s||op.n}}
 const SKIN=['#f1c27d','#c68642','#8d5524','#e0ac69','#6f4a2b'];
-function setQ(p,e){p.ekey=e&&e.key;p.real=!!(e&&e.key&&!String(e.key).startsWith('f:')&&!e.walk);const ks=AT[grp(e.slot||(p.role==='qb'?'QB':'WR'))],q={};ks.forEach(k=>{q[k]=clamp(((e.at&&e.at[k]!=null?e.at[k]:e.o)-AMIN)/(AMAX-AMIN),0,1)});const on=clamp(((e.o||60)-AMIN)/(AMAX-AMIN),0,1);if(q.spd!=null&&q.cat!=null){q.jk=clamp(.6*q.spd+.4*on,0,1);q.jb=clamp(.6*q.cat+.2*q.str+.2*on,0,1);q.tr=clamp(.65*q.str+.35*on,0,1);q.sa=clamp(.6*q.str+.2*q.spd+.2*on,0,1);q.cb=clamp(.5*q.spd+.25*q.sta+.25*on,0,1);q.dl=clamp(.55*q.spd+.45*on,0,1);q.jc=clamp(.5*q.spd+.3*q.sta+.2*on,0,1);q.pt=clamp(.5*q.cat+.3*q.sta+.2*on,0,1)}p.q=q;p.slot=e.slot||''}
+function setQ(p,e){p.ekey=e&&e.key;p.real=!!(e&&e.key&&!String(e.key).startsWith('f:')&&!e.walk);const ks=AT[grp(e.slot||(p.role==='qb'?'QB':'WR'))],q={};ks.forEach(k=>{q[k]=clamp(((e.at&&e.at[k]!=null?e.at[k]:e.o)-AMIN)/(AMAX-AMIN),0,1)});const on=clamp(((e.o||60)-AMIN)/(AMAX-AMIN),0,1);if(q.spd!=null&&q.cat!=null){q.jk=clamp(.6*q.spd+.4*on,0,1);q.jb=clamp(.6*q.cat+.2*q.str+.2*on,0,1);q.tr=clamp(.65*q.str+.35*on,0,1);q.sa=clamp(.6*q.str+.2*q.spd+.2*on,0,1);q.cb=clamp(.5*q.spd+.25*q.sta+.25*on,0,1);q.dl=clamp(.55*q.spd+.45*on,0,1);q.jc=clamp(.5*q.spd+.3*q.sta+.2*on,0,1);q.pt=clamp(.5*q.cat+.3*q.sta+.2*on,0,1)}p.q=q;p.slot=e.slot||'';p.ab=p.side===0&&p.real?abOf(e):null}
 function mkP(role,side,x,y,o,name){return{role,side,x,y,x0:x,y0:y,vx:0,vy:0,o,a:A(o),name:name||'',ph:Math.random()*6,f:side?-1:1,fr:0,rt:[],ri:0,imm:0,slow:0,tk:0,man:null,zone:null,skin:pick(SKIN),spd:60}}
 
 function resetGame(o){o=o||{};
  const op=o.opp||(CFG.opps.length?pick(CFG.opps):{n:'RIVALS',c1:'#c8102e',c2:'#ffffff'});
- G={q:1,clock:CFG.ql,to:[3,3],aud:3,gap:0,score:[0,0],los:EZ+25*YD,fd:0,down:1,phase:'select',opp:op,oppO:Math.min(99,LVL[CFG.lvl].o+(o.bump||0)+(op.ov?clamp((op.ov-66)*.45,-6,8):0)),ssn:!!o.ssn,prac:!!o.prac,ot:0,over:false,msg:null,rt:0,next:null,st:{py:0,ry:0,td:0,pl:0,cmp:0,att:0,it:0,sk:0},hint:true,hintN:0,sel:-1};
+ G={q:1,clock:CFG.ql,to:[3,3],aud:3,gap:0,score:[0,0],los:EZ+25*YD,fd:0,down:1,phase:'select',opp:op,oppO:Math.min(99,LVL[CFG.lvl].o+(o.bump||0)+(op.ov?clamp((op.ov-66)*.45,-6,8):0)),ssn:!!o.ssn,prac:!!o.prac,ot:0,over:false,msg:null,rt:0,next:null,st:{py:0,ry:0,td:0,pl:0,cmp:0,att:0,it:0,sk:0},hint:true,hintN:0,sel:-1,zn:{},zb:null};
  teamCols();setFD();
  /* owner Nov 25: the game opens with you returning the opening kickoff */
  if(!G.prac&&!o.nokick)startReturn({k:'kick',yl:Math.round(rnd(0,9))});else toSelect()}
@@ -860,15 +892,15 @@ function scramble(keep){const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||
 function throwAt(wx,wy,lob){
  const S=G.pl,Q=P.qb;if(!S||S.thrown||S.done||S.carrier||S.t<S.snapT+.15)return;
  S.thrown=true;G.st.att++;psAdd(P.qb.name,'QB','att');
- const bs=(138+92*Q.q.arm)*(lob?.8:1),near=P.dl.some(d=>d.fr<S.t&&dst(d,Q)<40);
- const er=1.5+(1-Q.q.acc)*11+(near?4:0)+(lob?2:0),an=rnd(0,6.283),rr=Math.sqrt(Math.random())*er;
+ const zq=zoneOn(Q),bs=(138+92*Q.q.arm)*(lob?.8:1)*(zq?1.12:1),near=P.dl.some(d=>d.fr<S.t&&dst(d,Q)<40),poise=near&&hasSS(Q,'QB');if(poise)ssPop(Q,'POCKET POISE');
+ const er=(1.5+(1-Q.q.acc)*11+(near&&!poise?4:0)+(lob?2:0))*(zq?.25:1),an=rnd(0,6.283),rr=Math.sqrt(Math.random())*er;
  const tx=clamp(wx+Math.cos(an)*rr,2,FL-2),ty=clamp(wy+Math.sin(an)*rr*.8,2,FH-2);
  const d=Math.hypot(tx-Q.x,ty-Q.y),T=Math.max(.3,d/bs);
  S.ball={x:Q.x,y:Q.y,z:8,fx:Q.x,fy:Q.y,tx,ty,T,t:0,lob:!!lob,h:lob?26+d*.16:8+d*.08};S.land={x:tx,y:ty};
  /* owner Nov 25: how good was the throw? miss = distance from where the nearest receiver would be when it lands; under = how far it lands BEHIND him on his route (underthrown) */
  {let bm=1e9,bu=0;P.rc.forEach(r=>{const pp=predict(r,T),ox=tx-pp.x,oy=ty-pp.y,m=Math.hypot(ox,oy);if(m<bm){bm=m;const vx=pp.x-r.x,vy=pp.y-r.y,vl=Math.hypot(vx,vy);bu=vl>4?Math.max(0,-(ox*vx+oy*vy)/vl):0;S.over=vl>4?Math.max(0,(ox*vx+oy*vy)/vl):0}});S.miss=bm;S.under=bu}
  Q.throwA=.3;Q.f=tx>=Q.x?1:-1;sfx.throw()}
-function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i++){const d=Math.hypot(pp.x-Q.x,pp.y-Q.y);T=Math.max(.3,d/((138+92*Q.q.arm)*(lob?.8:1)));pp=predict(r,T)}throwAt(pp.x,pp.y,lob)}
+function throwTo(r,lob){const Q=P.qb;let T=.6,pp={x:r.x,y:r.y};for(let i=0;i<3;i++){const d=Math.hypot(pp.x-Q.x,pp.y-Q.y);T=Math.max(.3,d/((138+92*Q.q.arm)*(lob?.8:1)*(zoneOn(Q)?1.12:1)));pp=predict(r,T)}throwAt(pp.x,pp.y,lob)}
 function predict(r,T){let x=r.x,y=r.y,left=r.spd*T,i=r.ri;while(left>0&&i<r.rt.length){const w=r.rt[i],d=Math.hypot(w.x-x,w.y-y);if(d<=left){x=w.x;y=w.y;left-=d;i++}else{x+=(w.x-x)/d*left;y+=(w.y-y)/d*left;left=0}}if(left>0&&r.ext){const lim=r.dx<-.25?46:r.dx<.45?64:1e9,go=Math.min(left,Math.max(0,lim-(r.eu||0)));x=Math.min(FL-8,x+r.dx*go);y=clamp(y+r.dy*go,5,FH-5)}return{x,y}}
 function resolveCatch(){
  const S=G.pl,b=S.ball;b.done=true;
@@ -878,13 +910,18 @@ function resolveCatch(){
  let who=null,kind='inc';
  if(S.jb&&S.jb.r){const J=S.jb,jr=J.r;if(!J.res)J.res='miss';J.rt=J.rt||0;G.slow=0;r=jr;dT=0;jr.x=b.tx-3;jr.y=b.ty;
   /* owner Nov 27: odds by zone, all weighted by his JUMP BALL (t 0..1, average .5): green 85% catch / 15 pbu; yellow 15 catch / 35 int / 50 pbu; red (or no tap) 50 int / 50 pbu */
-  {const t=clamp(jr.q&&jr.q.jb!=null?jr.q.jb:.5,0,1),z=J.res,pc=z==='hit'?(t<.5?.65+.40*t:.80+.10*t):z==='near'?.05+.20*t:0,pi=J.d?(z==='near'?.50-.30*t:z==='miss'?.65-.30*t:0):0,u=Math.random();
+  {const t=clamp(jr.q&&jr.q.jb!=null?jr.q.jb:.5,0,1),z=J.res,zw=zoneOn(jr)&&jr.ab.sl==='WR',pc=zw?(z==='miss'?.5:.92):z==='hit'?(t<.5?.65+.40*t:.80+.10*t):z==='near'?.05+.20*t:0,pi=J.d?(z==='near'?.50-.30*t:z==='miss'?.65-.30*t:0):0,u=Math.random();
    if(u<pc){who=jr;kind='catch';if(J.d)J.d.imm=.6;fx.push({t:'MOSSED HIM!',x:jr.x,y:jr.y-40,l:1.1,c:'#ffe14a'})}else if(u<pc+pi){who=J.d;kind='int'}else kind='pbu'}}
- else if(r){const rs=(onT?67:50)+r.q.cat*28+rnd(0,22)-dT*.5-Math.max(0,mi-9)*.55;
+ else if(r){/* SUPERSTAR: DEEP THREAT (WR, ball 20+ yards past the line), SAFETY VALVE (TE, 3rd/4th down). X-FACTOR: SKY HIGH (WR in the zone) */
+  const deep=hasSS(r,'WR')&&(b.tx-G.los)/YD>=20,valve=hasSS(r,'TE')&&G.down>=3,sky=zoneOn(r)&&r.ab.sl==='WR',ab=(deep?12:0)+(valve?10:0)+(sky?28:0);
+  const rs=(onT?67:50)+r.q.cat*28+rnd(0,22)-dT*.5-Math.max(0,mi-9)*.55+ab;
   if(cands.length){const best=cands.reduce((a,c)=>(!a||c.sc>a.sc)?c:a,null),ds=best.sc;
    if(ds>rs+6){who=best;kind='int'}else if(ds>rs-8){kind='pbu'}else{who=r;kind='catch'}}
-  else{const pc=onT&&dT<9?clamp(.93+.06*r.q.cat,0,.99):clamp(.8+.15*r.q.cat-dT*.03-Math.max(0,mi-9)*.024,.1,.95);if(Math.random()<pc){who=r;kind='catch'}else kind='drop'}}
+  else{const pc=(onT&&dT<9?clamp(.93+.06*r.q.cat,0,.99):clamp(.8+.15*r.q.cat-dT*.03-Math.max(0,mi-9)*.024,.1,.95))+(ab?.1:0);if(Math.random()<pc){who=r;kind='catch'}else kind='drop'}
+  if(kind==='catch'&&ab){if(sky)fx.push({t:'X-FACTOR: SKY HIGH',x:r.x,y:r.y-40,l:1,c:'#ff9a3f'});else ssPop(r,deep?'DEEP THREAT':'SAFETY VALVE')}}
  else if(cands.length){const best=cands.reduce((a,c)=>(!a||dst(c,{x:b.tx,y:b.ty})<dst(a,{x:b.tx,y:b.ty}))?c:a,null);if(Math.random()<.4+best.a*.2-Math.max(0,dst(best,{x:b.tx,y:b.ty})-8)*.02){who=best;kind='int'}}
+ /* zones: completions build the QB's streak; an incompletion or pick ends it. A drop / PBU / pick on a WR knocks him out; a drop knocks out a TE */
+ if(kind==='catch')zoneAdd(P.qb);else{zoneOut(P.qb,kind==='int'?'INTERCEPTION':'INCOMPLETE');const tg=r||(S.jb&&S.jb.r);if(tg&&tg.ab&&(tg.ab.sl==='WR'||(tg.ab.sl==='TE'&&kind==='drop')))zoneOut(tg,kind==='int'?'PICKED OFF':kind==='drop'?'DROPPED IT':'BROKEN UP')}
  if(r&&kind!=='catch'&&dT>10&&kind!=='int'){r.dcT=.5;r.dcF={x:r.x,y:r.y};r.dcB={x:b.tx,y:b.ty};r.f=b.tx>=r.x?1:-1}
  if(kind==='catch'){ptr.sx=ptr.x;ptr.sy=ptr.y;ptr.t0=performance.now();S.carrier=who;who.ball=true;who.manual=false;who.rt=[];who.ri=0;who.spd=(who.key==='rb'?64+32*who.q.spd:60+32*who.q.spd)*SPD*1.0;who.f=1;G.st.cmp++;psAdd(P.qb.name,'QB','cmp');psAdd(who.name,posL(who),'rec');S.catchX=who.x;P.def.forEach(d=>d.fr=Math.min(d.fr,S.t));sfx.catch();
   if(G.pl.pl.sc){P.def.forEach(d=>{if(d.role==='dl'||d.role==='lb')d.fr=S.t})}
@@ -961,9 +998,11 @@ function stepPlay(dt){
 function tackles(dt){const S=G.pl,C=S.carrier;if(C.imm>0)return;
  let near=P.def.filter(d=>dst(d,C)<((S.pl.k==='run'||S.qbRan)?9.5:11)&&d.imm<=0&&!d.blk&&d.fr<=S.t);if(!near.length)return;
  for(const d of near){d.tk-=dt;if(d.tk>0)continue;d.tk=.5;
-  const p=clamp(((S.pl.k==='run'||S.qbRan)?.43:.5)+(d.a-(C.q&&C.q.str!=null?C.q.str*.8+C.q.spd*.2:C.a))*.3+(near.length-1)*.12+(C.dive>0?.2:0)+(C.exp>0?.25:0),.1,.9);
+  const gl=hasSS(C,'RB')&&C.x>=GOAL-20*YD,wb=zoneOn(C)&&C.ab.sl==='TE',bz=zoneOn(C)&&C.ab.sl==='RB'&&!S.bzUsed;
+  let p=clamp(((S.pl.k==='run'||S.qbRan)?.43:.5)+(d.a-(C.q&&C.q.str!=null?C.q.str*.8+C.q.spd*.2:C.a))*.3+(near.length-1)*.12+(C.dive>0?.2:0)+(C.exp>0?.25:0)-(gl?.14:0),.1,.9);
+  if(wb)p*=.5;if(bz){p=0;S.bzUsed=1}
   if(Math.random()<p){C.down=1;endPlay(Math.random()<.02+(near.length>1?.03:0)?'fumble':'tackle',C.x,null);sfx.hit();return}
-  else{C.imm=.4;C.slow=.35;d.imm=.6;d.slow=.5;fx.push({t:'BROKE IT!',x:C.x,y:C.y-24,l:.7,c:'#ffb84a'});sfx.tap();return}}}
+  else{C.imm=.4;C.slow=.35;d.imm=.6;d.slow=.5;fx.push({t:'BROKE IT!',x:C.x,y:C.y-24,l:.7,c:'#ffb84a'});sfx.tap();if(bz)fx.push({t:'X-FACTOR: BULLDOZER',x:C.x,y:C.y-36,l:.9,c:'#ff9a3f'});else if(wb)fx.push({t:'X-FACTOR: WRECKING BALL',x:C.x,y:C.y-36,l:.9,c:'#ff9a3f'});else if(gl)ssPop(C,'GOAL LINE BACK');if(C.ab&&C.ab.sl==='TE')zoneAdd(C);return}}}
 
 /* owner Nov 25: after an interception you watch the return. The defender runs for your end zone, his teammates block,
    your whole team (QB too) chases him. Tackled: their ball there. Reaches the end zone: pick six (+7). Out of bounds: their ball there. */
@@ -1045,6 +1084,10 @@ function endPlay(kind,x,label){
   if(S.catchX!==undefined)G.st.py+=Math.max(-99,Math.round((x-los0)/YD));else G.st.ry+=Math.round((x-los0)/YD);
   G.los=x;G.down++}
  G.st.pl++;
+ /* zones from how the play ended: RB 10+ yards, WR catch for 15+ build up; a loss or a fumble knocks out the RB / TE; a sack knocks out the QB */
+ {const yd=Math.round(((kind==='td'?GOAL:x)-los0)/YD);if(kind==='sack')zoneOut(P.qb,'SACKED');
+  if(C&&C.ab&&C!==P.qb){if(kind==='fumble'||((kind==='tackle'||kind==='oob')&&yd<0)){if(C.ab.sl==='RB'||C.ab.sl==='TE')zoneOut(C,kind==='fumble'?'FUMBLE':'TACKLED FOR A LOSS')}
+   else if(kind==='td'||kind==='tackle'||kind==='oob'){if(C.ab.sl==='RB'&&yd>=10)zoneAdd(C);if(C.ab.sl==='WR'&&S.catchX!==undefined&&yd>=15)zoneAdd(C)}}}
  if(C&&kind!=='int'&&kind!=='inc'&&kind!=='sack'&&!G.twoPt){const yd=Math.round(((kind==='td'?GOAL:x)-los0)/YD),pass=S.catchX!==undefined&&C!==P.qb;
   if(pass){psAdd(C.name,posL(C),'recYd',yd);psAdd(P.qb.name,'QB','passYd',yd);if(kind==='td'){psAdd(C.name,posL(C),'recTD');psAdd(P.qb.name,'QB','passTD')}}
   else{psAdd(C.name,posL(C),'car');psAdd(C.name,posL(C),'rushYd',yd);if(kind==='td')psAdd(C.name,posL(C),'rushTD')}}
@@ -1112,18 +1155,22 @@ function doFG(xp){const sp=1.12-.3*kq('spd');G.xpk=!!xp;P=null;G.pl=null;fx=[]; 
  G.meter={st:0,pw:0,pd:1,a:a0-.42,ad:1,a0,hx,ky,kk,psp:.78*sp,asp:.6*sp,done:false,t0:performance.now(),kt:0};camT=clamp(Math.min(hx-40,GPX-W+80),0,FL-W);if(xp){G.los=kx;G.fd=GOAL}}
 /* take too long and the rush gets home: after 3 s the block chance climbs (100% at 6 s; at 6 s the kick is blocked by itself) */
 const KBLK0=3,KBLK1=6;
-function fgTap(){const M=G.meter;if(!M||M.done||performance.now()-M.t0<250)return;sfx.tap();if(M.st===0){M.st=1}else{M.done=true;M.kt=.001;const el=(performance.now()-M.t0)/1000;M.blk=Math.random()<clamp((el-KBLK0)/(KBLK1-KBLK0),0,1)*.9}}
+function fgTap(){const M=G.meter;if(!M||M.done||performance.now()-M.t0<250)return;sfx.tap();if(M.st===0){M.st=1}else{M.done=true;M.kt=.001;const el=(performance.now()-M.t0)/1000;M.blk=!kAb().z&&Math.random()<clamp((el-KBLK0)/(KBLK1-KBLK0),0,1)*.9}}
+/* kicker abilities: CLUTCH LEG +25% wider make window in the 4th quarter / OT, ICE VEINS (in the zone) +50% */
+function kAb(){const e=CFG.ros&&CFG.ros.k,a=abOf(e);if(!a)return {m:1};const z=G.zn&&G.zn[e.key]&&G.zn[e.key].on&&a.t==='xf',cl=G.q>=4&&!G.prac;return {m:1+(cl?.25:0)+(z?.5:0),z,cl,a,e}}
 function fgHalf(){const d=fgDist();return clamp((.12+.09*kq('acc'))*(1.3-d/75),.045,.24)}
 /* owner Nov 27: a good kick clears the posts high (a barely-there kick between the crossbar and the tops, a strong one well above them) and sails out over the stadium.
    r = power over what the distance needs (1 to 1.5): the arc's height goes 40 to 96, and its peak sits right over the uprights */
 function fgArc(k,r){k.h=40+56*clamp((r-1)/.45,0,1);const pu=clamp((GPX-k.from)/(k.to-k.from),.3,.95);k.pu=pu;k.pk=Math.log(.55)/Math.log(pu);k.pow=r>=1.28}
 /* owner Nov 27: timing help. The angles that split the uprights (same width fgResolve uses): [low, high] */
-function aimZone(M){const d=fgDist(),hw=Math.max(3,GPW*(.8+.35*kq('acc'))-Math.max(0,(d-30)*.05)),L=GPX-M.hx;return [Math.atan((CY-hw-M.ky)/L),Math.atan((CY+hw-M.ky)/L)]}
+function aimZone(M){const d=fgDist(),hw=Math.max(3,GPW*(.8+.35*kq('acc'))-Math.max(0,(d-30)*.05)),L=GPX-M.hx;return [Math.atan((CY-hw*kAb().m-M.ky)/L),Math.atan((CY+hw*kAb().m-M.ky)/L)]}
 function fgResolve(){const M=G.meter,dist=fgDist();G.kn=(G.kn||0)+1;
  if(M.blk){const kn=CFG.ros.k.n;psAdd(kn,'K',G.xpk?'xpa':'fga');const k={kind:'fg',from:M.hx,to:M.hx+3*YD,y0:M.ky,y1:M.ky+rnd(-20,20),t:0,T:.6,h:10,ok:false,lab:'BLOCKED!',dist,kf:G.kf,blkd:{cx:Math.max(M.hx+30,G.los+4),cy:M.ky,sd:Math.random()<.5?-1:1}};k.T=1.15;G.phase='kick';G.kick=k;G.kf=null;
   if(G.xpk){G.xpk=false;k.after=()=>{if(G.over)return toFinal();startOpp(25,'KICKOFF')};return}
   k.after=()=>startOpp(clamp(100-Math.round((M.hx+3*YD-EZ)/YD),3,97),'BLOCKED FG');burn(5);return}const reach=M.pw*fgMaxR()*1.06;
- const yAt=M.ky+Math.tan(M.a)*(GPX-M.hx),hw=GPW*(.8+.35*kq('acc'))-Math.max(0,(dist-30)*.05);const short=reach<dist,wide=Math.abs(yAt-CY)>hw,ok=!short&&!wide;
+ const KA=kAb(),hw0=GPW*(.8+.35*kq('acc'))-Math.max(0,(dist-30)*.05),hw=hw0*KA.m,yAt=M.ky+Math.tan(M.a)*(GPX-M.hx);const short=reach<dist,wide=Math.abs(yAt-CY)>hw,ok=!short&&!wide;
+ if(KA.a&&KA.a.t==='xf'){const kp={ab:KA.a,key:KA.e.key,n:KA.e.n};if(ok)zoneAdd(kp);else zoneOut(kp,short?'SHORT':'WIDE')}
+ if(ok&&Math.abs(yAt-CY)>hw0)fx.push({t:KA.z?'X-FACTOR: ICE VEINS':'CLUTCH LEG!',x:GPX,y:CY-50,l:1.4,c:KA.z?'#ff9a3f':'#ffd23f'});
  {const kn=CFG.ros.k.n;if(G.xpk){psAdd(kn,'K','xpa');if(ok)psAdd(kn,'K','xpm')}else{psAdd(kn,'K','fga');if(ok)psAdd(kn,'K','fgm')}}
  const lab=ok?"IT'S GOOD!":short?'SHORT!':(yAt<CY?'WIDE LEFT':'WIDE RIGHT');
  const k={kind:'fg',from:M.hx,to:short?M.hx+reach*YD*.95:GPX+90,y0:M.ky,y1:short?M.ky+Math.tan(M.a)*reach*YD*.95:M.ky+Math.tan(M.a)*(GPX+90-M.hx),t:0,T:short?1.1:1.9,h:short?34:48,ok,lab,dist,kf:G.kf};
@@ -1143,20 +1190,22 @@ const ylS=p=>p>50?'OPP '+(100-p):p===50?'MIDFIELD':'OWN '+p;
 let OPPX=null;
 function oppSim(yl,out){
  const OP=OPPX||G.opp,op=OP.s?schoolPool(OP.s):[],pk=(sl,i)=>{const a=op.filter(x=>x.slot===sl).sort((x,y)=>y.o-x.o);return a.length?shortN(a[Math.min(i||0,a.length-1)].n):sl==='QB'?'THE QB':sl==='RB'?'THE RB':'THE WR'};
- const R=CFG.ros;let lastD=null;const dn=(l,i)=>{const a=(R&&R[l])||[],e=a[i%Math.max(1,a.length)];lastD=e?{n:e.n,p:l.toUpperCase()}:null;return e?shortN(e.n):'THE DEFENSE'};
+ const R=CFG.ros;let lastD=null;const AB=oppAb();
+ /* the player credited: an X-Factor in the zone gets his kind of play first, Superstars more often than the rest */
+ const dn=(l,i,force)=>{const a=(R&&R[l])||[];let e=force||null;if(!e){const st=a.filter(x=>abT(x));if(st.length&&Math.random()<.4)e=st[Math.floor(Math.random()*st.length)];else e=a[i%Math.max(1,a.length)]}lastD=e?{n:e.n,p:l.toUpperCase(),e}:null;return e?shortN(e.n):'THE DEFENSE'};
  const tackler=()=>{const r0=Math.random(),l=r0<.42?'lb':r0<.78?'db':'dl',a=(R&&R[l])||[];const e=a[Math.floor(Math.random()*a.length)];return e?{n:e.n,p:l.toUpperCase()}:null};
  const qb=pk('QB'),rb=pk('RB'),wr=[pk('WR',0),pk('WR',1),pk('TE',0)];
  let pos=yl,down=1,togo=10,n=0,yds=0;const all=[];const goal=()=>100-pos<10?'GOAL':String(togo);
  const forceEnd=out==='td'?14:out==='fg'?11:9,minPlays=out==='td'?5:3;
  while(n<20){n++;const dd=ordS(down)+' & '+goal(),at=ylS(pos);let y,t,c='#fff',big=false;
   /* turnover drives end on a pick or a fumble */
-  if(out==='turnover'&&n>=Math.max(2,minPlays-1)&&Math.random()<.5){const pick=Math.random()<.6;const tt=pick?dn('db',n)+' INTERCEPTS '+qb+'!':dn('lb',n)+' FORCES A FUMBLE, BALL RECOVERED!';all.push({dd,at,txt:tt,c:'#7dff7d',k:2,cr:lastD?(pick?[[lastD,'dInt']]:[[lastD,'ff'],[lastD,'tkl']]):[]});break}
-  const pass=Math.random()<.55,sackP=down===3&&togo>6?.16:.07,tflP=.08,r0=Math.random();
+  if(out==='turnover'&&n>=Math.max(2,minPlays-1)&&Math.random()<.5){const pick=AB.zdb?true:AB.zlb?false:Math.random()<.6;const tt=pick?dn('db',n,AB.zdb)+' INTERCEPTS '+qb+'!':dn('lb',n,AB.zlb)+' FORCES A FUMBLE, BALL RECOVERED!';all.push({dd,at,txt:tt,c:'#7dff7d',k:2,cr:lastD?(pick?[[lastD,'dInt']]:[[lastD,'ff'],[lastD,'tkl']]):[]});break}
+  const pass=Math.random()<.55,sackP=((down===3&&togo>6?.16:.07)+AB.sack)*(AB.zdl?1.5:1),tflP=.08+AB.tfl,r0=Math.random();
   let cr=[];
-  if(r0<sackP&&pass){y=-Math.round(rnd(4,9));t=dn('dl',n)+' SACKS '+qb+' FOR A LOSS OF '+(-y);c='#7dff7d';if(lastD)cr=[[lastD,'sack'],[lastD,'tkl'],[lastD,'tfl']]}
+  if(r0<sackP&&pass){y=-Math.round(rnd(4,9));t=dn('dl',n,AB.zdl&&Math.random()<.6?AB.zdl:null)+' SACKS '+qb+' FOR A LOSS OF '+(-y);c='#7dff7d';if(lastD)cr=[[lastD,'sack'],[lastD,'tkl'],[lastD,'tfl']]}
   else if(r0<sackP+tflP&&!pass){y=-Math.round(rnd(1,4));t=dn(Math.random()<.5?'lb':'dl',n)+' STUFFS '+rb+', TACKLE FOR LOSS OF '+(-y);c='#7dff7d';if(lastD)cr=[[lastD,'tfl'],[lastD,'tkl']]}
   else{const bias=out==='td'?3:out==='fg'?1.5:-1;y=Math.round(Math.max(-2,rnd(-1,9)+bias+(Math.random()<.12?rnd(10,30):0)));
-   if(pass&&Math.random()<.32&&out!=='td'){y=0;t=qb+' INCOMPLETE, '+dn('db',n)+' BREAKS IT UP';c='#9fd8ff';if(lastD)cr=[[lastD,'pbu']]}
+   if(pass&&Math.random()<.32+AB.pbu&&out!=='td'){y=0;t=qb+' INCOMPLETE, '+dn('db',n)+' BREAKS IT UP';c='#9fd8ff';if(lastD)cr=[[lastD,'pbu']]}
    else t=pass?qb+' TO '+wr[n%3]+' FOR '+(y<0?'A LOSS OF '+(-y):y):rb+(y<=0?' STOPPED FOR '+(y<0?'A LOSS OF '+(-y):'NO GAIN'):' RUNS FOR '+y)}
   /* steer: TD drives convert their 3rd and 4th downs, stalling drives do not */
   const late=n>=minPlays;
@@ -1180,14 +1229,26 @@ function oppSim(yl,out){
  if(!cand.length&&all.length>1)cand.push(all[0]);
  return {n:all.length,yds:Math.max(0,yds),key:cand.concat([last]),all}}
 
+/* your defense's abilities for a simulated drive. Superstars: +2.5% sack chance per DL (max 5%), +2.5% stop for loss per LB, +5% pass broken up per DB.
+   X-Factors in the zone: DL 1.5x sacks and cuts their TD odds, LB forces fumbles, DB picks passes (both raise turnover odds and get the credit) */
+function oppAb(){const R=CFG.ros||{},o={sack:0,tfl:0,pbu:0,zdl:null,zlb:null,zdb:null},zon=e=>abT(e)==='xf'&&G.zn&&G.zn[e.key]&&G.zn[e.key].on;
+ (R.dl||[]).forEach(e=>{if(abT(e)){o.sack+=.025;if(zon(e)&&!o.zdl)o.zdl=e}});(R.lb||[]).forEach(e=>{if(abT(e)){o.tfl+=.025;if(zon(e)&&!o.zlb)o.zlb=e}});(R.db||[]).forEach(e=>{if(abT(e)){o.pbu+=.05;if(zon(e)&&!o.zdb)o.zdb=e}});
+ o.sack=Math.min(o.sack,.05);o.tfl=Math.min(o.tfl,.06);o.pbu=Math.min(o.pbu,.12);return o}
+/* after the drive: credited plays put X-Factors in the zone; their touchdown knocks every defensive X-Factor out. Adds a line to the drive for each change */
+function oppZones(D,out){const R=CFG.ros||{},lines=[],cnt={};
+ D.all.forEach(p=>(p.cr||[]).forEach(([d,k])=>{if(!d.e||abT(d.e)!=='xf')return;const sl=d.e.slot,ok=(sl==='DL'&&k==='sack')||(sl==='LB'&&k==='tfl')||(sl==='DB'&&(k==='pbu'||k==='dInt'));if(ok)cnt[d.e.key]=(cnt[d.e.key]||0)+1}));
+ ['dl','lb','db'].forEach(l=>(R[l]||[]).forEach(e=>{if(abT(e)!=='xf')return;const a=abOf(e),z=G.zn[e.key]=G.zn[e.key]||{n:0,on:false};
+  if(out==='td'){if(z.on)lines.push({dd:'X-FACTOR',at:'',txt:shortN(e.n)+"'S ZONE IS BROKEN ("+a.xf[0]+')',c:'#9fb7a0',k:2});z.on=false;z.n=0;return}
+  if(!z.on&&cnt[e.key]){z.n+=cnt[e.key];if(z.n>=a.xf[4]){z.on=true;lines.push({dd:'X-FACTOR',at:'',txt:shortN(e.n)+' IS IN THE ZONE: '+a.xf[0]+' ('+a.xf[1]+')',c:'#ff9a3f',k:2})}}}));
+ return lines}
 function startOpp(yl,why){
  if(G.vs)return vsHandoff(yl,why);
  const mo=Math.round(CFG.ros.df||64),oo=G.oppO,ds=CFG.ros.dsub||{dl:mo,lb:mo,db:mo};
  const diff=(oo-mo)/100,field=(yl-25)/100;
- let td=clamp(.2+field*.55+diff*.7-(ds.lb-mo)*.004,.06,.7),fg=clamp(.2+field*.3,.05,.4),to=clamp(.1-diff*.2+((ds.db+ds.dl)/2-mo)*.003,.04,.2);
+ const AB=oppAb();let td=clamp(.2+field*.55+diff*.7-(ds.lb-mo)*.004-(AB.zdl?.05:0),.06,.7),fg=clamp(.2+field*.3,.05,.4),to=clamp(.1-diff*.2+((ds.db+ds.dl)/2-mo)*.003+(AB.zlb?.05:0)+(AB.zdb?.06:0),.04,.3);
  const r=Math.random();let out='punt';if(r<td)out='td';else if(r<td+fg)out='fg';else if(r<td+fg+to)out='turnover';
  /* play by play (owner, Nov 24): simulate the drive down by down so the key plays can be shown (big gains, sacks, TFLs, 3rd downs, the finish) */
- const D=oppSim(yl,out);D.all.forEach(p=>(p.cr||[]).forEach(([d,k])=>psAdd(d.n,d.p,k)));let plays=D.n,burnT=Math.round(plays*rnd(11,17));
+ const D=oppSim(yl,out);D.all.forEach(p=>(p.cr||[]).forEach(([d,k])=>psAdd(d.n,d.p,k)));{const zl=oppZones(D,out);if(zl.length)D.key=D.key.slice(0,-1).concat(zl,D.key.slice(-1))}let plays=D.n,burnT=Math.round(plays*rnd(11,17));
  if((G.q===4||G.q===2)&&G.score[1]<G.score[0]&&G.clock<70&&G.to[1]>0&&out!=='td'){const u=Math.min(G.to[1],3);G.to[1]-=u;burnT=Math.max(8,burnT-u*7)}
  if(G.q===4&&burnT>=G.clock&&out!=='td'){out='clock';const L=D.key[D.key.length-1];L.txt='THEY RUN OUT THE CLOCK';L.c='#fff'}
  const nm=G.opp.n;
@@ -1289,6 +1350,7 @@ function draw(){
  else if(ph==='banner')drawBanner();
  else if(ph==='final')drawFinal();
  else if(ph==='wait')drawWait();
+ drawZones();
  if(G.vs&&G.vs.gone)drawGone();
  if(paused)SETOPEN?drawSettings():drawPause()}
 /* goalposts (owner, Nov 25): on the end line at the back of each end zone. 3/4 view: height goes up the screen and a little toward the
@@ -1342,6 +1404,13 @@ function drawWorld(){
 
  /* floating text */
  fx.forEach(f=>{const a=Math.min(1,f.l*3);txt(f.t,f.x-camX,FT+f.y-(0.7-f.l)*18,f.c,1,'c')})}
+/* owner Nov 27: who is in the zone (bottom right) and the IN THE ZONE / ZONE BROKEN banner, drawn over everything else */
+function drawZones(){
+ /* X-Factors in the zone right now */
+ if(G.zn&&!['final','opp','banner','wait'].includes(G.phase)){const on=[];const R=CFG.ros||{};[R.qb,R.rb,R.te,R.k,...(R.wr||[]),...(R.dl||[]),...(R.lb||[]),...(R.db||[])].forEach(e=>{if(e&&abT(e)==='xf'&&G.zn[e.key]&&G.zn[e.key].on)on.push(lastNm(e.n)+' '+ABIL[abSlot(e.slot)].xf[0])});
+  on.slice(0,3).forEach((t,i)=>{const w=tw(t,1)+16,x=W-w-4,y=H-13-i*12;rect(x,y,w,11,'rgba(0,0,0,.7)');abBadge(x+1,y+1,'xf',true);txt(t,x+13,y+2,'#ffb02f',1,'l',true)})}
+ if(G.zb&&G.zb.l>0){const Z=G.zb,a=Math.min(1,Z.l*2),w=Math.max(tw(Z.t,1),tw(Z.s,1))+24;g.globalAlpha=a;rect(W/2-w/2,40,w,30,'#000');rect(W/2-w/2+1,41,w-2,28,Z.c==='#ff7a2f'?'#3a1400':'#1a2230');rect(W/2-w/2+1,41,w-2,1,Z.c);
+  txt(Z.t,W/2,46,Z.c,1,'c',true);txt(Z.s,W/2,58,'#fff',1,'c',true);g.globalAlpha=1}}
 function drawHUD(){
  rect(0,0,W,14,'#000');
  const sc=G.score;
@@ -1355,7 +1424,8 @@ function drawHUD(){
  const dn=G.fd>=GOAL?(ordn(G.down)+' & GOAL'):(ordn(G.down)+' & '+Math.max(1,Math.round((G.fd-G.los)/YD)));
  if(G.phase!=='opp'&&G.phase!=='final')txt(dn,W-8,4,'#fff',1,'r');
  const C=(G.phase==='play'&&G.pl&&G.pl.carrier)||null,who=C||(P&&P.qb&&(G.phase==='play'||G.phase==='presnap')?P.qb:null);
- if(who&&(G.phase==='play'||G.phase==='presnap'))txt(who.name+' ['+(who.role==='qb'?'QB':who.role==='rb'?'RB':who.role==='te'?'TE':'WR')+'] '+who.o,36,H-12,'#fff',1)}
+ if(who&&(G.phase==='play'||G.phase==='presnap')){const lab=who.name+' ['+(who.role==='qb'?'QB':who.role==='rb'?'RB':who.role==='te'?'TE':'WR')+'] '+who.o;txt(lab,36,H-12,'#fff',1);if(who.ab)abBadge(36+tw(lab,1)+4,H-13,who.ab.t,zoneOn(who))}
+}
 
 /* ---------- home: pick how to play (owner, Nov 24: nicer home, QUICK renamed QUICK PLAY) ---------- */
 const PXH={school:['.....#.....','.....##....','.....#.....','....###....','...#####...','.#########.','###########','#.#.#.#.#.#','#.#.#.#.#.#','#.#.#.#.#.#','###########'],
@@ -1522,6 +1592,7 @@ function pcard(x,y,w,h,e,o){o=o||{};const t=performance.now()/1000,walk=!e,ov=wa
  if('lmx'.includes(rr)&&!walk){const cx=ix+iw/2,cy=iy+34;for(let a=0;a<8;a++){const an=a/8*Math.PI*2+t*.4;for(let d=6;d<30;d+=2)rect(cx+Math.cos(an)*d,cy+Math.sin(an)*d*.8,1,1,sh(rc,.3))}}
  /* OVR top left, position top right */
  txt(String(ov),ix+1,iy+2,walk?'#8a93a6':'#fff',2,'l');
+ if(!walk)abBadge(ix+1,iy+18,abT(e));
  const pp=walk?(o.pos||'--'):e.slot,pc=walk?'#59627a':posCol(pp),pw=tw(pp,1)+6,px2=ix+iw-pw-1;rect(px2-1,iy+2,pw+2,12,'#000');rect(px2,iy+3,pw,10,pc);rect(px2,iy+3,pw,1,sh(pc,.5));rect(px2,iy+12,pw,1,sh(pc,-.4));txt(pp,px2+3,iy+5,'#000',1,'l',true);
  /* portrait: the school logo, big, on a light badge (helmet when there is no logo) */
  const top=iy+19,bot=iy+ih-21,L=Math.min(iw-8,bot-top-4),lx=Math.round(ix+iw/2-L/2),ly=Math.round(top+(bot-top-L)/2);
@@ -1665,6 +1736,7 @@ function chip(x,y,e,o){o=o||{};const walk=!e||e.walk,ov=walk?(e&&e.o)||WALK:e.o,
  rect(x+2,y+CH+1-lift,CW-2,2,'rgba(0,0,0,.45)');rect(x-1,y-1,CW+2,CH+2,'#000');rect(x,y,CW,CH,rc);rect(x,y,CW,1,sh(rc,.5));
  rect(x+2,y+2,CW-4,CH-4,walk?'#20262f':sh(lum(tc)<30?sh(tc,.25):tc,-.55));rect(x+2,y+2,CW-4,1,'rgba(255,255,255,.12)');
  txt(String(ov),x+4,y+4,walk?'#8a93a6':ovC(ov),1,'l');
+ if(!walk)abBadge(x+3,y+13,abT(e));
  const pp=o.pos||(e&&e.slot)||'',pc=walk?'#59627a':posCol(['CB','S'].includes(pp)?'DB':pp==='SLOT'?'WR':pp),pw=tw3(pp)+4;rect(x+CW-pw-3,y+4,pw,7,pc);txt3(pp,x+CW-pw-1,y+5,'#000');
  if(!walk&&sc&&lgKey(sc))lgo(sc,x+CW/2-7,y+13,14);else{rect(x+CW/2-6,y+14,12,10,walk?'#2c3440':'#2a3346');txt(walk?'?':'',x+CW/2,y+15,'#8a93a6',1,'c',true)}
  const nm=walk?'WALK-ON':lastNm(e.n),mx=Math.floor((CW-4)/4);rect(x+2,y+CH-11,CW-4,9,'#000');txt3(nm.length>mx?nm.slice(0,mx):nm,x+CW/2-Math.floor(tw3(nm.length>mx?nm.slice(0,mx):nm)/2),y+CH-9,walk?'#8a93a6':'#fff');
@@ -1727,13 +1799,16 @@ function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,p=e.slot,rc=f.rc;
  /* owner Nov 27: ELUSIVENESS for ball carriers; signature moves (JUKE, JUMP BALL, TRUCK) shown as 1-5 stars */
  if(['QB','RB','WR','SLOT','TE'].includes(p))rows.push(['ELUSIVE',elusOf(at,e.o)]);
  {const sp=specAt(e);if(sp)rows.push([sp[0],sp[1],1])}
- const BW=100,BH=34+rows.length*13,bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,24,222-BH);
+ /* owner Nov 27: SUPERSTAR / X-FACTOR ability under the ratings */
+ const ab=abOf(e),al=[];if(ab){al.push(['SUPERSTAR: '+ab.ss[0],'#ffd23f'],[ab.ss[1],'#cfd6e0']);if(ab.xf)al.push(['X-FACTOR: '+ab.xf[0],'#ff9a3f'],[ab.xf[1],'#cfd6e0'],['ZONE: '+ab.xf[2],'#9fd8ff'],['OUT: '+ab.xf[3],'#9fb7a0'])}
+ const BW=Math.max(100,...al.map(a=>tw(a[0],1)+12)),BH=34+rows.length*13+(al.length?al.length*10+6:0),bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,22,222-BH);
  rect(bx-1,by-1,BW+2,BH+2,'#000');rect(bx,by,BW,BH,f.rc);rect(bx+2,by+2,BW-4,BH-4,'#0b1220');
  txt(String(f.ov),bx+6,by+5,ovC(f.ov),2,'l');
- txt(String(e.n).slice(0,11),bx+32,by+5,'#fff',1,'l');
+ txt(String(e.n).slice(0,Math.max(11,Math.floor((BW-38)/7))),bx+32,by+5,'#fff',1,'l');
  txt(p,bx+32,by+15,'#9fd8ff',1,'l',true);
  rect(bx+4,by+26,BW-8,1,'rgba(255,255,255,.2)');
  rows.forEach(([l,v,st],i)=>{const yy=by+30+i*13;if(st){txt(l,bx+6,yy,'#ffd23f',1,'l',true);drawStars(bx+BW-6-5*9,yy-1,starsOf(v));return}const c=v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff8b5a';txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(String(v),bx+BW-6,yy,'#fff',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,Math.round((BW-12)*(v-AMIN)/(AMAX-AMIN)),2,c)});
+ if(al.length){const y0=by+30+rows.length*13+2;rect(bx+4,y0-2,BW-8,1,'rgba(255,255,255,.2)');al.forEach(([t,c],i)=>txt(t,bx+6,y0+2+i*10,c,1,'l',true))}
  LU.bfRect={x:bx,y:by,w:BW,h:BH}}
 /* owner Nov 27: TRAIN tab next to OFFENSE / DEFENSE. Spend coach points (CP, the same currency as My Team's TRAIN button and the facilities) to raise any one attribute of any player by 1.
    Each +1 adds 1 point to his attribute total (`car().bo[key]`, max TRAIN_MAX) and puts it straight into the attribute you picked, so his OVR rises as the total does. */
@@ -2179,7 +2254,7 @@ function drawPause(){rect(0,0,W,H,'rgba(0,0,0,.7)');txt('PAUSED',W/2,70,'#fff',3
 let last=performance.now();
 function update(dt){
   if(G&&!paused){
-   stepPT(dt);if(G.shk>0)G.shk=Math.max(0,G.shk-dt);
+   stepPT(dt);if(G.shk>0)G.shk=Math.max(0,G.shk-dt);if(G.zb&&G.zb.l>0)G.zb.l-=dt;
    if(G.phase==='play'&&G.pl&&!G.pl.done&&!G.ot&&!G.prac&&!G.over&&!G.vs){const S=G.pl;if(!S.ko&&(S.t>=S.snapT||S.pick)&&G.clock>0){const d=Math.min(dt,G.clock);G.clock-=d;G.live=(G.live||0)+d}}
    if(P&&P.all)P.all.forEach(p=>{if(flyStep(p,dt))return;if(p.jmpT>0){p.jmpT-=dt;const u=1-p.jmpT/p.jmp0;p.air=Math.max(0,Math.sin(Math.min(1,u)*Math.PI))*11;p.pose='up';if(p.jmpT<=0){p.jmpT=0;p.air=0;p.pose=null}return}if(p.poseT>0){p.poseT-=dt;if(p.pose==='blk')p.air=Math.max(0,Math.sin((1-p.poseT/p.poseT0)*Math.PI))*(p.pose==='blk'?9:7);if(p.poseT<=0){p.pose=null;p.air=0}}});
    if(G.phase==='play'&&G.pl)stepPlay(dt);

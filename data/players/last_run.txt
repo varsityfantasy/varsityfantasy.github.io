@@ -1,4 +1,4 @@
-2026-11-28T11:33:10Z run 46140080168
+2026-11-28T11:33:18Z run 46140080168
 rosters bb: 1535 schools, 1532 with a team address (1532 from the page cache), 392 to read
 rosters done: all teams read. read 392, no player rows 109, not found 0; 16638 players on file, 11472 with a position, 15815 with a class
   262 teams from their 25-26 roster (no current roster posted yet)
@@ -6,3 +6,6 @@ rosters done: all teams read. read 392, no player rows 109, not found 0; 16638 p
 round 1:
 bb: 1816 played games, 1692 already counted, 124 to fetch (0 have no box-score link)
 done: all requested games read. fetched 124, no stats on page 105, team not matched 0, not found 0
+round 2:
+bb: 1816 played games, 1816 already counted, 0 to fetch (0 have no box-score link)
+done: all requested games read. fetched 0, no stats on page 0, team not matched 0, not found 0

@@ -1269,7 +1269,7 @@ function btn(x,y,w,h,label,fn,o){o=o||{};btns.push({x,y,w,h,fn});const c=o.c||'#
 function panel(x,y,w,h,c){rect(x-2,y-2,w+4,h+4,'#000');rect(x-1,y-1,w+2,h+2,'#4b5d4d');rect(x,y,w,h,c||'rgba(6,12,20,.9)');rect(x,y,w,1,'rgba(255,255,255,.18)');rect(x-2,y-2,2,2,'rgba(0,0,0,0)');}
 function draw(){
  btns=[];
- if(!G){SCR==='sbox'&&SBOX?drawSBox():SCR==='season'&&SS?(SS.press?drawPress():drawSeason()):SCR==='fac'?drawFac():SCR==='team'?drawTeam():SCR==='lineup'?drawLineup():SCR==='lcmp'?drawLcmp():SCR==='drill'?drawDrill():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
+ if(!G){SCR==='sbox'&&SBOX?drawSBox():SCR==='season'&&SS?(SS.press?drawPress():drawSeason()):SCR==='fac'?drawFac():SCR==='team'?drawTeam():SCR==='lineup'?drawLineup():SCR==='lcmp'?drawLcmp():SCR==='drill'?drawDrill():SCR==='pick'?drawPick():SCR==='home'?drawHome():SCR==='settings'?drawSettings():SCR==='v1'?drawV1():SCR==='v1host'?drawV1Host():SCR==='v1join'?drawV1Join():drawTitle();return}
  const ph=G.phase;
  camX+=(clamp(camT,0,FL-W)-camX)*.14;camX=clamp(camX,0,FL-W);
  const shk=G.shk>0?Math.min(3,Math.round(G.shk*12)):0;if(shk){g.save();g.translate(Math.round(rnd(-shk,shk)),Math.round(rnd(-shk,shk)))}
@@ -1290,7 +1290,7 @@ function draw(){
  else if(ph==='final')drawFinal();
  else if(ph==='wait')drawWait();
  if(G.vs&&G.vs.gone)drawGone();
- if(paused)drawPause()}
+ if(paused)SETOPEN?drawSettings():drawPause()}
 /* goalposts (owner, Nov 25): on the end line at the back of each end zone. 3/4 view: height goes up the screen and a little toward the
    back of the end zone, so you see the padded base, the gooseneck, the crossbar across the width and the two uprights */
 const GPX=FL-36,GPW=16;
@@ -1375,7 +1375,7 @@ function homeTile(x,y,w,h,c,fn,icon,label,sub,tag){btns.push({x,y,w,h,fn});
  if(sub)txt(sub,x+w/2,y+d+h-42,sh(c,-.5),1,'c',true)}
 function drawHome(){
  bgHero();rect(0,92,W,H-92,'rgba(0,0,0,.25)');
- logo(8,4);
+ logo(8,4);btn(W-70,4,64,14,'SETTINGS',()=>{SCR='settings'},{c:'#3d4b3f'});
  const t=performance.now()/1000,w=148,gap=8,x0=Math.round((W-(3*w+2*gap))/2),y=96,h=88;
  homeTile(x0,y,w,h,'#f2c230',()=>{setMode('cards');SCR='title'},PXH.cards,'MY TEAM','YOUR CARDS',null);
  homeTile(x0+w+gap,y,w,h,'#9fd8ff',()=>{if(schoolList().length){TS.pf=true;if(!CFG.school)CFG.school=schoolList()[0];setMode('school');TS.pf=true;SCR='pick'}else{setMode('cards');SCR='title'}},PXH.school,'MY SCHOOL','86 REAL ROSTERS',null);
@@ -2046,9 +2046,30 @@ function drawPresnap(){
  btn(W-112,42,104,16,to<=0?'NO TIMEOUTS LEFT':G.gap>0?'TIMEOUT ('+to+')':'CLOCK STOPPED',()=>{if(can){G.to[0]--;G.clock=Math.min(CFG.ql,G.clock+G.gap);G.gap=0;fx.push({t:'TIMEOUT',x:G.los+10,y:20,l:1,c:'#ffd23f'});sfx.whistle()}},{c:can?'#8a1c1c':'#3a3a3a',tc:can?'#fff':'#999'})
  /* owner Nov 27: under a minute left in the 2nd or 4th quarter and inside their 50, you can kick a field goal on any down */
  if(!G.prac&&!G.twoPt&&!G.vs&&(G.q===2||G.q===4)&&G.clock<60&&G.los>=EZ+50*YD){const fd=fgDist();btn(W-112,62,104,18,'KICK FG '+fd+' YD',()=>{doFG()},{c:fd<=45?'#7dff7d':fd<=52?'#ffd23f':'#ff9a5a'})}}
+/* owner Nov 27: every move and how to do it, in the top left corner for as long as a player is running with the ball. Phone gesture, then computer key */
+/* settings (owner Nov 27): controls = phone touch or computer keyboard + mouse, and whether the skill-move list shows. Saved in localStorage 'vs-vb-settings' */
+const SET=Object.assign({ctl:(('ontouchstart' in window)||(navigator.maxTouchPoints>0))?'touch':'kb',moves:true},loadJ('vs-vb-settings'));
+const setSave=()=>saveJ('vs-vb-settings',SET);let SETOPEN=false;
+const MOVES=[['JUKE','FLICK UP / DOWN','W / S OR FLICK','#9fd8ff'],['SPIN / HURDLE','DOUBLE TAP','E OR DOUBLE CLICK','#9fd8ff'],['TRUCK / SHOULDER','HOLD','T OR HOLD CLICK','#ff9a3a'],['DIVE','FLICK FORWARD OR TAP','D OR SPACE','#fff'],
+ ['STIFF ARM','FLICK FORWARD-DIAGONAL','F','#ffd23f'],['CUTBACK','FLICK STRAIGHT BACK','A OR LEFT','#ffd23f'],['DEAD LEG','TWO-FINGER TAP','Q OR RIGHT-CLICK','#ffd23f'],['JUMP CUT','UP / DOWN IN A CROWD','W / S IN A CROWD','#7dff7d'],['LATERAL PITCH','FLICK BACK-DIAGONAL','P','#c9b8ff']];
+/* every move and how to do it, top left, for as long as a player is running with the ball (hide it in Settings) */
+function drawMoves(S){const C=S.carrier;if(!SET.moves||!C||!C.ball||S.ko)return;const T=SET.ctl==='touch',ix=T?1:2;
+ const x=3,y=16,rh=8,c1=x+4,c2=c1+tw('TRUCK / SHOULDER',1)+8,w=c2+Math.max(...MOVES.map(m=>tw(m[ix],1)))+5-x,h=rh*(MOVES.length+1)+6;
+ g.save();g.globalAlpha=.78;rect(x,y,w,h,'rgba(8,13,24,.9)');g.restore();rect(x,y,w,1,'#f2c230');
+ txt('SKILL MOVES',c1,y+4,'#f2c230',1,'l',true);txt(T?'TOUCH':'KEYBOARD + MOUSE',c2,y+4,'#8fb39a',1,'l',true);
+ MOVES.forEach((m,i)=>{const ry=y+4+rh*(i+1);txt(m[0],c1,ry,m[3],1,'l',true);txt(m[ix],c2,ry,'#e8eef0',1,'l',true)})}
+function drawSettings(){const inG=!!G;btns=[];btns.push({x:0,y:0,w:W,h:H,fn:()=>{}});
+ if(inG)rect(0,0,W,H,'rgba(0,0,0,.85)');else{bgHero();rect(0,0,W,H,'rgba(0,0,0,.62)')}
+ txt('SETTINGS',W/2,16,'#fff',3,'c');
+ const row=(y,label,opts)=>{txt(label,W/2,y,'#f2c230',1,'c');const bw=150,gap=8,x0=Math.round(W/2-(opts.length*bw+(opts.length-1)*gap)/2);opts.forEach((o,i)=>{const on=o[2];btn(x0+i*(bw+gap),y+12,bw,24,o[0],o[1],{c:on?'#58e06a':'#3d4b3f'});if(on)txt('SELECTED',x0+i*(bw+gap)+bw/2,y+39,'#7dff7d',1,'c',true)})};
+ row(52,'CONTROLS',[['TOUCH',()=>{SET.ctl='touch';setSave()},SET.ctl==='touch'],['KEYBOARD + MOUSE',()=>{SET.ctl='kb';setSave()},SET.ctl==='kb']]);
+ row(112,'SKILL MOVES LIST - TOP LEFT WHILE RUNNING',[['SHOW',()=>{SET.moves=true;setSave()},SET.moves],['HIDE',()=>{SET.moves=false;setSave()},!SET.moves]]);
+ const T=SET.ctl==='touch';txt(T?'PHONE: DRAG TO RUN, FLICK TO JUKE, TAP TO DIVE':'COMPUTER: DRAG THE MOUSE TO RUN, ARROWS/WASD TO JUKE, SPACE TO DIVE',W/2,172,'#9fb7a0',1,'c',true);
+ btn(W/2-50,196,100,22,'DONE',()=>{if(inG)SETOPEN=false;else SCR='home'},{c:'#f2c230'})}
 function drawPlayUI(){const S=G.pl;
  if(S&&S.pl.k==='ret'&&S.ret.k==='punt'&&!S.done&&S.t<S.snapT+1.4&&S.carrier&&!ptr.down)btn(W/2-45,H-26,90,16,'FAIR CATCH',()=>retEnd(S,'fair',S.carrier.x),{c:'#9fd8ff'});
  if(S.done)return;
+ drawMoves(S);
  /* owner Nov 27: remind about the double tap while an RB or TE is carrying (first few carries of a game) */
  {const C=S.carrier;if(C&&(C.role==='rb'||C.role==='te'||C.role==='wr')&&!S.ko&&(C.cs||0)<1.6&&((G.dtH||0)<6||S.dtH)){if(!S.dtH){S.dtH=1;G.dtH=(G.dtH||0)+1}const hi=G.dtH||1,t=hi<=2?(C.role==='te'?'DOUBLE TAP OR HOLD: TRUCK':'DOUBLE TAP: SPIN/HURDLE  HOLD: TRUCK (RISKY)'):hi<=4?'FLICK FWD-DIAG: STIFF ARM  BACK: CUTBACK':'2 FINGERS: DEAD LEG  BACK-DIAG: PITCH';rect(W/2-tw(t,1)/2-4,H-16,tw(t,1)+8,11,'rgba(0,0,0,.6)');txt(t,W/2,H-14,'#ffe14a',1,'c')}}
  if(ptr.down&&ptr.moved>9&&S.carrier){}}
@@ -2152,7 +2173,7 @@ function drawBox(B){B=B||{ps:G.ps,score:G.score,n0:TEAMS[0].n,n1:TEAMS[1].n,back
  if(!L.length)txt('NO PLAYER STATS FOR THIS GAME',W/2,110,'#9fb7a0',1,'c');
  btn(W/2-60,H-24,120,18,B.backL||'BACK',B.back,{c:'#f2c230'})}
 function drawSBox(){bgPlain();drawBox({ps:SBOX.ps,score:SBOX.score,n0:SBOX.n0,n1:SBOX.n1,sim:SBOX.sim,top:0,backL:'CONTINUE',back:()=>{SBOX=null;SCR='season'}})}
-function drawPause(){rect(0,0,W,H,'rgba(0,0,0,.7)');txt('PAUSED',W/2,70,'#fff',3,'c');txt('TAP TO RESUME',W/2,106,'#cfe8cf',1,'c');btns=[];if(G&&!G.vs&&!G.prac&&!G.over)btn(W/2-60,126,120,20,'SIMULATE REST',simRest,{c:'#9fd8ff'});btn(W/2-50,G&&!G.vs&&!G.prac?154:130,100,20,'QUIT GAME',()=>{paused=false;const vs=G&&G.vs;if(vs)vTx({k:'bye'});vClose();SCR=G&&G.ssn?'season':vs?'home':'title';G=null},{c:'#ff8b5a'})}
+function drawPause(){rect(0,0,W,H,'rgba(0,0,0,.7)');txt('PAUSED',W/2,70,'#fff',3,'c');txt('TAP TO RESUME',W/2,106,'#cfe8cf',1,'c');btns=[];if(G&&!G.vs&&!G.prac&&!G.over)btn(W/2-60,126,120,20,'SIMULATE REST',simRest,{c:'#9fd8ff'});btn(W/2-50,G&&!G.vs&&!G.prac?180:156,100,20,'SETTINGS',()=>{SETOPEN=true},{c:'#9fb7a0'});btn(W/2-50,G&&!G.vs&&!G.prac?154:130,100,20,'QUIT GAME',()=>{paused=false;const vs=G&&G.vs;if(vs)vTx({k:'bye'});vClose();SCR=G&&G.ssn?'season':vs?'home':'title';G=null},{c:'#ff8b5a'})}
 
 /* ---------- main loop ---------- */
 let last=performance.now();

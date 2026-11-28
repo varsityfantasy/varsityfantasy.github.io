@@ -2128,8 +2128,11 @@ const setSave=()=>saveJ('vs-vb-settings',SET);let SETOPEN=false;
 const MOVES=[['JUKE','FLICK UP / DOWN','W / S OR FLICK','#9fd8ff'],['SPIN / HURDLE','DOUBLE TAP','E OR DOUBLE CLICK','#9fd8ff'],['TRUCK / SHOULDER','HOLD','T OR HOLD CLICK','#ff9a3a'],['DIVE','FLICK FORWARD OR TAP','D OR SPACE','#fff'],
  ['STIFF ARM','FLICK FORWARD-DIAGONAL','F','#ffd23f'],['CUTBACK','FLICK STRAIGHT BACK','A OR LEFT','#ffd23f'],['DEAD LEG','TWO-FINGER TAP','Q OR RIGHT-CLICK','#ffd23f'],['JUMP CUT','UP / DOWN IN A CROWD','W / S IN A CROWD','#7dff7d'],['LATERAL PITCH','FLICK BACK-DIAGONAL','P','#c9b8ff']];
 /* every move and how to do it, top left, for as long as a player is running with the ball (hide it in Settings) */
-function drawMoves(S){const C=S.carrier;if(!SET.moves||!C||!C.ball||S.ko)return;const T=SET.ctl==='touch',ix=T?1:2;
- const x=3,y=16,rh=8,c1=x+4,c2=c1+tw('TRUCK / SHOULDER',1)+8,w=c2+Math.max(...MOVES.map(m=>tw(m[ix],1)))+5-x,h=rh*(MOVES.length+1)+6;
+function drawMoves(S){const C=S.carrier;if(!C||!C.ball||S.ko)return;const T=SET.ctl==='touch',ix=T?1:2;
+ /* a button in the corner flips the list on and off during the game (same switch as Settings) */
+ btn(3,16,SET.moves?66:70,12,SET.moves?'HIDE MOVES':'SHOW MOVES',()=>{SET.moves=!SET.moves;setSave()},{c:SET.moves?'#3d4b3f':'#f2c230'});
+ if(!SET.moves)return;
+ const x=3,y=31,rh=8,c1=x+4,c2=c1+tw('TRUCK / SHOULDER',1)+8,w=c2+Math.max(...MOVES.map(m=>tw(m[ix],1)))+5-x,h=rh*(MOVES.length+1)+6;
  g.save();g.globalAlpha=.78;rect(x,y,w,h,'rgba(8,13,24,.9)');g.restore();rect(x,y,w,1,'#f2c230');
  txt('SKILL MOVES',c1,y+4,'#f2c230',1,'l',true);txt(T?'TOUCH':'KEYBOARD + MOUSE',c2,y+4,'#8fb39a',1,'l',true);
  MOVES.forEach((m,i)=>{const ry=y+4+rh*(i+1);txt(m[0],c1,ry,m[3],1,'l',true);txt(m[ix],c2,ry,'#e8eef0',1,'l',true)})}

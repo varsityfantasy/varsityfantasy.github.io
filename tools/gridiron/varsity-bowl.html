@@ -74,6 +74,9 @@ const starsOf=v=>clamp(Math.round(((v-AMIN)/(AMAX-AMIN))*8+2)/2,1,5);
 function drawStars(x,y,n){for(let i=0;i<5;i++){const cx=x+i*9+4,cy=y+4,f=n>=i+1?1:n>=i+.5?.5:0;const pts=[];for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?1.8:4.2;pts.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r])}
  const path=()=>{g.beginPath();pts.forEach((q,j)=>j?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.closePath()};
  g.fillStyle='#2a3242';path();g.fill();if(f){g.save();g.beginPath();g.rect(cx-5,cy-5,f===1?10:5,10);g.clip();g.fillStyle='#ffd23f';path();g.fill();g.restore()}}}
+/* owner Nov 27: joke attributes, shown on the card back only. They never touch OVR, ratings or play. */
+const JOKE_AT=[{n:'West Meisel',sc:"Bishop's",l:'BAGGY UNDERSHIRT DRIP',v:99}];
+const jokeAt=e=>JOKE_AT.filter(j=>j.n===e.n&&(!e.sc||e.sc===j.sc));
 function specAt(e){const sp=SPEC[e.slot];return sp?[sp[1],specVal(sp[0],rawAt(e),e.o)]:null}
 /* owner Nov 27: SUPERSTAR and X-FACTOR abilities, perks that kick in when certain things happen.
    SUPERSTAR (OVR 84-91, and every X-Factor too): always on, works whenever its situation comes up.
@@ -1802,14 +1805,15 @@ function lineBack(){const f=LU.bf;if(!f)return;const e=f.e,p=e.slot,rc=f.rc;
  if(['QB','RB','WR','SLOT','TE'].includes(p))rows.push(['ELUSIVE',elusOf(at,e.o)]);
  {const sp=specAt(e);if(sp)rows.push([sp[0],sp[1],1])}
  /* owner Nov 27: SUPERSTAR / X-FACTOR ability under the ratings */
+ jokeAt(e).forEach(j=>rows.push([j.l,j.v,2]));
  const ab=abOf(e),al=[];if(ab){al.push(['SUPERSTAR: '+ab.ss[0],'#ffd23f'],[ab.ss[1],'#cfd6e0']);if(ab.xf)al.push(['X-FACTOR: '+ab.xf[0],'#ff9a3f'],[ab.xf[1],'#cfd6e0'],['ZONE: '+ab.xf[2],'#9fd8ff'],['OUT: '+ab.xf[3],'#9fb7a0'])}
- const BW=Math.max(100,...al.map(a=>tw(a[0],1)+12)),BH=34+rows.length*13+(al.length?al.length*10+6:0),bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,22,222-BH);
+ const BW=Math.max(100,...al.map(a=>tw(a[0],1)+12),...rows.map(r=>tw(r[0],1)+36)),BH=34+rows.length*13+(al.length?al.length*10+6:0),bx=clamp(f.x-4,2,W-BW-2),by=clamp(f.y-4,22,222-BH);
  rect(bx-1,by-1,BW+2,BH+2,'#000');rect(bx,by,BW,BH,f.rc);rect(bx+2,by+2,BW-4,BH-4,'#0b1220');
  txt(String(f.ov),bx+6,by+5,ovC(f.ov),2,'l');
  txt(String(e.n).slice(0,Math.max(11,Math.floor((BW-38)/7))),bx+32,by+5,'#fff',1,'l');
  txt(p,bx+32,by+15,'#9fd8ff',1,'l',true);
  rect(bx+4,by+26,BW-8,1,'rgba(255,255,255,.2)');
- rows.forEach(([l,v,st],i)=>{const yy=by+30+i*13;if(st){txt(l,bx+6,yy,'#ffd23f',1,'l',true);drawStars(bx+BW-6-5*9,yy-1,starsOf(v));return}const c=v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff8b5a';txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(String(v),bx+BW-6,yy,'#fff',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,Math.round((BW-12)*(v-AMIN)/(AMAX-AMIN)),2,c)});
+ rows.forEach(([l,v,st],i)=>{const yy=by+30+i*13;if(st===2){txt(l,bx+6,yy,'#ff7ad9',1,'l',true);txt(String(v),bx+BW-6,yy,'#ff7ad9',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,BW-12,2,'#ff7ad9');return}if(st){txt(l,bx+6,yy,'#ffd23f',1,'l',true);drawStars(bx+BW-6-5*9,yy-1,starsOf(v));return}const c=v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff8b5a';txt(l,bx+6,yy,'#9fb7a0',1,'l',true);txt(String(v),bx+BW-6,yy,'#fff',1,'r',true);rect(bx+6,yy+8,BW-12,2,'#000');rect(bx+6,yy+8,Math.round((BW-12)*(v-AMIN)/(AMAX-AMIN)),2,c)});
  if(al.length){const y0=by+30+rows.length*13+2;rect(bx+4,y0-2,BW-8,1,'rgba(255,255,255,.2)');al.forEach(([t,c],i)=>txt(t,bx+6,y0+2+i*10,c,1,'l',true))}
  LU.bfRect={x:bx,y:by,w:BW,h:BH}}
 /* owner Nov 27: TRAIN tab next to OFFENSE / DEFENSE. Spend coach points (CP, the same currency as My Team's TRAIN button and the facilities) to raise any one attribute of any player by 1.

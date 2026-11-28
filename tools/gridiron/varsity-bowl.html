@@ -1835,7 +1835,7 @@ function drawTrain(){
  ks.forEach((k,i)=>{const y=62+i*19,v=b[k],can=ok&&v<AMAX;txt(ALAB[k],318,y,'#cfe8cf',1,'l',true);rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,v>=85?'#ffd23f':v>=70?'#7dff7d':v>=55?'#9fd8ff':'#ff9a8a');
   txt(String(v),402,y+7,'#fff',1,'r');btn(408,y+2,62,13,v>=AMAX?'MAX':'+1  '+TRAIN_CP+' CP',()=>trainBoost(e,k),{c:can?'#7dff7d':'#2a3346',tc:can?'#14110a':'#6b7280'})});
  if(sk){const y=62+ks.length*19;txt(ALAB[sk[0]],318,y,'#cfe8cf',1,'l',true);const v=Math.round(specVal(sk[0],b,e.o));rect(318,y+8,78,5,'#0b0f18');rect(318,y+8,Math.round(78*clamp((v-AMIN)/(AMAX-AMIN),0,1)),5,'#9fd8ff');txt(String(v),402,y+7,'#fff',1,'r');txt('BUILT FROM HIS RATINGS',318,y+16,'#7d8aa3',1,'l',true)}
- {const used=drUsed();btn(252,182,104,16,used?'DRILL DONE':'DAILY DRILL',()=>{if(!drUsed())drOpen(e.key)},{c:used?'#2a3346':'#ffd23f',tc:used?'#6b7280':'#14110a'});txt(used?'BACK TOMORROW':'1 FREE PLAY A DAY: +1 TO +4',362,187,used?'#9fb7a0':'#ffd23f',1,'l',true)}
+ {const used=drUsed();btn(252,182,104,16,used?'DRILL DONE':'DAILY DRILL',()=>{if(!drUsed())drOpen(e.key)},{c:used?'#2a3346':'#ffd23f',tc:used?'#6b7280':'#14110a'});txt(used?'BACK TOMORROW':ADMIN?'ADMIN: UNLIMITED DRILLS':'1 FREE PLAY A DAY: +1 TO +4',362,187,used?'#9fb7a0':'#ffd23f',1,'l',true)}
  const m=LU.msg&&performance.now()-LU.mt<4000?LU.msg:c.cp<TRAIN_CP?'NOT ENOUGH CP. WIN GAMES IN SEASON MODE TO EARN MORE':'TAP A PLAYER, THEN +1 ON THE RATING TO RAISE';
  txt(m.slice(0,56),252,206,c.cp<TRAIN_CP?'#ff9a8a':'#9fb7a0',1,'l',true)}
 /* owner Nov 27: DAILY DRILL v2, one free play a day (per device, local date) from the TRAIN tab. Each position has its OWN drill:
@@ -1848,7 +1848,8 @@ let DR=null;
 const drToday=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const drSave=()=>{try{return JSON.parse(localStorage.getItem(DRK)||'{}')||{}}catch(_){return {}}};
 const drPut=sv=>{try{localStorage.setItem(DRK,JSON.stringify(sv))}catch(_){}};
-const drUsed=()=>drSave().d===drToday();
+let ADMIN=false;/* v760 owner: admin accounts get unlimited daily drills */
+const drUsed=()=>!ADMIN&&drSave().d===drToday();
 const drTier=sc=>DR_TIER.reduce((a,t)=>sc>=t[0]?t:a,DR_TIER[0]);
 const drPos=s=>s==='SLOT'?'WR':s;
 const dc=(x,y,r,c)=>{g.fillStyle=c;g.beginPath();g.arc(Math.round(x),Math.round(y),r,0,7);g.fill()};
@@ -1988,7 +1989,7 @@ function drawDrill(){
   txt('DRILL COMPLETE',W/2,38,'#7dff7d',1,'c');txt(DR.pct+'%',W/2,52,'#fff',3,'c');txt(t2[2],W/2,80,t2[3],2,'c');if(DR.nb)txt('NEW BEST!',W/2,98,'#ffd23f',1,'c');
   if(DR.endMsg)txt(DR.endMsg,W/2,110,'#9fb7a0',1,'c',true);
   txt(DR.got?lastNm(e.n)+'  +'+DR.got+' '+ALAB[DR.k]:'THAT RATING IS MAXED',W/2,130,'#7dff7d',1,'c');txt('NOW '+rawAt(e)[DR.k]+' · OVR '+e.o,W/2,144,'#9fb7a0',1,'c',true);
-  txt('NEXT DRILL TOMORROW',W/2,166,'#9fb7a0',1,'c',true);btn(W/2-50,186,100,20,'DONE',()=>{SCR='lineup';DR=null},{c:'#f2c230'})}}
+  txt(ADMIN?'ADMIN: DRILL AGAIN ANYTIME':'NEXT DRILL TOMORROW',W/2,166,'#9fb7a0',1,'c',true);btn(W/2-50,186,100,20,'DONE',()=>{SCR='lineup';DR=null},{c:'#f2c230'})}}
 addEventListener('pointerdown',e=>{if(G||SCR!=='drill'||!DR||DR.st!=='play')return;const D=drD();if(!D.single&&DR.pause>0)return;const p=toC(e);DR.pd=true;DR.px=p.x;DR.py=p.y;DR.sx=p.x;DR.sy=p.y;if(D.down&&DR.s)D.down(p)});
 addEventListener('pointermove',e=>{if(G||SCR!=='drill'||!DR||!DR.pd)return;const p=toC(e);DR.px=p.x;DR.py=p.y;const D=drD();if(D.move&&DR.s)D.move(p)});
 const drUp=e=>{if(G||SCR!=='drill'||!DR||!DR.pd)return;DR.pd=false;const p=toC(e),D=drD();if(DR.st==='play'&&D.up&&DR.s&&(D.single||DR.pause<=0))D.up(p)};
@@ -2275,7 +2276,7 @@ addEventListener('pointerup',e=>{if(G&&G.phase==='meter'&&G.meter&&!G.meter.done
 
 /* ---------- messages from the app ---------- */
 addEventListener('message',e=>{const d=e.data;if(!d||!d.vb)return;
- if(d.vb==='init'){if(d.team)CFG.cardTeam=d.team;if(d.school)CFG.cardSchool=d.school;if(Array.isArray(d.pool)&&d.pool.length){CFG.pool=d.pool.filter(x=>x&&x.slot&&x.n).map(x=>({slot:x.slot,n:x.n,o:+x.o||55,g:+x.g||0,s:x.s||{},sc:x.sc||'',key:x.key}));CFG.real=true;
+ if(d.vb==='init'){ADMIN=!!d.admin;if(d.team)CFG.cardTeam=d.team;if(d.school)CFG.cardSchool=d.school;if(Array.isArray(d.pool)&&d.pool.length){CFG.pool=d.pool.filter(x=>x&&x.slot&&x.n).map(x=>({slot:x.slot,n:x.n,o:+x.o||55,g:+x.g||0,s:x.s||{},sc:x.sc||'',key:x.key}));CFG.real=true;
    if(!CFG.chosen)CFG.mode='cards'}
   if(!VBD&&d.opps&&d.opps.length)CFG.opps=d.opps;
   applyTeam()}});

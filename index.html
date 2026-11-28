@@ -3970,7 +3970,7 @@ let DB=null;
 let VA=null; /* admin view-as: {uid,name,real} */
 const ME={uid:null,admin:false,adminAcct:false,mode:'guest'}; /* mode: live | guest | readonly | demo */
 const S={mocks:{},picks:{},profiles:{},games:{},verified:{},queue:{},groups:{},fgroups:{},lineups:{},schedule:{},settings:{},seen:undefined,loaded:{},err:{}};
-const APP_BUILD='v759 · Nov 27';
+const APP_BUILD='v760 · Nov 27';
 const UI={view:'league',more:false,scope:'season',rank:'total',pos:'ALL',school:'ALL',grade:0,q:'',gi:null,fi:null,member:null,mw:null,tw:null,
   entry:{pid:'',week:1,vals:{}},meEntry:{week:1,vals:{}},csv:null,approve:false};
 let _rev=0;
@@ -8755,7 +8755,7 @@ function vbOpen(){
   const fr=el.querySelector('iframe');
   /* v688: arrow keys pressed while the parent page has focus are passed into the game (jukes) */
   const kf=e=>{if(!document.querySelector('.vbx')){removeEventListener('keydown',kf);return}if(/^(Arrow(Up|Down|Left|Right)|[wasdWASDfFqQpPeEtT ]|Enter|Shift)$/.test(e.key)&&document.activeElement!==fr){e.preventDefault();try{fr.contentWindow.postMessage({vb:'key',k:e.key},'*')}catch(_){}}};addEventListener('keydown',kf);
-  const send=()=>{try{const r=vbRoster(),t=vbTeams();fr.contentWindow.postMessage({vb:'init',team:t.team,opps:t.opps,school:t.school,pool:r.pool,real:r.real},'*')}catch(_){}};
+  const send=()=>{try{const r=vbRoster(),t=vbTeams();fr.contentWindow.postMessage({vb:'init',team:t.team,opps:t.opps,school:t.school,pool:r.pool,real:r.real,admin:!!ME.admin},'*')}catch(_){}};
   const done=()=>{removeEventListener('message',on);el.remove();document.body.classList.remove('fg-on');if(dirty&&!typing()){dirty=false;try{render(true)}catch(_){}}},
   on=e=>{const d=e.data;if(!d||!d.vb||e.source!==fr.contentWindow)return;
     if(d.vb==='ready')send();
